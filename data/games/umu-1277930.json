@@ -1,0 +1,15 @@
+{
+  "schema": "cider.game/v1",
+  "id": "umu-1277930",
+  "aliases": {
+    "steam": "1277930"
+  },
+  "names": {
+    "ja": "リドル・ジョーカー",
+    "zh-Hans": "RIDDLE JOKER",
+    "en": "Riddle Joker"
+  },
+  "developer": "YUZUSOFT",
+  "engine": "kirikiri-z",
+  "verdicts": []
+}

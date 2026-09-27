@@ -1,0 +1,8 @@
+*.xcodeproj/xcuserdata/
+.DS_Store
+.build/
+.claude/scheduled_tasks.lock
+.swiftpm/
+/out/
+DerivedData/
+out/

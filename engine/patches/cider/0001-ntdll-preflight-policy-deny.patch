@@ -1,0 +1,58 @@
+From: Cider <cider@localhost>
+Subject: [PATCH] ntdll: Refuse images listed in CIDER_PREFLIGHT_DENY with STATUS_ACCESS_DISABLED_BY_POLICY_DEFAULT.
+
+Cider's R3 preflight (docs/plan/00 ADR-010) must guarantee that games whose kernel anti-cheat Cider cannot
+satisfy honestly are never started, including when a launcher inside the bottle starts them itself. The host
+sets CIDER_PREFLIGHT_DENY for every process of the bottle; NtCreateUserProcess then fails exactly like an
+AppLocker/SRP block on Windows (ERROR_ACCESS_DISABLED_BY_POLICY, 1260). No anti-cheat code is touched and
+nothing pretends to succeed.
+
+Cider-Topic: r3/preflight
+Upstream: not applicable (host policy hook)
+Cider-Test: ciderctl run -b <b> 'C:\windows\system32\cmd.exe' /c start YuanShen.exe → error 1260, no process
+
+--- a/dlls/ntdll/unix/process.c
++++ b/dlls/ntdll/unix/process.c
+@@ -118,6 +118,29 @@
+ 
+ static UINT process_error_mode;
+ 
++/* Cider: images the host refuses to start (CIDER_PREFLIGHT_DENY, ';'-separated file names, set by Cider for
++ * every process of a bottle). Such a launch fails the way an AppLocker / software restriction policy block
++ * does on Windows, so the caller gets an honest, documented error instead of a half-started program. */
++static BOOL preflight_denied( const char *unix_name )
++{
++    const char *list = getenv( "CIDER_PREFLIGHT_DENY" ), *base, *p;
++    size_t len;
++
++    if (!list || !unix_name) return FALSE;
++    base = strrchr( unix_name, '/' );
++    base = base ? base + 1 : unix_name;
++    len = strlen( base );
++    for (p = list; *p;)
++    {
++        const char *end = strchr( p, ';' );
++        size_t n = end ? (size_t)(end - p) : strlen( p );
++        if (n == len && !strncasecmp( p, base, n )) return TRUE;
++        if (!end) break;
++        p = end + 1;
++    }
++    return FALSE;
++}
++
+ /* CrossOver Hack 10523: shunt the loading to CrossOver */
+ enum { /* must match definitions in Mac app code (WineLoader.m) */
+     REQUEST_LOAD_WINE = 0x52c17355,
+@@ -1291,6 +1314,12 @@
+             free( nt_name.Buffer );
+             return STATUS_SUCCESS;
+         }
++        goto done;
++    }
++    if (preflight_denied( unix_name ))
++    {
++        WARN( "%s refused by the host's preflight policy\n", debugstr_us( &nt_name ) );
++        status = STATUS_ACCESS_DISABLED_BY_POLICY_DEFAULT;
+         goto done;
+     }
+     if (!machine)

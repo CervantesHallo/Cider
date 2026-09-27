@@ -1,0 +1,46 @@
+# Cold engine build from a recipe (docs/plan/02). Manual until the first CI build matches the local one.
+name: engine
+on:
+  workflow_dispatch:
+    inputs:
+      recipe:
+        description: "Recipe under engine/recipes/"
+        default: "cider-cx26.json"
+jobs:
+  build:
+    # macOS 15 SDK on purpose (docs/plan/02): a newer SDK exposes functions older macOS lacks (pipe2 on 27).
+    runs-on: macos-15
+    timeout-minutes: 360
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "14.0"
+    steps:
+      - uses: actions/checkout@v4
+      - name: SDK
+        run: |
+          sudo xcode-select -s /Applications/Xcode_16.4.app
+          echo "CIDER_SDK=$(xcrun --sdk macosx --show-sdk-path)" >> "$GITHUB_ENV"
+      - name: Rosetta
+        run: arch -x86_64 /usr/bin/true || sudo softwareupdate --install-rosetta --agree-to-license
+      - name: Toolchain cache
+        uses: actions/cache@v4
+        with:
+          path: ~/Library/Caches/Cider/toolchain
+          key: toolchain-${{ hashFiles('engine/toolchain.sh', 'engine/deps.sh') }}
+      - name: Toolchain (host tools, mingw-w64 gcc)
+        run: engine/toolchain.sh
+      - name: x86_64 dependencies
+        run: engine/deps.sh
+      - name: Engine
+        run: engine/build.sh engine/recipes/${{ inputs.recipe }}
+      - name: Smoke
+        run: scripts/smoke.sh out/engines/$(python3 -c "import json;print(json.load(open('engine/recipes/${{ inputs.recipe }}'))['id'])")
+      - name: Package
+        run: |
+          id=$(python3 -c "import json;print(json.load(open('engine/recipes/${{ inputs.recipe }}'))['id'])")
+          tar -C out/engines -cJf "$id.tar.xz" "$id"
+          shasum -a 256 "$id.tar.xz" | tee "$id.tar.xz.sha256"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: engine
+          path: "*.tar.xz*"
+          retention-days: 14

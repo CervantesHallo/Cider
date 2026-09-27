@@ -1,0 +1,20 @@
+{
+  "schema": "cider.recipe/v1",
+  "id": "launcher.steam",
+  "kind": "launcher",
+  "revision": 1,
+  "name": { "zh-Hans": "Steam", "en": "Steam" },
+  "summary": { "zh-Hans": "Valve 的游戏平台。装好后登录、下载，游戏会自动出现在资料库，可以直接从 Cider 启动。", "en": "Valve's store. Games you install appear in the library and start from Cider." },
+  "bottle": { "locale": "zh-Hans", "name": "Steam" },
+  "sources": {
+    "installer": {
+      "urls": ["https://cdn.akamai.steamstatic.com/client/installer/SteamSetup.exe", "https://cdn.cloudflare.steamstatic.com/client/installer/SteamSetup.exe"],
+      "sha256": [],
+      "floating": true,
+      "filename": "SteamSetup.exe"
+    }
+  },
+  "steps": [ { "run_installer": { "source": "installer", "kind": "exe", "args": ["/S"] } } ],
+  "detect": { "files": ["C:\\Program Files (x86)\\Steam\\steam.exe"] },
+  "launch": "C:\\Program Files (x86)\\Steam\\steam.exe"
+}

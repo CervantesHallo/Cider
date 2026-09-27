@@ -1,0 +1,122 @@
+{
+  "schema": "cider.recipe/v1",
+  "id": "runtime.vcrun2022",
+  "kind": "component",
+  "revision": 2,
+  "name": {
+    "zh-Hans": "VC++ 2015–2022 运行库",
+    "en": "Visual C++ 2015–2022 Runtime"
+  },
+  "summary": {
+    "zh-Hans": "很多游戏和软件需要它（缺少时常见报错：找不到 MSVCP140.dll / VCRUNTIME140.dll）。",
+    "en": "Needed by many games and apps (MSVCP140.dll / VCRUNTIME140.dll missing)."
+  },
+  "sources": {
+    "x64": {
+      "urls": [
+        "https://download.visualstudio.microsoft.com/download/pr/bd1c8d9d-ba95-4eee-bc6e-df1fcc876373/CC0FF0EB1DC3F5188AE6300FAEF32BF5BEEBA4BDD6E8E445A9184072096B713B/VC_redist.x64.exe"
+      ],
+      "sha256": [
+        "cc0ff0eb1dc3f5188ae6300faef32bf5beeba4bdd6e8e445a9184072096b713b"
+      ],
+      "filename": "VC_redist.x64.exe"
+    },
+    "x86": {
+      "urls": [
+        "https://download.visualstudio.microsoft.com/download/pr/bd1c8d9d-ba95-4eee-bc6e-df1fcc876373/0C09F2611660441084CE0DF425C51C11E147E6447963C3690F97E0B25C55ED64/VC_redist.x86.exe"
+      ],
+      "sha256": [
+        "0c09f2611660441084ce0df425c51c11e147e6447963c3690f97e0b25c55ed64"
+      ],
+      "filename": "VC_redist.x86.exe"
+    }
+  },
+  "steps": [
+    {
+      "run_installer": {
+        "source": "x64",
+        "kind": "exe",
+        "args": [
+          "/install",
+          "/quiet",
+          "/norestart"
+        ]
+      }
+    },
+    {
+      "run_installer": {
+        "source": "x86",
+        "kind": "exe",
+        "args": [
+          "/install",
+          "/quiet",
+          "/norestart"
+        ]
+      }
+    },
+    {
+      "registry": [
+        {
+          "key": "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides",
+          "name": "concrt140",
+          "value": "native,builtin"
+        },
+        {
+          "key": "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides",
+          "name": "msvcp140",
+          "value": "native,builtin"
+        },
+        {
+          "key": "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides",
+          "name": "msvcp140_1",
+          "value": "native,builtin"
+        },
+        {
+          "key": "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides",
+          "name": "msvcp140_2",
+          "value": "native,builtin"
+        },
+        {
+          "key": "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides",
+          "name": "msvcp140_atomic_wait",
+          "value": "native,builtin"
+        },
+        {
+          "key": "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides",
+          "name": "msvcp140_codecvt_ids",
+          "value": "native,builtin"
+        },
+        {
+          "key": "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides",
+          "name": "vcomp140",
+          "value": "native,builtin"
+        },
+        {
+          "key": "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides",
+          "name": "vcruntime140",
+          "value": "native,builtin"
+        },
+        {
+          "key": "HKEY_CURRENT_USER\\Software\\Wine\\DllOverrides",
+          "name": "vcruntime140_1",
+          "value": "native,builtin"
+        }
+      ]
+    }
+  ],
+  "detect": {
+    "files": [],
+    "registry_values": [
+      {
+        "key": "HKLM\\Software\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64",
+        "name": "Bld",
+        "at_least": 35000
+      },
+      {
+        "key": "HKLM\\Software\\Wow6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x86",
+        "name": "Bld",
+        "at_least": 35000
+      }
+    ]
+  }
+}

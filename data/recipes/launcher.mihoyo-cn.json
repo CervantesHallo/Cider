@@ -1,0 +1,43 @@
+{
+  "schema": "cider.recipe/v1",
+  "id": "launcher.mihoyo-cn",
+  "kind": "launcher",
+  "revision": 1,
+  "name": {
+    "zh-Hans": "米哈游启动器（国服）",
+    "en": "miHoYo Launcher (China)"
+  },
+  "summary": {
+    "zh-Hans": "原神、星穹铁道、绝区零国服的官方启动器。可以用它下载和更新；游戏本体在反作弊验证通过前不会在本机启动，会改为提供官方云游戏入口。尚未在 Cider 上验证。",
+    "en": "Official launcher for the China-server games. Games themselves are held back by Cider's anti-cheat preflight; official cloud versions are offered instead."
+  },
+  "bottle": {
+    "locale": "zh-Hans",
+    "name": "米哈游"
+  },
+  "sources": {
+    "installer": {
+      "urls": [
+        "https://ys-api.mihoyo.com/event/download_porter/link/ys_cn/official/pc_default"
+      ],
+      "sha256": [],
+      "floating": true,
+      "filename": "mihoyo_launcher_setup.exe"
+    }
+  },
+  "steps": [
+    {
+      "run_installer": {
+        "source": "installer",
+        "kind": "exe"
+      }
+    }
+  ],
+  "detect": {
+    "files": [],
+    "any_files": [
+      "C:\\Program Files\\miHoYo Launcher\\launcher.exe",
+      "C:\\Program Files\\miHoYo Launcher\\HYP.exe"
+    ]
+  }
+}

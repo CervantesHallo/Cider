@@ -1,0 +1,22 @@
+{
+  "schema": "cider.profile/v1",
+  "id": "profile.umu-888790",
+  "revision": 1,
+  "target": "umu-888790",
+  "match": {
+    "steam_appid": "888790"
+  },
+  "actions": {},
+  "known_issues": [
+    {
+      "symptom": {
+        "zh-Hans": "Steam 版默认是全年龄内容。",
+        "en": "The Steam release is all-ages by default."
+      },
+      "fix": {
+        "zh-Hans": "官方 18+ 补丁是 Steam 上的免费 DLC（Sabbat of the Witch - 18+ Adult Only Patch，App 967420），在 Steam 里安装即可，不需要手动拷文件。",
+        "en": "The official 18+ patch is a free Steam DLC (App 967420); install it in Steam."
+      }
+    }
+  ]
+}

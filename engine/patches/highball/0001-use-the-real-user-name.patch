@@ -1,0 +1,62 @@
+Use the macOS user name for the Windows user and profile directory, as upstream Wine does.
+
+CrossOver Hack 12735 makes GetUserName return "crossover" (unless CX_REPORT_REAL_USERNAME is
+set) and hardcodes C:\users\crossover in shell32's %USERPROFILE% expansion, with no switch at
+all. Highball bottles created on Sikarugir's engines carry C:\users\<macOS user>; a bottle
+moved to this engine would get a second profile directory and lose sight of its saves, and
+recipes and logs that name the profile path would break. Verified 2026-09-04 on an M1 Pro,
+macOS 26.6.2: with only the environment switch, a fresh bottle still got users/crossover.
+Upstream status: CrossOver-only hack, nothing to send upstream.
+
+--- a/dlls/advapi32/advapi.c	2026-09-04 05:45:48
++++ b/dlls/advapi32/advapi.c	2026-09-04 05:45:48
+@@ -47,16 +47,6 @@
+ {
+     DWORD len = GetEnvironmentVariableA( "WINEUSERNAME", name, *size );
+     BOOL ret;
+-
+-    /* CrossOver Hack 12735: Use a consistent username */
+-    if (!getenv( "CX_REPORT_REAL_USERNAME" ))
+-    {
+-        len = sizeof("crossover");
+-        if ((ret = (len <= *size))) strcpy( name, "crossover" );
+-        else SetLastError( ERROR_INSUFFICIENT_BUFFER );
+-        *size = len;
+-        return ret;
+-    }
+ 
+     if (!len) return FALSE;
+     if ((ret = (len < *size))) len++;
+@@ -72,16 +62,6 @@
+ {
+     DWORD len = GetEnvironmentVariableW( L"WINEUSERNAME", name, *size );
+     BOOL ret;
+-
+-    /* CrossOver Hack 12735: Use a consistent username */
+-    if (!getenv( "CX_REPORT_REAL_USERNAME" ))
+-    {
+-        len = ARRAY_SIZE( L"crossover" );
+-        if ((ret = (len <= *size))) wcscpy( name, L"crossover" );
+-        else SetLastError( ERROR_INSUFFICIENT_BUFFER );
+-        *size = len;
+-        return ret;
+-    }
+ 
+     if (!len) return FALSE;
+     if ((ret = (len < *size))) len++;
+--- a/dlls/shell32/shellpath.c	2026-09-04 05:45:48
++++ b/dlls/shell32/shellpath.c	2026-09-04 05:45:48
+@@ -2632,10 +2632,11 @@
+         }
+         else if (!wcsnicmp(szTemp, L"%USERPROFILE%", lstrlenW(L"%USERPROFILE%")))
+         {
+-            /* CrossOver Hack 12735 */
+-            static const WCHAR userName[] = {'c','r','o','s','s','o','v','e','r',0};
++            WCHAR userName[MAX_PATH];
++            DWORD userLen = MAX_PATH;
+ 
+             lstrcpyW(szDest, szProfilesPrefix);
++            GetUserNameW(userName, &userLen);
+             PathAppendW(szDest, userName);
+             PathAppendW(szDest, szTemp + lstrlenW(L"%USERPROFILE%"));
+         }

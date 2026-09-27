@@ -1,0 +1,18 @@
+# Unit tests and builds on every push (docs/plan/00 ADR-011). Runs on GitHub's standard arm64 macOS runner.
+name: ci
+on:
+  push:
+  pull_request:
+jobs:
+  kit-and-app:
+    runs-on: macos-26
+    steps:
+      - uses: actions/checkout@v4
+      - name: CiderKit tests
+        run: cd Packages/CiderKit && swift test
+      - name: ciderctl
+        run: cd Tools/ciderctl && swift build
+      - name: Cider.app
+        run: ./scripts/build-app.sh
+      - name: Data lint (schema + red lines run inside the tests above; fail on rejected entries)
+        run: cd Packages/CiderKit && swift test --filter CompatDBTests

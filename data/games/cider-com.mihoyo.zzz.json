@@ -1,0 +1,32 @@
+{
+  "schema": "cider.game/v1",
+  "id": "cider:com.mihoyo.zzz",
+  "names": {
+    "zh-Hans": "绝区零",
+    "zh-Hant": "絕區零",
+    "en": "Zenless Zone Zero"
+  },
+  "developer": "miHoYo",
+  "engine": "unity",
+  "executables": [
+    "ZenlessZoneZero.exe"
+  ],
+  "gating": {
+    "anticheat": {
+      "vendor": "hoyoverse",
+      "kernel": true
+    }
+  },
+  "routes": [
+    {
+      "kind": "official-cloud",
+      "form": "web",
+      "name": {
+        "zh-Hans": "云·绝区零（网页版）",
+        "en": "Cloud Zenless Zone Zero (web)"
+      },
+      "url": "https://zzz.mihoyo.com/cloud-feat/"
+    }
+  ],
+  "verdicts": []
+}

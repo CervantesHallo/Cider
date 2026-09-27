@@ -1,0 +1,15 @@
+{
+  "schema": "cider.game/v1",
+  "id": "umu-1340140",
+  "aliases": {
+    "steam": "1340140"
+  },
+  "names": {
+    "ja": "ドラクリオット！",
+    "zh-Hans": "DRACU-RIOT!",
+    "en": "DRACU-RIOT!"
+  },
+  "developer": "YUZUSOFT",
+  "engine": "kirikiri-z",
+  "verdicts": []
+}

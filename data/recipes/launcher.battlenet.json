@@ -1,0 +1,44 @@
+{
+  "schema": "cider.recipe/v1",
+  "id": "launcher.battlenet",
+  "kind": "launcher",
+  "revision": 1,
+  "name": {
+    "zh-Hans": "战网（Battle.net）",
+    "en": "Battle.net"
+  },
+  "summary": {
+    "zh-Hans": "暴雪游戏平台。安装向导需要你点完；尚未在 Cider 上验证。",
+    "en": "Blizzard's launcher. Interactive installer; not verified on Cider yet."
+  },
+  "bottle": {
+    "locale": "zh-Hans",
+    "name": "Battle.net"
+  },
+  "sources": {
+    "installer": {
+      "urls": [
+        "https://downloader.battle.net/download/getInstallerForGame?os=win&gameProgram=BATTLENET_APP&version=Live"
+      ],
+      "sha256": [],
+      "floating": true,
+      "filename": "Battle.net-Setup.exe"
+    }
+  },
+  "steps": [
+    {
+      "run_installer": {
+        "source": "installer",
+        "kind": "exe"
+      }
+    }
+  ],
+  "detect": {
+    "files": [],
+    "any_files": [
+      "C:\\Program Files (x86)\\Battle.net\\Battle.net Launcher.exe",
+      "C:\\Program Files (x86)\\Battle.net\\Battle.net.exe"
+    ]
+  },
+  "launch": "C:\\Program Files (x86)\\Battle.net\\Battle.net Launcher.exe"
+}

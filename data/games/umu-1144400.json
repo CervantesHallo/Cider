@@ -1,0 +1,37 @@
+{
+  "schema": "cider.game/v1",
+  "id": "umu-1144400",
+  "aliases": {
+    "steam": "1144400",
+    "gog": "1453911006"
+  },
+  "names": {
+    "ja": "千恋＊万花",
+    "zh-Hans": "千恋＊万花",
+    "zh-Hant": "千戀＊萬花",
+    "en": "Senren＊Banka"
+  },
+  "developer": "YUZUSOFT",
+  "engine": "kirikiri-z",
+  "verdicts": [
+    {
+      "channel": "steam",
+      "game_version": "*",
+      "engine_major": "11",
+      "macos_major": "26",
+      "cpu_backend": "rosetta-x86_64",
+      "result": "playable-caveats",
+      "notes": {
+        "zh-Hans": "经 Steam 启动，云存档正常。Cider 自建引擎上标题画面 CPU 约 100–115%（游戏每帧读回渲染结果，Mac 上代价较高），不影响游玩。",
+        "en": "Launches through Steam with working cloud saves. On Cider's own engine the title screen uses ~100-115% CPU (the game reads its render target back every frame), playable."
+      },
+      "last_verified": "2026-09-27",
+      "provenance": {
+        "source": "maintainer",
+        "hw": "M3 8GB",
+        "engine": "cider-cx26.3-r1-x86_64",
+        "envModified": false
+      }
+    }
+  ]
+}

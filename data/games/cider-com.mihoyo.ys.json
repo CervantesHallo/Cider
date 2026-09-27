@@ -1,0 +1,33 @@
+{
+  "schema": "cider.game/v1",
+  "id": "cider:com.mihoyo.ys",
+  "names": {
+    "zh-Hans": "原神",
+    "zh-Hant": "原神",
+    "en": "Genshin Impact"
+  },
+  "developer": "miHoYo",
+  "engine": "unity",
+  "executables": [
+    "YuanShen.exe",
+    "GenshinImpact.exe"
+  ],
+  "gating": {
+    "anticheat": {
+      "vendor": "hoyoverse",
+      "kernel": true
+    }
+  },
+  "routes": [
+    {
+      "kind": "official-cloud",
+      "form": "web",
+      "name": {
+        "zh-Hans": "云·原神（网页版）",
+        "en": "Cloud Genshin Impact (web)"
+      },
+      "url": "https://ys.mihoyo.com/cloud/"
+    }
+  ],
+  "verdicts": []
+}

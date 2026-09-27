@@ -1,0 +1,32 @@
+{
+  "schema": "cider.game/v1",
+  "id": "cider:com.mihoyo.sr",
+  "names": {
+    "zh-Hans": "崩坏：星穹铁道",
+    "zh-Hant": "崩壞：星穹鐵道",
+    "en": "Honkai: Star Rail"
+  },
+  "developer": "miHoYo",
+  "engine": "unity",
+  "executables": [
+    "StarRail.exe"
+  ],
+  "gating": {
+    "anticheat": {
+      "vendor": "hoyoverse",
+      "kernel": true
+    }
+  },
+  "routes": [
+    {
+      "kind": "official-cloud",
+      "form": "web",
+      "name": {
+        "zh-Hans": "云·星穹铁道（网页版）",
+        "en": "Cloud Honkai: Star Rail (web)"
+      },
+      "url": "https://sr.mihoyo.com/cloud/"
+    }
+  ],
+  "verdicts": []
+}

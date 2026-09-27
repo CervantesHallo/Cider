@@ -1,0 +1,74 @@
+{
+  "id": "cider-cx26.3-r1-x86_64",
+  "channel": "devel",
+  "wine": {
+    "version": "wine-11.0",
+    "tree": "crossover-sources-26.3.0 + highball 0001-0013 + cider 0001-0002"
+  },
+  "source": {
+    "url": "https://media.codeweavers.com/pub/crossover/source/crossover-sources-26.3.0.tar.gz",
+    "sha256": "ac99c8ca4b3848f3e81784135f023df266b61c2345726ea55a50b3e030dd6872",
+    "subdir": "sources/wine"
+  },
+  "patches": [
+    "highball/0001-use-the-real-user-name.patch",
+    "highball/0002-wined3d-auto-renderer-opengl-first.patch",
+    "highball/0003-ntdll-winedllpath-prepend.patch",
+    "highball/0005-ntdll-yield-after-auto-event-set.patch",
+    "highball/0006-kernelbase-per-exe-command-line-append.patch",
+    "highball/0007-winemac-cross-process-child-swapchains.patch",
+    "highball/0008-macos-mirror-teb-fiberdata.patch",
+    "highball/0009-macos-swap-fiberdata-and-qos-slot.patch",
+    "highball/0010-mfreadwrite-video-processor-sample-allocator.patch",
+    "highball/0011-macos-lasterror-in-gs-slot.patch",
+    "highball/0012-ntdll-x87sidecar-cooperative-attach.patch",
+    "highball/0013-ntdll-nx-compat-from-main-image-permanent-under-rosetta.patch",
+    "cider/0001-ntdll-preflight-policy-deny.patch",
+    "cider/0002-wined3d-prefer-copy-swap-pixel-formats.patch"
+  ],
+  "configure": [
+    "--enable-archs=i386,x86_64",
+    "--with-mingw",
+    "--disable-tests",
+    "--with-coreaudio",
+    "--with-freetype",
+    "--with-gnutls",
+    "--with-gstreamer",
+    "--with-sdl",
+    "--with-vulkan",
+    "--without-alsa",
+    "--without-capi",
+    "--without-cups",
+    "--without-dbus",
+    "--without-fontconfig",
+    "--without-gphoto",
+    "--without-krb5",
+    "--without-netapi",
+    "--without-oss",
+    "--without-pulse",
+    "--without-sane",
+    "--without-udev",
+    "--without-usb",
+    "--without-v4l2",
+    "--without-x",
+    "--without-pcap",
+    "--without-wayland",
+    "--without-inotify"
+  ],
+  "frameworks": [
+    "libfreetype.6.dylib",
+    "libgnutls.30.dylib",
+    "libSDL2-2.0.0.dylib",
+    "libMoltenVK.dylib"
+  ],
+  "components": [
+    {
+      "name": "dxmt-highball-7421db2",
+      "url": "https://github.com/gauthierpiarrette/highball-engine/releases/download/dxmt-highball-20260904T194518Z-7421db2/dxmt-highball-20260904T194518Z-7421db2.tar.gz",
+      "sha256": "0b86f0c793e99ae88bb4ff5f8575403ad138598a44a90248c71d6bc3ec18923b",
+      "strip": 1,
+      "into": "engine/lib/wine"
+    }
+  ],
+  "gstreamer": "bundle"
+}

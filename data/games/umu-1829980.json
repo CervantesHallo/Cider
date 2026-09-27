@@ -1,0 +1,15 @@
+{
+  "schema": "cider.game/v1",
+  "id": "umu-1829980",
+  "aliases": {
+    "steam": "1829980"
+  },
+  "names": {
+    "ja": "喫茶ステラと死神の蝶",
+    "zh-Hans": "喫茶 Stella 与死神之蝶",
+    "en": "Café Stella and the Reaper's Butterflies"
+  },
+  "developer": "YUZUSOFT",
+  "engine": "kirikiri-z",
+  "verdicts": []
+}

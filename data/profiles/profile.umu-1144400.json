@@ -1,0 +1,14 @@
+{
+  "schema": "cider.profile/v1",
+  "id": "profile.umu-1144400",
+  "revision": 1,
+  "target": "umu-1144400",
+  "match": { "steam_appid": "1144400", "exe": "SenrenBanka.exe" },
+  "actions": { "bottle_locale": "zh-Hans" },
+  "known_issues": [
+    {
+      "symptom": { "zh-Hans": "Steam 版是全年龄版。", "en": "The Steam release is all-ages." },
+      "fix": { "zh-Hans": "官方补丁可以拖到游戏详情页的「游戏目录与补丁」里安装，可随时撤销。", "en": "Drop the official patch on the game's page (Game folder & patches); it can be undone." }
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+From: Cider <cider@localhost>
+Subject: [PATCH] wined3d: Prefer copy-swap pixel formats for all swap effects.
+
+swapchain_gl_present() falls back to swapchain_blit_gdi() whenever the pixel format's swap method is not
+WGL_SWAP_COPY_ARB and the present covers only part of the client area. Letterboxed fullscreen games
+(Kirikiri titles such as Senren*Banka on a 16:10 Mac display) hit this on every frame: glGetTexImage of the
+whole back buffer, then a GDI StretchBlt into the window surface. Measured with scripts/wine-profile.py on an
+M3 (macOS 26.7): the readback and GDI blit dominate the main thread at the title screen.
+
+The Mac driver offers backing-store formats with copy semantics, so prefer them regardless of the
+requested swap effect.
+
+Cider-Topic: perf/wined3d
+Upstream: candidate (wined3d pixel format scoring)
+Cider-Test: Senren*Banka title screen, main thread CPU before/after
+
+--- a/dlls/wined3d/context_gl.c
++++ b/dlls/wined3d/context_gl.c
+@@ -1680,8 +1680,12 @@
+             continue;
+ 
+         value = 1;
+-        if (swap_effect_copy && cfg->swap_method == WGL_SWAP_COPY_ARB)
+-            value += 1;
++        /* Prefer copy-swap formats even for DISCARD/FLIP swapchains: without one, every present that does
++         * not cover the whole client area (e.g. a letterboxed fullscreen game) takes the GDI fallback in
++         * swapchain_gl_present(), a full GPU readback plus a GDI blit per frame. On macOS the Mac driver
++         * offers backing-store formats with copy semantics, which are far cheaper than that fallback. */
++        if (cfg->swap_method == WGL_SWAP_COPY_ARB)
++            value += swap_effect_copy ? 1 : 64;
+         /* We try to locate a format which matches our requirements exactly. In case of
+          * depth it is no problem to emulate 16-bit using e.g. 24-bit, so accept that. */
+         if (cfg->depthSize == ds_format->depth_size)

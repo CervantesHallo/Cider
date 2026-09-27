@@ -1,0 +1,15 @@
+{
+  "schema": "cider.game/v1",
+  "id": "umu-888790",
+  "aliases": {
+    "steam": "888790"
+  },
+  "names": {
+    "ja": "サノバウィッチ",
+    "zh-Hans": "魔女的夜宴（英文版）",
+    "en": "Sabbat of the Witch"
+  },
+  "developer": "YUZUSOFT",
+  "engine": "kirikiri-z",
+  "verdicts": []
+}
