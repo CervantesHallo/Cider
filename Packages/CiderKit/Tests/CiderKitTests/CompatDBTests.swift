@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+@testable import CiderBottle
 @testable import CiderData
 @testable import CiderStore
 
@@ -202,5 +203,23 @@ import Testing
         // It must stay clean under the red lines: no injection, no spoofing, no DLL overrides.
         #expect(RedLines.violation(in: profile, target: nil) == nil)
         #expect(profile.actions.dllOverrides == nil)
+    }
+}
+
+@Suite struct BottleStoreCompatTests {
+    /// Regression: the profile hot-fix first shipped wired into one CLI call site only, so every other
+    /// launch path (the app, launcher shims, recipe installs) silently ran without it and the CN
+    /// launcher came back white. The store owns the data so `runner(for:)` cannot forget it.
+    @Test func theStoreLoadsCompatDataForEveryLaunchPath() {
+        let store = BottleStore(paths: .standard(), compat: CompatDB(directories: [CompatDBTests.repoData]))
+        #expect(store.compat.profile(exe: "launcher.exe")?.id == "profile.launcher.mihoyo-cn")
+    }
+
+    @Test func compatDirectoriesArePriorityOrdered() {
+        let dirs = BottleStore.compatDirectories(paths: .standard()).map(\.path)
+        // The user's own data directory wins, so the signed data channel can override what we bundled.
+        #expect(dirs.last?.hasSuffix("/Data") == true)
+        #expect(dirs.contains { $0.hasSuffix("/Applications/Cider.app/Contents/Resources/data") })
+        #expect(dirs.count >= 3)
     }
 }

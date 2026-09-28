@@ -15,13 +15,49 @@ public struct Bottle: Sendable {
     public var driveC: URL { prefix.appendingPathComponent("drive_c", isDirectory: true) }
 }
 
+/// Process-wide compatibility data, so constructing a `BottleStore` per operation does not re-read
+/// and re-decode the whole data directory each time.
+private enum SharedCompat {
+    nonisolated(unsafe) private static var value: CompatDB?
+    private static let lock = NSLock()
+
+    static func get(_ make: () -> CompatDB) -> CompatDB {
+        lock.lock()
+        defer { lock.unlock() }
+        if let value { return value }
+        let db = make()
+        value = db
+        return db
+    }
+}
+
 public struct BottleStore: Sendable {
     public let paths: CiderPaths
     public let engines: EngineStore
+    /// Compatibility data. Held by the store rather than passed per call, so *every* launch that goes
+    /// through `runner(for:)` gets the target program's profile — a hot-fix that only reaches one
+    /// call site is not a hot-fix (docs/plan/00 principle 1).
+    public let compat: CompatDB
 
-    public init(paths: CiderPaths) {
+    public init(paths: CiderPaths, compat: CompatDB? = nil) {
         self.paths = paths
         self.engines = EngineStore(paths: paths)
+        self.compat = compat ?? SharedCompat.get { CompatDB(directories: Self.compatDirectories(paths: paths)) }
+    }
+
+    /// Where compatibility data is looked for, in increasing priority: what this binary bundles, an
+    /// installed Cider.app, a checkout's ./data, $CIDER_DATA, then the user's own data directory
+    /// (the signed data channel writes there).
+    public static func compatDirectories(paths: CiderPaths) -> [URL] {
+        var dirs: [URL] = []
+        if let resources = Bundle.main.resourceURL { dirs.append(resources.appendingPathComponent("data")) }
+        dirs.append(URL(fileURLWithPath: "/Applications/Cider.app/Contents/Resources/data"))
+        dirs.append(URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("data"))
+        if let env = ProcessInfo.processInfo.environment["CIDER_DATA"] {
+            dirs.append(URL(fileURLWithPath: env))
+        }
+        dirs.append(paths.appSupport.appendingPathComponent("Data"))
+        return dirs
     }
 
     public func list() throws -> [Bottle] {
@@ -46,7 +82,7 @@ public struct BottleStore: Sendable {
         throw CiderError.notFound("bottle \(idOrName)")
     }
 
-    public func runner(for bottle: Bottle, compat: CompatDB? = nil) throws -> WineRunner {
+    public func runner(for bottle: Bottle) throws -> WineRunner {
         WineRunner(paths: paths, engine: try engines.engine(bottle.config.engine.id), prefix: bottle.prefix,
                    bottleID: bottle.config.id, locale: bottle.config.locale,
                    sync: SyncMode(setting: bottle.config.settings[SyncMode.settingKey]),

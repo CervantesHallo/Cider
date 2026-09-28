@@ -313,7 +313,7 @@ struct Run: ParsableCommand {
         }
         let store = BottleStore(paths: .standard())
         let b = try store.bottle(bottle)
-        let runner = try store.runner(for: b, compat: loadCompatDB())
+        let runner = try store.runner(for: b)
 
         var cwd: URL?
         var target = program
@@ -366,12 +366,7 @@ struct Diag: ParsableCommand {
 
 /// Compatibility data: $CIDER_DATA, the user's data directory, an installed Cider.app, and ./data in a checkout.
 func loadCompatDB() -> CompatDB {
-    let paths = CiderPaths.standard()
-    var dirs = [paths.appSupport.appendingPathComponent("Data"),
-                URL(fileURLWithPath: "/Applications/Cider.app/Contents/Resources/data"),
-                URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("data")]
-    if let env = ProcessInfo.processInfo.environment["CIDER_DATA"] { dirs.append(URL(fileURLWithPath: env)) }
-    return CompatDB(directories: dirs)
+    CompatDB(directories: BottleStore.compatDirectories(paths: .standard()))
 }
 
 struct InstallRecipe: ParsableCommand {
