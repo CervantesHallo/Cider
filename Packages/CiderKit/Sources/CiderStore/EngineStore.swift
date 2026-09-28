@@ -86,6 +86,20 @@ public struct EngineStore: Sendable {
         // Files fetched by a browser carry quarantine; engines are verified by hash, not Gatekeeper.
         _ = try? Command.run("/usr/bin/xattr", ["-dr", "com.apple.quarantine", staging.path])
 
+        // Cider's own engine packages (engine/build.sh) carry their manifest: keep it as is.
+        if let built = try fm.contentsOfDirectory(at: staging, includingPropertiesForKeys: nil)
+            .first(where: { fm.fileExists(atPath: $0.appendingPathComponent("manifest.json").path) }),
+           var manifest = try? JSONFile.read(EngineManifest.self, from: built.appendingPathComponent("manifest.json")) {
+            let destination = paths.engines.appendingPathComponent(manifest.id, isDirectory: true)
+            if fm.fileExists(atPath: destination.path) { throw CiderError.alreadyExists("engine \(manifest.id)") }
+            manifest.source = .init(origin: origin ?? package.path, sha256: sha)
+            try JSONFile.write(manifest, to: built.appendingPathComponent("manifest.json"))
+            try fm.moveItem(at: built, to: destination)
+            let engine = InstalledEngine(manifest: manifest, directory: destination)
+            try EngineHost.ensure(engineDirectory: destination, wineRoot: engine.wineRoot)
+            return engine
+        }
+
         guard let wineBin = Self.findWineBinary(in: staging) else {
             throw CiderError.invalid("no bin/wine found in \(package.lastPathComponent)")
         }

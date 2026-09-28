@@ -24,9 +24,11 @@ struct WelcomeView: View {
                 if !model.environment.rosetta { Button("安装 Rosetta") { model.installRosetta() }.buttonStyle(AccentButtonStyle(height: 32)) }
             }
             step(2, "运行引擎", done: !model.environment.engines.isEmpty,
-                 detail: model.environment.engines.first.map { "已安装：\($0)" } ?? "Cider 的 Wine 引擎。可以从文件导入引擎包（.tar.xz 或引擎文件夹）。") {
+                 detail: model.environment.engines.first.map { "已安装：\($0)" } ?? "Cider 的 Wine 引擎，下载后会校验完整性再安装。") {
                 if model.environment.engines.isEmpty {
-                    Button("导入引擎…") { importingEngine = true }.buttonStyle(AccentButtonStyle(height: 32))
+                    EngineDownloadButton()
+                    Button("从文件导入…") { importingEngine = true }.buttonStyle(OutlineButtonStyle(height: 32))
+                        .disabled(model.busy.contains("engine"))
                 }
             }
             step(3, "装点什么", done: !model.bottles.isEmpty,
@@ -74,6 +76,25 @@ struct WelcomeView: View {
                 HStack(spacing: 8) { actions() }
             }
             Spacer()
+        }
+    }
+}
+
+/// Downloads the recommended engine from the bundled index, with progress.
+struct EngineDownloadButton: View {
+    @Environment(AppModel.self) private var model
+
+    var body: some View {
+        if let entry = model.engineIndex?.recommended {
+            if let progress = model.engineDownloadProgress {
+                HStack(spacing: 8) {
+                    ProgressView(value: progress).frame(width: 160)
+                    Text(progress >= 1 ? "正在校验并安装…" : "\(Int(progress * 100))%").font(.system(size: 12)).foregroundStyle(Theme.textSecondary)
+                }
+            } else {
+                Button("下载引擎（\(ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file))）") { model.downloadEngine(entry) }
+                    .buttonStyle(AccentButtonStyle(height: 32))
+            }
         }
     }
 }

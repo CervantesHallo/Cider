@@ -1,0 +1,19 @@
+{
+  "schema": "cider.engines/v1",
+  "engines": [
+    {
+      "id": "cider-cx26.3-r1-x86_64",
+      "channel": "devel",
+      "wine": "wine-11.0 (CrossOver 26.3 sources + Highball + Cider patches)",
+      "summary": {
+        "zh-Hans": "Cider 自建引擎：内置 DXMT（Direct3D 10/11 → Metal）、GStreamer 视频、Wine Mono/Gecko，msync。",
+        "en": "Cider's own engine: bundled DXMT (Direct3D 10/11 → Metal), GStreamer, Wine Mono/Gecko, msync."
+      },
+      "urls": ["https://github.com/CervantesHallo/Cider/releases/download/engine-cider-cx26.3-r1/cider-cx26.3-r1-x86_64.tar.xz"],
+      "sha256": "1316f26be0fd185e946898bdfd8b047ebf688e41dc80f468d6007b48404c32d0",
+      "size": 248783676,
+      "requires_macos": "14.0",
+      "recommended": true
+    }
+  ]
+}

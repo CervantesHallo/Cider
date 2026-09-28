@@ -22,6 +22,10 @@ Cider 是一个从零打造的 Mac 兼容层。它基于 Wine，配有一套原�
 - **自建引擎**：`cider-cx26.3`，基于 CrossOver 26.3 源码，加上 Highball 补丁和 Cider 自己的补丁；自带 GStreamer（开场动画）和 DXMT（DirectX 10/11 → Metal）；msync。
 - **米哈游**：国服三款游戏在反作弊问题有如实的解决方案之前不会在本机启动，而是提供官方云游戏入口，所以不会弹出反作弊报错。
 
+## 开始使用
+
+构建出 `Cider.app`（见下文）并打开，首次运行引导会检查 Rosetta，然后从本仓库的 [Releases](https://github.com/CervantesHallo/Cider/releases) 下载引擎（约 250 MB，下载后校验 sha256），再一键装好 Steam。命令行用户可以执行 `ciderctl engine download`。
+
 ## 构建
 
 需要 Apple 芯片的 Mac、macOS 14+、Xcode（单元测试要用 Xcode 自带的 Testing 模块），以及 Rosetta。

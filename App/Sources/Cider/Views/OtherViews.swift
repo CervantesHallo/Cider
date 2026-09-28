@@ -137,6 +137,7 @@ struct EnvironmentView: View {
             VStack(spacing: 12) {
                 check("Rosetta", ok: model.environment.rosetta, detail: model.environment.rosetta ? "已安装" : "运行 Windows 程序需要 Rosetta。在终端运行：softwareupdate --install-rosetta")
                 check("运行引擎", ok: !model.environment.engines.isEmpty, detail: model.environment.engines.joined(separator: "、").isEmpty ? "未安装" : model.environment.engines.joined(separator: "、"))
+                if model.environment.engines.isEmpty || model.engineDownloadProgress != nil { EngineDownloadButton() }
                 check("GStreamer（视频播放）", ok: model.environment.gstreamer, detail: model.environment.gstreamerBundled ? "引擎自带（MPEG-1/2、WMV、H.264、VP8/9、AV1 等）" : model.environment.gstreamer ? "使用 /Library/Frameworks 里的 GStreamer" : "未安装：游戏开场动画可能无法播放")
                 D3DMetalCard()
                 Spacer()

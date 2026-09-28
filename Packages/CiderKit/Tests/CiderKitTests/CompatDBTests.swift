@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 @testable import CiderData
+@testable import CiderStore
 
 @Suite struct CompatDBTests {
     /// The repository's own data directory (Packages/CiderKit/Tests/CiderKitTests → ../../../../data).
@@ -103,5 +104,15 @@ import Testing
         let json = #"{"schema":"cider.recipe/v1","id":"x","kind":"app","revision":1,"name":{"en":"X"},"sources":{"i":{"urls":["https://evil.example.com/x.exe"],"sha256":[],"floating":true}},"steps":[{"run_installer":{"source":"i","kind":"exe"}}],"detect":{"files":[]}}"#
         let recipe = try JSONDecoder().decode(Recipe.self, from: Data(json.utf8))
         #expect(RecipePolicy.violation(in: recipe)?.contains("allow-list") == true)
+    }
+}
+
+@Suite struct EngineIndexTests {
+    @Test func repositoryIndexHasARecommendedEngine() throws {
+        let index = try #require(EngineIndex.load(from: CompatDBTests.repoData.appendingPathComponent("engines/index.json")))
+        let engine = try #require(index.recommended)
+        #expect(engine.sha256.count == 64)
+        #expect(engine.urls.allSatisfy { $0.hasPrefix("https://") })
+        #expect(engine.size > 0)
     }
 }

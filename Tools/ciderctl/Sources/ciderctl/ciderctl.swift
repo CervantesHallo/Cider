@@ -108,7 +108,7 @@ struct SteamCommand: ParsableCommand {
 struct EngineCommand: ParsableCommand {
     static let configuration = CommandConfiguration(
         commandName: "engine", abstract: "Manage Wine engines.",
-        subcommands: [Install.self, List.self, Host.self]
+        subcommands: [Install.self, Download.self, List.self, Host.self]
     )
 
     struct Host: ParsableCommand {
@@ -119,6 +119,24 @@ struct EngineCommand: ParsableCommand {
             let engine = try store.engine(id)
             try store.ensureHost(for: engine)
             print("host ready: \(engine.wine.path)")
+        }
+    }
+
+    struct Download: ParsableCommand {
+        static let configuration = CommandConfiguration(abstract: "Download, verify and install an engine from the engine index (data/engines/index.json).")
+        @Argument(help: "Engine id (default: the recommended one).") var id: String?
+        @Option(help: "Index file (default: $CIDER_DATA, the installed Cider.app, or ./data).") var index: String?
+        func run() throws {
+            let candidates = [index, ProcessInfo.processInfo.environment["CIDER_DATA"].map { $0 + "/engines/index.json" },
+                              "/Applications/Cider.app/Contents/Resources/data/engines/index.json", "data/engines/index.json"]
+            guard let file = candidates.compactMap({ $0 }).first(where: { FileManager.default.fileExists(atPath: $0) }),
+                  let idx = EngineIndex.load(from: URL(fileURLWithPath: file)) else { throw ValidationError("no engine index found") }
+            guard let entry = id.map({ i in idx.engines.first { $0.id == i } }) ?? idx.recommended else {
+                throw ValidationError("no such engine in \(file)")
+            }
+            print("downloading \(entry.id) (\(entry.size) bytes)…")
+            let engine = try EngineDownloader(store: EngineStore(paths: .standard())).install(entry)
+            print("installed \(engine.manifest.id) → \(engine.directory.path)")
         }
     }
 

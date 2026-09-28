@@ -41,7 +41,7 @@
 | A4 | 未收录安装：识别安装器类型，安装后自动出现在资料库 | ✔（版本资源解析、Inno/NSIS/InstallShield/Burn/7z 识别、语言不符时建议新建对应区域瓶子；`ciderctl inspect`） |
 | A5 | 诊断：`.ciderlog`、支持包、Metal HUD 开关 | ◐（诊断包：日志/配置/系统信息，自动去除用户名；`ciderctl diag`；HUD 未做） |
 | A6 | 应用目录：Recipe + Verdict 浏览、一键安装（CAS 下载、sha256、镜像） | ◐（Recipe v1 子集 + 执行器 + 安装页目录；Steam/VC++（实测）/Epic（未测）；镜像未做） |
-| A7 | 首次运行引导：Rosetta 检测、引擎下载、GPTK 的 D3DMetal 导入 | ◐（引导页：Rosetta 安装、引擎导入、推荐安装 Steam；引擎下载待发布渠道） |
+| A7 | 首次运行引导：Rosetta 检测、引擎下载、GPTK 的 D3DMetal 导入 | ✔（引导页：Rosetta 安装、按引擎索引下载并校验引擎（GitHub Release）、推荐安装 Steam；`ciderctl engine download`） |
 | G1 | D3DMetal 导入器（用户自带 GPTK） | ◐（导入、签名与架构记录、逐文件哈希、界面入口；运行时接入待有 GPTK 后实测） |
 | G2 | DXMT 作为组件（0003 补丁 + 组件目录） | ◐（DXMT 已内置进 v0 引擎并实测：`tests/graphics/d3d11-triangle.c` FL 11_0、600 帧 124 fps、0 次呈现失败；作为独立组件覆盖未做） |
 | M1 | GStreamer 内置 + 视频冒烟（Kirikiri/WMV 开场动画） | ✔（`engine/bundle-gstreamer.sh`：32 个插件 62 MB，仅 x86_64；`tests/media/dshow-play.c` 实测 MPEG-1 与 WMV 经 DirectShow 播完） |
@@ -51,11 +51,9 @@
 
 ## 等用户处理的事
 
-- Steam 瓶子需要重新登录一次（测试克隆瓶子时刷新了登录凭据）。
-- GitHub 仓库：CI、引擎发布、数据通道、Sparkle 更新都需要托管位置（C0、A7、R1）。
+- ~~GitHub 仓库~~：已建立 https://github.com/CervantesHallo/Cider，CI 通过；引擎以 GitHub Release 发布。
 - Developer ID：签名公证 DMG（R1）。
 - 可选：从 Apple 下载 Game Porting Toolkit，用来验证 D3DMetal（G1）。
-- 是否提交 git：目前所有代码都还没有提交。
 
 ## 约定
 

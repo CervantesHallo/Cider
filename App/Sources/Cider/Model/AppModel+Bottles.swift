@@ -377,4 +377,32 @@ extension AppModel {
             try store.update(bottle) { $0.settings[BottleStore.advertiseAVXKey] = on ? "1" : "0" }
         }
     }
+
+    /// The engine index shipped with the app (data/engines/index.json).
+    var engineIndex: EngineIndex? {
+        Bundle.main.resourceURL.flatMap { EngineIndex.load(from: $0.appendingPathComponent("data/engines/index.json")) }
+    }
+
+    /// Downloads, verifies and installs an engine from the index, reporting progress in `engineDownloadProgress`.
+    func downloadEngine(_ entry: EngineIndex.Entry) {
+        let paths = self.paths
+        busy.insert("engine")
+        message = "正在下载引擎 \(entry.id)（\(ByteCountFormatter.string(fromByteCount: entry.size, countStyle: .file))）…"
+        engineDownloadProgress = 0
+        let downloader = EngineDownloader(store: EngineStore(paths: paths))
+        let poll = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: true) { [weak self] _ in
+            let got = downloader.downloadedBytes(for: entry)
+            Task { @MainActor in self?.engineDownloadProgress = min(1, Double(got) / Double(max(entry.size, 1))) }
+        }
+        Task {
+            defer { poll.invalidate(); busy.remove("engine"); engineDownloadProgress = nil }
+            do {
+                let engine = try await Task.detached { try downloader.install(entry) }.value
+                message = "引擎 \(engine.manifest.id) 已安装。"
+                await refresh()
+            } catch {
+                message = "\(error)（可以再点一次继续下载）"
+            }
+        }
+    }
 }

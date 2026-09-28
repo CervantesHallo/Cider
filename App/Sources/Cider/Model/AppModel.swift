@@ -86,6 +86,8 @@ final class AppModel {
     var compatDecisions: [String: VerdictDecision] = [:]
     /// First-run guide: shown once, or whenever Cider cannot run anything yet.
     var showWelcome = false
+    /// 0…1 while an engine download runs.
+    var engineDownloadProgress: Double?
     private var welcomeOffered = false
     /// Set when a launch was refused by the R3 preflight; shows the route card.
     var routeCard: Preflight.Block?
