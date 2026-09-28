@@ -4,7 +4,7 @@
 
 ## 已完成（截至 2026-09-27 深夜）
 
-对 CrossOver 的对等矩阵（05 §15）：P0 共 29 项，完成 16、部分完成 10；全部 54 项，完成 19、部分完成 10。
+对 CrossOver 的对等矩阵（05 §15）：P0 共 29 项，完成 16、部分完成 10；全部 55 项，完成 19、部分完成 10，明确不做 2 项（#43、#55 Epic）。
 
 
 - ✔ CiderKit 骨架：Core / Schema / Store / Runtime / Bottle / PE / Integration；ciderctl；27 个单元测试。
@@ -40,13 +40,17 @@
 | A3 | 按瓶子与按程序设置：图形后端、msync、Retina/DPI、winver、DLL override、环境变量 | ◐（瓶子级区域/Windows 版本/引擎/同步/高分辨率模式已完成；按程序覆盖未做） |
 | A4 | 未收录安装：识别安装器类型，安装后自动出现在资料库 | ✔（版本资源解析、Inno/NSIS/InstallShield/Burn/7z 识别、语言不符时建议新建对应区域瓶子；`ciderctl inspect`） |
 | A5 | 诊断：`.ciderlog`、支持包、Metal HUD 开关 | ◐（诊断包：日志/配置/系统信息，自动去除用户名；`ciderctl diag`；HUD 未做） |
-| A6 | 应用目录：Recipe + Verdict 浏览、一键安装（CAS 下载、sha256、镜像） | ◐（Recipe v1 子集 + 执行器 + 安装页目录；Steam/VC++（实测）/Epic（未测）；镜像未做） |
+| A6 | 应用目录：Recipe + Verdict 浏览、一键安装（CAS 下载、sha256、镜像） | ◐（Recipe v1 子集 + 执行器 + 安装页目录；Steam/VC++ 已实测，EA/战网/米哈游启动器未实测；Epic 配方已下架，见 00「不做清单」第 5 条；镜像未做） |
 | A7 | 首次运行引导：Rosetta 检测、引擎下载、GPTK 的 D3DMetal 导入 | ✔（引导页：Rosetta 安装、按引擎索引下载并校验引擎（GitHub Release）、推荐安装 Steam；`ciderctl engine download`） |
 | G1 | D3DMetal 导入器（用户自带 GPTK） | ◐（导入、签名与架构记录、逐文件哈希、界面入口；运行时接入待有 GPTK 后实测） |
 | G2 | DXMT 作为组件（0003 补丁 + 组件目录） | ◐（DXMT 已内置进 v0 引擎并实测：`tests/graphics/d3d11-triangle.c` FL 11_0、600 帧 124 fps、0 次呈现失败；作为独立组件覆盖未做） |
 | M1 | GStreamer 内置 + 视频冒烟（Kirikiri/WMV 开场动画） | ✔（`engine/bundle-gstreamer.sh`：32 个插件 62 MB，仅 x86_64；`tests/media/dshow-play.c` 实测 MPEG-1 与 WMV 经 DirectShow 播完） |
-| L1 | 其他启动器：Epic（legendary）、EA、Battle.net、米哈游启动器（带预检） | ◐（配方：Steam 已端到端实测；Epic/EA/Battle.net/米哈游启动器未实测） |
-| K1 | K 线 ①：KMDF 运行时骨架 + Windows 对照 conformance 框架 | ○ |
+| L1 | 其他启动器：EA、Battle.net、米哈游启动器（带预检）；Epic 不做 | ◐（**米哈游启动器国服已端到端实测**：下载→安装→启动→界面完整渲染，见 L2；EA/战网未实测；Epic 配方已删除，05 §15 #55） |
+| L2 | 米哈游启动器（国服）实测 | ✔（2026-09-28，bottle-ca8f + `cider-cx26.3-r1-x86_64`，未修改环境。安装器渲染正常；启动器初次白屏，定位为 CEF GPU 进程向他进程子窗口呈现，需 Highball 0007 + `DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN`；由 `profile.launcher.mihoyo-cn` 热修，复测通过。游戏本体仍按 ADR-010 预检阻断，未启动） |
+| L3 | Profile 在启动路径生效 | ✔（此前 `actions.env` 只在界面显示、从不进启动；现 `WineRunner` 持有 `CompatDB`，按 exe 名解析 profile 并注入 env，显式 `--env` 优先。这是 00 指导原则 1「会变的放进数据」第一次真正落地） |
+| L4 | Wine 程序的 macOS 应用身份（`org.cider.winehost`） | ○（实测发现：Wine 程序是裸进程、无 bundle，影响 Game Mode、麦克风/摄像头授权归属、Dock 显示与可自动化性。仓库已有该 bundle 但未启用，见 05 APP-14/T4） |
+| K1 | K 线 ①：内核安全 API 保真度矩阵（47 项审计，22 项当前伪造成功）+ 诚实失败码 | ◐（矩阵已落成数据 `data/kernel/fidelity.json` + `KernelFidelity` 加载器，强制「不可达 ⇒ 只能诚实失败」；KMDF 运行时与 Windows 对照 conformance 未做） |
+
 | R1 | 0.1 打包：签名、公证、DMG、Sparkle（需要 Developer ID） | ○ |
 
 ## 等用户处理的事

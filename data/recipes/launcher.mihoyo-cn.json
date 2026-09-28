@@ -2,7 +2,7 @@
   "schema": "cider.recipe/v1",
   "id": "launcher.mihoyo-cn",
   "kind": "launcher",
-  "revision": 1,
+  "revision": 2,
   "name": {
     "zh-Hans": "米哈游启动器（国服）",
     "en": "miHoYo Launcher (China)"
@@ -37,7 +37,9 @@
     "files": [],
     "any_files": [
       "C:\\Program Files\\miHoYo Launcher\\launcher.exe",
-      "C:\\Program Files\\miHoYo Launcher\\HYP.exe"
+      "C:\\Program Files (x86)\\miHoYo Launcher\\launcher.exe",
+      "C:\\Program Files\\miHoYo Launcher\\HYP.exe",
+      "C:\\Program Files (x86)\\miHoYo Launcher\\HYP.exe"
     ]
   }
 }

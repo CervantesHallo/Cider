@@ -1,3 +1,4 @@
+import CiderData
 import CiderCore
 import CiderRuntime
 import CiderSchema
@@ -45,11 +46,11 @@ public struct BottleStore: Sendable {
         throw CiderError.notFound("bottle \(idOrName)")
     }
 
-    public func runner(for bottle: Bottle) throws -> WineRunner {
+    public func runner(for bottle: Bottle, compat: CompatDB? = nil) throws -> WineRunner {
         WineRunner(paths: paths, engine: try engines.engine(bottle.config.engine.id), prefix: bottle.prefix,
                    bottleID: bottle.config.id, locale: bottle.config.locale,
                    sync: SyncMode(setting: bottle.config.settings[SyncMode.settingKey]),
-                   bottleEnvironment: Self.environment(for: bottle.config.settings))
+                   bottleEnvironment: Self.environment(for: bottle.config.settings), compat: compat)
     }
 
     /// Bottle switches that are plain environment variables.

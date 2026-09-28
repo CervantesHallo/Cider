@@ -2,7 +2,7 @@
   "schema": "cider.recipe/v1",
   "id": "launcher.battlenet",
   "kind": "launcher",
-  "revision": 1,
+  "revision": 2,
   "name": {
     "zh-Hans": "战网（Battle.net）",
     "en": "Battle.net"
@@ -37,7 +37,9 @@
     "files": [],
     "any_files": [
       "C:\\Program Files (x86)\\Battle.net\\Battle.net Launcher.exe",
-      "C:\\Program Files (x86)\\Battle.net\\Battle.net.exe"
+      "C:\\Program Files\\Battle.net\\Battle.net Launcher.exe",
+      "C:\\Program Files (x86)\\Battle.net\\Battle.net.exe",
+      "C:\\Program Files\\Battle.net\\Battle.net.exe"
     ]
   },
   "launch": "C:\\Program Files (x86)\\Battle.net\\Battle.net Launcher.exe"

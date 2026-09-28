@@ -313,7 +313,7 @@ struct Run: ParsableCommand {
         }
         let store = BottleStore(paths: .standard())
         let b = try store.bottle(bottle)
-        let runner = try store.runner(for: b)
+        let runner = try store.runner(for: b, compat: loadCompatDB())
 
         var cwd: URL?
         var target = program

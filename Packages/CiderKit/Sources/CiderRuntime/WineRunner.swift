@@ -66,9 +66,12 @@ public struct WineRunner: Sendable {
     public let sync: SyncMode
     /// Bottle-level switches that are plain environment variables (e.g. the Metal HUD).
     public let bottleEnvironment: [String: String]
+    /// Compatibility data, so a profile's `actions.env` reaches the launch it was written for
+    /// (docs/plan/00 principle 1: what changes lives in data). Profiles are red-line linted on load.
+    public let compat: CompatDB?
 
     public init(paths: CiderPaths, engine: InstalledEngine, prefix: URL, bottleID: String, locale: BottleLocale,
-                sync: SyncMode = .default, bottleEnvironment: [String: String] = [:]) {
+                sync: SyncMode = .default, bottleEnvironment: [String: String] = [:], compat: CompatDB? = nil) {
         self.paths = paths
         self.engine = engine
         self.prefix = prefix
@@ -76,6 +79,7 @@ public struct WineRunner: Sendable {
         self.locale = locale
         self.sync = sync
         self.bottleEnvironment = bottleEnvironment
+        self.compat = compat
     }
 
     public static let gstreamerFramework = "/Library/Frameworks/GStreamer.framework"
@@ -126,12 +130,15 @@ public struct WineRunner: Sendable {
 
     public func plan(program: String, arguments: [String] = [], label: String? = nil, cwd: URL? = nil,
                      debug: DebugPreset = .default, extraEnv: [String: String] = [:]) -> LaunchPlan {
-        LaunchPlan(
+        // A profile hot-fixes the program (e.g. a CEF launcher that needs DXMT's cross-process
+        // swapchain opt-in); an explicit per-launch value still wins over it.
+        let profileEnv = compat?.profile(exe: program)?.actions.env ?? [:]
+        return LaunchPlan(
             bottleID: bottleID,
             engineID: engine.manifest.id,
             loader: engine.wine.path,
             argv: [program] + arguments,
-            env: environment(debug: debug, extra: extraEnv),
+            env: environment(debug: debug, extra: profileEnv.merging(extraEnv) { _, explicit in explicit }),
             cwd: cwd?.path,
             label: label ?? URL(fileURLWithPath: program.replacingOccurrences(of: "\\", with: "/")).deletingPathExtension().lastPathComponent
         )

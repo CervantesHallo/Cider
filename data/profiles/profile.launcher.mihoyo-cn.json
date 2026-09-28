@@ -1,0 +1,23 @@
+{
+  "schema": "cider.profile/v1",
+  "id": "profile.launcher.mihoyo-cn",
+  "revision": 1,
+  "target": "launcher.mihoyo-cn",
+  "match": { "exe": "launcher.exe" },
+  "actions": {
+    "env": { "DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN": "1" },
+    "bottle_locale": "zh-Hans"
+  },
+  "known_issues": [
+    {
+      "symptom": {
+        "zh-Hans": "启动器窗口标题栏正常但内容整片白屏。",
+        "en": "The launcher window draws its title bar but the content area stays white."
+      },
+      "fix": {
+        "zh-Hans": "启动器的 CEF GPU 进程把画面呈现到另一个进程拥有的子窗口里，需要引擎支持跨进程子窗口（Highball 0007）并打开 DXMT 的 DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN。本档案已自动设置，无需手动操作。",
+        "en": "The launcher's CEF GPU process presents into a child window owned by another process; that needs the engine's cross-process child swapchains plus DXMT's opt-in. This profile sets it automatically."
+      }
+    }
+  ]
+}

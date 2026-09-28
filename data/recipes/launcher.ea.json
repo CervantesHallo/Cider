@@ -2,7 +2,7 @@
   "schema": "cider.recipe/v1",
   "id": "launcher.ea",
   "kind": "launcher",
-  "revision": 1,
+  "revision": 2,
   "name": {
     "zh-Hans": "EA app",
     "en": "EA app"
@@ -36,7 +36,8 @@
   "detect": {
     "files": [],
     "any_files": [
-      "C:\\Program Files\\Electronic Arts\\EA Desktop\\EA Desktop\\EADesktop.exe"
+      "C:\\Program Files\\Electronic Arts\\EA Desktop\\EA Desktop\\EADesktop.exe",
+      "C:\\Program Files (x86)\\Electronic Arts\\EA Desktop\\EA Desktop\\EADesktop.exe"
     ]
   },
   "launch": "C:\\Program Files\\Electronic Arts\\EA Desktop\\EA Desktop\\EADesktop.exe"
