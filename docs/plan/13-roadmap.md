@@ -25,7 +25,7 @@
 | E2 | ~~host-identity 补丁~~：CX 树按 exe 名建 preloader 硬链接（Dock 显示程序名），与“统一身份”冲突；改随 ADR-007 的逐游戏 shim（先做 T4） | — | `lsappinfo` 只看到一个 Cider 引擎身份 |
 | E3 | P-3：Kirikiri 标题画面主线程热点（带符号 profile → 修复） | ◐（已定位并消除 GDI 回退，总 CPU 120–150% → 100–115%；剩余为游戏每帧读回与自身合成，见 02 P-3） | 主线程 ≤40% |
 | E4 | 对话框字体与 CJK 回退：MS Shell Dlg → 区域的无衬线 UI 字体，常见拉丁字体配 SystemLink；前缀修订版 2，旧瓶子自动升级（`bottle upgrade`） | ✔（Steam 引导程序待下次更新时目测） | Steam 引导程序中文可见 |
-| Q0 | 冒烟脚本 `scripts/smoke.sh`（wineboot、cmd ver、syswow64、DYLD 检查） | ◐（脚本已写，待 v0 引擎跑） | 本机全绿 |
+| Q0 | 冒烟脚本 `scripts/smoke.sh`（wineboot、cmd ver、syswow64、DYLD 检查） | ✔（7 项：另含 Direct3D 11 与 DirectShow WMV） | 本机全绿 |
 | Q1 | P-1 门禁：msync 下 Steam UI 冷启动 20 次 | ◐（`scripts/steam-coldstart.sh` 已写，需屏幕解锁时跑） | 20/20 截图非纯色 |
 | D0 | profile/recipe/verdict schema（06）+ 第一批数据：Steam、柚子社 Kirikiri 系列 | ◐（CiderData：Game/Verdict/Profile + 红线 lint，`data/` 随 App 打包；Recipe 未做） | schema 校验 + 红线 lint 通过 |
 | H0 | R3 H0：政策、lint、预检、路线卡、国服官方云入口 | ◐（Preflight 内置门控名单 + `WineRunner.launch` 拦截 + 进程扫描兜底 + 路线卡与国服云入口；引擎层 `cider/0001` 拒绝 NtCreateUserProcess 待 v0 引擎验证） | 伪安装预检 50 次拉起 exe 0 次 |
@@ -43,7 +43,7 @@
 | A6 | 应用目录：Recipe + Verdict 浏览、一键安装（CAS 下载、sha256、镜像） | ◐（Recipe v1 子集 + 执行器 + 安装页目录；Steam/VC++（实测）/Epic（未测）；镜像未做） |
 | A7 | 首次运行引导：Rosetta 检测、引擎下载、GPTK 的 D3DMetal 导入 | ◐（引导页：Rosetta 安装、引擎导入、推荐安装 Steam；引擎下载待发布渠道） |
 | G1 | D3DMetal 导入器（用户自带 GPTK） | ◐（导入、签名与架构记录、逐文件哈希、界面入口；运行时接入待有 GPTK 后实测） |
-| G2 | DXMT 作为组件（0003 补丁 + 组件目录） | ◐（引擎变体方式可用） |
+| G2 | DXMT 作为组件（0003 补丁 + 组件目录） | ◐（DXMT 已内置进 v0 引擎并实测：`tests/graphics/d3d11-triangle.c` FL 11_0、600 帧 124 fps、0 次呈现失败；作为独立组件覆盖未做） |
 | M1 | GStreamer 内置 + 视频冒烟（Kirikiri/WMV 开场动画） | ✔（`engine/bundle-gstreamer.sh`：32 个插件 62 MB，仅 x86_64；`tests/media/dshow-play.c` 实测 MPEG-1 与 WMV 经 DirectShow 播完） |
 | L1 | 其他启动器：Epic（legendary）、EA、Battle.net、米哈游启动器（带预检） | ◐（配方：Steam 已端到端实测；Epic/EA/Battle.net/米哈游启动器未实测） |
 | K1 | K 线 ①：KMDF 运行时骨架 + Windows 对照 conformance 框架 | ○ |
