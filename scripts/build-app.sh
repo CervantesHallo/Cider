@@ -9,6 +9,10 @@ OUT="$ROOT/out"
 APP="$OUT/Cider.app"
 VERSION="0.0.1"
 
+ICON="$ROOT/App/Resources/AppIcon.icns"
+[ -f "$ICON" ] || { swift "$ROOT/scripts/make-icon.swift" "$ROOT"
+                    iconutil -c icns "$OUT/Cider.iconset" -o "$ICON"; }
+
 cd "$ROOT/App"
 swift build -c "$CONFIG"
 BIN="$(swift build -c "$CONFIG" --show-bin-path)/Cider"
@@ -16,6 +20,7 @@ BIN="$(swift build -c "$CONFIG" --show-bin-path)/Cider"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/Cider"
+cp "$ICON" "$APP/Contents/Resources/AppIcon.icns"
 # Bundled compatibility data (docs/plan/06); the signed data channel will update it later.
 rm -rf "$APP/Contents/Resources/data" && cp -R "$ROOT/data" "$APP/Contents/Resources/data"
 
@@ -28,6 +33,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
   <key>CFBundleName</key><string>Cider</string>
   <key>CFBundleDisplayName</key><string>Cider</string>
   <key>CFBundleExecutable</key><string>Cider</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
   <key>CFBundleVersion</key><string>$VERSION</string>
