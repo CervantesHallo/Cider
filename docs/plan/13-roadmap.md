@@ -48,6 +48,7 @@
 | L1 | 其他启动器：EA、Battle.net、米哈游启动器（带预检）；Epic 不做 | ◐（**米哈游启动器国服已端到端实测**：下载→安装→启动→界面完整渲染，见 L2；EA/战网未实测；Epic 配方已删除，05 §15 #55） |
 | L2 | 米哈游启动器（国服）实测 | ✔（2026-09-28，bottle-ca8f + `cider-cx26.3-r1-x86_64`，未修改环境。安装器渲染正常；启动器初次白屏，定位为 CEF GPU 进程向他进程子窗口呈现，需 Highball 0007 + `DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN`；由 `profile.launcher.mihoyo-cn` 热修，复测通过。游戏本体仍按 ADR-010 预检阻断，未启动） |
 | L3 | Profile 在启动路径生效 | ✔（此前 `actions.env` 只在界面显示、从不进启动；现 `WineRunner` 持有 `CompatDB`，按 exe 名解析 profile 并注入 env，显式 `--env` 优先。这是 00 指导原则 1「会变的放进数据」第一次真正落地） |
+| L5 | 自绘标题栏应用被套上原生标题栏（通用保真缺陷） | ○（实测：米哈游启动器自绘顶部 UI 被 Cocoa 标题栏压住切半。判定在 `winemac.drv/window.c:84 get_window_features_for_style`，只看 `WS_CAPTION` 样式位。上游 `win32u/window.c:2069 get_visible_rect` 已有 `EqualRect(window, client)` → 不加宿主边框的通路，但对该启动器没生效，原因待定：需要一次带 `WINEDEBUG=+macdrv` 的稳态复现取矩形数值（创建期 trace 三个矩形都相等，不能用来判断）。CrossOver 对这一类是逐应用特判（`window.c` 里的 Quicken CW HACK 16933），Cider 要的是通用修复，不按应用名分支。影响所有 Electron/CEF/Qt 无边框/WPF 自绘 chrome 程序） |
 | L4 | Wine 程序的 macOS 应用身份（`org.cider.winehost`） | ○（实测发现：Wine 程序是裸进程、无 bundle，影响 Game Mode、麦克风/摄像头授权归属、Dock 显示与可自动化性。仓库已有该 bundle 但未启用，见 05 APP-14/T4） |
 | K1 | K 线 ①：内核安全 API 保真度矩阵（47 项审计，22 项当前伪造成功）+ 诚实失败码 | ◐（矩阵已落成数据 `data/kernel/fidelity.json` + `KernelFidelity` 加载器，强制「不可达 ⇒ 只能诚实失败」；KMDF 运行时与 Windows 对照 conformance 未做） |
 
