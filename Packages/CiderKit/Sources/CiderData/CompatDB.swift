@@ -141,6 +141,7 @@ public struct CompatDB: Sendable {
     public private(set) var games: [String: GameEntry] = [:]
     public private(set) var profiles: [Profile] = []
     public private(set) var recipes: [String: Recipe] = [:]
+    public private(set) var kernelFidelity: KernelFidelity?
     public private(set) var rejected: [(file: String, reason: String)] = []
 
     public init() {}
@@ -172,6 +173,12 @@ public struct CompatDB: Sendable {
                         let recipe = try decoder.decode(Recipe.self, from: data)
                         if let reason = RecipePolicy.violation(in: recipe) { rejected.append((url.lastPathComponent, reason)); continue }
                         recipes[recipe.id] = recipe
+                    case "cider.kernel-fidelity/v1":
+                        let matrix = try decoder.decode(KernelFidelity.self, from: data)
+                        if let reason = KernelFidelityPolicy.violation(in: matrix) {
+                            rejected.append((url.lastPathComponent, reason)); continue
+                        }
+                        kernelFidelity = matrix
                     default: continue
                     }
                 } catch {
@@ -187,6 +194,14 @@ public struct CompatDB: Sendable {
 
     public func profile(steamAppID: String) -> Profile? {
         profiles.first { $0.match.steamAppID == steamAppID }
+    }
+
+    /// Profile for a program about to be launched, matched on its Windows image name. `program` may be
+    /// a Windows path, a Mac path or a bare exe name; only the last component is compared.
+    public func profile(exe program: String) -> Profile? {
+        let name = (program.replacingOccurrences(of: "\\", with: "/") as NSString).lastPathComponent.lowercased()
+        guard !name.isEmpty else { return nil }
+        return profiles.first { $0.match.exe?.lowercased() == name }
     }
 
     /// Most specific verdict covering the key (fewest `*` dimensions; ties → most recently verified).

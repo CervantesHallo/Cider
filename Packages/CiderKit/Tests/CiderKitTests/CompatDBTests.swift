@@ -116,3 +116,91 @@ import Testing
         #expect(engine.size > 0)
     }
 }
+
+@Suite struct KernelFidelityTests {
+    /// A matrix with one entry, so each test can state exactly the combination it is about.
+    func matrixJSON(reachability: String, disposition: String, severity: String,
+                    symbol: String = "ObRegisterCallbacks", extra: String = "") -> String {
+        let entry = #"{"symbol":"\#(symbol)","dll":"ntoskrnl.exe","location":"dlls/ntoskrnl.exe/ntoskrnl.c:3152","wine_behaviour":"fabricates a handle and returns STATUS_SUCCESS","windows_contract":"registers object-manager callbacks","reachability":"\#(reachability)","disposition":"\#(disposition)","severity":"\#(severity)"}"#
+        return #"{"schema":"cider.kernel-fidelity/v1","revision":1,"generated_from":"t","audited":"2026-09-28","wine_model_constraints":"no ring 0","entries":[\#(entry)\#(extra.isEmpty ? "" : "," + extra)]}"#
+    }
+
+    func decode(_ json: String) throws -> KernelFidelity {
+        try JSONDecoder().decode(KernelFidelity.self, from: Data(json.utf8))
+    }
+
+    @Test func repositoryMatrixLoadsAndRecordsWhatWineActuallyDoes() throws {
+        let db = CompatDB(directories: [CompatDBTests.repoData])
+        #expect(db.rejected.isEmpty, "\(db.rejected)")
+        let matrix = try #require(db.kernelFidelity)
+        #expect(matrix.entries.count > 40)
+        #expect(!matrix.deceptive.isEmpty, "the audited tree fakes success somewhere; that is the point")
+        // The API the whole track turns on: object-manager callbacks cannot be intercepted from
+        // winedevice.exe, and the tree currently hands back a fake handle and reports success.
+        let ob = try #require(matrix.entry(for: "ObRegisterCallbacks"))
+        #expect(ob.reachability == .unreachable)
+        #expect(ob.severity == .deceptiveSuccess)
+        #expect(ob.disposition == .honestFailure)
+    }
+
+    @Test func unreachableApisMayOnlyFailHonestly() throws {
+        for claimed in ["implemented", "needs_implementation"] {
+            let m = try decode(matrixJSON(reachability: "unreachable", disposition: claimed, severity: "missing"))
+            #expect(KernelFidelityPolicy.violation(in: m)?.contains("honest_failure") == true,
+                    "unreachable + \(claimed) must be rejected")
+        }
+        let honest = try decode(matrixJSON(reachability: "unreachable", disposition: "honest_failure", severity: "missing"))
+        #expect(KernelFidelityPolicy.violation(in: honest) == nil)
+    }
+
+    @Test func aStubThatFakesSuccessCannotBeCalledImplemented() throws {
+        let m = try decode(matrixJSON(reachability: "faithful", disposition: "implemented", severity: "deceptive_success"))
+        #expect(KernelFidelityPolicy.violation(in: m)?.contains("deceptive_success") == true)
+    }
+
+    @Test func duplicateSymbolsAreRejected() throws {
+        let dupe = #"{"symbol":"ObRegisterCallbacks","dll":"ntoskrnl.exe","location":"x","wine_behaviour":"y","windows_contract":"z","reachability":"partial","disposition":"needs_implementation","severity":"missing"}"#
+        let m = try decode(matrixJSON(reachability: "partial", disposition: "needs_implementation",
+                                      severity: "missing", extra: dupe))
+        #expect(KernelFidelityPolicy.violation(in: m)?.contains("duplicate") == true)
+    }
+
+    @Test func aMatrixThatOverstatesWineIsNotLoaded() throws {
+        let dir = FileManager.default.temporaryDirectory.appendingPathComponent("cider-kf-\(UUID().uuidString)")
+        defer { try? FileManager.default.removeItem(at: dir) }
+        try FileManager.default.createDirectory(at: dir, withIntermediateDirectories: true)
+        try matrixJSON(reachability: "unreachable", disposition: "implemented", severity: "implemented")
+            .write(to: dir.appendingPathComponent("fidelity.json"), atomically: true, encoding: .utf8)
+        let db = CompatDB(directories: [dir])
+        #expect(db.kernelFidelity == nil)
+        #expect(db.rejected.count == 1)
+    }
+}
+
+@Suite struct ProfileLookupTests {
+    /// A profile is matched by the program's Windows image name, whatever path form the caller used.
+    @Test func profilesMatchAProgramByImageName() {
+        let db = CompatDB(directories: [CompatDBTests.repoData])
+        #expect(db.rejected.isEmpty, "\(db.rejected)")
+        for form in [#"C:\Program Files\miHoYo Launcher\launcher.exe"#,
+                     "/Users/x/Bottles/b/drive_c/Program Files/miHoYo Launcher/launcher.exe",
+                     "LAUNCHER.EXE"] {
+            #expect(db.profile(exe: form)?.id == "profile.launcher.mihoyo-cn", "did not match \(form)")
+        }
+        #expect(db.profile(exe: "notepad.exe") == nil)
+        #expect(db.profile(exe: "") == nil)
+    }
+
+    /// The hot-fix this profile exists for: the CN launcher's CEF GPU process presents into a child
+    /// window owned by another process, so it needs DXMT's cross-process swapchain opt-in or the
+    /// window stays white. Verified on bottle-ca8f, engine cider-cx26.3-r1-x86_64, 2026-09-28.
+    @Test func theMihoyoLauncherProfileCarriesTheCrossProcessSwapchainOptIn() throws {
+        let db = CompatDB(directories: [CompatDBTests.repoData])
+        let profile = try #require(db.profile(exe: "launcher.exe"))
+        #expect(profile.actions.env?["DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN"] == "1")
+        #expect(profile.knownIssues?.isEmpty == false)
+        // It must stay clean under the red lines: no injection, no spoofing, no DLL overrides.
+        #expect(RedLines.violation(in: profile, target: nil) == nil)
+        #expect(profile.actions.dllOverrides == nil)
+    }
+}
