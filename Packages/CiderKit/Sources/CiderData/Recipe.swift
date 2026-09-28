@@ -27,7 +27,7 @@ public struct Recipe: Codable, Sendable, Equatable, Identifiable {
     public struct Source: Codable, Sendable, Equatable {
         public var urls: [String]
         /// Accepted hashes. Empty only for `floating` sources: official installers that change behind a stable
-        /// URL (Steam, Epic); those must come from an allow-listed vendor domain (`RecipePolicy`).
+        /// URL (Steam, EA app); those must come from an allow-listed vendor domain (`RecipePolicy`).
         public var sha256: [String]
         public var floating: Bool?
         public var filename: String?
@@ -79,7 +79,7 @@ public struct Recipe: Codable, Sendable, Equatable, Identifiable {
 public enum RecipePolicy {
     public static let floatingHosts = [
         "steamstatic.com", "steampowered.com", "microsoft.com", "aka.ms", "visualstudio.microsoft.com",
-        "epicgames.com", "akamaized.net", "mihoyo.com", "ea.com", "battle.net", "blizzard.com",
+        "akamaized.net", "mihoyo.com", "ea.com", "battle.net", "blizzard.com",
         "origin-a.akamaihd.net",
     ]
 

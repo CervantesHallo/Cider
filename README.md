@@ -18,7 +18,7 @@ Cider 是一个从零打造的 Mac 兼容层。它基于 Wine，配有一套原�
 - **Steam**：在瓶子里运行 Windows 版 Steam（登录、中文商店、下载、云存档），从 Cider 直接启动 Steam 游戏。已验证：千恋＊万花。
 - **galgame**：补丁拖放安装（自动备份、可撤销）；日文安装程序会被识别，提示你新建日文区域的瓶子。
 - **瓶子管理**：新建、复制、改名、删除；APFS 快照与一键回滚；导出/导入 `.ciderbottle`；从 CrossOver / Whisky 迁移；Windows 工具（winecfg、注册表、任务管理器等）；运行命令和自建启动器；模拟重启；高分辨率模式；诊断包（会自动去掉用户名）。
-- **应用目录**：一键安装 Steam、VC++ 运行库（均已实测），以及 Epic、EA app、战网、米哈游启动器（尚未实测）。下载有 sha256 校验和内容寻址缓存。
+- **应用目录**：一键安装 Steam、VC++ 运行库（均已实测），以及 EA app、战网、米哈游启动器（尚未实测）。下载有 sha256 校验和内容寻址缓存。不做 Epic Games Store（见 [`docs/plan/00-strategy-and-decisions.md`](docs/plan/00-strategy-and-decisions.md) 的“不做清单”）。
 - **自建引擎**：`cider-cx26.3`，基于 CrossOver 26.3 源码，加上 Highball 补丁和 Cider 自己的补丁；自带 GStreamer（开场动画）和 DXMT（DirectX 10/11 → Metal）；msync。
 - **米哈游**：国服三款游戏在反作弊问题有如实的解决方案之前不会在本机启动，而是提供官方云游戏入口，所以不会弹出反作弊报错。
 

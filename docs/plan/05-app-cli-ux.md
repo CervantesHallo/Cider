@@ -29,7 +29,7 @@
 - 引擎放在 bundle 外；换引擎前用 clonefile 快照，因为 `wineboot` 会隐式升级前缀 [12 §2.2、§4.5，已证实/推断]。Sparkle 2.10.0 最低 macOS 12，支持 EdDSA、delta 和分批推送 [12 §2.6，已证实]。CLT 没有 actool/xcstringstool，App 资源必须在 Xcode 或 CI 上构建 [12 §5.3，已证实]。
 - 诊断全部可由环境变量开启：`MTL_HUD_*`、`MTL_DEBUG_LAYER`、`MTL_SHADER_VALIDATION`、`MTL_CAPTURE_ENABLED`、WINEDEBUG；`.ips` 带 `translated` 字段；遥测默认关闭并脱敏 [13 §3、§5.4，高]。
 - 必须由 Cider 生成 `LANG/LC_*`，继承来的 `LC_CTYPE=UTF-8` 会让 ACP 落到 1252。`RetinaMode` 只能按前缀设置；“PS 手柄当 Xbox 手柄用”要写 `WineBus\Devices\<VID>/<PID>` 的 `Hidraw=0` [09 §4.3、§5.1、§3.3，已证实/推断高]。
-- 云路线的 form 只能取 web 或经过核实的原生 macOS 客户端；绝区零日服云的 Mac 形态存疑，按底线不展示 [22 §2.2、§5.1，低]。Epic/GOG 默认走 legendary/gogdl 是产品取舍，官方 Epic 启动器保留为兼容选项 [08 P1-6，中]。
+- 云路线的 form 只能取 web 或经过核实的原生 macOS 客户端；绝区零日服云的 Mac 形态存疑，按底线不展示 [22 §2.2、§5.1，低]。GOG 默认走 gogdl 是产品取舍 [08 P1-6，中]；Epic 整条路线不做（用户 2026-09-28 定，00「不做清单」第 5 条），研究 08 的 P1-6/P1-7 中“官方 Epic 启动器保留为兼容选项”随之作废。
 
 ## 设计
 
@@ -50,7 +50,7 @@ cider/Tools/ciderctl/  swift-argument-parser；Tools/cider-agent/；Tools/cider-
 | CiderBottle | 瓶子 CRUD、模板、clonefile 快照/回滚、导入导出（含 CX/Whisky） |
 | CiderRun | SettingsResolver、EnvBuilder、LaunchPlan、Spawner、RunLedger |
 | CiderInstall | Recipe 执行器（06 的动作白名单）、依赖 DAG、CAS 下载 |
-| CiderShim / CiderLibrary | shim 生成与重建 / Steam 扫描、legendary、gogdl 适配 |
+| CiderShim / CiderLibrary | shim 生成与重建 / Steam 扫描、gogdl 适配 |
 | CiderDiag / CiderHoYo | 诊断开关、分类器、支持包 / 预检宿主、路线模型、恢复观察器 |
 | CiderIPC | XPC 协议（Codable 请求与事件） |
 
@@ -90,7 +90,7 @@ public struct LaunchPlan: Codable, Sendable {
 
 ```
 ~/Library/Application Support/Cider/
-  Engines/<id>/  Components/{dxmt,d3dmetal,gstreamer,sdl,legendary,gogdl}/<ver>/
+  Engines/<id>/  Components/{dxmt,d3dmetal,gstreamer,sdl,gogdl}/<ver>/
   Bottles/<bid>/{cider-bottle.json, .cider/programs/<pid>.json, drive_c/, *.reg}
   Snapshots/<bid>/<ts>-<reason>/   Templates/<engine>/<tpl>/   Data/   Handlers/   state/
 ~/Applications/Cider/<名称>.app      ~/Library/Caches/Cider/{cas,shaders}   ~/Library/Logs/Cider/
@@ -126,7 +126,7 @@ public struct LaunchPlan: Codable, Sendable {
 
 - 列表字段：id、线（stable/devel/oracle）、arch、requires、大小、引用它的瓶子、`yanked`（显示红标，不再用于新装）。操作：安装、设为新瓶子默认、GC（引用计数为 0 且不在任何快照里）。索引用独立的 Ed25519 密钥验签（ADR-009）。
 - **GPTK 导入**：用户选择 Apple 的 GPTK DMG → `hdiutil attach -readonly -nobrowse` → 定位 `redist/lib/external/{D3DMetal.framework, libd3dshared.dylib}` → `codesign -v` 通过、记录 `lipo -archs` 和版本 → `ditto` 原样复制到 `Components/d3dmetal/<ver>/`。可选下载源（ADR-006）走同一套校验。系统低于 macOS 15 时置灰并说明原因。
-- 组件（DXMT、GStreamer、SDL、legendary、gogdl）按瓶子钉版本，UI 同引擎。
+- 组件（DXMT、GStreamer、SDL、gogdl）按瓶子钉版本，UI 同引擎。
 
 ### 6 安装向导（Recipe）
 
@@ -151,15 +151,14 @@ Info.plist：CFBundleIdentifier=org.cider.shim.<bid>.<pid>（唯一）、CFBundl
 
 - stub（arm64，CI 构建后随 App 分发）读取 `shim.json{bid,pid}` → XPC `launch(pid)`；失败时退回 `open -g cider://launch/<pid>`。默认 `forward-exit` 模式（`LSUIElement`，转交后退出）。T4 证明 spawn 拿不到 Game Mode 时，按游戏提供“Game Mode（实验）”开关，启用 exec 型 CiderGameHost，并提示用户该游戏的麦克风、网络授权会改记到 Cider Game Host 名下。
 - 图标：CiderPE 取最大的 `RT_GROUP_ICON`，用 ImageIO 写 icns，按 Tahoe 规范预合成 squircle 底板。生成后执行 `codesign -s - --force` 并 `--verify`。“重建启动器”会重新生成全部 shim。
-- **handler shim**（`App Support/Handlers/<id>.app`）声明 `CFBundleURLTypes`（`steam://`、`com.epicgames.launcher://` 等）或 `CFBundleDocumentTypes`（来自配方或 HKCR 的关联），实现 `application:openURLs:` 后 XPC 转交给目标瓶子执行 `start`。只有用户点“设为默认”时才调用 `NSWorkspace.setDefaultApplication`；与原生 Steam 冲突时询问用户。
+- **handler shim**（`App Support/Handlers/<id>.app`）声明 `CFBundleURLTypes`（`steam://`、`battlenet://` 等）或 `CFBundleDocumentTypes`（来自配方或 HKCR 的关联），实现 `application:openURLs:` 后 XPC 转交给目标瓶子执行 `start`。只有用户点“设为默认”时才调用 `NSWorkspace.setDefaultApplication`；与原生 Steam 冲突时询问用户。
 
 ### 8 资料库
 
 | 来源 | 实现 | 启动 |
 |---|---|---|
 | Steam（瓶内） | 解析 `libraryfolders.vdf` 和 `appmanifest_*.acf`；封面取 Steam CDN 并缓存，失败回退 exe 图标 | `steam.exe -applaunch <id>`；Steam UI 会话在 msync 门禁通过前用 `sync=server`，切换时提示“将重启该瓶子全部程序” |
-| Epic | legendary 组件子进程：`auth`（浏览器登录，Cider 不碰凭据）、`list --json`、`install --base-path` | `legendary launch --dry-run` 取得命令，再由 Cider 组装 LaunchPlan |
-| GOG（1.x） | gogdl 组件子进程（许可证未核实：只按需下载，不 vendoring） | 同上 |
+| GOG（1.x） | gogdl 组件子进程（许可证未核实：只按需下载，不 vendoring） | 由 gogdl 取得启动命令，再由 Cider 组装 LaunchPlan |
 
 条目统一为 `LibraryItem{umuId, store, title, bid, exe, art, verdict, guard}`，按 umu-ID 合并 Profile。`guard=hoyoverse` 的条目点击后进入游戏中心。
 
@@ -192,7 +191,7 @@ Info.plist：CFBundleIdentifier=org.cider.shim.<bid>.<pid>（唯一）、CFBundl
 ### 11 R3 米哈游游戏中心
 
 - **入口**：侧栏“米哈游”；资料库里识别到的安装；打开 `YuanShen.exe`/`GenshinImpact.exe`/启动器安装包；`cider://hoyo/<game>`；游戏 shim；`ciderctl hoyo preflight`。所有入口都进同一个预检。
-- **游戏页**：选区服和渠道（国服官服、B 服；国际服 HoYoPlay、Epic，Steam 只有绝区零），然后显示预检清单动画（识别 → 区服/渠道 → 版本 → 环境 → 裁定）。
+- **游戏页**：选区服和渠道（国服官服、B 服；国际服 HoYoPlay，Steam 只有绝区零），然后显示预检清单动画（识别 → 区服/渠道 → 版本 → 环境 → 裁定）。Epic 渠道只做识别、不作为可选项：识别到经 Epic 安装的国际服，直接按“不在支持范围”出路线卡（06 §10、05 §15 #55）。
 - **路线卡**：显示状态徽标，按 README 口径如实写出预期，并给出按钮：国服官方网页云（优先 Chrome/Edge `--app=`，其次默认浏览器，附网络预检）；`broken-launcher` 时“只打开启动器更新/修复”；E4 通过后，原神国际服显示 Genshin Impact · Cloud 的 Windows 客户端路线；星铁国际服写明“暂无官方云”。另有“查看裁定证据”和“可玩时通知我”。
 - 只渲染 `form ∈ {web, windows-cloud-client, native-macos}` 的路线，`unverified` 形态不显示。
 - 游戏中心创建的瓶子带 `policy.guard="hoyoverse"`：禁用“运行命令”启动任意 exe、打开终端、shellenv；图形后端和 GPU 身份等设置按 lint 锁定。
@@ -225,7 +224,7 @@ ciderctl run <b> <exe|C:\path> [--env K=V] [--winedebug +seh] [--hud] [--backend
 ciderctl program list|set <b> <pid> <key> <val>|launcher create|remove
 ciderctl engine list|install|remove|gc|use <b> <engine>;  ciderctl component list|install|import-gptk <dmg>
 ciderctl install <recipe> [--bottle b|--new] [--installer path] [--dry-run];  ciderctl tricks <verb>
-ciderctl library scan|list [--store steam|epic|gog]|launch <item>
+ciderctl library scan|list [--store steam|gog]|launch <item>
 ciderctl data update|status|show <umu-id>;  ciderctl launchers rebuild
 ciderctl hoyo preflight <game> [--edition cn|global] [--channel C];  ciderctl hoyo cloud <game>
 ciderctl diag bundle [<b>] [-o path];  ciderctl diag hud on|off <b> [<pid>];  ciderctl logs <b> [-f]
@@ -289,10 +288,13 @@ ciderctl diag bundle [<b>] [-o path];  ciderctl diag hud on|off <b> [<pid>];  ci
 | 48 | `.cxlog` | `.ciderlog` + 支持包 + 崩溃建议 ★ | P0 | M-B | 定稿 | ✔ |
 | 49 | 专有的逐游戏 Auto 库 | 开放、签名的 Profile ★ | P0 | M-B | 定稿 | ◐ |
 | 50 | 1–5★ 评级、投票 | Verdict + 开放报告 | P1 | M-C | 定稿 | ○ |
-| 51 | 启动器：Steam、EA、Battle.net、Epic、HoYoPlay | LRS + 资料库（Epic 用 legendary） | P0 | M-C | 定稿 | ◐ |
+| 51 | 启动器：Steam、EA、Battle.net、HoYoPlay（Epic 见 #55） | LRS + 资料库（Steam 清单扫描） | P0 | M-C | 定稿 | ◐ |
 | 52 | 启动器：GOG、Ubisoft、Rockstar | gogdl 与配方 | P1 | 2027-12 | 定稿 | ○ |
 | 53 | 反作弊：官方说明不可用 | 预检、路线卡、官方云、恢复闭环 ★ | P0 | M-A/M-B | 定稿 | ◐ |
 | 54 | CX 27 ARM64（旧瓶子不能转换） | Engine A opt-in + R↔A 迁移 ★ | P1 | M-D/M-E | 验 G-ENT | ○ |
+| 55 | 启动器：Epic Games Store（CX 25.0 起官方支持） | — | — | — | ✕ | ○ |
+
+#55 是明确不做，不是待办：用户 2026-09-28 决定不在 Epic 上投入资源（00「不做清单」第 5 条），Cider 在这一项上**不会**追平 CrossOver，这一点如实记录，不删项。它按 #43 的先例保留编号并留在分母里：矩阵共 55 项，其中 #43、#55 两项 ✕，完成率上限 53/55 ≈ 96%，「总完成率 ≥80%」（需 44 项）不受影响。#55 的级别记为 `—` 而不是 P0，所以「P0 全部完成」仍可达成，但含义随之收窄：#51 的 P0 只覆盖 Steam、EA、Battle.net、HoYoPlay，P0 全绿不再意味着 Epic 能用。`parity.md` 生成器（APP-24）统计时 ✕ 项计入分母、不计入完成数。
 
 ## 实施计划
 
@@ -312,10 +314,10 @@ ciderctl diag bundle [<b>] [-o path];  ciderctl diag hud on|off <b> [<pid>];  ci
 | APP-12 | 引导 v1 与 0.1 发布 | 向导、公证 DMG | M-B：0.1 已公证；一键进入国服云 | 0.4 | 11 号文档 | P1 |
 | APP-13 | 按程序设置与回退横幅 | Resolver、UI | 优先级表驱动测试；回退必有原因 | 0.6 | 06 | P2 |
 | APP-14 | shim 生成与 T4 落地 | stub、图标、签名、重建 | 50 个 shim 全部 `codesign --verify` 通过；出现在 Launchpad | 0.8 | T4 | P2 |
-| APP-15 | handler shim | URL 与文档关联 | Epic OAuth 回跳和 `steam://` 投递到正确瓶子 | 0.5 | 14 | P2 |
+| APP-15 | handler shim | URL 与文档关联 | `steam://` 与 `battlenet://` 投递到正确瓶子；文档关联按配方生效 | 0.5 | 14 | P2 |
 | APP-16 | 导出导入与 CX/Whisky 导入 | `.ciderbottle` | 往返后文件清单和注册表哈希一致 | 0.6 | 07 | P2 |
 | APP-17 | 安装向导完整版 | 目录、清单、未收录安装、安装助手 | M-C：从安装到登录 Steam ≤10 分钟 | 0.8 | 09 | P2 |
-| APP-18 | Epic 资料库（legendary） | 组件与适配 | 安装并启动一款免费游戏 | 0.5 | 08 | P2 |
+| APP-18 | ~~Epic 资料库（legendary）~~ 不做（§15 #55） | — | — | — | — | — |
 | APP-19 | 崩溃分类器 | 规则引擎、重试建议 | 回放 30 份日志分类正确率 ≥90% | 0.6 | 10 | P2 |
 | APP-20 | Sparkle、国内 appcast、数据更新 UI | 更新通道 | 两份 appcast 各升级一次；游戏运行时推迟重启 | 0.5 | 12 | P2 |
 | APP-21 | 游戏中心完整版 | 区服与渠道、恢复横幅、通知、E4 路线 | 日志回放命中即出卡，本机降为 unverified | 0.6 | 09、E4 | P2 |
@@ -325,7 +327,7 @@ ciderctl diag bundle [<b>] [-o path];  ciderctl diag hud on|off <b> [<pid>];  ci
 | APP-25 | R↔A 迁移 UI 与 GOG 资料库 | 迁移流程、gogdl | 10 个瓶子 R→A→R 无损 | 0.8 | 03 号文档 | P3 |
 | APP-26 | macOS 28 首日提示 | 说明页、迁移引导 | 28 上打开 R 瓶子必有说明 | 0.4 | G-T15 | P4 |
 
-合计约 14.4 人周（约 72 窗），其中 P0 2.0、P1 4.3、P2 6.7、P3 0.8、P4 0.4。按配额节奏安排：UI 与脚手架放在周配额后段；XPC、Spawner、迁移这类高风险工作放在前段。每项按“一窗一卡”拆分。
+合计约 13.9 人周（约 70 窗），其中 P0 2.0、P1 4.3、P2 6.2、P3 0.8、P4 0.4（APP-18 取消，省下 0.5 人周）。按配额节奏安排：UI 与脚手架放在周配额后段；XPC、Spawner、迁移这类高风险工作放在前段。每项按“一窗一卡”拆分。
 
 ## 测试与验收
 
@@ -344,7 +346,7 @@ ciderctl diag bundle [<b>] [-o path];  ciderctl diag hud on|off <b> [<pid>];  ci
 | 瓶子目录在非 APFS 卷上 | 关闭快照；换引擎前强制导出归档并二次确认 |
 | CLT 缺工具，GUI 无法本机构建 | 逻辑全部放在 CiderKit；GUI 交给 CI；P0 第 1 周装 Xcode 26.6 |
 | 移植的 WhiskyKit 代码出现缺陷 | 只移植 4 个模块并先补测试，其余重写 |
-| legendary 或 gogdl 被上游 API 打坏 | 作为组件钉版本、热更新；官方 Epic 启动器作为兼容选项 |
+| gogdl 被上游 API 打坏 | 作为组件钉版本、热更新；必要时改用官方 GOG Galaxy 配方 |
 | Rosetta 通知引发用户恐慌 | 引导页预先说明；提交 CORAL 申请；FAQ |
 | GitHub 在国内不可达 | 测速切到国内 CDN 和 cn appcast；支持离线导入签名引擎包 |
 | 用户要求 HoYo“强制启动” | 不提供；路线卡文案如实；FAQ 解释红线 |
@@ -370,6 +372,6 @@ ciderctl diag bundle [<b>] [-o path];  ciderctl diag hud on|off <b> [<pid>];  ci
 - **04-graphics**：后端枚举与可用性判定、回退原因码、HUD 与各后端日志的环境变量、D3DMetal 校验规则。
 - **06-profiles-recipes-compatdb**：Recipe/Profile/Verdict/分类规则的 schema 与动作白名单；本文负责执行器和 UI。
 - **07-platform-integration**：Cider.app 与 stub 的签名公证、用途说明字符串、Rosetta 检测、CJK 字体映射、镜像基础设施。
-- **08-games-launchers-anticheat**：LRS 调用 `ciderctl --json`；启动器 profile；legendary、gogdl 的钉版本。
+- **08-games-launchers-anticheat**：LRS 调用 `ciderctl --json`；启动器 profile；gogdl 的钉版本。08 的 P1-6/P1-7 中 Epic 相关建议按 00「不做清单」第 5 条作废。
 - **09-hoyoverse-games**：预检规则、Verdict 键、路线数据、恢复签名；本文负责游戏中心 UI、Spawner 卡口和审计。
 - **11-qa-perf-ci-release**：`app-release` 流水线、XCUITest、parity 统计。**12-dev-environment**：Xcode 安装、`cider/CLAUDE.md`。**13-roadmap**：APP-01…26 的排期。

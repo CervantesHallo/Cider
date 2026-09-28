@@ -10,7 +10,7 @@ Cider：开源的 Apple Silicon Windows 兼容层，与 CrossOver 基本对齐�
 |---|---|---|
 | R1 对齐 | `docs/parity.md`（由 CX 26 功能清单拆出约 50 项，分 P0/P1）完成 ≥80%，P0 全部完成 | ≥90% |
 | 游戏 | Top-50 profile 30 天内验证过；DXMT 冒烟通过率 ≥ oracle 的 90% | Top-100 |
-| 启动器 | LRS：Steam、Epic、EA、Battle.net、米哈游启动器，连续 14 晚全绿 | 加 GOG、Ubisoft、Rockstar |
+| 启动器 | LRS：Steam、EA、Battle.net、米哈游启动器，连续 14 晚全绿（Epic 不做，见“不做清单”第 5 条） | 加 GOG、Ubisoft、Rockstar |
 | 质量 | msync 下 Steam UI 冷启动 20 次零看门狗；崩溃率 <2%/会话；安装到 Steam 登录 ≤10 分钟 | 启动器热修中位 ≤24 小时 |
 | R3 | 非 playable 组合拉起 exe 0 次（进程审计）；路线卡 ≤3 秒；K 线 conformance 测试在真实 Windows 上全绿并已提交上游 | 反作弊弹窗到达用户 0 次；72 小时复核 ≥90% |
 | R4 | 国内无代理下载引擎 ≤3 分钟；zh-Hans 覆盖 100% | IME 测试集全绿 |
@@ -179,11 +179,12 @@ R3 范围（用户 2026-09-27 定）：只做**米哈游启动器安装的国服
 2. 任何反作弊篡改、伪装、隐藏、绕过；伪造成功的内核桩；断网启动；改游戏文件；绕过预检的开关。
 3. GeForce NOW、Xbox Cloud 等第三方云入口（用户确认前）。
 4. 自研米哈游下载器；内置 Chromium；与 HoYoverse 合作或外联；Steam 版绝区零与国际服路线。
-5. 32 位 bottle、Intel Mac、11.0-stable 线、x86 Homebrew。
-6. 2027 年内：Engine V 产品化；自研 D3D12/D3D9 转译；发布 vkd3d-proton；自修 KosmicKrisp B1（B2 只在有余力时贡献）；原生 Steam 桥。
-7. DXVK-macOS、fork MoltenVK、%gs 补丁、cxcompatdb、alt loader；默认遥测；profile 脚本。
-8. WeGame/ACE、网银 U 盾、税控盘、M365 保证支持。
-9. 法律、许可与商业模式分析。
+5. Epic Games Store 的任何集成（用户 2026-09-28 定）：不收录 Epic 启动器配方、不做 legendary 资料库、不声明 `com.epicgames.launcher://` 关联、不把 Epic 列入 LRS 夜跑与回归集。ACL 持久化等 NT 语义补缺仍按通用保真度推进，只是不再以 Epic 作为驱动用例或验收对象。这是资源取舍，不是技术判断；对等矩阵（05 §15）里 Epic 记为明确不做的 #55，保留编号留在分母里，不靠删项抬高完成率。
+6. 32 位 bottle、Intel Mac、11.0-stable 线、x86 Homebrew。
+7. 2027 年内：Engine V 产品化；自研 D3D12/D3D9 转译；发布 vkd3d-proton；自修 KosmicKrisp B1（B2 只在有余力时贡献）；原生 Steam 桥。
+8. DXVK-macOS、fork MoltenVK、%gs 补丁、cxcompatdb、alt loader；默认遥测；profile 脚本。
+9. WeGame/ACE、网银 U 盾、税控盘、M365 保证支持。
+10. 法律、许可与商业模式分析。
 
 ## 详细计划文档索引
 

@@ -77,7 +77,7 @@ cider-data/                          # 独立仓库，CC0；thirdparty/ 保留�
 
 - 游戏条目 id：有 umu-ID 就用（`umu-990080`、`umu-genshin`），否则用 `cider:<反向域名>`。`aliases` 记录 steam/egs/gog/amazon/hoyoplay 等商店 ID；`fingerprints[]` 记录 `{exe, sha256[], pe:{product, company, file_version}}`。id 永不复用。
 - Recipe id：组件用 `runtime.*`、`font.*`、`launcher.*`，应用用反向域名（`cn.com.tdx.tdxw`）；Profile id 为 `profile.<target>[.<变体>]`。
-- 识别优先级：商店清单（Steam `appmanifest_<appid>.acf`、Legendary、HoYoPlay 配置）> 主 exe 的 sha256 > PE VersionInfo + exe 名 > 只有 exe 名（弱匹配，需用户确认）。
+- 识别优先级：商店清单（Steam `appmanifest_<appid>.acf`、HoYoPlay 配置）> 主 exe 的 sha256 > PE VersionInfo + exe 名 > 只有 exe 名（弱匹配，需用户确认）。不读 Legendary 清单（Epic 不做，00「不做清单」第 5 条）；经 Epic 安装的游戏只按 sha256/PE 和安装路径识别，够用来说清“不在支持范围”。
 - `when` 只能引用固定的事实集合：`host.{macos,chip,ram_gb,rosetta}`、`engine.{version,cpu_backend,features.*}`、`gfx.{d3dmetal,dxmt}.version`、`bottle.locale`、`game.{edition,channel,version}`。写法是映射（隐式 AND）加 `any`/`not`，值为等值、列表或版本区间。不支持函数和字符串表达式，便于静态 lint，也能无损承接 UseIf。版本比较器同时理解 `11.18-c3`、`12.0-rc2` 和游戏版本 `3.2.0`。
 
 ### 4 Recipe schema v1（怎么装）
@@ -251,6 +251,7 @@ v1 用 minisign 实现 TUF 形状的四类元数据：
 ```
 
 - 键：游戏 × edition × channel × 游戏版本区间 × 引擎主版本 × macOS 主版本 × `cpu_backend`（ADR-010），任一维可写 `*`；可选 `engine_range` 收窄到具体引擎构建。
+- `channels` 是识别词表，不是支持承诺：`epic` 保留在国际服的 `channels` 里，只用于把安装识别清楚、让裁定和路线卡如实写出“不在支持范围”，Cider 不集成 Epic（00「不做清单」第 5 条、05 §15 #55）。R3 范围本来就不含国际服，路由由 `routes[]` 和预检决定，不由 `channels` 决定。
 - 查询：先判 `hard_blocks`，命中即 blocked；否则取覆盖当前组合、非 `*` 维数最多的一条，平手取 `last_verified` 最新；一条都没有就是 `unverified`。接口为 `CompatDB.verdict(for: VerdictKey) -> VerdictDecision`（结果、原因码、证据链接），供 09 调用。
 - `result` 取值：`playable`、`playable-caveats`、`unverified`、`blocked-anticheat`、`blocked-drm`、`broken-launcher`、`broken`。映射到预检四态：前两个 → playable；`broken-launcher` → 只开启动器；`broken` 与 `blocked-*` → 路线卡；其余 → unverified。
 - 门控条目的 `playable` 只接受 `source=cider-lab` 且 `env_modified=false`，并且必须带 `valid_until`（默认 last_verified + 30 天）。过期即视为 `unverified`，因为服务端策略可能在版本不变时改变。
