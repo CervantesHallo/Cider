@@ -7,7 +7,7 @@ jobs:
   kit-and-app:
     runs-on: macos-26
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: CiderKit tests
         run: cd Packages/CiderKit && swift test
       - name: ciderctl

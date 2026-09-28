@@ -1,9 +1,36 @@
 {
   "schema": "cider.game/v1",
   "id": "umu-2458530",
-  "aliases": { "steam": "2458530" },
-  "names": { "ja": "サノバウィッチ", "zh-Hans": "魔女的夜宴", "zh-Hant": "魔女的夜宴", "en": "Sabbat of the Witch" },
+  "aliases": {
+    "steam": "2458530"
+  },
+  "names": {
+    "ja": "サノバウィッチ",
+    "zh-Hans": "魔女的夜宴",
+    "zh-Hant": "魔女的夜宴",
+    "en": "Sabbat of the Witch"
+  },
   "developer": "YUZUSOFT",
   "engine": "kirikiri-z",
-  "verdicts": []
+  "verdicts": [
+    {
+      "channel": "steam",
+      "game_version": "*",
+      "engine_major": "11",
+      "macos_major": "26",
+      "cpu_backend": "rosetta-x86_64",
+      "result": "playable",
+      "notes": {
+        "zh-Hans": "经 Steam 启动，中文界面、CG 与音乐鉴赏、云存档正常。",
+        "en": "Launches through Steam; Chinese UI, gallery and cloud saves work."
+      },
+      "last_verified": "2026-09-28",
+      "provenance": {
+        "source": "maintainer",
+        "hw": "M3 8GB",
+        "engine": "cider-cx26.3-r1-x86_64",
+        "envModified": false
+      }
+    }
+  ]
 }
