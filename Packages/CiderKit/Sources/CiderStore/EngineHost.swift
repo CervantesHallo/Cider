@@ -1,10 +1,12 @@
 import CiderCore
+import Darwin
 import Foundation
 
 /// A small app bundle inside each engine (`Engines/<id>/CiderWineHost.app`) whose `Contents/MacOS` holds the Wine
 /// loader and wineserver (hard links, so no extra disk space). Launching Wine from there gives every Wine process an
-/// app identity (`org.cider.winehost`): a named Dock entry, TCC prompts attributed to Cider, and windows that
-/// accessibility and automation tools can address — a bare `bin/wine` process has none of that (docs/plan/01 §1, ADR-007).
+/// app identity (`org.cider.winehost`). It starts as an agent: services and CEF helpers must not occupy
+/// Dock slots. Wine promotes processes with real windows to regular applications. TCC/automation and
+/// Game Mode behavior still need separate acceptance (docs/plan/01 §1, ADR-007).
 ///
 /// Wine locates its libraries relative to the loader (`<bindir>/../lib/wine`, `<bindir>/../share/wine`), so the bundle
 /// carries `Contents/lib` and `Contents/share` symlinks into the engine's Wine tree.
@@ -19,6 +21,23 @@ public enum EngineHost {
     /// Creates (or repairs) the host bundle for an engine whose Wine tree is at `wineRoot`.
     public static func ensure(engineDirectory: URL, wineRoot: URL, cpuBackend: String = "rosetta-x86_64") throws {
         let fm = FileManager.default
+        // Bottles and CLI processes can share an engine; serialize first-time creation and repair.
+        let lock = open(engineDirectory.appendingPathComponent(".winehost.lock").path,
+                        O_RDONLY | O_CREAT | O_CLOEXEC, 0o600)
+        guard lock >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        defer { close(lock) }
+        let deadline = ProcessInfo.processInfo.systemUptime + 5
+        while flock(lock, LOCK_EX | LOCK_NB) != 0 {
+            let code = errno
+            guard code == EINTR || code == EWOULDBLOCK || code == EAGAIN else {
+                throw POSIXError(POSIXErrorCode(rawValue: code) ?? .EIO)
+            }
+            guard ProcessInfo.processInfo.systemUptime < deadline else {
+                throw CiderError.invalid("Windows 应用宿主正在准备，请稍后重试。")
+            }
+            usleep(20_000)
+        }
+        defer { _ = flock(lock, LOCK_UN) }
         let contents = bundleURL(in: engineDirectory).appendingPathComponent("Contents", isDirectory: true)
         let macOS = contents.appendingPathComponent("MacOS", isDirectory: true)
         try fm.ensureDirectory(macOS)
@@ -33,26 +52,47 @@ public enum EngineHost {
             if tool == "wine", usesNativeLoader, let nativeLoader { source = nativeLoader }
             else { source = wineRoot.appendingPathComponent("bin/\(tool)") }
             let link = macOS.appendingPathComponent(tool)
-            try? fm.removeItem(at: link)
-            try fm.linkItem(at: source, to: link)  // hard link: same inode, stays inside the bundle
+            let sourceAttributes = try fm.attributesOfItem(atPath: source.path)
+            let linkAttributes = try? fm.attributesOfItem(atPath: link.path)
+            if sourceAttributes[.systemFileNumber] as? NSNumber != linkAttributes?[.systemFileNumber] as? NSNumber
+                || sourceAttributes[.systemNumber] as? NSNumber != linkAttributes?[.systemNumber] as? NSNumber {
+                let temporary = macOS.appendingPathComponent(".\(UUID().uuidString)-\(tool)")
+                defer { try? fm.removeItem(at: temporary) }
+                try fm.linkItem(at: source, to: temporary)
+                try replaceAtomically(temporary, at: link)
+            }
         }
 
         let ntdll = macOS.appendingPathComponent("ntdll.so")
-        try? fm.removeItem(at: ntdll)
         if usesNativeLoader, let nativeLoader {
             let target = nativeLoader.deletingLastPathComponent().appendingPathComponent("ntdll.so")
-            try fm.createSymbolicLink(atPath: ntdll.path,
-                                      withDestinationPath: relativePath(from: macOS, to: target))
+            try ensureSymlink(ntdll, destination: relativePath(from: macOS, to: target))
+        } else if (try? fm.attributesOfItem(atPath: ntdll.path)) != nil {
+            try fm.removeItem(at: ntdll)
         }
 
         let relativeRoot = relativePath(from: contents, to: wineRoot)
         for dir in ["lib", "share"] {
             let link = contents.appendingPathComponent(dir)
-            try? fm.removeItem(at: link)
-            try fm.createSymbolicLink(atPath: link.path, withDestinationPath: "\(relativeRoot)/\(dir)")
+            try ensureSymlink(link, destination: "\(relativeRoot)/\(dir)")
         }
 
-        let plist: [String: Any] = [
+        let resources = contents.appendingPathComponent("Resources", isDirectory: true)
+        let icon = resources.appendingPathComponent("CiderHost.icns")
+        do {
+            if let source = Bundle.main.url(forResource: "AppIcon", withExtension: "icns") {
+                let data = try Data(contentsOf: source)
+                if (try? Data(contentsOf: icon)) != data {
+                    try fm.ensureDirectory(resources)
+                    try data.write(to: icon, options: .atomic)
+                }
+            }
+        } catch {
+            // A fallback image is cosmetic; preserve launch and the engine's required metadata.
+            FileHandle.standardError.write(Data("Cider: 宿主备用图标未更新：\(error)\n".utf8))
+        }
+
+        var plist: [String: Any] = [
             "CFBundleIdentifier": bundleIdentifier,
             "CFBundleName": "Cider",
             "CFBundleDisplayName": "Cider",
@@ -61,13 +101,37 @@ public enum EngineHost {
             "CFBundleShortVersionString": "0.0.1",
             "LSMinimumSystemVersion": "14.0",
             "LSApplicationCategoryType": "public.app-category.games",
+            // Match Wine's own embedded plist: only a process presenting UI is promoted to the Dock.
+            "LSUIElement": true,
             "NSHighResolutionCapable": true,
             "NSMicrophoneUsageDescription": "Windows 程序（例如游戏语音）需要使用麦克风。",
             "NSCameraUsageDescription": "Windows 程序需要使用摄像头。",
             "NSLocalNetworkUsageDescription": "局域网联机和部分启动器需要访问本地网络。",
         ]
-        let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
-        try data.write(to: contents.appendingPathComponent("Info.plist"), options: .atomic)
+        if fm.fileExists(atPath: icon.path) { plist["CFBundleIconFile"] = "CiderHost.icns" }
+        let info = contents.appendingPathComponent("Info.plist")
+        let existing = (try? Data(contentsOf: info)).flatMap {
+            try? PropertyListSerialization.propertyList(from: $0, options: [], format: nil) as? [String: Any]
+        }
+        if existing.map({ NSDictionary(dictionary: $0).isEqual(to: plist) }) != true {
+            let data = try PropertyListSerialization.data(fromPropertyList: plist, format: .xml, options: 0)
+            try data.write(to: info, options: .atomic)
+        }
+    }
+
+    private static func ensureSymlink(_ link: URL, destination: String) throws {
+        let fm = FileManager.default
+        if (try? fm.destinationOfSymbolicLink(atPath: link.path)) == destination { return }
+        let temporary = link.deletingLastPathComponent().appendingPathComponent(".\(UUID().uuidString)-link")
+        defer { try? fm.removeItem(at: temporary) }
+        try fm.createSymbolicLink(atPath: temporary.path, withDestinationPath: destination)
+        try replaceAtomically(temporary, at: link)
+    }
+
+    private static func replaceAtomically(_ source: URL, at destination: URL) throws {
+        guard rename(source.path, destination.path) == 0 else {
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
     }
 
     /// `../../Wine Devel.app/Contents/Resources/wine` style path from `base` to `target` (both absolute).

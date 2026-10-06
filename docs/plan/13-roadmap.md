@@ -18,6 +18,13 @@
 | HY4 | 原神本地端到端验收 | 忠实兼容验证通过后，从官方启动器登录并进入可操作场景，验证图形/音视频/输入、更新和重启 | ○ |
 | HY5 | 星穹铁道、绝区零逐款验收 | 各自建立版本环境证据并完成同等验收 | ○ |
 
+## 2026-10-07 接管审查与 Dock 修复
+
+- 已实施：通用宿主 LSUIElement、备用图标、幂等迁移、引擎级跨进程锁与原子链接替换；真实窗口由 Wine 保留前台晋升能力。7 个已安装引擎已迁移；GUI/CLI 的实际 launch 路径覆盖已有瓶子。无新引擎构建/Actions。
+- 完整审查与拟议修正见 [research/27](../research/27-current-code-review-20261007.md)。额外可靠性问题仍列为建议，没有擅自修订功能代码；具体取舍、验收与回退随每项实施记录。
+- HY2 继续交付了 [权限上下文对照规格](../research/28-security-context-baseline-20261007.md)。Windows 对照尚未执行，不能标为 API 修复或游戏可玩。
+- Dock/裸 Wine 的自动化读取仍 timeout；元数据/源码、进程观察与视觉验收分别记录。逐程序 shim、Game Mode/TCC 与广泛应用验收未完成。
+
 ## 当前下一步（2026-10-06）
 
 1. HY1 收尾：顶部点击、动态缩放、最大化/恢复、1×/2×；L4 稳定寻址完成后补视觉验收，再发布 r2。
@@ -75,8 +82,8 @@
 | L5 | 部分自绘客户区被宿主 visible 裁切 | ◐（真实 HYP client.top=82、r1 visible.top=112；本机 r2 的 0003–0005 修复后 visible/Cocoa.top=82，跨进程 DXMT 根内原点 (0,0)。动态 NC 同步 P2 已补代码；点击/缩放/Retina 完整验收待做。米哈游瓶子已快照后切换，r2 未一般发布，见 research/26） |
 | L6 | 瓶内程序的「已在运行」与可靠终止 | ◐（AppLifecycle + 精确 prefix/显式 helper 归属 + 出生时间/当前宿主原子身份信号 + 观察退出；应用内瓶子操作串行、配方可取消。40 项本地检查通过；实机 HYP 重复启动主 PID 不变，重启旧主/辅助进程退出后产生新主 PID。外部 CLI 并发锁、裸 Wine 窗口自动化与完整渲染待验收，见 research/25） |
 | L7 | 长期运行的 msync 与日志资源预算 | ○（历史启动器日志 30.76 GB，末段 node memory pool exhausted；需独立复现对象回收/池耗尽与日志增长，不能把旧日志直接作为本次白屏根因。保留原始日志，见 research/25） |
-| L4 | Wine 程序的 macOS 应用身份（`org.cider.winehost`） | ◐（EngineHost 改链接真实 Unix loader，0006 保留真实 bundle loader；实机路径及 app inventory 已确认 org.cider.winehost。AX/截图读取仍 timeout，多引擎相同 ID 寻址尚有歧义；Game Mode/TCC/逐程序 shim 待验收，见 research/26、05 APP-14/T4） |
-| K1 | K 线 ①：内核 API 保真度矩阵与逐契约修复 | ◐（历史 r1 树审计为 47 项、其中 22 项标为伪成功；标签需结合模式重新复核，KernelMode 权限 TRUE 有微软契约依据，不能统一改失败。矩阵/加载器不是引擎修复；2026-10-06 调研见 research/23、25，Windows 对照与 KMDF 实现待做） |
+| L4 | Wine 程序的 macOS 应用身份（`org.cider.winehost`） | ◐（真实 Unix loader + 0006 保留 bundle；2026-10-07 通用宿主改为 agent，避免服务/辅助进程默认占 Dock，补幂等迁移与锁/原子替换。7 个引擎已迁移；AX/截图 timeout、逐程序身份/Game Mode/TCC 与完整视觉仍待验收，见 research/27、05 APP-14/T4） |
+| K1 | K 线 ①：内核 API 保真度矩阵与逐契约修复 | ◐（历史矩阵标签按模式复核；KernelMode 权限 TRUE 有微软契约依据，不能统一改失败。2026-10-07 权限上下文 Windows 对照规格已写，见 research/28；Windows 输出、运行时 API/KMDF 实现仍待做） |
 
 | R1 | 0.1 打包：签名、公证、DMG、Sparkle（需要 Developer ID） | ○ |
 

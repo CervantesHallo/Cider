@@ -150,6 +150,15 @@ public struct WineRunner: Sendable {
         if let block = plan.argv.lazy.compactMap({ Preflight.check(program: $0, db: nil) }).first {
             throw block
         }
+        // Upgrade host metadata before starting any Wine child, including existing engines.
+        // Do this only on launch: stopping a process must not depend on writable engine metadata.
+        try EngineHost.ensure(engineDirectory: engine.directory, wineRoot: engine.wineRoot,
+                              cpuBackend: engine.manifest.cpuBackend)
+        var plan = plan
+        if plan.loader == engine.bin.appendingPathComponent("wine").path {
+            plan.loader = engine.wine.path
+            plan.env["WINELOADER"] = engine.wine.path
+        }
         let fm = FileManager.default
         let safeLabel = plan.label.replacingOccurrences(of: "/", with: "_")
         let sessionDir = paths.sessions
