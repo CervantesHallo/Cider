@@ -13,7 +13,7 @@ Open-source macOS app (Apple Silicon) that runs Windows programs and games on Wi
 
 - `Packages/CiderKit/` — all business logic (SwiftPM, no UI). Modules: CiderCore, CiderSchema, CiderStore (engines, D3DMetal import), CiderRuntime (spawning Wine, preflight gate), CiderBottle, CiderPE, CiderData (compat DB, recipes, red lines), CiderIntegration (Steam, catalog, recipe installer).
 - `Tools/ciderctl/` — CLI on top of CiderKit.
-- `App/` — SwiftUI app (`scripts/build-app.sh` → out/Cider.app). UI design: https://claude.ai/artifact/CX8EF8Q8pG6EXzbHWxtdJk
+- `App/` — SwiftUI app (`scripts/build-app.sh` → out/Cider.app). UI design: https://Codex.ai/artifact/CX8EF8Q8pG6EXzbHWxtdJk
 - `engine/` — `toolchain.sh`, `deps.sh`, `build.sh <recipe>`, `bundle-gstreamer.sh`, patches (build with a macOS 15 SDK). `data/` — compat entries, profiles, recipes (bundled into the app). `scripts/` — app/DMG build, smoke test, `wine-profile.py` (lldb profiler), Steam cold-start gate.
 
 ## Build and run

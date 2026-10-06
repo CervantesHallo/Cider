@@ -6,6 +6,8 @@
 
 Cider 是一个从零打造的 Mac 兼容层。它基于 Wine，配有一套原生 SwiftUI 界面，目标很明确：达到 CrossOver 的水准，并在中文用户真正在意的地方做得更好。
 
+我们的最终游戏目标包括柚子社全系，以及**原神、星穹铁道、绝区零的 Windows 国服本地适配**。三款逐一以登录、进入可操作场景、图形、音视频、输入、更新与重新启动的实测结果验收。目前仍在开发，启动器可用和下载完成分别记录为中间进度；详见 [`米哈游适配计划`](docs/plan/09-hoyoverse-games.md)。
+
 在 Mac 上玩 Windows 游戏，不该是一件需要折腾的事。你只要在 Cider 里装好 Steam，下载的游戏就会自动出现在资料库里：真实封面、实时运行状态，点一下就能开始。galgame 的补丁拖进去就能装好，不想要了一键撤销。日文游戏自动建议合适的区域，中文界面和字体开箱即用。背后的 Wine 引擎也由我们自己构建：每一个补丁都有来历，每一次性能优化都有测量数据。
 
 这是 Cider 的第一个开发预览版。它已经能在 M3 MacBook 上流畅运行 Steam，也能畅玩《千恋＊万花》。我们把代码、计划和研究资料全部公开，欢迎一起把它做好。
@@ -18,7 +20,7 @@ Cider 是一个从零打造的 Mac 兼容层。它基于 Wine，配有一套原�
 - **Steam**：在瓶子里运行 Windows 版 Steam（登录、中文商店、下载、云存档），从 Cider 直接启动 Steam 游戏。已验证：千恋＊万花。
 - **galgame**：补丁拖放安装（自动备份、可撤销）；日文安装程序会被识别，提示你新建日文区域的瓶子。
 - **瓶子管理**：新建、复制、改名、删除；APFS 快照与一键回滚；导出/导入 `.ciderbottle`；从 CrossOver / Whisky 迁移；Windows 工具（winecfg、注册表、任务管理器等）；运行命令和自建启动器；模拟重启；高分辨率模式；诊断包（会自动去掉用户名）。
-- **应用目录**：一键安装 Steam、VC++ 运行库（均已实测），以及 EA app、战网、米哈游启动器（尚未实测）。下载有 sha256 校验和内容寻址缓存。不做 Epic Games Store（见 [`docs/plan/00-strategy-and-decisions.md`](docs/plan/00-strategy-and-decisions.md) 的“不做清单”）。
+- **应用目录**：一键安装 Steam、VC++ 运行库（均已实测），以及 EA app、战网（尚未实测）。米哈游启动器已验证安装和界面渲染，登录与下载更新流程仍需完整验收。下载有 sha256 校验和内容寻址缓存。不做 Epic Games Store（见 [`docs/plan/00-strategy-and-decisions.md`](docs/plan/00-strategy-and-decisions.md) 的“不做清单”）。
 - **自建引擎**：`cider-cx26.3`，基于 CrossOver 26.3 源码，加上 Highball 补丁和 Cider 自己的补丁；自带 GStreamer（开场动画）和 DXMT（DirectX 10/11 → Metal）；msync。
 - **米哈游**：国服三款游戏在反作弊问题有如实的解决方案之前不会在本机启动，而是提供官方云游戏入口，所以不会弹出反作弊报错。
 
@@ -76,3 +78,5 @@ ciderctl diag Galgame                   # 诊断包
 ## English
 
 We're proud to open-source **Cider**, a Wine-based compatibility layer for Apple silicon Macs with a native SwiftUI interface, aiming for CrossOver-level quality with a Chinese-first experience. Today it runs the Windows Steam client (login, store, downloads, cloud saves) and launches Steam games straight from its library; *Senren＊Banka* is verified. It ships its own Wine engine (CrossOver 26.3 sources plus the Highball and Cider patches, bundled GStreamer and DXMT). Bottle management covers snapshots with rollback, import from CrossOver/Whisky, an app directory with one-click installs, and diagnostics bundles. This is an early developer preview; see `docs/plan/` for the roadmap.
+
+Our final game goals include the full Yuzusoft catalog and local compatibility for the official China-server Windows clients of *Genshin Impact*, *Honkai: Star Rail*, and *Zenless Zone Zero*. Each title needs its own evidence for login, interactive gameplay, graphics, audio, input, updates, and reliable relaunch. Local gameplay for these three titles remains unverified; see [the adaptation plan](docs/plan/09-hoyoverse-games.md).
