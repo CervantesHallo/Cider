@@ -147,8 +147,9 @@ struct LibraryTile: View {
                     }
             }
             .buttonStyle(.plain)
-            .accessibilityLabel("\(item.title) 详情")
+            .accessibilityLabel("\(item.title) \(item.isGame ? "详情" : "启动")")
             .contextMenu {
+                Button("详情") { model.detail = item }
                 Button { model.launch(item) } label: { Label("启动", systemImage: "play.fill") }
                 Button { model.restart(item) } label: { Label("重启", systemImage: "arrow.clockwise") }
                     .disabled(!model.isRunning(item) || model.busy.contains(item.id))

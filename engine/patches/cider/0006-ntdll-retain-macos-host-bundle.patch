@@ -1,0 +1,23 @@
+--- a/dlls/ntdll/unix/loader.c
++++ b/dlls/ntdll/unix/loader.c
+@@ -506,0 +507,13 @@
++#ifdef __APPLE__
++    /* Cider's host uses a hard link to this architecture's real Unix loader.
++     * Retain it across child exec, but never substitute another engine or arch. */
++    if (!build_dir)
++    {
++        const char *host_loader = getenv("WINELOADER");
++        struct stat loader_stat, host_stat;
++        if (host_loader && host_loader[0] == '/' && strstr(host_loader, ".app/Contents/MacOS/") &&
++            !stat(wineloader, &loader_stat) && !stat(host_loader, &host_stat) &&
++            loader_stat.st_dev == host_stat.st_dev && loader_stat.st_ino == host_stat.st_ino)
++            wineloader = strdup(host_loader);
++    }
++#endif
+@@ -662 +675,5 @@
+-        char *preloader_path = create_preloader_link(*wineloader_path, app_name);
++        /* A loader in a real host bundle must retain that path through exec.
++         * Moving it to winetemp loses its macOS application/accessibility identity.
++         * Bare loaders retain CrossOver's per-executable Dock naming. */
++        char *preloader_path = strstr(*wineloader_path, ".app/Contents/MacOS/") ? NULL :
++                               create_preloader_link(*wineloader_path, app_name);

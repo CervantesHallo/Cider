@@ -96,7 +96,7 @@ public struct EngineStore: Sendable {
             try JSONFile.write(manifest, to: built.appendingPathComponent("manifest.json"))
             try fm.moveItem(at: built, to: destination)
             let engine = InstalledEngine(manifest: manifest, directory: destination)
-            try EngineHost.ensure(engineDirectory: destination, wineRoot: engine.wineRoot)
+            try EngineHost.ensure(engineDirectory: destination, wineRoot: engine.wineRoot, cpuBackend: engine.manifest.cpuBackend)
             return engine
         }
 
@@ -126,7 +126,7 @@ public struct EngineStore: Sendable {
         try fm.moveItem(at: staging, to: destination)
         keepStaging = true
         let engine = InstalledEngine(manifest: manifest, directory: destination)
-        try EngineHost.ensure(engineDirectory: destination, wineRoot: engine.wineRoot)
+        try EngineHost.ensure(engineDirectory: destination, wineRoot: engine.wineRoot, cpuBackend: engine.manifest.cpuBackend)
         return engine
     }
 
@@ -147,13 +147,13 @@ public struct EngineStore: Sendable {
         guard fm.isExecutableFile(atPath: engine.wineRoot.appendingPathComponent("bin/wine").path) else {
             throw CiderError.invalid("no bin/wine under \(manifest.root) in \(directory.path)")
         }
-        try EngineHost.ensure(engineDirectory: destination, wineRoot: engine.wineRoot)
+        try EngineHost.ensure(engineDirectory: destination, wineRoot: engine.wineRoot, cpuBackend: engine.manifest.cpuBackend)
         return engine
     }
 
     /// Creates or repairs the host bundle of an installed engine.
     public func ensureHost(for engine: InstalledEngine) throws {
-        try EngineHost.ensure(engineDirectory: engine.directory, wineRoot: engine.wineRoot)
+        try EngineHost.ensure(engineDirectory: engine.directory, wineRoot: engine.wineRoot, cpuBackend: engine.manifest.cpuBackend)
     }
 
     static func findWineBinary(in root: URL) -> URL? {

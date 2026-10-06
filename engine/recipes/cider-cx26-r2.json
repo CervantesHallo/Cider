@@ -3,7 +3,7 @@
   "channel": "devel",
   "wine": {
     "version": "wine-11.0",
-    "tree": "crossover-sources-26.3.0 + highball 0001-0013 + cider 0001-0004"
+    "tree": "crossover-sources-26.3.0 + highball 0001-0013 + cider 0001-0006"
   },
   "source": {
     "url": "https://media.codeweavers.com/pub/crossover/source/crossover-sources-26.3.0.tar.gz",
@@ -26,7 +26,9 @@
     "cider/0001-ntdll-preflight-policy-deny.patch",
     "cider/0002-wined3d-prefer-copy-swap-pixel-formats.patch",
     "cider/0003-winemac-initialize-style-masks.patch",
-    "cider/0004-win32u-preserve-custom-client-area.patch"
+    "cider/0004-win32u-preserve-custom-client-area.patch",
+    "cider/0005-winemac-sync-custom-caption-geometry.patch",
+    "cider/0006-ntdll-retain-macos-host-bundle.patch"
   ],
   "configure": [
     "--enable-archs=i386,x86_64",

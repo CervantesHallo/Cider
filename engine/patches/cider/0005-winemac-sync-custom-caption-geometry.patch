@@ -1,0 +1,39 @@
+--- a/dlls/winemac.drv/window.c
++++ b/dlls/winemac.drv/window.c
+@@ -130 +130,7 @@
+-    return get_window_features_for_style(style, ex_style, data->shaped);
++    wf = get_window_features_for_style(style, ex_style, data->shaped);
++    /* The application owns the caption when its client reaches the top of the
++     * window. Keep the Windows styles and resize behavior, but do not add a
++     * second Cocoa caption above that client. */
++    if (!IsRectEmpty(&data->rects.client) && data->rects.client.top == data->rects.window.top)
++        wf.title_bar = FALSE;
++    return wf;
+@@ -2097,0 +2104 @@
++    BOOL visible_insets_changed;
+@@ -2104,0 +2112,5 @@
++    visible_insets_changed =
++        old_rects.visible.left - old_rects.window.left != new_rects->visible.left - new_rects->window.left ||
++        old_rects.visible.top - old_rects.window.top != new_rects->visible.top - new_rects->window.top ||
++        old_rects.window.right - old_rects.visible.right != new_rects->window.right - new_rects->visible.right ||
++        old_rects.window.bottom - old_rects.visible.bottom != new_rects->window.bottom - new_rects->visible.bottom;
+@@ -2140,2 +2152,3 @@
+-    /* check if we are currently processing an event relevant to this window */
+-    if (!thread_data || !thread_data->current_event ||
++    /* Avoid echoing a native frame event unless NCCALCSIZE changed the visible
++     * insets: then the event's old Cocoa content frame is no longer correct. */
++    if (visible_insets_changed || !thread_data || !thread_data->current_event ||
+@@ -2146 +2158,0 @@
+-        sync_window_position(data, swp_flags, &old_rects);
+@@ -2148,0 +2161,2 @@
++        /* Changing Cocoa decorations changes its frame/content conversion. */
++        sync_window_position(data, swp_flags, &old_rects);
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -83 +83,5 @@
+-    else style_mask = NSWindowStyleMaskBorderless;
++    else
++    {
++        style_mask = NSWindowStyleMaskBorderless;
++        if (wf->resizable) style_mask |= NSWindowStyleMaskResizable;
++    }

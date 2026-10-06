@@ -17,17 +17,32 @@ public enum EngineHost {
     }
 
     /// Creates (or repairs) the host bundle for an engine whose Wine tree is at `wineRoot`.
-    public static func ensure(engineDirectory: URL, wineRoot: URL) throws {
+    public static func ensure(engineDirectory: URL, wineRoot: URL, cpuBackend: String = "rosetta-x86_64") throws {
         let fm = FileManager.default
         let contents = bundleURL(in: engineDirectory).appendingPathComponent("Contents", isDirectory: true)
         let macOS = contents.appendingPathComponent("MacOS", isDirectory: true)
         try fm.ensureDirectory(macOS)
 
+        // Recent Wine's bin/wine is a bootstrap wrapper; its actual Unix loader
+        // must live in the bundle or exec immediately loses the application identity.
+        let unixArchitecture = ["rosetta-x86_64": "x86_64", "fex-arm64": "aarch64"][cpuBackend]
+        let nativeLoader = unixArchitecture.map { wineRoot.appendingPathComponent("lib/wine/\($0)-unix/wine") }
+        let usesNativeLoader = nativeLoader.map { fm.isExecutableFile(atPath: $0.path) } ?? false
         for tool in ["wine", "wineserver"] {
-            let source = wineRoot.appendingPathComponent("bin/\(tool)")
+            let source: URL
+            if tool == "wine", usesNativeLoader, let nativeLoader { source = nativeLoader }
+            else { source = wineRoot.appendingPathComponent("bin/\(tool)") }
             let link = macOS.appendingPathComponent(tool)
             try? fm.removeItem(at: link)
             try fm.linkItem(at: source, to: link)  // hard link: same inode, stays inside the bundle
+        }
+
+        let ntdll = macOS.appendingPathComponent("ntdll.so")
+        try? fm.removeItem(at: ntdll)
+        if usesNativeLoader, let nativeLoader {
+            let target = nativeLoader.deletingLastPathComponent().appendingPathComponent("ntdll.so")
+            try fm.createSymbolicLink(atPath: ntdll.path,
+                                      withDestinationPath: relativePath(from: macOS, to: target))
         }
 
         let relativeRoot = relativePath(from: contents, to: wineRoot)

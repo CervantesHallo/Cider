@@ -39,7 +39,7 @@ public enum Preflight {
         return Block(
             gameID: gameID, image: image,
             title: game?.name(for: ["zh-Hans"]) ?? image,
-            reason: "它使用内核级反作弊（HoYoKProtect）。Cider 正在开发忠实实现 Windows 内核行为的驱动运行时，验证通过前不在本地启动，避免反作弊报错或账号风险。",
+            reason: "Cider 尚未完成这款游戏所需的 Windows 内核兼容验证，目前主动拦截本地启动。下载完成不会解除这个限制；安装状态与本地运行支持分别判断。",
             routes: game?.routes ?? [])
     }
 }
