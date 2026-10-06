@@ -1,5 +1,6 @@
 import Foundation
 import Testing
+import CiderRuntime
 @testable import CiderBottle
 @testable import CiderCore
 @testable import CiderData
@@ -71,6 +72,18 @@ import Testing
         let reloaded = try store.bottle(bottle.config.id)
         let apps = AppCatalog(iconCache: IconCache(directory: home.appendingPathComponent("icons"))).apps(in: reloaded)
         #expect(apps.contains { $0.title == "记事本" })
+    }
+
+    @Test func hostPathLauncherUsesWineDriveForOwnership() throws {
+        defer { try? FileManager.default.removeItem(at: home) }
+        let store = BottleStore(paths: paths)
+        let base = try makeBottle(store)
+        let host = base.driveC.appendingPathComponent("Tools/a.exe").path
+        let bottle = try store.saveLauncher(.init(id: "host", name: "Host", program: host, arguments: []), in: base)
+        let app = try #require(AppCatalog(iconCache: IconCache(directory: home.appendingPathComponent("icons"))).apps(in: bottle).first { $0.title == "Host" })
+        #expect(app.launchProgram == host)
+        #expect(app.owns(WineProcess(pid: 1, bottleID: bottle.config.id, windowsImage: #"C:\Tools\a.exe"#)))
+        #expect(WindowsPath.windowsPath(forHostPath: "/opt/Tools/a.exe", in: bottle) == #"Z:\opt\Tools\a.exe"#)
     }
 }
 

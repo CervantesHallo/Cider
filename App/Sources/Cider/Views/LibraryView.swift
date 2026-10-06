@@ -148,6 +148,13 @@ struct LibraryTile: View {
             }
             .buttonStyle(.plain)
             .accessibilityLabel("\(item.title) 详情")
+            .contextMenu {
+                Button { model.launch(item) } label: { Label("启动", systemImage: "play.fill") }
+                Button { model.restart(item) } label: { Label("重启", systemImage: "arrow.clockwise") }
+                    .disabled(!model.isRunning(item) || model.busy.contains(item.id))
+                Button { model.stop(item) } label: { Label("停止", systemImage: "stop.fill") }
+                    .disabled(!model.isRunning(item) || model.busy.contains(item.id))
+            }
             .dropDestination(for: URL.self) { urls, _ in
                 // Dropping files on a game tile installs them into the game folder (e.g. a patch).
                 guard !urls.isEmpty, item.installDirectory != nil, item.kind != .steamClient else { return false }
@@ -167,7 +174,7 @@ struct LibraryTile: View {
     }
 
     private func open() {
-        if item.isGame { model.detail = item } else if !model.isRunning(item) { model.launch(item) } else { model.launch(item) }
+        if item.isGame { model.detail = item } else { model.launch(item) }
     }
 }
 
@@ -215,7 +222,7 @@ struct StopButton: View {
                 .buttonStyle(.plain)
             }
         }
-        .disabled(stopping)
+        .disabled(model.busy.contains(item.id) || model.busy.contains("activity:\(item.bottleID)"))
         .help("停止 \(item.title)")
         .accessibilityLabel("停止 \(item.title)")
     }

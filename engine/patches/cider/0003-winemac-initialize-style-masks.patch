@@ -1,0 +1,5 @@
+--- a/dlls/winemac.drv/window.c
++++ b/dlls/winemac.drv/window.c
+@@ -2071 +2071 @@
+-    *style_mask = ex_style = 0;
++    *style_mask = *ex_style_mask = 0;

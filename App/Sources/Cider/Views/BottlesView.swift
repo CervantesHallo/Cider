@@ -160,10 +160,13 @@ struct BottleDetailView: View {
                     .font(.system(size: 13)).foregroundStyle(Theme.textSecondary)
             }
             Spacer()
-            if running {
-                RunningChip()
-                Button { model.stopBottle(bottle.config.id) } label: { Label("结束所有程序", systemImage: "stop.fill") }
+            if running || model.recipeWorkers[bottle.config.id] != nil {
+                if running { RunningChip() }
+                Button { model.stopBottle(bottle.config.id) } label: {
+                    Label(model.recipeWorkers[bottle.config.id] == nil ? "结束所有程序" : "取消安装", systemImage: "stop.fill")
+                }
                     .buttonStyle(OutlineButtonStyle(height: 34))
+                    .disabled(model.busy.contains("stop-bottle:\(bottle.config.id)"))
             }
         }
     }

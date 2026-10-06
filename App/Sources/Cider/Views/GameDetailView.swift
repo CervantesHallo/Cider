@@ -36,6 +36,9 @@ struct GameDetailView: View {
                     if model.isRunning(item) {
                         RunningChip()
                         StopButton(item: item, large: true)
+                        Button { model.restart(item) } label: { Label("重启", systemImage: "arrow.clockwise") }
+                            .buttonStyle(OutlineButtonStyle(height: 50))
+                            .disabled(model.busy.contains(item.id) || model.busy.contains("activity:\(item.bottleID)"))
                     } else if let progress = item.downloadProgress {
                         VStack(alignment: .leading, spacing: 6) {
                             Text("Steam 正在下载 \(Int(progress * 100))%").font(.system(size: 14, weight: .semibold))

@@ -50,13 +50,21 @@ extension AppModel {
     func snapshots(of bottle: Bottle) -> [BottleSnapshot] { BottleStore(paths: paths).snapshots(of: bottle) }
 
     /// Runs a CiderKit operation off the main actor with a busy key and a result message, then refreshes.
-    private func perform(_ key: String, _ start: String?, done: @escaping @Sendable (Bottle?) -> String,
+    private func perform(_ key: String, _ start: String?, bottleID: String? = nil, done: @escaping @Sendable (Bottle?) -> String,
                          _ work: @escaping @Sendable (BottleStore) throws -> Bottle?) {
         let paths = self.paths
+        // Bottle operation keys start with <operation>:<bottle>. Imports have no existing bottle yet.
+        let scopedID = bottleID ?? key.split(separator: ":").dropFirst().first.map(String.init)
+        let activityKey = scopedID.map { "activity:\($0)" }
+        guard !busy.contains(key), activityKey.map({ !busy.contains($0) }) ?? true else {
+            message = "这个瓶子的操作正在进行，请稍候。"
+            return
+        }
+        if let activityKey { busy.insert(activityKey) }
         busy.insert(key)
         if let start { message = start }
         Task {
-            defer { busy.remove(key) }
+            defer { busy.remove(key); if let activityKey { busy.remove(activityKey) } }
             do {
                 let result = try await Task.detached { try work(BottleStore(paths: paths)) }.value
                 message = done(result)
@@ -79,8 +87,12 @@ extension AppModel {
     /// "运行命令" / "带选项运行": starts a program with arguments; `verbose` records a detailed Wine log.
     func runCommand(program: String, arguments: [String], in bottle: Bottle, verbose: Bool) {
         let paths = self.paths
+        let key = "activity:\(bottle.config.id)"
+        guard !busy.contains(key) else { message = "这个瓶子的操作正在进行，请稍候。"; return }
+        busy.insert(key)
         message = "正在启动 \(program)…"
         Task {
+            defer { busy.remove(key) }
             do {
                 let log = try await Task.detached { () -> URL in
                     let store = BottleStore(paths: paths)
@@ -168,7 +180,7 @@ extension AppModel {
     /// Sync is bottle-wide and fixed when wineserver starts, so the bottle is stopped before the change.
     func setSync(_ mode: SyncMode, for bottle: Bottle) {
         perform("settings:\(bottle.config.id)", nil, done: { _ in "同步方式已改为 \(mode == .msync ? "msync" : "wineserver")，下次启动生效。" }) { store in
-            try? store.runner(for: bottle).killAll()
+            try store.runner(for: bottle).killAll()
             return try store.update(bottle) { $0.settings[SyncMode.settingKey] = mode.rawValue }
         }
     }
@@ -246,31 +258,74 @@ extension AppModel {
     func installRecipe(_ recipe: Recipe, bottleID: String?) {
         let paths = self.paths
         let db = compat
+        let activityKey = bottleID.map { "activity:\($0)" }
+        guard !busy.contains("recipe:\(recipe.id)"), activityKey.map({ !busy.contains($0) }) ?? true else {
+            message = "这个瓶子的操作正在进行，请稍候。"
+            return
+        }
+        if let activityKey { busy.insert(activityKey) }
         busy.insert("recipe:\(recipe.id)")
         message = "正在准备安装 \(recipe.title())…"
         Task {
-            defer { busy.remove("recipe:\(recipe.id)") }
+            var heldActivityKey = activityKey
+            var workerBottleID: String?
+            let owner = UUID()
+            defer {
+                busy.remove("recipe:\(recipe.id)")
+                if let workerBottleID {
+                    if recipeWorkers[workerBottleID]?.owner == owner {
+                        recipeWorkers.removeValue(forKey: workerBottleID)
+                        if let heldActivityKey { busy.remove(heldActivityKey) }
+                    } else if recipeWorkers[workerBottleID] != nil {
+                        recipeWorkers[workerBottleID]?.completed = true
+                    }
+                } else if let heldActivityKey { busy.remove(heldActivityKey) }
+            }
             do {
-                let bottle = try await Task.detached { () -> Bottle in
+                let target = try await Task.detached { () -> Bottle in
                     let store = BottleStore(paths: paths)
-                    let target = try bottleID.map { try store.bottle($0) } ?? store.create(
+                    return try bottleID.map { try store.bottle($0) } ?? store.create(
                         name: recipe.bottle?.name ?? recipe.title(),
                         locale: recipe.bottle?.locale.flatMap(BottleLocale.named) ?? .simplifiedChinese,
                         createdBy: "Cider.app recipe \(recipe.id)")
+                }.value
+                if heldActivityKey == nil {
+                    let key = "activity:\(target.config.id)"
+                    guard !busy.contains(key) else { throw CiderError.invalid("新瓶子的另一项操作已开始，请稍后重新安装。") }
+                    busy.insert(key)
+                    heldActivityKey = key
+                }
+                let worker = Task.detached { () throws -> Bottle in
+                    let store = BottleStore(paths: paths)
                     try RecipeInstaller(store: store, db: db).install(recipe.id, in: target) { step in
-                        Task { @MainActor in self.message = step }
+                        guard !Task.isCancelled else { return }
+                        Task { @MainActor in
+                            guard self.recipeWorkers[target.config.id]?.owner == owner else { return }
+                            self.message = step
+                        }
                     }
                     return target
-                }.value
+                }
+                workerBottleID = target.config.id
+                recipeWorkers[target.config.id] = (owner, worker, false)
+                let bottle = try await worker.value
+                guard !worker.isCancelled else { throw CancellationError() }
                 message = "\(recipe.title()) 已安装到瓶子“\(bottle.config.name)”。"
                 await refresh()
+                guard !worker.isCancelled, recipeWorkers[target.config.id]?.owner == owner else { throw CancellationError() }
+                recipeWorkers.removeValue(forKey: target.config.id)
+                workerBottleID = nil
+                // Hand ownership to the launch action without its lock being removed by this task's defer.
+                if let held = heldActivityKey { busy.remove(held); heldActivityKey = nil }
                 if let program = recipe.launch, let item = items.first(where: {
                     $0.bottleID == bottle.config.id && $0.launchProgram.caseInsensitiveCompare(program) == .orderedSame
                 }) {
                     launch(item)
                 }
             } catch {
-                message = "安装 \(recipe.title()) 失败：\(error)"
+                if workerBottleID.map({ recipeWorkers[$0]?.owner == owner }) ?? true {
+                    message = error is CancellationError ? "安装已取消。" : "安装 \(recipe.title()) 失败：\(error)"
+                }
             }
         }
     }
@@ -282,7 +337,7 @@ extension AppModel {
 
     func setProgramWindowsVersion(_ winver: String?, for item: LibraryItem) {
         guard let exe = item.executableName, let bottle = bottles.first(where: { $0.config.id == item.bottleID }) else { return }
-        perform("settings:\(item.id)", nil, done: { _ in winver.map { "\(exe) 现在按 Windows \($0.dropFirst(3)) 运行（下次启动生效）。" } ?? "\(exe) 恢复为跟随瓶子的 Windows 版本。" }) { store in
+        perform("settings:\(item.id)", nil, bottleID: item.bottleID, done: { _ in winver.map { "\(exe) 现在按 Windows \($0.dropFirst(3)) 运行（下次启动生效）。" } ?? "\(exe) 恢复为跟随瓶子的 Windows 版本。" }) { store in
             try store.setWindowsVersion(winver, forExecutable: exe, in: bottle)
             return nil
         }

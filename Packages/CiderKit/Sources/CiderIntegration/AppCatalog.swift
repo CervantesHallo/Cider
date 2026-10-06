@@ -1,5 +1,6 @@
 import CiderBottle
 import CiderCore
+import CiderData
 import CiderPE
 import CiderRuntime
 import Foundation
@@ -38,6 +39,9 @@ public struct CatalogApp: Identifiable, Hashable, Sendable {
     public var installDirectory: URL? = nil
     /// Extra environment for this program's launch (user launchers); sync and locale stay bottle-wide.
     public var launchEnvironment: [String: String] = [:]
+    /// Helper names explicitly declared by a profile. Arbitrary same-directory programs are independent.
+    public var ownedProcessNames: Set<String> = []
+    public var prefixPath: String? = nil
     /// File name of the program's main executable (the key for per-program Wine settings, AppDefaults).
     public var executableName: String? {
         switch kind {
@@ -53,6 +57,7 @@ public struct CatalogApp: Identifiable, Hashable, Sendable {
     /// Whether a running Windows process belongs to this app.
     public func owns(_ process: WineProcess) -> Bool {
         guard process.bottleID == bottleID, !process.isWineInfrastructure else { return false }
+        if let prefixPath, let processPrefix = process.prefixPath, prefixPath != processPrefix { return false }
         let image = process.normalizedImage
         switch kind {
         case .steamClient:
@@ -66,7 +71,16 @@ public struct CatalogApp: Identifiable, Hashable, Sendable {
             if image == t { return true }
             // Launchers often start the real program from the same folder; never widen matching to system folders.
             let dir = t.split(separator: "/").dropLast().joined(separator: "/")
-            return !dir.hasPrefix("c:/windows") && dir.count > 3 && image.hasPrefix(dir + "/")
+            guard !dir.hasPrefix("c:/windows"), dir.count > 3, image.hasPrefix(dir + "/") else { return false }
+            // Installed games can live underneath their launcher's folder. Stopping the launcher must
+            // not recursively stop those independent applications (miHoYo's default is <root>/games).
+            let child = image.dropFirst(dir.count + 1).split(separator: "/").first
+            // Wine may preserve an extensionless CreateProcess image (e.g. CEF's HYPHelper).
+            // Accept only the corresponding explicitly declared .exe, within this app's folder.
+            let name = process.imageName
+            let declaredHelper = ownedProcessNames.contains(name)
+                || (!name.contains(".") && ownedProcessNames.contains(name + ".exe"))
+            return child != "games" && child != "steamapps" && declaredHelper
         }
     }
 }
@@ -74,8 +88,9 @@ public struct CatalogApp: Identifiable, Hashable, Sendable {
 /// Builds the library for a bottle: the Steam client, its games, and programs from Start Menu / Desktop shortcuts.
 public struct AppCatalog: Sendable {
     public let iconCache: IconCache
+    public let compat: CompatDB
 
-    public init(iconCache: IconCache) { self.iconCache = iconCache }
+    public init(iconCache: IconCache, compat: CompatDB = CompatDB()) { self.iconCache = iconCache; self.compat = compat }
 
     public func apps(in bottle: Bottle) -> [CatalogApp] {
         var apps: [CatalogApp] = []
@@ -106,7 +121,12 @@ public struct AppCatalog: Sendable {
         }
         apps.append(contentsOf: launchers(in: bottle))
         apps.append(contentsOf: shortcutPrograms(in: bottle, excludingRoots: steamRoots))
-        return apps
+        return apps.map { original in
+            var app = original
+            app.prefixPath = bottle.prefix.path
+            app.ownedProcessNames = Set(compat.profile(exe: app.launchProgram)?.actions.processNames?.map { $0.lowercased() } ?? [])
+            return app
+        }
     }
 
     /// The bottle's saved launchers (`BottleConfig.launchers`).
@@ -116,7 +136,8 @@ public struct AppCatalog: Sendable {
                 : try? WindowsPath.hostURL(for: launcher.program, in: bottle)
             var app = CatalogApp(
                 id: "\(bottle.config.id)/launcher/\(launcher.id)", bottleID: bottle.config.id, bottleName: bottle.config.name,
-                title: launcher.name, kind: .program(target: launcher.program), installState: .installed, sizeOnDisk: 0,
+                title: launcher.name, kind: .program(target: launcher.program.hasPrefix("/")
+                    ? WindowsPath.windowsPath(forHostPath: launcher.program, in: bottle) : launcher.program), installState: .installed, sizeOnDisk: 0,
                 lastPlayed: nil, iconURL: host.flatMap { iconCache.pngURL(forExecutable: $0) }, headerURL: nil, heroURL: nil,
                 launchProgram: launcher.program, launchArguments: launcher.arguments,
                 workingDirectory: launcher.workingDirectory, installDirectory: host?.deletingLastPathComponent())

@@ -82,9 +82,11 @@ public struct RecipeInstaller: Sendable {
     }
 
     private func install(_ recipeID: String, in bottle: Bottle, progress: @Sendable (String) -> Void, visiting: Set<String>) throws {
+        try Task.checkCancellation()
         guard let recipe = db.recipes[recipeID] else { throw InstallError.unknownRecipe(recipeID) }
         guard !visiting.contains(recipeID) else { return }                     // dependency cycle: ignore
         for dependency in recipe.dependencies ?? [] {
+            try Task.checkCancellation()
             if let dep = db.recipes[dependency], isInstalled(dep, in: bottle) { continue }
             try install(dependency, in: bottle, progress: progress, visiting: visiting.union([recipeID]))
         }
@@ -92,6 +94,7 @@ public struct RecipeInstaller: Sendable {
         let runner = try store.runner(for: bottle)
         var files: [String: URL] = [:]
         for step in recipe.steps {
+            try Task.checkCancellation()
             if let run = step.runInstaller {
                 let file: URL
                 if let cached = files[run.source] { file = cached } else {
@@ -99,6 +102,7 @@ public struct RecipeInstaller: Sendable {
                     file = try fetch(recipe.sources[run.source]!, name: run.source)
                     files[run.source] = file
                 }
+                try Task.checkCancellation()
                 progress("正在安装 \(recipe.title())…")
                 let plan = run.kind == "msi"
                     ? runner.plan(program: "msiexec", arguments: ["/i", file.path] + (run.args ?? []), label: "install-\(recipe.id)")
@@ -118,27 +122,39 @@ public struct RecipeInstaller: Sendable {
         // Installers often hand off to a child process and exit early: poll for the result (bounded — other
         // programs such as Steam may keep the bottle busy, so waiting for it to go idle could block forever).
         let deadline = Date().addingTimeInterval(120)
-        while !isInstalled(recipe, in: bottle), Date() < deadline { Thread.sleep(forTimeInterval: 2) }
+        while !isInstalled(recipe, in: bottle), Date() < deadline {
+            try Task.checkCancellation()
+            Thread.sleep(forTimeInterval: 0.2)
+        }
+        try Task.checkCancellation()
         guard isInstalled(recipe, in: bottle) else { throw InstallError.notDetected(recipe.title()) }
     }
 
     /// Downloads a source into `cas/<sha256>/<file>`; pinned sources must match one of their hashes.
     func fetch(_ source: Recipe.Source, name: String) throws -> URL {
+        try Task.checkCancellation()
         let fm = FileManager.default
         if let known = source.sha256.first {
             let dir = downloads.appendingPathComponent(known.lowercased(), isDirectory: true)
             if let cached = try? fm.contentsOfDirectory(at: dir, includingPropertiesForKeys: nil).first { return cached }
         }
         let tmp = downloads.appendingPathComponent(".partial-\(UUID().uuidString)")
+        defer { try? fm.removeItem(at: tmp) }
         try fm.ensureDirectory(downloads)
         var lastError: Error?
         for url in source.urls {
+            try Task.checkCancellation()
             do {
-                try Command.run("/usr/bin/curl", ["-fsSL", "--retry", "3", "--connect-timeout", "20", "-o", tmp.path, url])
+                try Command.runCancellable("/usr/bin/curl", ["-fsSL", "--retry", "3", "--connect-timeout", "20", "--max-time", "300", "-o", tmp.path, url])
                 lastError = nil
                 break
-            } catch { lastError = error }
+            } catch is CancellationError { throw CancellationError() } catch {
+                // Preserve a failed child termination instead of hiding it behind task cancellation.
+                if Task.isCancelled { throw error }
+                lastError = error
+            }
         }
+        try Task.checkCancellation()
         if let lastError { try? fm.removeItem(at: tmp); throw lastError }
         let sha = try EngineStore.sha256(of: tmp)
         guard source.sha256.isEmpty || source.sha256.contains(where: { $0.lowercased() == sha }) else {

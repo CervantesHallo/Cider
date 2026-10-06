@@ -79,6 +79,8 @@ final class AppModel {
     var running: [String: [pid_t]] = [:]
     /// Bottles with any live Windows process (including Wine's own services).
     var runningBottles: Set<String> = []
+    /// A recipe worker's owner token lets Stop take over its lock without a late defer unlocking another action.
+    var recipeWorkers: [String: (owner: UUID, task: Task<Bottle, Error>, completed: Bool)] = [:]
 
     let paths = CiderPaths.standard()
     /// Compatibility data (bundled + user data directory) and the verdict for each library item.
@@ -139,7 +141,7 @@ final class AppModel {
         let result = await Task.detached(priority: .userInitiated) { () -> ([Bottle], [CatalogApp], EnvironmentStatus, CompatDB, [String: VerdictDecision]) in
             let store = BottleStore(paths: paths)
             let bottles = (try? store.list()) ?? []
-            let catalog = AppCatalog(iconCache: IconCache(directory: paths.caches.appendingPathComponent("icons")))
+            let catalog = AppCatalog(iconCache: IconCache(directory: paths.caches.appendingPathComponent("icons")), compat: store.compat)
             let apps = bottles.flatMap { catalog.apps(in: $0) }
             var env = EnvironmentStatus()
             env.rosetta = (try? Command.run("/usr/bin/arch", ["-x86_64", "/usr/bin/true"])) != nil
@@ -208,7 +210,7 @@ final class AppModel {
             // A launcher inside the bottle can start a gated game itself; stop it before its anti-cheat comes up.
             // (Cider's own engine refuses these at CreateProcess; this covers engines without that patch.)
             let blocked = processes.filter { Preflight.check(program: $0.windowsImage, db: nil) != nil }
-            if !blocked.isEmpty { ProcessScanner.terminate(blocked.map(\.pid), grace: 0) }
+            if !blocked.isEmpty { ProcessScanner.terminate(blocked, grace: 0) }
             var map: [String: [pid_t]] = [:]
             for app in apps {
                 let pids = processes.filter { app.owns($0) }.map(\.pid)
@@ -260,69 +262,72 @@ final class AppModel {
 
     // MARK: Actions
 
-    func launch(_ item: LibraryItem) {
+    func launch(_ item: LibraryItem) { perform(item, action: .start) }
+    func restart(_ item: LibraryItem) { perform(item, action: .restart) }
+    func stop(_ item: LibraryItem) { perform(item, action: .stop) }
+
+    private enum AppAction: String, Sendable { case start, stop, restart }
+
+    private func perform(_ item: LibraryItem, action: AppAction) {
         let paths = self.paths
-        let alreadyRunning = isRunning(item)
+        // Catalog aliases can refer to the same executable. Serialize by bottle as well as item.
+        let bottleKey = "activity:\(item.bottleID)"
+        guard !busy.contains(bottleKey) else {
+            message = "这个瓶子的操作正在进行，请稍候。"
+            return
+        }
+        busy.insert(bottleKey)
         busy.insert(item.id)
-        message = nil
+        let actionKey = "\(action.rawValue):\(item.id)"
+        busy.insert(actionKey)
+        switch action {
+        case .start: message = "正在启动 \(item.title)…"
+        case .stop: message = "正在停止 \(item.title)…"
+        case .restart: message = "正在重启 \(item.title)…"
+        }
         Task {
-            defer { busy.remove(item.id) }
+            defer { busy.remove(item.id); busy.remove(actionKey); busy.remove(bottleKey) }
             do {
-                try await Task.detached {
+                let started = try await Task.detached { () -> Bool in
                     let store = BottleStore(paths: paths)
                     let bottle = try store.bottle(item.bottleID)
                     let runner = try store.runner(for: bottle)
-                    let isSteam: Bool = { if case .program = item.kind { return false }; return true }()
                     let cwd = item.workingDirectory.flatMap { try? WindowsPath.hostURL(for: $0, in: bottle) }
-                    _ = try runner.launch(runner.plan(
-                        program: item.launchProgram, arguments: item.launchArguments,
-                        label: item.title, cwd: cwd,
-                        extraEnv: (isSteam ? SteamLibrary.uiEnvironment : [:]).merging(item.launchEnvironment) { $1 }))
+                    switch action {
+                    case .start: return try AppLifecycle.start(item, using: runner, cwd: cwd) != nil
+                    case .restart: return try AppLifecycle.restart(item, using: runner, cwd: cwd) != nil
+                    case .stop: try AppLifecycle.stop(item, using: runner); return false
+                    }
                 }.value
-                message = alreadyRunning ? "\(item.title) 已在运行，正在切换到它的窗口…" : "正在启动 \(item.title)…"
                 await scanProcesses()
+                if action == .stop {
+                    message = "已停止 \(item.title)。"
+                } else if started {
+                    message = "已发起\(action == .restart ? "重启" : "启动") \(item.title)，等待窗口就绪。"
+                } else {
+                    message = "\(item.title) 已在运行；需要重新启动时，请使用“重启”。"
+                }
             } catch let block as Preflight.Block {
                 showRouteCard(block)
             } catch {
-                message = "启动失败：\(error)"
+                await scanProcesses()
+                message = "操作未完成：\(error)"
             }
-        }
-    }
-
-    /// Stops one app. Steam is asked to shut down cleanly first; anything left is terminated.
-    func stop(_ item: LibraryItem) {
-        let paths = self.paths
-        busy.insert("stop:\(item.id)")
-        message = "正在停止 \(item.title)…"
-        Task {
-            defer { busy.remove("stop:\(item.id)") }
-            await Task.detached {
-                if case .steamClient = item.kind {
-                    let store = BottleStore(paths: paths)
-                    if let bottle = try? store.bottle(item.bottleID), let runner = try? store.runner(for: bottle) {
-                        _ = try? runner.launch(runner.plan(program: item.launchProgram, arguments: ["-shutdown"],
-                                                           label: "steam-shutdown", extraEnv: SteamLibrary.uiEnvironment))
-                        for _ in 0..<40 {  // up to 8 s for a clean exit
-                            if !ProcessScanner.scan().contains(where: { item.owns($0) }) { return }
-                            usleep(200_000)
-                        }
-                    }
-                }
-                ProcessScanner.terminate(ProcessScanner.scan().filter { item.owns($0) }.map(\.pid))
-            }.value
-            await scanProcesses()
-            message = "已停止 \(item.title)。"
         }
     }
 
     func runInstaller(_ url: URL, in bottleID: String) {
         let paths = self.paths
+        let key = "activity:\(bottleID)"
+        guard !busy.contains(key), !busy.contains("install") else { message = "这个瓶子的操作正在进行，请稍候。"; return }
+        busy.insert(key)
         busy.insert("install")
         message = "正在运行 \(url.lastPathComponent)…"
         Task {
-            defer { busy.remove("install") }
+            var holdsActivity = true
+            defer { busy.remove("install"); if holdsActivity { busy.remove(key) } }
             do {
-                let code = try await Task.detached { () -> Int32 in
+                let session = try await Task.detached { () -> SessionHandle in
                     let store = BottleStore(paths: paths)
                     let runner = try store.runner(for: try store.bottle(bottleID))
                     let isMSI = url.pathExtension.lowercased() == "msi"
@@ -331,8 +336,12 @@ final class AppModel {
                                       cwd: url.deletingLastPathComponent())
                         : runner.plan(program: url.path, label: url.deletingPathExtension().lastPathComponent,
                                       cwd: url.deletingLastPathComponent())
-                    return try runner.runToCompletion(plan).code
+                    return try runner.launch(plan)
                 }.value
+                // Installation is now a running program. Keep the install indicator, but allow Stop.
+                busy.remove(key)
+                holdsActivity = false
+                let code = await Task.detached { Spawn.wait(session.pid) }.value
                 message = code == 0 ? "安装程序已结束。" : "安装程序退出，代码 \(code)。"
                 await refresh()
             } catch {
@@ -361,11 +370,52 @@ final class AppModel {
 
     func stopBottle(_ bottleID: String) {
         let paths = self.paths
+        let key = "activity:\(bottleID)"
+        let stopKey = "stop-bottle:\(bottleID)"
+        guard !busy.contains(stopKey) else { return }
+        let owner = UUID()
+        let interrupted = recipeWorkers[bottleID]
+        if busy.contains(key) {
+            guard let interrupted else {
+                message = "这个瓶子的操作正在进行，请稍候。"
+                return
+            }
+            interrupted.task.cancel()
+            recipeWorkers[bottleID] = (owner, interrupted.task, interrupted.completed)
+        } else {
+            busy.insert(key)
+        }
+        busy.insert(stopKey)
+        message = interrupted == nil ? "正在停止瓶子内的程序…" : "正在取消安装并停止瓶子内的程序…"
         Task {
-            await Task.detached {
-                let store = BottleStore(paths: paths)
-                try? store.runner(for: try store.bottle(bottleID)).killAll()
-            }.value
+            var releaseActivity = true
+            defer {
+                busy.remove(stopKey)
+                if releaseActivity {
+                    if interrupted != nil, recipeWorkers[bottleID]?.owner == owner { recipeWorkers.removeValue(forKey: bottleID) }
+                    busy.remove(key)
+                }
+            }
+            do {
+                try await Task.detached {
+                    let store = BottleStore(paths: paths)
+                    try store.runner(for: try store.bottle(bottleID)).killAll()
+                }.value
+                // Await cancellation so a download/installer cannot start another step after Stop reports success.
+                if let interrupted, case .failure(let error) = await interrupted.task.result,
+                   !(error is CancellationError) { throw error }
+                message = "瓶子内的程序已停止。"
+            } catch {
+                if let interrupted, recipeWorkers[bottleID]?.owner == owner {
+                    if recipeWorkers[bottleID]?.completed == true {
+                        recipeWorkers.removeValue(forKey: bottleID)
+                    } else {
+                        recipeWorkers[bottleID] = interrupted
+                        releaseActivity = false
+                    }
+                }
+                message = "停止未完成：\(error)"
+            }
             await scanProcesses()
         }
     }
@@ -399,10 +449,13 @@ final class AppModel {
             runPatchInstaller(urls[0], gameRoot: installer.gameRoot, for: item)
             return
         }
+        let key = "activity:\(item.bottleID)"
+        guard !busy.contains(key) else { message = "这个瓶子的操作正在进行，请稍候。"; return }
+        busy.insert(key)
         busy.insert("patch:\(item.id)")
         message = "正在把 \(urls.count) 个项目复制到 \(item.title) 的游戏目录…"
         Task {
-            defer { busy.remove("patch:\(item.id)") }
+            defer { busy.remove("patch:\(item.id)"); busy.remove(key) }
             do {
                 let manifest = try await Task.detached { try installer.install(urls) }.value
                 message = "补丁已安装：新增 \(manifest.added.count) 个文件，替换 \(manifest.replaced.count) 个（原文件已备份，可撤销）。"
@@ -414,12 +467,16 @@ final class AppModel {
 
     private func runPatchInstaller(_ url: URL, gameRoot: URL, for item: LibraryItem) {
         let paths = self.paths
+        let key = "activity:\(item.bottleID)"
+        guard !busy.contains(key) else { message = "这个瓶子的操作正在进行，请稍候。"; return }
+        busy.insert(key)
         busy.insert("patch:\(item.id)")
         message = "正在瓶子「\(item.bottleName)」里运行补丁安装程序 \(url.lastPathComponent)，按它的提示把目标目录选为游戏目录…"
         Task {
-            defer { busy.remove("patch:\(item.id)") }
+            var holdsActivity = true
+            defer { busy.remove("patch:\(item.id)"); if holdsActivity { busy.remove(key) } }
             do {
-                let code = try await Task.detached { () -> Int32 in
+                let session = try await Task.detached { () -> SessionHandle in
                     let store = BottleStore(paths: paths)
                     let runner = try store.runner(for: try store.bottle(item.bottleID))
                     let isMSI = url.pathExtension.lowercased() == "msi"
@@ -427,8 +484,12 @@ final class AppModel {
                     let plan = isMSI
                         ? runner.plan(program: "msiexec", arguments: ["/i", url.path], label: label, cwd: gameRoot)
                         : runner.plan(program: url.path, label: label, cwd: gameRoot)
-                    return try runner.runToCompletion(plan).code
+                    return try runner.launch(plan)
                 }.value
+                // Installation is now a running program. Keep the install indicator, but allow Stop.
+                busy.remove(key)
+                holdsActivity = false
+                let code = await Task.detached { Spawn.wait(session.pid) }.value
                 message = code == 0 ? "补丁安装程序已结束（安装程序改动的文件由它自己管理，Cider 无法撤销）。" : "补丁安装程序退出，代码 \(code)。"
             } catch {
                 message = "补丁安装程序运行失败：\(error)"
@@ -439,7 +500,11 @@ final class AppModel {
     func undoPatch(for item: LibraryItem) {
         guard let installer = patchInstaller(for: item) else { return }
         guard !isRunning(item) else { message = "请先停止 \(item.title)，再撤销补丁。"; return }
+        let key = "activity:\(item.bottleID)"
+        guard !busy.contains(key) else { message = "这个瓶子的操作正在进行，请稍候。"; return }
+        busy.insert(key)
         Task {
+            defer { busy.remove(key) }
             do {
                 if let manifest = try await Task.detached(operation: { try installer.undoLast() }).value {
                     message = "已撤销补丁（\(manifest.sources.joined(separator: "、"))），原文件已恢复。"

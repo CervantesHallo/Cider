@@ -150,6 +150,21 @@ public struct SteamLibrary: Sendable {
 
 /// Windows ↔ host path mapping through the prefix's dosdevices links.
 public enum WindowsPath {
+    /// Wine chooses the most specific mapped drive for a host path (normally C: for the prefix, Z: for /).
+    public static func windowsPath(forHostPath path: String, in bottle: Bottle) -> String {
+        let resolved = URL(fileURLWithPath: path).resolvingSymlinksInPath().path
+        var roots: [(drive: String, path: String)] = [("c", bottle.driveC.resolvingSymlinksInPath().path), ("z", "/")]
+        let devices = bottle.prefix.appendingPathComponent("dosdevices")
+        for name in (try? FileManager.default.contentsOfDirectory(atPath: devices.path)) ?? [] {
+            guard name.count == 2, name.last == ":", let letter = name.first, letter.isASCII, letter.isLetter else { continue }
+            roots.append((String(letter).lowercased(), devices.appendingPathComponent(name).resolvingSymlinksInPath().path))
+        }
+        let root = roots.filter { resolved == $0.path || resolved.hasPrefix($0.path == "/" ? "/" : $0.path + "/") }
+            .max { $0.path.count < $1.path.count }!
+        let suffix = resolved.dropFirst(root.path == "/" ? 0 : root.path.count)
+        return root.drive.uppercased() + ":" + (suffix.isEmpty ? "\\" : suffix.replacingOccurrences(of: "/", with: "\\"))
+    }
+
     public static func hostURL(for windowsPath: String, in bottle: Bottle) throws -> URL {
         let normalized = windowsPath.replacingOccurrences(of: "/", with: "\\")
         guard normalized.count >= 2, normalized.dropFirst().first == ":" else {

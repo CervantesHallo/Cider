@@ -1,0 +1,12 @@
+--- a/dlls/win32u/window.c
++++ b/dlls/win32u/window.c
+@@ -2075,5 +2075,9 @@
+     visible_rect.right  -= rect.right;
+     visible_rect.top    -= rect.top;
+     visible_rect.bottom -= rect.bottom;
++    /* WM_NCCALCSIZE may extend the client into the default non-client area without
++     * removing WS_CAPTION. Do not let the host content surface clip that client. */
++    if (intersect_rect( &rect, &rects->client, &rects->window ))
++        union_rect( &visible_rect, &visible_rect, &rect );
+     if (visible_rect.top >= visible_rect.bottom) visible_rect.bottom = visible_rect.top + 1;
+     if (visible_rect.left >= visible_rect.right) visible_rect.right = visible_rect.left + 1;

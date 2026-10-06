@@ -190,6 +190,8 @@ import Testing
         }
         #expect(db.profile(exe: "notepad.exe") == nil)
         #expect(db.profile(exe: "") == nil)
+        #expect(db.profile(exe: #"C:\Program Files\miHoYo Launcher\1.18.0\HYP.exe"#)?.id == "profile.launcher.mihoyo-cn")
+        #expect(db.profile(exe: "HYPHelper.exe")?.actions.processNames == ["HYP.exe", "HYPHelper.exe", "HYSafeMode.exe"])
     }
 
     /// The hot-fix this profile exists for: the CN launcher's CEF GPU process presents into a child

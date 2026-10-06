@@ -30,10 +30,12 @@ import Testing
         #expect(!game.owns(proc(#"C:\Program Files (x86)\Steam\steamapps\common\Riddle Joker\RiddleJoker.exe"#)))
     }
 
-    @Test func programMatchesTargetAndSiblingsButNeverSystemFolders() {
-        let npp = app(.program(target: #"C:\Program Files\Notepad++\notepad++.exe"#))
+    @Test func programMatchesOnlyTargetAndDeclaredHelpersButNeverSystemFolders() {
+        var npp = app(.program(target: #"C:\Program Files\Notepad++\notepad++.exe"#))
+        npp.ownedProcessNames = ["gup.exe"]
         #expect(npp.owns(proc(#"C:\Program Files\Notepad++\notepad++.exe"#)))
         #expect(npp.owns(proc(#"C:\Program Files\Notepad++\updater\gup.exe"#)))
+        #expect(!npp.owns(proc(#"C:\Program Files\Notepad++\independent.exe"#)))
         #expect(!npp.owns(proc(#"C:\windows\system32\explorer.exe"#)))
         let sys = app(.program(target: #"C:\windows\system32\notepad.exe"#))
         #expect(sys.owns(proc(#"C:\windows\system32\notepad.exe"#)))
@@ -44,6 +46,24 @@ import Testing
         #expect(proc(#"C:\windows\system32\explorer.exe"#).isWineInfrastructure)
         #expect(proc(#"C:\windows\system32\winedevice.exe"#).isWineInfrastructure)
         #expect(!proc(#"C:\Program Files\App\explorer.exe"#).isWineInfrastructure)
+    }
+
+    @Test func launcherDoesNotOwnNestedGameLibraries() {
+        var launcher = app(.program(target: #"C:\Program Files\miHoYo Launcher\launcher.exe"#))
+        launcher.ownedProcessNames = ["hyp.exe", "hyphelper.exe"]
+        #expect(launcher.owns(proc(#"C:\Program Files\miHoYo Launcher\1.18.0\HYP.exe"#)))
+        #expect(launcher.owns(proc(#"C:\Program Files\miHoYo Launcher\1.18.0\HYPHelper.exe"#)))
+        #expect(launcher.owns(proc(#"C:\Program Files\miHoYo Launcher\1.18.0\HYPHelper"#)))
+        #expect(!launcher.owns(proc(#"C:\Program Files\miHoYo Launcher\1.18.0\HYPHelper.bak"#)))
+        #expect(!launcher.owns(proc(#"C:\Program Files\miHoYo Launcher\games\Genshin Impact Game\YuanShen.exe"#)))
+        let game = app(.program(target: #"C:\Program Files\miHoYo Launcher\games\Genshin Impact Game\YuanShen.exe"#))
+        #expect(!game.owns(proc(#"C:\Program Files\miHoYo Launcher\games\Genshin Impact Game\UnityCrashHandler64.exe"#)))
+        #expect(!game.owns(proc(#"C:\Program Files\miHoYo Launcher\1.18.0\HYP.exe"#)))
+    }
+
+    @Test func independentProgramsInSameFolderAreNotOwned() {
+        let a = app(.program(target: #"C:\Tools\a.exe"#))
+        #expect(!a.owns(proc(#"C:\Tools\b.exe"#)))
     }
 
     @Test func splitsQuotedArguments() {

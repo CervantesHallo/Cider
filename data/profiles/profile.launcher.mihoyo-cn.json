@@ -1,12 +1,25 @@
 {
   "schema": "cider.profile/v1",
   "id": "profile.launcher.mihoyo-cn",
-  "revision": 1,
+  "revision": 2,
   "target": "launcher.mihoyo-cn",
-  "match": { "exe": "launcher.exe" },
+  "match": {
+    "exe": "launcher.exe",
+    "exe_aliases": [
+      "HYP.exe",
+      "HYPHelper.exe"
+    ]
+  },
   "actions": {
-    "env": { "DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN": "1" },
-    "bottle_locale": "zh-Hans"
+    "env": {
+      "DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN": "1"
+    },
+    "bottle_locale": "zh-Hans",
+    "process_names": [
+      "HYP.exe",
+      "HYPHelper.exe",
+      "HYSafeMode.exe"
+    ]
   },
   "known_issues": [
     {

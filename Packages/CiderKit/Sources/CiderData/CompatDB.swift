@@ -105,7 +105,8 @@ public struct Profile: Codable, Sendable, Equatable {
     public struct Match: Codable, Sendable, Equatable {
         public var steamAppID: String?
         public var exe: String?
-        enum CodingKeys: String, CodingKey { case steamAppID = "steam_appid", exe }
+        public var exeAliases: [String]?
+        enum CodingKeys: String, CodingKey { case steamAppID = "steam_appid", exe, exeAliases = "exe_aliases" }
     }
 
     public struct Actions: Codable, Sendable, Equatable {
@@ -114,9 +115,12 @@ public struct Profile: Codable, Sendable, Equatable {
         public var dllOverrides: [String: String]?        // dll → "native,builtin" …
         public var registry: [RegistrySet]?
         public var bottleLocale: String?                   // recommendation shown before install/launch
+        /// Explicit helper image names used for lifecycle ownership, constrained to the main program's directory.
+        public var processNames: [String]?
         enum CodingKeys: String, CodingKey {
             case env, winver, registry
             case dllOverrides = "dll_overrides", bottleLocale = "bottle_locale"
+            case processNames = "process_names"
         }
     }
 
@@ -201,7 +205,7 @@ public struct CompatDB: Sendable {
     public func profile(exe program: String) -> Profile? {
         let name = (program.replacingOccurrences(of: "\\", with: "/") as NSString).lastPathComponent.lowercased()
         guard !name.isEmpty else { return nil }
-        return profiles.first { $0.match.exe?.lowercased() == name }
+        return profiles.first { $0.match.exe?.lowercased() == name || ($0.match.exeAliases?.contains { $0.lowercased() == name } ?? false) }
     }
 
     /// Most specific verdict covering the key (fewest `*` dimensions; ties → most recently verified).
