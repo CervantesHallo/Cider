@@ -22,12 +22,13 @@
 
 - 千恋＊万花、魔女的夜宴及 Steam 有历史运行证据；不能把它们推广成全部柚子社或全部 Windows 程序已经通过。
 - 原神本地7.1.0国服安装：7777个本地清单项存在且大小一致，主程序MD5符合本地清单；Windows路径可访问。未做全部资产哈希或游戏会话。当前确定启动障碍为 Cider 门禁，原“找不到文件”弹窗/返回码尚未复现。
-- HYP 顶部裁切有真实日志：client.top=82、r1 visible.top=112；本机 r2 修复后 Wine/Cocoa.top=82，30px裁切消除。点击、动态缩放、Retina与完整视觉仍待验收。
+- HYP 顶部裁切有真实日志：client.top=82、r1 visible.top=112；本机 r2 修复后 Wine/Cocoa.top=82。2026-10-07 用户完整截图显示顶部/底部内容完整，用户确认可拖动、不能缩放；缩放是否为原生固定尺寸行为待 Windows 对照。按钮点击、最小化/恢复、不同显示比例仍待验收。
 - 米哈游 CEF 必须有跨进程子窗口支持和 DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN=1。Profile 现在匹配默认安装路径及数字版本目录，不凭裸 launcher.exe/HYP 名称命中；自定义目录需要明确范围。
 - 多个灰色 Dock 图标与宿主缺 LSUIElement 有关。已设 agent、保留真窗口前台晋升，7个引擎已迁移。不要改系统 Dock 固定项掩盖问题。
 - 自动化读取裸/宿主 Wine 窗口仍 timeout。2026-10-07 独立的逐程序 bundle ID 已生成并实际重启HYP，但按路径/唯一ID读取仍timeout；该方案已撤回。新标识不等于视觉验收，不重复无变化重试。
 - 历史 HYP 日志30.76GB且末段有msync pool exhausted。不能把它直接认定为每次白屏根因。诊断已改每文件最多4MiB头尾读取；不要全读巨型日志。
-- SePrivilegeCheck/SeSinglePrivilegeCheck 的 KernelMode 成功有微软契约依据；UserMode 的令牌/启用状态、集合和输出须独立实现/对照。历史矩阵的“不可达”只描述指定模型，不代表所有未来架构永久不可能。
+- SePrivilegeCheck/SeSinglePrivilegeCheck 的 KernelMode 成功有微软契约依据；前者还有输出标记义务。UserMode 的令牌/启用状态、集合和输出须独立实现/对照。当前 CX26.3 的 token 引用及 context 捕获/锁定/释放仍为空桩，不能拿 user-mode token API 冒充已完成依赖。矩阵 revision 2 校正了两个权限条目与模型概述；不是运行时修复或全表重新对照。
+- 2026-10-07 用户授权通过 ToDesk 访问 Windows 参考机 Cervantes，并手动接通；已读到远程画面。坐标输入仍报 noWindowsAvailable，键盘/终端焦点未稳定，已请求打开普通 PowerShell。Windows/WDK 版本仍未核实。只读环境采集脚本已准备，未执行；记忆不保存设备代码、IP 或凭据。
 - A01–A17 的代码已实施并构建，故障注入、完整回归、真实Windows对照仍待完成。内核矩阵/参考规格不是内核运行时实现，启动器不是游戏可玩性。
 
 ## 接管入口
