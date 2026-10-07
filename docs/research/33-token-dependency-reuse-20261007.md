@@ -24,4 +24,12 @@
 
 复用候选仍要求对抗性验证：上游函数请求PROCESS_ALL_ACCESS/TOKEN_ALL_ACCESS，经当前handle路径可能受到访问检查；源码有函数体不等于兑现Windows kernel对象引用的全部条件。主令牌可引用也不等于当前线程模拟token正确，更不等于完整权限或KMDF能力。
 
+## 请求上下文与锁的依赖补充
+
+当前CX26.3的`wine_ntoskrnl_main_loop`在领取请求时设置client_tid和TEB Instrumentation[1]，下一轮清空该slot；`KeGetCurrentThread`使用此对象或client_tid映射，`IoGetCurrentProcess`及当前线程/进程ID再经该对象取得信息（ntoskrnl.c:925、994–995、2479、2562、3206）。这是既有请求者映射的实现线索。直接在winedevice线程调用NtOpenThreadToken(GetCurrentThread())不自动沿用这条映射；不能由宿主线程有token推导请求者token正确。
+
+后续须分别记录同步dispatch、无活动请求的调用、系统/工作线程、异步完成的实际上下文与引用保持；ID、guest对象指针和token handle不能互换。线程所属进程与附加的进程上下文在Windows也可能不同，不能把两个ID一律合并。[微软进程ID契约](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-psgetcurrentprocessid)
+
+SeLockSubjectContext取得primary与impersonation token的读锁，每次调用须平衡解锁；它锁的是token，不是仅保护驱动宿主自己的字典。[锁](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-selocksubjectcontext)、[解锁](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-seunlocksubjectcontext) 架构推断：若其他guest进程仍能直接通过wineserver改变同一token，只加winedevice内的互斥锁不够。把token复制为永不变化的缓存也不自动兑现“捕获引用后、锁定前”的可观测状态变化。须对实际对象读写、锁顺序、生命周期和失联释放一并设计并取得Windows对照，不能以查询结果偶然一致代替锁语义。
+
 收益是复用实际对象所有权机制，减少重复实现；成本是验证访问范围、引用和线程请求上下文。验收需要research/28的Windows参考、相同输入的候选输出、明确失败范围和构建哈希。未取得这些证据前不升级矩阵disposition或游戏许可。后续补丁独立提交，可撤回并恢复已记录基线；本轮只采用依赖/复用顺序，没有采用运行时补丁。
