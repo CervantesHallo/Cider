@@ -185,13 +185,13 @@ import Testing
         #expect(db.rejected.isEmpty, "\(db.rejected)")
         for form in [#"C:\Program Files\miHoYo Launcher\launcher.exe"#,
                      "/Users/x/Bottles/b/drive_c/Program Files/miHoYo Launcher/launcher.exe",
-                     "LAUNCHER.EXE"] {
+                     #"C:\PROGRAM FILES\MIHOYO LAUNCHER\LAUNCHER.EXE"#] {
             #expect(db.profile(exe: form)?.id == "profile.launcher.mihoyo-cn", "did not match \(form)")
         }
         #expect(db.profile(exe: "notepad.exe") == nil)
         #expect(db.profile(exe: "") == nil)
         #expect(db.profile(exe: #"C:\Program Files\miHoYo Launcher\1.18.0\HYP.exe"#)?.id == "profile.launcher.mihoyo-cn")
-        #expect(db.profile(exe: "HYPHelper.exe")?.actions.processNames == ["HYP.exe", "HYPHelper.exe", "HYSafeMode.exe"])
+        #expect(db.profile(exe: #"C:\Program Files\miHoYo Launcher\1.18.0\HYPHelper.exe"#)?.actions.processNames == ["HYP.exe", "HYPHelper.exe", "HYSafeMode.exe"])
     }
 
     /// The hot-fix this profile exists for: the CN launcher's CEF GPU process presents into a child
@@ -199,7 +199,7 @@ import Testing
     /// window stays white. Verified on bottle-ca8f, engine cider-cx26.3-r1-x86_64, 2026-09-28.
     @Test func theMihoyoLauncherProfileCarriesTheCrossProcessSwapchainOptIn() throws {
         let db = CompatDB(directories: [CompatDBTests.repoData])
-        let profile = try #require(db.profile(exe: "launcher.exe"))
+        let profile = try #require(db.profile(exe: #"C:\Program Files\miHoYo Launcher\launcher.exe"#))
         #expect(profile.actions.env?["DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN"] == "1")
         #expect(profile.knownIssues?.isEmpty == false)
         // It must stay clean under the red lines: no injection, no spoofing, no DLL overrides.
@@ -214,7 +214,7 @@ import Testing
     /// launcher came back white. The store owns the data so `runner(for:)` cannot forget it.
     @Test func theStoreLoadsCompatDataForEveryLaunchPath() {
         let store = BottleStore(paths: .standard(), compat: CompatDB(directories: [CompatDBTests.repoData]))
-        #expect(store.compat.profile(exe: "launcher.exe")?.id == "profile.launcher.mihoyo-cn")
+        #expect(store.compat.profile(exe: #"C:\Program Files\miHoYo Launcher\launcher.exe"#)?.id == "profile.launcher.mihoyo-cn")
     }
 
     @Test func compatDirectoriesArePriorityOrdered() {

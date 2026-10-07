@@ -106,7 +106,14 @@ public struct Profile: Codable, Sendable, Equatable {
         public var steamAppID: String?
         public var exe: String?
         public var exeAliases: [String]?
-        enum CodingKeys: String, CodingKey { case steamAppID = "steam_appid", exe, exeAliases = "exe_aliases" }
+        /// Absolute Windows installation directories. Match only executables directly inside one of
+        /// these directories, or inside one numeric version directory (e.g. 1.18.0) immediately below it.
+        /// A scoped profile never matches a bare executable name or a drive-relative path.
+        public var installDirectories: [String]?
+        enum CodingKeys: String, CodingKey {
+            case steamAppID = "steam_appid", exe, exeAliases = "exe_aliases"
+            case installDirectories = "install_directories"
+        }
     }
 
     public struct Actions: Codable, Sendable, Equatable {
@@ -150,13 +157,18 @@ public struct CompatDB: Sendable {
 
     public init() {}
 
-    /// Loads every `*.json` under the directories (later ones override earlier entries with the same id).
+    /// Loads every `*.json` under the directories (later directories override earlier accepted entries
+    /// with the same id; paths within a directory are processed in lexical order).
+    /// Profiles are checked only after all game overrides have resolved, against their final target.
     /// Entries that fail to decode or break a red line are dropped and listed in `rejected`.
     public init(directories: [URL]) {
         let decoder = JSONDecoder()
+        var pendingProfiles: [(profile: Profile, file: String)] = []
         for dir in directories {
             guard let walker = FileManager.default.enumerator(at: dir, includingPropertiesForKeys: nil) else { continue }
-            for case let url as URL in walker where url.pathExtension == "json" {
+            let files = walker.compactMap { $0 as? URL }.filter { $0.pathExtension == "json" }
+                .sorted { $0.path < $1.path }
+            for url in files {
                 guard let data = try? Data(contentsOf: url),
                       let head = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                       let schema = head["schema"] as? String else { continue }
@@ -168,11 +180,7 @@ public struct CompatDB: Sendable {
                         games[game.id] = game
                     case "cider.profile/v1":
                         let profile = try decoder.decode(Profile.self, from: data)
-                        if let reason = RedLines.violation(in: profile, target: games[profile.target]) {
-                            rejected.append((url.lastPathComponent, reason)); continue
-                        }
-                        profiles.removeAll { $0.id == profile.id }
-                        profiles.append(profile)
+                        pendingProfiles.append((profile, url.lastPathComponent))
                     case "cider.recipe/v1":
                         let recipe = try decoder.decode(Recipe.self, from: data)
                         if let reason = RecipePolicy.violation(in: recipe) { rejected.append((url.lastPathComponent, reason)); continue }
@@ -190,6 +198,15 @@ public struct CompatDB: Sendable {
                 }
             }
         }
+        var acceptedProfiles: [String: Profile] = [:]
+        for candidate in pendingProfiles {
+            if let reason = RedLines.violation(in: candidate.profile, target: games[candidate.profile.target]) {
+                rejected.append((candidate.file, reason))
+                continue
+            }
+            acceptedProfiles[candidate.profile.id] = candidate.profile
+        }
+        profiles = acceptedProfiles.values.sorted { $0.id < $1.id }
     }
 
     public func game(steamAppID: String) -> GameEntry? {
@@ -200,12 +217,79 @@ public struct CompatDB: Sendable {
         profiles.first { $0.match.steamAppID == steamAppID }
     }
 
-    /// Profile for a program about to be launched, matched on its Windows image name. `program` may be
-    /// a Windows path, a Mac path or a bare exe name; only the last component is compared.
+    /// Profile for a program about to be launched. Unscoped legacy profiles still match by image name.
+    /// Scoped profiles additionally require an absolute Windows path or a host path under drive_c.
+    /// Conflicts prefer the deepest installation scope, then the primary exe over an alias, then the
+    /// higher revision, then lexical profile id. Filesystem enumeration never decides the winner.
     public func profile(exe program: String) -> Profile? {
         let name = (program.replacingOccurrences(of: "\\", with: "/") as NSString).lastPathComponent.lowercased()
         guard !name.isEmpty else { return nil }
-        return profiles.first { $0.match.exe?.lowercased() == name || ($0.match.exeAliases?.contains { $0.lowercased() == name } ?? false) }
+        let directory = Self.windowsPathComponents(program, allowHostPath: true).map { Array($0.dropLast()) }
+        let candidates = profiles.compactMap { profile -> (profile: Profile, scope: Int, primary: Bool)? in
+            let primary = profile.match.exe?.lowercased() == name
+            guard primary || (profile.match.exeAliases?.contains { $0.lowercased() == name } ?? false) else { return nil }
+            // Older local data may override the bundled profile without the new scope field. Keep it
+            // decodable and useful at known installations, but never restore basename-only matching.
+            let legacyMihoyo = profile.target == "launcher.mihoyo-cn" || profile.id == "profile.launcher.mihoyo-cn"
+            let roots = profile.match.installDirectories ?? (legacyMihoyo ? Self.mihoyoInstallDirectories : nil)
+            if let roots {
+                guard let directory,
+                      let scope = roots.compactMap({ Self.installationScope($0, directory: directory) }).max() else { return nil }
+                return (profile, scope, primary)
+            }
+            return (profile, 0, primary)
+        }
+        return candidates.sorted { a, b in
+            if a.scope != b.scope { return a.scope > b.scope }
+            if a.primary != b.primary { return a.primary }
+            if a.profile.revision != b.profile.revision { return a.profile.revision > b.profile.revision }
+            return a.profile.id < b.profile.id
+        }.first?.profile
+    }
+
+    private static let mihoyoInstallDirectories = [
+        "C:/Program Files/miHoYo Launcher", "C:/Program Files (x86)/miHoYo Launcher",
+    ]
+
+    private static func installationScope(_ root: String, directory: [String]) -> Int? {
+        guard let components = windowsPathComponents(root, allowHostPath: false), components.count > 1,
+              directory.starts(with: components) else { return nil }
+        let suffix = directory.dropFirst(components.count)
+        if suffix.isEmpty { return components.count }
+        // Do not inherit a launcher's profile into games, arbitrary child products, or helper trees.
+        guard suffix.count == 1, let version = suffix.first else { return nil }
+        let numbers = version.split(separator: ".", omittingEmptySubsequences: false)
+        guard numbers.count >= 2,
+              numbers.allSatisfy({ !$0.isEmpty && $0.utf8.allSatisfy { $0 >= 48 && $0 <= 57 } }) else { return nil }
+        return components.count
+    }
+
+    /// Pure lexical normalization: no filesystem access or assumption about the caller's current directory.
+    /// Resolve dot components before mapping a host's drive_c into C:, so traversal cannot escape a scope.
+    private static func windowsPathComponents(_ path: String, allowHostPath: Bool) -> [String]? {
+        let normalized = path.replacingOccurrences(of: "\\", with: "/").lowercased()
+        let parts = normalized.split(separator: "/").map(String.init)
+        guard let first = parts.first else { return nil }
+        let isDrive = first.utf8.count == 2 && first.utf8.last == 58
+            && first.utf8.first.map { $0 >= 97 && $0 <= 122 } == true
+        let isWindowsPath = isDrive && normalized.hasPrefix(first + "/")
+        guard isWindowsPath || (allowHostPath && normalized.hasPrefix("/") && !normalized.hasPrefix("//")) else { return nil }
+        var components: [String] = isWindowsPath ? [first] : []
+        for part in parts.dropFirst(isWindowsPath ? 1 : 0) {
+            if part == "." { continue }
+            if part == ".." {
+                guard components.count > (isWindowsPath ? 1 : 0) else { return nil }
+                components.removeLast()
+            } else {
+                components.append(part)
+            }
+        }
+        if isWindowsPath { return components }
+        // The caller provides no prefix identity. Multiple drive_c markers are ambiguous; do not
+        // interpret a nested product's directory as a second Windows drive and widen the scope.
+        guard let driveC = components.firstIndex(of: "drive_c"),
+              components.lastIndex(of: "drive_c") == driveC else { return nil }
+        return ["c:"] + Array(components.dropFirst(driveC + 1))
     }
 
     /// Most specific verdict covering the key (fewest `*` dimensions; ties → most recently verified).

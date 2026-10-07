@@ -16,6 +16,7 @@ public enum AppLifecycle {
 
     /// Returns nil for an existing instance instead of spawning another single-instance launcher.
     public static func start(_ app: CatalogApp, using runner: WineRunner, cwd: URL?) throws -> SessionHandle? {
+        try runner.withBottleOperation {
         try start(matching: { ProcessScanner.scan().filter { $0.prefixPath == runner.prefix.path && app.owns($0) } }) {
             let isSteam: Bool = { if case .program = app.kind { return false }; return true }()
             return try runner.launch(runner.plan(program: app.launchProgram, arguments: app.launchArguments,
@@ -23,9 +24,14 @@ public enum AppLifecycle {
                                                  extraEnv: (isSteam ? SteamLibrary.uiEnvironment : [:])
                                                     .merging(app.launchEnvironment) { $1 }))
         }
+        }
     }
 
     public static func stop(_ app: CatalogApp, using runner: WineRunner) throws {
+        try runner.withBottleOperation { try stopLocked(app, using: runner) }
+    }
+
+    private static func stopLocked(_ app: CatalogApp, using runner: WineRunner) throws {
         let matching = { ProcessScanner.scan().filter { $0.prefixPath == runner.prefix.path && app.owns($0) } }
         // Do not start Steam just to shut down a client which has already exited.
         if case .steamClient = app.kind, !matching().isEmpty {
@@ -38,8 +44,10 @@ public enum AppLifecycle {
     }
 
     public static func restart(_ app: CatalogApp, using runner: WineRunner, cwd: URL?) throws -> SessionHandle? {
-        try stop(app, using: runner)
-        return try start(app, using: runner, cwd: cwd)
+        try runner.withBottleOperation {
+            try stopLocked(app, using: runner)
+            return try start(app, using: runner, cwd: cwd)
+        }
     }
 
     static func start<T>(matching: () -> [WineProcess], spawn: () throws -> T) rethrows -> T? {

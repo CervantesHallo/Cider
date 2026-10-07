@@ -1,13 +1,17 @@
 {
   "schema": "cider.profile/v1",
   "id": "profile.launcher.mihoyo-cn",
-  "revision": 3,
+  "revision": 4,
   "target": "launcher.mihoyo-cn",
   "match": {
     "exe": "launcher.exe",
     "exe_aliases": [
       "HYP.exe",
       "HYPHelper.exe"
+    ],
+    "install_directories": [
+      "C:\\Program Files\\miHoYo Launcher",
+      "C:\\Program Files (x86)\\miHoYo Launcher"
     ]
   },
   "actions": {

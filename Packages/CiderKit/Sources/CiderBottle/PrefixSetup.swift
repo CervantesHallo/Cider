@@ -100,9 +100,10 @@ public enum PrefixSetup {
     /// and don't trigger macOS privacy prompts (docs/plan/01 §9).
     public static func isolateShellFolders(in driveC: URL) throws {
         let fm = FileManager.default
-        let users = driveC.appendingPathComponent("users", isDirectory: true)
+        let users = try FileSafety.child("users", in: driveC, rejectSymlinks: true)
         guard let profiles = try? fm.contentsOfDirectory(at: users, includingPropertiesForKeys: nil) else { return }
         for profile in profiles {
+            _ = try FileSafety.child("users/" + profile.lastPathComponent, in: driveC, rejectSymlinks: true)
             guard let items = try? fm.contentsOfDirectory(at: profile, includingPropertiesForKeys: [.isSymbolicLinkKey]) else { continue }
             for item in items where (try? item.resourceValues(forKeys: [.isSymbolicLinkKey]).isSymbolicLink) == true {
                 try fm.removeItem(at: item)

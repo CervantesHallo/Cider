@@ -20,6 +20,7 @@ public struct SessionHandle: Sendable {
     public let pid: pid_t
     public let directory: URL
     public var log: URL { directory.appendingPathComponent("wine.log") }
+    public var warning: String? = nil
 }
 
 /// WINEDEBUG presets (docs/plan/01 §8).
@@ -118,12 +119,21 @@ public struct WineRunner: Sendable {
                 .joined(separator: ":")
         }
         for (key, value) in bottleEnvironment { env[key] = value }
-        for (key, value) in extra { env[key] = value }
+        for (key, value) in extra {
+            let upper = key.uppercased()
+            if ["DYLD_", "LD_PRELOAD", "WINELOADER", "WINESERVER", "WINEDLLPATH", "CIDER_"].contains(where: { upper.hasPrefix($0) }) { continue }
+            env[key] = value
+        }
+        env["WINEPREFIX"] = prefix.path
+        env["WINELOADER"] = engine.wine.path
+        env["CIDER_BOTTLE"] = bottleID
         // Bottle-wide settings come last so a per-launch extra can never split the prefix.
         for (key, value) in sync.environment { env[key] = value }
         // R3 preflight inside the engine: Cider's engines refuse these images at NtCreateUserProcess
         // (engine/patches/cider/0001), so a launcher in the bottle cannot start them either.
-        env["CIDER_PREFLIGHT_DENY"] = Preflight.gatedExecutables.keys.sorted().joined(separator: ";")
+        var denied = Set(Preflight.gatedExecutables.keys)
+        if cloneBlocksSteam { denied.insert("steam.exe") }
+        env["CIDER_PREFLIGHT_DENY"] = denied.sorted().joined(separator: ";")
         for (key, value) in locale.environment { env[key] = value }
         return env
     }
@@ -146,15 +156,67 @@ public struct WineRunner: Sendable {
 
     /// Spawns the plan, recording `session.json` and an audit line. Returns immediately.
     public func launch(_ plan: LaunchPlan) throws -> SessionHandle {
+        try withBottleOperation {
+            try FileOperationLock.withLock(at: EngineStore(paths: paths).operationLock(for: engine.manifest.id)) {
+                try launchLocked(plan)
+            }
+        }
+    }
+
+    public func withBottleOperation<T>(_ work: () throws -> T) throws -> T {
+        _ = try FileSafety.component(bottleID)
+        return try FileOperationLock.withLock(at: paths.state.appendingPathComponent("locks/bottles/\(bottleID).lock"), work)
+    }
+
+    private var cloneBlocksSteam: Bool {
+        let url = paths.bottles.appendingPathComponent(bottleID + "/cider-bottle.json")
+        guard let config = try? JSONFile.read(BottleConfig.self, from: url) else { return true }
+        return config.settings["cloneSteamBlocked"] == "1"
+    }
+
+    private func launchLocked(_ plan: LaunchPlan) throws -> SessionHandle {
         // R3 preflight: gated games never start (any argv element counts, so `cmd /c start x.exe` is caught too).
         if let block = plan.argv.lazy.compactMap({ Preflight.check(program: $0, db: nil) }).first {
             throw block
+        }
+        let configURL = paths.bottles.appendingPathComponent(bottleID + "/cider-bottle.json")
+        let current = try JSONFile.read(BottleConfig.self, from: configURL)
+        let expectedPrefix = try FileSafety.child(bottleID + "/prefix", in: paths.bottles, rejectSymlinks: true)
+        guard current.id == bottleID, expectedPrefix.standardizedFileURL == prefix.standardizedFileURL,
+              current.engine.id == engine.manifest.id, current.locale == locale,
+              SyncMode(setting: current.settings[SyncMode.settingKey]) == sync else {
+            throw CiderError.invalid("瓶子设置已改变，请重新发起启动。")
+        }
+        if current.settings["cloneSteamBlocked"] == "1" && plan.argv.contains(where: { Preflight.imageName(of: $0) == "steam.exe" }) {
+            throw CiderError.invalid("此瓶子是 Steam 前缀的副本，为保护原登录，不能在副本中启动 Steam。请新建瓶子并重新安装登录。")
+        }
+        try EnginePolicy.requireChildPreflight(engine)
+        // Runtime cannot repair Integration's journals, but must never start a partly patched prefix.
+        let bottleDirectory = expectedPrefix.deletingLastPathComponent()
+        let history = try FileSafety.child(".cider/patches", in: bottleDirectory, rejectSymlinks: true)
+        if FileSafety.exists(history) {
+            for app in try FileManager.default.contentsOfDirectory(at: history, includingPropertiesForKeys: nil) where !app.lastPathComponent.hasPrefix(".") {
+                _ = try FileSafety.child(".cider/patches/" + app.lastPathComponent, in: bottleDirectory, rejectSymlinks: true)
+                for record in try FileManager.default.contentsOfDirectory(at: app, includingPropertiesForKeys: nil) where !record.lastPathComponent.hasPrefix(".") && record.lastPathComponent != "sequence.json" {
+                    let journal = try FileSafety.child("journal.json", in: record, rejectSymlinks: true)
+                    if FileSafety.exists(journal) {
+                        let data = try Data(contentsOf: journal)
+                        guard let value = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+                              let state = value["state"] as? String else { throw CiderError.invalid("补丁恢复记录损坏，启动已暂停。") }
+                        if state == "mutating" { throw CiderError.invalid("补丁操作尚未恢复。请在游戏详情重新安装或撤销补丁，恢复成功后再启动。") }
+                    }
+                }
+            }
         }
         // Upgrade host metadata before starting any Wine child, including existing engines.
         // Do this only on launch: stopping a process must not depend on writable engine metadata.
         try EngineHost.ensure(engineDirectory: engine.directory, wineRoot: engine.wineRoot,
                               cpuBackend: engine.manifest.cpuBackend)
         var plan = plan
+        // The plan is public data; preserve the engine/prefix authority even when it was supplied directly.
+        guard plan.loader == engine.bin.appendingPathComponent("wine").path || plan.loader == engine.wine.path,
+              plan.bottleID == bottleID, plan.engineID == engine.manifest.id else { throw CiderError.invalid("启动计划与瓶子引擎不一致。") }
+        plan.env = environment(extra: plan.env)
         if plan.loader == engine.bin.appendingPathComponent("wine").path {
             plan.loader = engine.wine.path
             plan.env["WINELOADER"] = engine.wine.path
@@ -163,16 +225,31 @@ public struct WineRunner: Sendable {
         let safeLabel = plan.label.replacingOccurrences(of: "/", with: "_")
         let sessionDir = paths.sessions
             .appendingPathComponent(plan.bottleID, isDirectory: true)
-            .appendingPathComponent("\(Identifiers.compactTimestamp())-\(safeLabel)", isDirectory: true)
+            .appendingPathComponent("\(Identifiers.compactTimestamp())-\(safeLabel)-\(UUID().uuidString)", isDirectory: true)
         try fm.ensureDirectory(sessionDir)
         try JSONFile.write(plan, to: sessionDir.appendingPathComponent("session.json"))
 
+        // Open the append target before spawn; the descriptor remains owned until the audit is committed.
+        try fm.ensureDirectory(paths.audit)
+        let auditURL = paths.audit.appendingPathComponent("spawn.jsonl")
+        let auditFD = open(auditURL.path, O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC | O_NOFOLLOW, 0o600)
+        guard auditFD >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        defer { close(auditFD) }
         let pid = try Spawn.launch(
             executable: plan.loader, arguments: plan.argv, environment: plan.env,
             workingDirectory: plan.cwd, logPath: sessionDir.appendingPathComponent("wine.log").path
         )
-        try appendAudit(plan: plan, pid: pid)
-        return SessionHandle(pid: pid, directory: sessionDir)
+        var auditWarning: String?
+        do {
+            try appendAudit(plan: plan, pid: pid, descriptor: auditFD)
+        } catch {
+            auditWarning = "程序已启动，但审计记录未写入；会话所有权仍保留。"
+            // Retain the true started state and session ownership, even if the post-spawn disk write fails.
+            try? JSONFile.write(["warning": "spawn audit write failed", "pid": String(pid)],
+                                to: sessionDir.appendingPathComponent("audit-warning.json"))
+            FileHandle.standardError.write(Data("Cider: 程序已启动，但审计记录未写入：\(error)\n".utf8))
+        }
+        return SessionHandle(pid: pid, directory: sessionDir, warning: auditWarning)
     }
 
     /// Runs a plan to completion and returns its exit code.
@@ -194,6 +271,10 @@ public struct WineRunner: Sendable {
     /// `wineserver -k`: kills every process in the prefix. Processes whose wineserver already died (orphans,
     /// which ignore SIGTERM) are found by the bottle tag in their environment and killed as well.
     public func killAll() throws {
+        try withBottleOperation { try killAllLocked() }
+    }
+
+    private func killAllLocked() throws {
         // Wine returns 1 when no server owns the lock; still clean up tagged orphan processes.
         try wineserver(["-k"], allowNoServer: true)
         let matches = { (process: WineProcess) in
@@ -225,20 +306,22 @@ public struct WineRunner: Sendable {
         }
     }
 
-    private func appendAudit(plan: LaunchPlan, pid: pid_t) throws {
-        try FileManager.default.ensureDirectory(paths.audit)
+    private func appendAudit(plan: LaunchPlan, pid: pid_t, descriptor: Int32) throws {
         let entry: [String: String] = [
             "t": Identifiers.timestamp(), "pid": String(pid), "bottle": plan.bottleID,
             "engine": plan.engineID, "program": plan.argv.first ?? "",
         ]
         let data = try JSONSerialization.data(withJSONObject: entry, options: [.sortedKeys]) + Data([0x0A])
-        let url = paths.audit.appendingPathComponent("spawn.jsonl")
-        if let handle = try? FileHandle(forWritingTo: url) {
-            defer { try? handle.close() }
-            try handle.seekToEnd()
-            try handle.write(contentsOf: data)
-        } else {
-            try data.write(to: url)
+        try FileOperationLock.withLock(at: paths.state.appendingPathComponent("locks/spawn-audit.lock")) {
+            try data.withUnsafeBytes { bytes in
+                var offset = 0
+                while offset < bytes.count {
+                    let count = write(descriptor, bytes.baseAddress!.advanced(by: offset), bytes.count - offset)
+                    if count < 0 && errno == EINTR { continue }
+                    guard count > 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+                    offset += count
+                }
+            }
         }
     }
 }

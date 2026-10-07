@@ -332,6 +332,7 @@ struct Run: ParsableCommand {
             if code != 0 { throw ExitCode(code) }
         } else {
             let session = try runner.launch(plan)
+            if let warning = session.warning { FileHandle.standardError.write(Data((warning + "\n").utf8)) }
             print("started pid \(session.pid) · log \(session.log.path)")
         }
     }

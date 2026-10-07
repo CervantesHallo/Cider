@@ -38,8 +38,8 @@ v0 先行的理由：它与现在跑通 Steam 的组合在源码上等价，差�
 | 0008/0009 TEB FiberData/QoS 槽位 | 取 | 0011b 带着它们时 Steam 已验证可用；逐个复核后再决定是否上游化 |
 | 0010 mfreadwrite video processor | 取 | 视频播放（开场动画）相关 |
 | 0011 LastError 放进 gs 槽 | 取 | 0011b 已含 |
-| 0012 x87sidecar | 不取 | 试验性质 |
-| 0013 NX compat under Rosetta | 待定 | 0011b 未含；单独验证后再决定 |
+| 0012 x87sidecar | 已在实际 v0 配方编译，默认不启用 | 实验入口须显式环境配置；未验收、不能作为米哈游适配依据 |
+| 0013 NX compat under Rosetta | 已在实际 v0 配方编译 | 保留单独验收要求；配方状态与最初提案分别记录 |
 
 Cider 自己的补丁（主题化，尾注 `Cider-Topic:`）：
 

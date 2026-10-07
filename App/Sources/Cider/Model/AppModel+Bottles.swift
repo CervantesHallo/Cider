@@ -180,8 +180,10 @@ extension AppModel {
     /// Sync is bottle-wide and fixed when wineserver starts, so the bottle is stopped before the change.
     func setSync(_ mode: SyncMode, for bottle: Bottle) {
         perform("settings:\(bottle.config.id)", nil, done: { _ in "同步方式已改为 \(mode == .msync ? "msync" : "wineserver")，下次启动生效。" }) { store in
-            try store.runner(for: bottle).killAll()
-            return try store.update(bottle) { $0.settings[SyncMode.settingKey] = mode.rawValue }
+            try store.withOperation(bottle) { current in
+                try store.runner(for: current).killAll()
+                return try store.update(current) { $0.settings[SyncMode.settingKey] = mode.rawValue }
+            }
         }
     }
 
@@ -283,7 +285,7 @@ extension AppModel {
             }
             do {
                 let target = try await Task.detached { () -> Bottle in
-                    let store = BottleStore(paths: paths)
+                    let store = BottleStore(paths: paths, compat: db)
                     return try bottleID.map { try store.bottle($0) } ?? store.create(
                         name: recipe.bottle?.name ?? recipe.title(),
                         locale: recipe.bottle?.locale.flatMap(BottleLocale.named) ?? .simplifiedChinese,
@@ -296,7 +298,7 @@ extension AppModel {
                     heldActivityKey = key
                 }
                 let worker = Task.detached { () throws -> Bottle in
-                    let store = BottleStore(paths: paths)
+                    let store = BottleStore(paths: paths, compat: db)
                     try RecipeInstaller(store: store, db: db).install(recipe.id, in: target) { step in
                         guard !Task.isCancelled else { return }
                         Task { @MainActor in

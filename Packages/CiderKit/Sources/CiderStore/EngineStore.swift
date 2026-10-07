@@ -50,7 +50,10 @@ public struct EngineStore: Sendable {
             .compactMap { dir in
                 let manifestURL = dir.appendingPathComponent("manifest.json")
                 guard fm.fileExists(atPath: manifestURL.path) else { return nil }
-                return InstalledEngine(manifest: try JSONFile.read(EngineManifest.self, from: manifestURL), directory: dir)
+                let manifest = try JSONFile.read(EngineManifest.self, from: manifestURL)
+                guard manifest.id == dir.lastPathComponent else { throw CiderError.invalid("引擎标识与目录不一致。") }
+                try Self.validate(manifest, in: dir)
+                return InstalledEngine(manifest: manifest, directory: dir)
             }
             .sorted { $0.manifest.id < $1.manifest.id }
     }
@@ -64,7 +67,11 @@ public struct EngineStore: Sendable {
 
     /// The engine new bottles use when none is given: the newest installed one.
     public func defaultEngine() throws -> InstalledEngine {
-        guard let engine = try list().last else {
+        let available = try list()
+        if let published = available.first(where: { $0.manifest.id == "cider-cx26.3-r1-x86_64" }),
+           (try? EnginePolicy.supportsChildPreflight(published)) == true { return published }
+        if let verified = available.reversed().first(where: { (try? EnginePolicy.supportsChildPreflight($0)) == true }) { return verified }
+        guard let engine = available.last else {
             throw CiderError.notFound("no engine installed — run `ciderctl engine install <package>`")
         }
         return engine
@@ -79,10 +86,9 @@ public struct EngineStore: Sendable {
 
         let staging = paths.engines.appendingPathComponent(".staging-\(UUID().uuidString)", isDirectory: true)
         try fm.ensureDirectory(staging)
-        var keepStaging = false
-        defer { if !keepStaging { try? fm.removeItem(at: staging) } }
+        defer { try? fm.removeItem(at: staging) }
 
-        try Command.run("/usr/bin/tar", ["-xf", package.path, "-C", staging.path])
+        try ArchiveExtractor.unpack(package, to: staging)
         // Files fetched by a browser carry quarantine; engines are verified by hash, not Gatekeeper.
         _ = try? Command.run("/usr/bin/xattr", ["-dr", "com.apple.quarantine", staging.path])
 
@@ -90,14 +96,9 @@ public struct EngineStore: Sendable {
         if let built = try fm.contentsOfDirectory(at: staging, includingPropertiesForKeys: nil)
             .first(where: { fm.fileExists(atPath: $0.appendingPathComponent("manifest.json").path) }),
            var manifest = try? JSONFile.read(EngineManifest.self, from: built.appendingPathComponent("manifest.json")) {
-            let destination = paths.engines.appendingPathComponent(manifest.id, isDirectory: true)
-            if fm.fileExists(atPath: destination.path) { throw CiderError.alreadyExists("engine \(manifest.id)") }
             manifest.source = .init(origin: origin ?? package.path, sha256: sha)
             try JSONFile.write(manifest, to: built.appendingPathComponent("manifest.json"))
-            try fm.moveItem(at: built, to: destination)
-            let engine = InstalledEngine(manifest: manifest, directory: destination)
-            try EngineHost.ensure(engineDirectory: destination, wineRoot: engine.wineRoot, cpuBackend: engine.manifest.cpuBackend)
-            return engine
+            return try installBuilt(directory: built)
         }
 
         guard let wineBin = Self.findWineBinary(in: staging) else {
@@ -106,13 +107,18 @@ public struct EngineStore: Sendable {
         let wineRoot = wineBin.deletingLastPathComponent().deletingLastPathComponent()
         let rootRelative = String(wineRoot.path.dropFirst(staging.path.count + 1))
 
-        let versionOutput = try Command.run(wineBin.path, ["--version"], environment: ["HOME": NSHomeDirectory(), "PATH": "/usr/bin:/bin"])
-        let version = versionOutput.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard version.hasPrefix("wine-") else { throw CiderError.invalid("unexpected `wine --version` output: \(version)") }
+        // Import inspects bytes only. An unknown native loader must never execute merely to identify itself.
+        let pattern = #"(?:wine[-_](?:devel[-_]|staging[-_])?)([0-9]+\.[0-9]+(?:\.[0-9]+)?)"#
+        let regex = try NSRegularExpression(pattern: pattern)
+        let name = package.lastPathComponent
+        let range = NSRange(name.startIndex..., in: name)
+        let hinted = regex.firstMatch(in: name, range: range).flatMap { Range($0.range(at: 1), in: name) }.map { String(name[$0]) }
+        let version = hinted.map { "wine-" + $0 } ?? "wine-unverified"
 
         let tree = requestedTree ?? (package.lastPathComponent.contains("staging") ? "upstream-staging" : "upstream-devel")
-        let id = requestedID ?? "\(tree == "upstream-staging" ? "wine-staging" : "wine-devel")-\(version.dropFirst(5))-x86_64"
-        let destination = paths.engines.appendingPathComponent(id, isDirectory: true)
+        let id = requestedID ?? "imported-" + UUID().uuidString.lowercased()
+        _ = try FileSafety.component(id)
+        let destination = try FileSafety.child(id, in: paths.engines, rejectSymlinks: true)
         if fm.fileExists(atPath: destination.path) { throw CiderError.alreadyExists("engine \(id)") }
 
         let manifest = EngineManifest(
@@ -123,11 +129,7 @@ public struct EngineStore: Sendable {
             source: .init(origin: origin ?? package.path, sha256: sha)
         )
         try JSONFile.write(manifest, to: staging.appendingPathComponent("manifest.json"))
-        try fm.moveItem(at: staging, to: destination)
-        keepStaging = true
-        let engine = InstalledEngine(manifest: manifest, directory: destination)
-        try EngineHost.ensure(engineDirectory: destination, wineRoot: engine.wineRoot, cpuBackend: engine.manifest.cpuBackend)
-        return engine
+        return try installBuilt(directory: staging)
     }
 
     /// Installs an engine directory that already carries its manifest (the output of `engine/build.sh`):
@@ -136,19 +138,56 @@ public struct EngineStore: Sendable {
     public func installBuilt(directory: URL, replacing: Bool = false) throws -> InstalledEngine {
         let fm = FileManager.default
         let manifest = try JSONFile.read(EngineManifest.self, from: directory.appendingPathComponent("manifest.json"))
+        _ = try FileSafety.component(manifest.id)
+        try Self.validate(manifest, in: directory)
         try fm.ensureDirectory(paths.engines)
-        let destination = paths.engines.appendingPathComponent(manifest.id, isDirectory: true)
-        if fm.fileExists(atPath: destination.path) {
-            guard replacing else { throw CiderError.alreadyExists("engine \(manifest.id)") }
-            try fm.trashItem(at: destination, resultingItemURL: nil)
+        return try FileOperationLock.withLock(at: operationLock(for: manifest.id)) {
+            let destination = try FileSafety.child(manifest.id, in: paths.engines, rejectSymlinks: true)
+            if FileSafety.exists(destination) && !replacing { throw CiderError.alreadyExists("engine \(manifest.id)") }
+            if FileSafety.exists(destination) { try requireIdleBottles(using: manifest.id) }
+            let staging = paths.engines.appendingPathComponent(".install-" + UUID().uuidString)
+            var keepBackup = false
+            defer { if !keepBackup { try? fm.removeItem(at: staging) } }
+            try Command.run("/bin/cp", ["-c", "-R", directory.path, staging.path])
+            try Self.validate(manifest, in: staging)
+            let staged = InstalledEngine(manifest: manifest, directory: staging)
+            guard fm.isExecutableFile(atPath: staged.bin.appendingPathComponent("wine").path) else {
+                throw CiderError.invalid("引擎缺少 Wine 加载器。")
+            }
+            try EngineHost.ensure(engineDirectory: staging, wineRoot: staged.wineRoot, cpuBackend: manifest.cpuBackend)
+            if let backup = try FileSafety.commit(staging, to: destination) {
+                keepBackup = true
+                // If Trash is unavailable, retain the hidden old engine instead of reporting a false failure.
+                try? fm.trashItem(at: backup, resultingItemURL: nil)
+            }
+            return InstalledEngine(manifest: manifest, directory: destination)
         }
-        try Command.run("/bin/cp", ["-c", "-R", directory.path, destination.path])
-        let engine = InstalledEngine(manifest: manifest, directory: destination)
-        guard fm.isExecutableFile(atPath: engine.wineRoot.appendingPathComponent("bin/wine").path) else {
-            throw CiderError.invalid("no bin/wine under \(manifest.root) in \(directory.path)")
+    }
+
+    public func operationLock(for id: String) -> URL {
+        paths.state.appendingPathComponent("locks/engines/" + id + ".lock")
+    }
+
+    private static func validate(_ manifest: EngineManifest, in directory: URL) throws {
+        _ = try FileSafety.component(manifest.id)
+        _ = try FileSafety.relativePath(manifest.root)
+        _ = try FileSafety.child(manifest.root, in: directory)
+        for path in manifest.libraryPaths ?? [] { _ = try FileSafety.child(path, in: directory) }
+    }
+
+    private func requireIdleBottles(using id: String) throws {
+        let fm = FileManager.default
+        guard FileSafety.exists(paths.bottles) else { return }
+        for directory in try fm.contentsOfDirectory(at: paths.bottles, includingPropertiesForKeys: nil) {
+            guard !directory.lastPathComponent.hasPrefix(".") else { continue }
+            let file = directory.appendingPathComponent("cider-bottle.json")
+            guard FileSafety.exists(file) else { continue }
+            let config = try JSONFile.read(BottleConfig.self, from: file)
+            if config.engine.id == id && (PrefixServer.isRunning(prefix: directory.appendingPathComponent("prefix"))
+                || PrefixServer.hasProcesses(prefix: directory.appendingPathComponent("prefix"), bottleID: config.id)) {
+                throw CiderError.invalid("这个引擎仍有瓶子运行，请先停止后再替换。")
+            }
         }
-        try EngineHost.ensure(engineDirectory: destination, wineRoot: engine.wineRoot, cpuBackend: engine.manifest.cpuBackend)
-        return engine
     }
 
     /// Creates or repairs the host bundle of an installed engine.

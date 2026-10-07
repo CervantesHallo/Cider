@@ -1,8 +1,8 @@
 import Foundation
 
 public enum Identifiers {
-    /// A filesystem-safe id: ASCII slug of `name` plus a short random suffix, e.g. `steam-7f3a`.
-    /// Names with no ASCII letters (e.g. 日文 galgame) fall back to `bottle-xxxx`.
+    /// A filesystem-safe id: ASCII slug of `name` plus a UUID suffix.
+    /// Names with no ASCII letters (e.g. 日文 galgame) fall back to `bottle-<uuid>`.
     public static func make(from name: String, fallback: String = "bottle") -> String {
         let lowered = name.lowercased()
         var slug = ""
@@ -19,8 +19,7 @@ public enum Identifiers {
         while slug.hasSuffix("-") { slug.removeLast() }
         if slug.count > 24 { slug = String(slug.prefix(24)) }
         if slug.isEmpty { slug = fallback }
-        let suffix = String(UInt16.random(in: 0...UInt16.max), radix: 16)
-        return "\(slug)-\(String(repeating: "0", count: 4 - suffix.count))\(suffix)"
+        return "\(slug)-\(UUID().uuidString.lowercased())"
     }
 
     /// RFC 3339 timestamp in UTC.

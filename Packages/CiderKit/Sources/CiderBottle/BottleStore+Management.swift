@@ -20,7 +20,7 @@ extension BottleStore {
         parser.locale = Locale(identifier: "en_US_POSIX")
         parser.timeZone = TimeZone(identifier: "UTC")
         parser.dateFormat = "yyyyMMdd'T'HHmmss"
-        return names.sorted(by: >).compactMap { name in
+        return names.filter { !$0.hasPrefix(".") }.sorted(by: >).compactMap { name in
             let dir = root.appendingPathComponent(name, isDirectory: true)
             guard FileManager.default.fileExists(atPath: dir.appendingPathComponent("prefix").path) else { return nil }
             let reason = (try? String(contentsOf: dir.appendingPathComponent("reason.txt"), encoding: .utf8)) ?? ""
@@ -33,20 +33,43 @@ extension BottleStore {
     /// The bottle keeps its current name.
     @discardableResult
     public func restore(_ bottle: Bottle, to snapshot: BottleSnapshot) throws -> Bottle {
-        let fm = FileManager.default
-        try self.snapshot(bottle, reason: "before restoring \(snapshot.id)")
-        let staging = bottle.directory.appendingPathComponent(".cider/restoring", isDirectory: true)
-        try? fm.removeItem(at: staging)
-        try Command.run("/bin/cp", ["-c", "-R", snapshot.directory.appendingPathComponent("prefix").path, staging.path])
-        try fm.trashItem(at: bottle.prefix, resultingItemURL: nil)
-        try fm.moveItem(at: staging, to: bottle.prefix)
-        var config = (try? JSONFile.read(BottleConfig.self, from: snapshot.directory.appendingPathComponent("cider-bottle.json")))
-            ?? bottle.config
-        config.id = bottle.config.id
-        config.name = bottle.config.name
-        config.launchers = bottle.config.launchers
-        try JSONFile.write(config, to: bottle.configURL)
-        return Bottle(config: config, directory: bottle.directory)
+        try withOperation(bottle) { current in
+            let fm = FileManager.default
+            let snapshotsRoot = try FileSafety.child(".cider/snapshots", in: current.directory, rejectSymlinks: true)
+            _ = try FileSafety.component(snapshot.id)
+            let source = try FileSafety.child(snapshot.id, in: snapshotsRoot, rejectSymlinks: true)
+            guard source.standardizedFileURL == snapshot.directory.standardizedFileURL else { throw CiderError.invalid("快照不属于此瓶子。") }
+            var config = try JSONFile.read(BottleConfig.self, from: source.appendingPathComponent("cider-bottle.json"))
+            config.id = current.config.id
+            config.name = current.config.name
+            config.launchers = current.config.launchers
+            if current.config.settings["cloneSteamBlocked"] == "1" { config.settings["cloneSteamBlocked"] = "1" }
+            try self.snapshot(current, reason: "before restoring \(snapshot.id)")
+            let staging = paths.bottles.appendingPathComponent(".restoring-" + UUID().uuidString)
+            var keepBackup = false
+            defer { if !keepBackup { try? fm.removeItem(at: staging) } }
+            // Commit prefix and configuration together, not as two independent replacements.
+            try Command.run("/bin/cp", ["-c", "-R", current.directory.path, staging.path])
+            try fm.removeItem(at: staging.appendingPathComponent("prefix"))
+            try Command.run("/bin/cp", ["-c", "-R", source.appendingPathComponent("prefix").path, staging.appendingPathComponent("prefix").path])
+            let history = try FileSafety.child(".cider/patches", in: staging, rejectSymlinks: true)
+            if FileSafety.exists(history) {
+                let isolated = staging.appendingPathComponent(".cider/isolated-patches-" + UUID().uuidString)
+                try fm.moveItem(at: history, to: isolated)
+            }
+            let savedHistory = try FileSafety.child("patches", in: source, rejectSymlinks: true)
+            if FileSafety.exists(savedHistory) {
+                try fm.ensureDirectory(history.deletingLastPathComponent())
+                try Command.run("/bin/cp", ["-c", "-R", savedHistory.path, history.path])
+            }
+            try JSONFile.write(config, to: staging.appendingPathComponent("cider-bottle.json"))
+            if config.settings["cloneSteamBlocked"] == "1" { _ = try CloneStartup.prepare(Bottle(config: config, directory: staging)) }
+            if let backup = try FileSafety.commit(staging, to: current.directory) {
+                keepBackup = true
+                try? fm.trashItem(at: backup, resultingItemURL: nil)
+            }
+            return Bottle(config: config, directory: current.directory)
+        }
     }
 
     public func deleteSnapshot(_ snapshot: BottleSnapshot) throws {
@@ -64,23 +87,24 @@ extension BottleStore {
     /// Snapshots stay with the original.
     @discardableResult
     public func duplicate(_ bottle: Bottle, name: String) throws -> Bottle {
-        try? runner(for: bottle).killAll()
-        let id = Identifiers.make(from: name)
-        let dir = paths.bottles.appendingPathComponent(id, isDirectory: true)
-        try FileManager.default.ensureDirectory(dir)
-        do {
-            try Command.run("/bin/cp", ["-c", "-R", bottle.prefix.path, dir.appendingPathComponent("prefix").path])
-            var config = bottle.config
-            config.id = id
-            config.name = name
-            config.createdAt = Identifiers.timestamp()
-            config.engineHistory = []
-            let copy = Bottle(config: config, directory: dir)
-            try JSONFile.write(config, to: copy.configURL)
-            return copy
-        } catch {
-            try? FileManager.default.removeItem(at: dir)
-            throw error
+        try withOperation(bottle) { current in
+            try runner(for: current).killAll()
+            let dir = try FileSafety.reserveDirectory(in: paths.bottles) { Identifiers.make(from: name) }
+            do {
+                try Command.run("/bin/cp", ["-c", "-R", current.prefix.path, dir.appendingPathComponent("prefix").path])
+                var config = current.config
+                config.id = dir.lastPathComponent
+                config.name = name
+                config.createdAt = Identifiers.timestamp()
+                config.engineHistory = []
+                config.settings["cloneSteamBlocked"] = "1"
+                let copy = Bottle(config: config, directory: dir)
+                try JSONFile.write(config, to: copy.configURL)
+                return try CloneStartup.prepare(copy)
+            } catch {
+                try FileManager.default.removeItem(at: dir)
+                throw error
+            }
         }
     }
 
@@ -104,19 +128,23 @@ extension BottleStore {
     /// a process starts.
     @discardableResult
     public func setHighResolution(_ on: Bool, for bottle: Bottle) throws -> Bottle {
-        let runner = try runner(for: bottle)
-        try? runner.killAll()
-        try PrefixSetup.importRegistry(PrefixSetup.highResolution(on), named: "high-resolution", bottle: bottle, runner: runner)
-        try? runner.killAll()
-        return try update(bottle) { $0.settings[Self.highResolutionKey] = on ? "1" : "0" }
+        return try withOperation(bottle) { current in
+            let runner = try runner(for: current)
+            try runner.killAll()
+            try PrefixSetup.importRegistry(PrefixSetup.highResolution(on), named: "high-resolution", bottle: current, runner: runner)
+            try runner.killAll()
+            return try update(current) { $0.settings[Self.highResolutionKey] = on ? "1" : "0" }
+        }
     }
 
     /// Per-program Windows version (Wine's AppDefaults; read by the program itself, so it also applies when a
     /// launcher such as Steam starts it). `nil` removes the override.
     public func setWindowsVersion(_ winver: String?, forExecutable exe: String, in bottle: Bottle) throws {
-        let key = #"HKEY_CURRENT_USER\Software\Wine\AppDefaults\"# + exe
-        try PrefixSetup.importRegistry([(key, [("Version", winver.map(RegValue.string) ?? .delete)])],
-                                       named: "appdefaults", bottle: bottle, runner: try runner(for: bottle))
+        try withOperation(bottle) { current in
+            let key = #"HKEY_CURRENT_USER\Software\Wine\AppDefaults\"# + exe
+            try PrefixSetup.importRegistry([(key, [("Version", winver.map(RegValue.string) ?? .delete)])],
+                                           named: "appdefaults", bottle: current, runner: try runner(for: current))
+        }
     }
 
     public static let metalHUDKey = "metalHUD"
@@ -144,16 +172,20 @@ extension BottleStore {
     /// re-apply Cider's prefix setup (fonts, isolated shell folders). A snapshot is taken first.
     @discardableResult
     public func repair(_ bottle: Bottle) throws -> Bottle {
-        try snapshot(bottle, reason: "before repair")
-        let runner = try runner(for: bottle)
-        try? runner.killAll()
-        let result = try runner.runToCompletion(runner.plan(program: "wineboot", arguments: ["-u"], label: "wineboot-repair"))
-        try? runner.killAll()
-        try PrefixSetup.isolateShellFolders(in: bottle.driveC)
-        try PrefixSetup.upgrade(bottle: bottle, runner: runner, from: 0)
-        guard result.code == 0 else {
-            throw CiderError.commandFailed(command: "wineboot -u", status: result.code, output: "")
+        return try withOperation(bottle) { current in
+            try snapshot(current, reason: "before repair")
+            let runner = try runner(for: current)
+            try runner.killAll()
+            let result = try runner.runToCompletion(runner.plan(program: "wineboot", arguments: ["-u"], label: "wineboot-repair"))
+            try runner.killAll()
+            try PrefixSetup.isolateShellFolders(in: current.driveC)
+            try PrefixSetup.upgrade(bottle: current, runner: runner, from: 0)
+            guard result.code == 0 else {
+                throw CiderError.commandFailed(command: "wineboot -u", status: result.code, output: "")
         }
-        return try update(bottle) { $0.settings[PrefixSetup.revisionKey] = String(PrefixSetup.revision) }
+        return try update(current) { $0.settings[PrefixSetup.revisionKey] = String(PrefixSetup.revision) }
+        }
     }
+
+
 }

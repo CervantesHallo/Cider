@@ -15,22 +15,6 @@ public struct Bottle: Sendable {
     public var driveC: URL { prefix.appendingPathComponent("drive_c", isDirectory: true) }
 }
 
-/// Process-wide compatibility data, so constructing a `BottleStore` per operation does not re-read
-/// and re-decode the whole data directory each time.
-private enum SharedCompat {
-    nonisolated(unsafe) private static var value: CompatDB?
-    private static let lock = NSLock()
-
-    static func get(_ make: () -> CompatDB) -> CompatDB {
-        lock.lock()
-        defer { lock.unlock() }
-        if let value { return value }
-        let db = make()
-        value = db
-        return db
-    }
-}
-
 public struct BottleStore: Sendable {
     public let paths: CiderPaths
     public let engines: EngineStore
@@ -42,7 +26,7 @@ public struct BottleStore: Sendable {
     public init(paths: CiderPaths, compat: CompatDB? = nil) {
         self.paths = paths
         self.engines = EngineStore(paths: paths)
-        self.compat = compat ?? SharedCompat.get { CompatDB(directories: Self.compatDirectories(paths: paths)) }
+        self.compat = compat ?? CompatDB(directories: Self.compatDirectories(paths: paths))
     }
 
     /// Where compatibility data is looked for, in increasing priority: what this binary bundles, an
@@ -64,10 +48,15 @@ public struct BottleStore: Sendable {
         let fm = FileManager.default
         guard fm.fileExists(atPath: paths.bottles.path) else { return [] }
         return try fm.contentsOfDirectory(at: paths.bottles, includingPropertiesForKeys: nil)
+            .filter { !$0.lastPathComponent.hasPrefix(".") }
             .compactMap { dir in
                 let url = dir.appendingPathComponent("cider-bottle.json")
                 guard fm.fileExists(atPath: url.path) else { return nil }
-                return Bottle(config: try JSONFile.read(BottleConfig.self, from: url), directory: dir)
+                _ = try FileSafety.component(dir.lastPathComponent)
+                _ = try FileSafety.child(dir.lastPathComponent + "/cider-bottle.json", in: paths.bottles, rejectSymlinks: true)
+                let config = try JSONFile.read(BottleConfig.self, from: url)
+                guard config.id == dir.lastPathComponent else { throw CiderError.invalid("瓶子标识与目录不一致。") }
+                return Bottle(config: config, directory: dir)
             }
             .sorted { $0.config.createdAt < $1.config.createdAt }
     }
@@ -108,9 +97,8 @@ public struct BottleStore: Sendable {
                        progress: (String) -> Void = { _ in }) throws -> Bottle {
         let fm = FileManager.default
         let engine = try engineID.map { try engines.engine($0) } ?? engines.defaultEngine()
-        let id = Identifiers.make(from: name)
-        let dir = paths.bottles.appendingPathComponent(id, isDirectory: true)
-        try fm.ensureDirectory(dir)
+        let dir = try FileSafety.reserveDirectory(in: paths.bottles) { Identifiers.make(from: name) }
+        let id = dir.lastPathComponent
 
         var config = BottleConfig(id: id, name: name, createdBy: createdBy, createdAt: Identifiers.timestamp(),
                                   template: template, engine: .init(id: engine.manifest.id), locale: locale)
@@ -143,7 +131,8 @@ public struct BottleStore: Sendable {
             try runner.waitForIdle()
             return Bottle(config: config, directory: dir)
         } catch {
-            try? fm.removeItem(at: dir)
+            try runner(for: bottle).killAll()
+            try fm.removeItem(at: dir)
             throw error
         }
     }
@@ -157,73 +146,88 @@ public struct BottleStore: Sendable {
     /// new revision. Programs already running pick the changes up at their next start.
     @discardableResult
     public func upgradePrefix(_ bottle: Bottle) throws -> Bottle {
-        let from = Int(bottle.config.settings[PrefixSetup.revisionKey] ?? "") ?? 1
-        guard from < PrefixSetup.revision else { return bottle }
-        try PrefixSetup.upgrade(bottle: bottle, runner: try runner(for: bottle), from: from)
-        return try update(bottle) { $0.settings[PrefixSetup.revisionKey] = String(PrefixSetup.revision) }
+        try withOperation(bottle) { current in
+            let from = Int(current.config.settings[PrefixSetup.revisionKey] ?? "") ?? 1
+            guard from < PrefixSetup.revision else { return current }
+            try PrefixSetup.upgrade(bottle: current, runner: try runner(for: current), from: from)
+            return try update(current) { $0.settings[PrefixSetup.revisionKey] = String(PrefixSetup.revision) }
+        }
     }
 
-    /// Applies `change` to the bottle's config and saves it. Locale changes take effect at the next launch
-    /// (the locale is part of each session's environment).
+    /// A cross-process operation lock outside the bottle survives prefix/directory replacement.
+    public func withOperation<T>(_ bottle: Bottle, _ work: (Bottle) throws -> T) throws -> T {
+        let id = try FileSafety.component(bottle.config.id)
+        let directory = try FileSafety.child(id, in: paths.bottles, rejectSymlinks: true)
+        guard directory.standardizedFileURL == bottle.directory.standardizedFileURL else {
+            throw CiderError.invalid("瓶子目录与标识不一致。")
+        }
+        return try FileOperationLock.withLock(at: paths.state.appendingPathComponent("locks/bottles/\(id).lock")) {
+            let config = try JSONFile.read(BottleConfig.self, from: directory.appendingPathComponent("cider-bottle.json"))
+            guard config.id == id else { throw CiderError.invalid("瓶子标识与目录不一致。") }
+            _ = try FileSafety.child("prefix", in: directory, rejectSymlinks: true)
+            _ = try FileSafety.child(".cider", in: directory, rejectSymlinks: true)
+            return try work(Bottle(config: config, directory: directory))
+        }
+    }
+
+    /// Reload while locked, then commit only the requested change; stale UI objects cannot overwrite other fields.
     @discardableResult
     public func update(_ bottle: Bottle, _ change: (inout BottleConfig) throws -> Void) throws -> Bottle {
-        var config = bottle.config
-        try change(&config)
-        guard config.id == bottle.config.id else { throw CiderError.invalid("a bottle's id cannot change") }
-        try JSONFile.write(config, to: bottle.configURL)
-        return Bottle(config: config, directory: bottle.directory)
+        try withOperation(bottle) { current in
+            var config = current.config
+            try change(&config)
+            guard config.id == current.config.id else { throw CiderError.invalid("a bottle's id cannot change") }
+            try JSONFile.write(config, to: current.configURL)
+            return Bottle(config: config, directory: current.directory)
+        }
     }
 
-    /// Snapshots the prefix and config with APFS clones (`cp -c`: instant, shares blocks until files change)
-    /// into `.cider/snapshots/<timestamp>/`. Stops the bottle first so the registry is flushed.
+    /// Publish only a complete, stopped-prefix snapshot.
     @discardableResult
     public func snapshot(_ bottle: Bottle, reason: String) throws -> String {
-        try? runner(for: bottle).killAll()
-        let root = bottle.directory.appendingPathComponent(".cider/snapshots", isDirectory: true)
-        var stamp = Identifiers.compactTimestamp()
-        // Two snapshots in the same second (e.g. "before restoring" right after another) get a suffix.
-        if FileManager.default.fileExists(atPath: root.appendingPathComponent(stamp).path) {
-            let base = stamp
-            var n = 2
-            while FileManager.default.fileExists(atPath: root.appendingPathComponent("\(base)-\(n)").path) { n += 1 }
-            stamp = "\(base)-\(n)"
+        try withOperation(bottle) { current in
+            try runner(for: current).killAll()
+            let root = try FileSafety.child(".cider/snapshots", in: current.directory, rejectSymlinks: true)
+            try FileManager.default.ensureDirectory(root)
+            let stamp = Identifiers.compactTimestamp() + "-" + UUID().uuidString.lowercased()
+            let staging = root.appendingPathComponent(".creating-" + UUID().uuidString)
+            try FileManager.default.ensureDirectory(staging)
+            defer { try? FileManager.default.removeItem(at: staging) }
+            try Command.run("/bin/cp", ["-c", "-R", current.prefix.path, staging.appendingPathComponent("prefix").path])
+            try Command.run("/bin/cp", ["-c", current.configURL.path, staging.appendingPathComponent("cider-bottle.json").path])
+            let history = try FileSafety.child(".cider/patches", in: current.directory, rejectSymlinks: true)
+            if FileSafety.exists(history) { try Command.run("/bin/cp", ["-c", "-R", history.path, staging.appendingPathComponent("patches").path]) }
+            try reason.write(to: staging.appendingPathComponent("reason.txt"), atomically: true, encoding: .utf8)
+            try FileManager.default.moveItem(at: staging, to: root.appendingPathComponent(stamp))
+            return stamp
         }
-        let dir = root.appendingPathComponent(stamp, isDirectory: true)
-        try FileManager.default.ensureDirectory(dir)
-        try Command.run("/bin/cp", ["-c", "-R", bottle.prefix.path, dir.appendingPathComponent("prefix").path])
-        try Command.run("/bin/cp", ["-c", bottle.configURL.path, dir.appendingPathComponent("cider-bottle.json").path])
-        try reason.write(to: dir.appendingPathComponent("reason.txt"), atomically: true, encoding: .utf8)
-        return stamp
     }
 
-    /// Switches the bottle to another engine: snapshot → record history → `wineboot -u` with the new engine.
-    /// On failure the snapshot stays available for rollback.
+    /// Snapshot first. Failure remains visible, with a recoverable prefix/config baseline.
     @discardableResult
     public func switchEngine(_ bottle: Bottle, to engineID: String) throws -> Bottle {
-        let engine = try engines.engine(engineID)
-        guard engine.manifest.id != bottle.config.engine.id else { return bottle }
-        let stamp = try snapshot(bottle, reason: "switch engine \(bottle.config.engine.id) → \(engineID)")
-        let updated = try update(bottle) { config in
-            config.engineHistory.append(BottleConfig.EngineChange(from: config.engine.id, to: engineID, at: Identifiers.timestamp(), snapshot: stamp))
-            config.engine = .init(id: engineID, pin: config.engine.pin)
+        try withOperation(bottle) { current in
+            let engine = try engines.engine(engineID)
+            guard engine.manifest.id != current.config.engine.id else { return current }
+            let stamp = try snapshot(current, reason: "switch engine \(current.config.engine.id) → \(engineID)")
+            let updated = try update(current) { config in
+                config.engineHistory.append(.init(from: config.engine.id, to: engineID, at: Identifiers.timestamp(), snapshot: stamp))
+                config.engine = .init(id: engineID, pin: config.engine.pin)
+            }
+            let runner = try runner(for: updated)
+            let result = try runner.runToCompletion(runner.plan(program: "wineboot", arguments: ["-u"], label: "wineboot-update"))
+            try runner.killAll()
+            try PrefixSetup.isolateShellFolders(in: updated.driveC)
+            guard result.code == 0 else { throw CiderError.commandFailed(command: "wineboot -u", status: result.code, output: "see session log") }
+            return updated
         }
-        let runner = try runner(for: updated)
-        let result = try runner.runToCompletion(runner.plan(program: "wineboot", arguments: ["-u"], label: "wineboot-update"))
-        // wineboot also starts the prefix's Run-key programs (e.g. `steam.exe -silent`), so waiting for the
-        // prefix to go idle could block forever; stop everything instead.
-        try runner.killAll()
-        // Some engines (CrossOver-derived) use their own Windows user name; isolate that profile too.
-        try PrefixSetup.isolateShellFolders(in: updated.driveC)
-        guard result.code == 0 else {
-            throw CiderError.commandFailed(command: "wineboot -u", status: result.code,
-                                           output: (try? String(contentsOf: result.session.log, encoding: .utf8)) ?? "")
-        }
-        return updated
     }
 
     /// Moves the bottle to the Trash (recoverable), after stopping its processes.
     public func delete(_ bottle: Bottle) throws {
-        if let runner = try? runner(for: bottle) { try? runner.killAll() }
-        try FileManager.default.trashItem(at: bottle.directory, resultingItemURL: nil)
+        try withOperation(bottle) { current in
+            try runner(for: current).killAll()
+            try FileManager.default.trashItem(at: current.directory, resultingItemURL: nil)
+        }
     }
 }

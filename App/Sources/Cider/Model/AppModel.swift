@@ -100,6 +100,7 @@ final class AppModel {
     private var activationObserver: NSObjectProtocol?
     private var refreshPending = false
     private var lastRefresh = Date.distantPast
+    private var refreshSequence = 0
 
     var games: [LibraryItem] { items.filter(\.isGame) }
     var continueItem: LibraryItem? {
@@ -137,6 +138,8 @@ final class AppModel {
 
     func refresh() async {
         lastRefresh = Date()
+        refreshSequence += 1
+        let sequence = refreshSequence
         let paths = self.paths
         let result = await Task.detached(priority: .userInitiated) { () -> ([Bottle], [CatalogApp], EnvironmentStatus, CompatDB, [String: VerdictDecision]) in
             let store = BottleStore(paths: paths)
@@ -149,8 +152,7 @@ final class AppModel {
             env.engines = engines.map(\.manifest.id)
             env.gstreamerBundled = engines.contains { $0.bundledGStreamer != nil }
             env.gstreamer = env.gstreamerBundled || FileManager.default.fileExists(atPath: WineRunner.gstreamerFramework)
-            let db = CompatDB(directories: [Bundle.main.resourceURL?.appendingPathComponent("data"),
-                                            paths.appSupport.appendingPathComponent("Data")].compactMap { $0 })
+            let db = store.compat
             var decisions: [String: VerdictDecision] = [:]
             let macos = String(ProcessInfo.processInfo.operatingSystemVersion.majorVersion)
             for app in apps {
@@ -163,6 +165,7 @@ final class AppModel {
             }
             return (bottles, apps, env, db, decisions)
         }.value
+        guard sequence == refreshSequence else { return }
         bottles = result.0
         items = result.1
         environment = result.2
@@ -181,13 +184,28 @@ final class AppModel {
 
     /// Brings bottles created by older Cider versions up to the current prefix setup, once per launch, in the
     /// background (a registry import per bottle; running programs see it at their next start).
+    private var failedPrefixUpgrades: Set<String> = []
+
     private func upgradePrefixes() {
         let paths = self.paths
-        let stale = bottles.filter { BottleStore(paths: paths).needsPrefixUpgrade($0) && !upgradedBottles.contains($0.config.id) }
-        guard !stale.isEmpty else { return }
-        stale.forEach { upgradedBottles.insert($0.config.id) }
-        Task.detached(priority: .utility) {
-            for bottle in stale { _ = try? BottleStore(paths: paths).upgradePrefix(bottle) }
+        let stale = bottles.filter {
+            BottleStore(paths: paths).needsPrefixUpgrade($0) && !upgradedBottles.contains($0.config.id)
+                && !failedPrefixUpgrades.contains($0.config.id) && !busy.contains("activity:\($0.config.id)")
+        }
+        for bottle in stale {
+            let key = "activity:" + bottle.config.id
+            busy.insert(key)
+            Task {
+                defer { busy.remove(key) }
+                do {
+                    _ = try await Task.detached(priority: .utility) { try BottleStore(paths: paths).upgradePrefix(bottle) }.value
+                    upgradedBottles.insert(bottle.config.id)
+                    await refresh()
+                } catch {
+                    failedPrefixUpgrades.insert(bottle.config.id)
+                    message = "瓶子“\(bottle.config.name)”升级失败：\(error)。可在瓶子页重试修复。"
+                }
+            }
         }
     }
 
@@ -246,13 +264,14 @@ final class AppModel {
             let list = (unsafeBitCast(paths, to: NSArray.self) as? [String]) ?? []
             let relevant = list.prefix(count).contains { p in
                 p.hasSuffix(".acf") || p.hasSuffix(".lnk") || p.hasSuffix("cider-bottle.json") || p.hasSuffix("libraryfolders.vdf")
+                    || p.contains("/Data/") || p.hasSuffix("/Data") || p.hasSuffix("/Data/")
                     || p.contains("/librarycache/") || p.hasSuffix("/Bottles") || p.hasSuffix("/Bottles/")
             }
             if relevant { Task { @MainActor in model.scheduleRefresh() } }
         }
         var context = FSEventStreamContext(version: 0, info: Unmanaged.passUnretained(self).toOpaque(),
                                            retain: nil, release: nil, copyDescription: nil)
-        guard let stream = FSEventStreamCreate(nil, callback, &context, [paths.bottles.path] as CFArray,
+        guard let stream = FSEventStreamCreate(nil, callback, &context, [paths.bottles.path, paths.appSupport.appendingPathComponent("Data").path] as CFArray,
                                                FSEventStreamEventId(kFSEventStreamEventIdSinceNow), 1.0,
                                                FSEventStreamCreateFlags(kFSEventStreamCreateFlagFileEvents | kFSEventStreamCreateFlagUseCFTypes)) else { return }
         FSEventStreamSetDispatchQueue(stream, .main)
@@ -270,6 +289,7 @@ final class AppModel {
 
     private func perform(_ item: LibraryItem, action: AppAction) {
         let paths = self.paths
+        let snapshot = compat
         // Catalog aliases can refer to the same executable. Serialize by bottle as well as item.
         let bottleKey = "activity:\(item.bottleID)"
         guard !busy.contains(bottleKey) else {
@@ -288,22 +308,26 @@ final class AppModel {
         Task {
             defer { busy.remove(item.id); busy.remove(actionKey); busy.remove(bottleKey) }
             do {
-                let started = try await Task.detached { () -> Bool in
-                    let store = BottleStore(paths: paths)
+                let started = try await Task.detached { () -> (started: Bool, warning: String?) in
+                    let store = BottleStore(paths: paths, compat: snapshot)
                     let bottle = try store.bottle(item.bottleID)
                     let runner = try store.runner(for: bottle)
                     let cwd = item.workingDirectory.flatMap { try? WindowsPath.hostURL(for: $0, in: bottle) }
                     switch action {
-                    case .start: return try AppLifecycle.start(item, using: runner, cwd: cwd) != nil
-                    case .restart: return try AppLifecycle.restart(item, using: runner, cwd: cwd) != nil
-                    case .stop: try AppLifecycle.stop(item, using: runner); return false
+                    case .start:
+                        let session = try AppLifecycle.start(item, using: runner, cwd: cwd)
+                        return (session != nil, session?.warning)
+                    case .restart:
+                        let session = try AppLifecycle.restart(item, using: runner, cwd: cwd)
+                        return (session != nil, session?.warning)
+                    case .stop: try AppLifecycle.stop(item, using: runner); return (false, nil)
                     }
                 }.value
                 await scanProcesses()
                 if action == .stop {
                     message = "已停止 \(item.title)。"
-                } else if started {
-                    message = "已发起\(action == .restart ? "重启" : "启动") \(item.title)，等待窗口就绪。"
+                } else if started.started {
+                    message = "已发起\(action == .restart ? "重启" : "启动") \(item.title)，等待窗口就绪。" + (started.warning.map { " " + $0 } ?? "")
                 } else {
                     message = "\(item.title) 已在运行；需要重新启动时，请使用“重启”。"
                 }
@@ -434,12 +458,14 @@ final class AppModel {
             let digest = SHA256.hash(data: Data(target.lowercased().utf8))
             key = "program-" + digest.prefix(8).map { String(format: "%02x", $0) }.joined()
         }
-        return PatchInstaller(gameRoot: root, historyRoot: bottle.directory.appendingPathComponent(".cider/patches/\(key)", isDirectory: true))
+        return PatchInstaller(gameRoot: root, historyRoot: bottle.directory.appendingPathComponent(".cider/patches/\(key)", isDirectory: true), stateRoot: paths.state, bottleID: bottle.config.id, prefix: bottle.prefix)
     }
 
     func lastPatch(for item: LibraryItem) -> PatchInstaller.Manifest? { patchInstaller(for: item)?.lastInstall()?.manifest }
 
     func installPatch(_ urls: [URL], for item: LibraryItem) {
+        let paths = self.paths
+        guard !isGated(item) else { message = "这个游戏仍在适配中，不能修改其游戏文件。"; return }
         guard let installer = patchInstaller(for: item) else { message = "找不到 \(item.title) 的游戏目录。"; return }
         guard !isRunning(item) else { message = "请先停止 \(item.title)，再安装补丁（运行中的文件无法替换）。"; return }
         // Some patches ship as an installer instead of loose files: run it inside the bottle, starting in the game folder.
@@ -457,7 +483,13 @@ final class AppModel {
         Task {
             defer { busy.remove("patch:\(item.id)"); busy.remove(key) }
             do {
-                let manifest = try await Task.detached { try installer.install(urls) }.value
+                let manifest = try await Task.detached {
+                    let store = BottleStore(paths: paths)
+                    return try store.withOperation(try store.bottle(item.bottleID)) { _ in
+                        guard !ProcessScanner.scan().contains(where: item.owns) else { throw CiderError.invalid("程序仍在运行，请先停止后安装补丁。") }
+                        return try installer.install(urls)
+                    }
+                }.value
                 message = "补丁已安装：新增 \(manifest.added.count) 个文件，替换 \(manifest.replaced.count) 个（原文件已备份，可撤销）。"
             } catch {
                 message = "补丁安装失败：\(error)"
@@ -498,6 +530,8 @@ final class AppModel {
     }
 
     func undoPatch(for item: LibraryItem) {
+        let paths = self.paths
+        guard !isGated(item) else { message = "这个游戏仍在适配中，不能修改其游戏文件。"; return }
         guard let installer = patchInstaller(for: item) else { return }
         guard !isRunning(item) else { message = "请先停止 \(item.title)，再撤销补丁。"; return }
         let key = "activity:\(item.bottleID)"
@@ -506,7 +540,13 @@ final class AppModel {
         Task {
             defer { busy.remove(key) }
             do {
-                if let manifest = try await Task.detached(operation: { try installer.undoLast() }).value {
+                if let manifest = try await Task.detached(operation: {
+                    let store = BottleStore(paths: paths)
+                    return try store.withOperation(try store.bottle(item.bottleID)) { _ in
+                        guard !ProcessScanner.scan().contains(where: item.owns) else { throw CiderError.invalid("程序仍在运行，请先停止后撤销补丁。") }
+                        return try installer.undoLast()
+                    }
+                }).value {
                     message = "已撤销补丁（\(manifest.sources.joined(separator: "、"))），原文件已恢复。"
                 }
             } catch {

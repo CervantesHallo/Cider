@@ -5,17 +5,16 @@ import Foundation
 // and what the honest handling is. Audited against the engine's own Wine tree; see `generatedFrom`.
 //
 // This type exists to make one rule mechanical rather than aspirational: an API Wine structurally
-// cannot deliver must be dispositioned `honestFailure`. Claiming it is `implemented` is the
+// cannot deliver in the audited implementation must be dispositioned `honestFailure`. Claiming it is `implemented` is the
 // success-faking ADR-010 forbids, so a matrix that does it fails to load.
 
 public struct KernelFidelity: Codable, Sendable, Equatable {
-    /// Whether Wine's model can deliver the documented Windows semantics at all.
-    /// Wine loads drivers as ordinary user-mode code inside winedevice.exe — there is no ring 0,
-    /// no handle interception and no shared address space with the target process.
+    /// Reachability in the recorded build and its current host/protocol model.
+    /// New protocol or host implementations require fresh contract evidence and a revised audit.
     public enum Reachability: String, Codable, Sendable {
         case faithful      // the contract can be met in full
         case partial       // part of the contract can be met; the rest must fail honestly
-        case unreachable   // no amount of work makes this faithful here
+        case unreachable   // the audited implementation cannot satisfy this contract
     }
 
     /// How Cider intends the API to behave. Never "return success without doing the work".
@@ -76,7 +75,7 @@ public struct KernelFidelity: Codable, Sendable, Equatable {
     /// either implemented for real or changed to report an honest failure.
     public var deceptive: [Entry] { entries.filter { $0.severity == .deceptiveSuccess } }
 
-    /// APIs no amount of work makes faithful in Wine's user-mode driver model.
+    /// Contracts unavailable in the audited implementation; this is not a claim about all future architectures.
     public var unreachable: [Entry] { entries.filter { $0.reachability == .unreachable } }
 }
 

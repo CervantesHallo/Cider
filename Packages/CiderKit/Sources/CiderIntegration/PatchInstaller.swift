@@ -1,125 +1,271 @@
 import CiderCore
 import CiderStore
+import CryptoKit
 import Foundation
 
-/// Copies user-supplied files (e.g. a galgame's restoration patch like `patch.xp3`) into a game's root folder.
-/// Every file that would be overwritten is moved to a backup first, and each install writes a manifest, so the
-/// most recent patch can be undone exactly (added files removed, replaced files restored).
+/// Staged file changes with durable originals and recovery records.
 public struct PatchInstaller: Sendable {
     public let gameRoot: URL
-    /// `<bottle>/.cider/patches/<app-key>/` — one subfolder per install.
     public let historyRoot: URL
-
-    public init(gameRoot: URL, historyRoot: URL) {
-        self.gameRoot = gameRoot
-        self.historyRoot = historyRoot
+    public let stateRoot: URL
+    public let bottleID: String?
+    public let prefix: URL?
+    public init(gameRoot: URL, historyRoot: URL, stateRoot: URL = CiderPaths.standard().state, bottleID: String? = nil, prefix: URL? = nil) {
+        self.gameRoot = gameRoot; self.historyRoot = historyRoot
+        self.stateRoot = stateRoot; self.bottleID = bottleID; self.prefix = prefix
     }
-
     public struct Manifest: Codable, Sendable {
         public var installedAt: String
         public var sources: [String]
-        /// Paths relative to the game root.
         public var added: [String]
         public var replaced: [String]
+        public var sequence: UInt64? = nil
     }
-
+    private struct Entry: Codable { var relative: String; var existed: Bool; var expectedHash: String? }
+    private struct Journal: Codable {
+        var operation: String
+        var state: String
+        var entries: [Entry]
+        var sourceRecord: String? = nil
+    }
     public enum PatchError: Error, CustomStringConvertible {
-        case unsupportedArchive(String)
-        case nothingToInstall
+        case unsupportedArchive(String), nothingToInstall, recoveryRequired(String)
         public var description: String {
             switch self {
-            case .unsupportedArchive(let name): return "\(name) 需要先解压（.7z / .rar 可用「归档实用工具」或 The Unarchiver），再拖入解压后的文件。"
+            case .unsupportedArchive(let name): return "\(name) 需要先解压后再安装。"
             case .nothingToInstall: return "没有可以复制的文件。"
+            case .recoveryRequired(let path): return "补丁操作未完成，恢复记录保留在：\(path)"
             }
         }
     }
-
-    /// Installs dropped items. `.zip` files are extracted (their contents land in the game root); folders are merged.
-    /// A zip whose content is a single top-level folder is unwrapped, since patches are often zipped that way.
+    private func locked<T>(_ body: () throws -> T) throws -> T {
+        try withoutActuallyEscaping(body) { body in
+            let digest = SHA256.hash(data: Data(historyRoot.standardizedFileURL.path.utf8)).map { String(format: "%02x", $0) }.joined()
+            let work = {
+                try FileOperationLock.withLock(at: stateRoot.appendingPathComponent("locks/patches/" + digest + ".lock")) {
+                    if let prefix, PrefixServer.isRunning(prefix: prefix) || PrefixServer.hasProcesses(prefix: prefix, bottleID: bottleID ?? "") {
+                        throw CiderError.invalid("此瓶子仍有进程运行，请先停止瓶子再修改补丁。")
+                    }
+                    if let prefix {
+                        let directory = prefix.deletingLastPathComponent()
+                        let relative = String(historyRoot.path.dropFirst(directory.path.count + 1))
+                        guard historyRoot.path.hasPrefix(directory.path + "/") else { throw CiderError.invalid("补丁历史不属于此瓶子。") }
+                        _ = try FileSafety.child(relative, in: directory, rejectSymlinks: true)
+                    }
+                    return try body()
+                }
+            }
+            if let bottleID {
+                _ = try FileSafety.component(bottleID)
+                return try FileOperationLock.withLock(at: stateRoot.appendingPathComponent("locks/bottles/" + bottleID + ".lock"), work)
+            }
+        return try work()
+        }
+    }
+    private func nextSequence() throws -> UInt64 {
+        let file = try path("sequence.json", in: historyRoot)
+        let previous = FileSafety.exists(file) ? try JSONFile.read(UInt64.self, from: file) : 0
+        let maximum = try FileManager.default.contentsOfDirectory(at: historyRoot, includingPropertiesForKeys: nil)
+            .compactMap { try? JSONFile.read(Manifest.self, from: $0.appendingPathComponent("manifest.json")) }.compactMap(\.sequence).max() ?? 0
+        guard max(previous, maximum) < UInt64.max else { throw CiderError.invalid("补丁提交序号已耗尽。") }
+        let next = max(previous, maximum) + 1
+        try JSONFile.write(next, to: file)
+        return next
+    }
+    private func path(_ relative: String, in root: URL) throws -> URL {
+        try FileSafety.child(relative, in: root, rejectSymlinks: true)
+    }
+    private func regular(_ url: URL) throws {
+        guard (try FileManager.default.attributesOfItem(atPath: url.path)[.type] as? FileAttributeType) == .typeRegular else {
+            throw CiderError.invalid("补丁仅支持普通文件：\(url.lastPathComponent)")
+        }
+    }
+    private func copyAtomically(_ source: URL, to destination: URL) throws {
+        let fm = FileManager.default
+        try regular(source)
+        try fm.ensureDirectory(destination.deletingLastPathComponent())
+        let temporary = destination.deletingLastPathComponent().appendingPathComponent(".patch-" + UUID().uuidString)
+        defer { try? fm.removeItem(at: temporary) }
+        try fm.copyItem(at: source, to: temporary)
+        _ = try FileSafety.commit(temporary, to: destination) // original is already backed up
+    }
+    private func validate(_ manifest: Manifest, record: URL) throws {
+        guard Set(manifest.added + manifest.replaced).count == manifest.added.count + manifest.replaced.count else {
+            throw CiderError.invalid("补丁清单包含重复路径。")
+        }
+        for relative in manifest.added + manifest.replaced { _ = try path(relative, in: gameRoot) }
+        for relative in manifest.replaced { try regular(path("backup/" + relative, in: record)) }
+    }
+    private func backup(_ entries: [Entry], into record: URL) throws {
+        for entry in entries where entry.existed {
+            let source = try path(entry.relative, in: gameRoot)
+            try regular(source)
+            let destination = try path("rollback/" + entry.relative, in: record)
+            try FileManager.default.ensureDirectory(destination.deletingLastPathComponent())
+            try FileManager.default.copyItem(at: source, to: destination)
+        }
+    }
+    private func rollback(_ journal: Journal, record: URL) throws {
+        for entry in journal.entries {
+            _ = try path(entry.relative, in: gameRoot)
+            if entry.existed { try regular(path("rollback/" + entry.relative, in: record)) }
+        }
+        for entry in journal.entries.reversed() {
+            let destination = try path(entry.relative, in: gameRoot)
+            if FileSafety.exists(destination) {
+                try regular(destination)
+                let hash = try EngineStore.sha256(of: destination)
+                let original = entry.existed ? try EngineStore.sha256(of: path("rollback/" + entry.relative, in: record)) : nil
+                if hash != entry.expectedHash && hash != original {
+                    let conflict = try path("conflicts/" + UUID().uuidString + "/" + entry.relative, in: record)
+                    try FileManager.default.ensureDirectory(conflict.deletingLastPathComponent())
+                    try FileManager.default.copyItem(at: destination, to: conflict)
+                }
+            }
+            if entry.existed { try copyAtomically(path("rollback/" + entry.relative, in: record), to: destination) }
+            else if FileSafety.exists(destination) { try FileManager.default.removeItem(at: destination) }
+        }
+        if journal.operation == "undo", let source = journal.sourceRecord {
+            _ = try FileSafety.component(source)
+            let installedRecord = try path(source, in: historyRoot)
+            var installed = (try? JSONFile.read(Journal.self, from: installedRecord.appendingPathComponent("journal.json")))
+                ?? Journal(operation: "install", state: "installed", entries: [])
+            installed.state = "installed"
+            try JSONFile.write(installed, to: installedRecord.appendingPathComponent("journal.json"))
+        }
+        var completed = journal; completed.state = "rolled_back"
+        try JSONFile.write(completed, to: record.appendingPathComponent("journal.json"))
+    }
+    public func recoverPending() throws { try locked { try recoverLocked() } }
+    private func recoverLocked() throws {
+        for name in (try? FileManager.default.contentsOfDirectory(atPath: historyRoot.path)) ?? [] where !name.hasPrefix(".") && name != "sequence.json" {
+            let record = try path(name, in: historyRoot)
+            guard FileSafety.exists(record.appendingPathComponent("journal.json")) else { continue }
+            let journal = try JSONFile.read(Journal.self, from: record.appendingPathComponent("journal.json"))
+            if journal.state == "mutating" { try rollback(journal, record: record) }
+        }
+    }
     @discardableResult
     public func install(_ items: [URL]) throws -> Manifest {
-        let fm = FileManager.default
-        let stamp = Identifiers.compactTimestamp()
-        let record = historyRoot.appendingPathComponent(stamp, isDirectory: true)
-        let backup = record.appendingPathComponent("backup", isDirectory: true)
-        let staging = record.appendingPathComponent("staging", isDirectory: true)
-        try fm.ensureDirectory(staging)
-        defer { try? fm.removeItem(at: staging) }
-
-        // 1. Stage everything so a bad archive fails before the game folder is touched.
-        for item in items {
-            switch item.pathExtension.lowercased() {
-            case "7z", "rar":
-                throw PatchError.unsupportedArchive(item.lastPathComponent)
-            case "zip":
-                let out = staging.appendingPathComponent(UUID().uuidString, isDirectory: true)
-                try Command.run("/usr/bin/ditto", ["-x", "-k", item.path, out.path])
-                var root = out
-                let top = try fm.contentsOfDirectory(atPath: out.path).filter { !$0.hasPrefix(".") && $0 != "__MACOSX" }
-                var isDir: ObjCBool = false
-                if top.count == 1, fm.fileExists(atPath: out.appendingPathComponent(top[0]).path, isDirectory: &isDir), isDir.boolValue {
-                    root = out.appendingPathComponent(top[0])
+        try locked {
+            try recoverLocked()
+            let fm = FileManager.default
+            let record = try FileSafety.reserveDirectory(in: historyRoot) { Identifiers.compactTimestamp() + "-" + UUID().uuidString }
+            let staging = record.appendingPathComponent("staging")
+            try fm.ensureDirectory(staging)
+            var mutation: Journal?
+            do {
+                for item in items {
+                    switch item.pathExtension.lowercased() {
+                    case "7z", "rar": throw PatchError.unsupportedArchive(item.lastPathComponent)
+                    case "zip":
+                        let extraction = record.appendingPathComponent("extract-" + UUID().uuidString)
+                        try fm.ensureDirectory(extraction)
+                        try ArchiveExtractor.unpack(item, to: extraction)
+                        let names = try fm.contentsOfDirectory(atPath: extraction.path).filter { !$0.hasPrefix(".") && $0 != "__MACOSX" }
+                        var source = extraction
+                        if names.count == 1 {
+                            let top = try path(names[0], in: extraction)
+                            if (try top.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true { source = top }
+                        }
+                        for name in try fm.contentsOfDirectory(atPath: source.path) where !name.hasPrefix(".") && name != "__MACOSX" {
+                            try fm.moveItem(at: path(name, in: source), to: path(name, in: staging))
+                        }
+                    default: try fm.copyItem(at: item, to: path(item.lastPathComponent, in: staging))
+                    }
                 }
-                for name in try fm.contentsOfDirectory(atPath: root.path) where !name.hasPrefix(".") && name != "__MACOSX" {
-                    try fm.moveItem(at: root.appendingPathComponent(name), to: staging.appendingPathComponent(name))
+                var files: [String] = []
+                guard let walker = fm.enumerator(at: staging, includingPropertiesForKeys: [.isDirectoryKey]) else { throw PatchError.nothingToInstall }
+                for case let file as URL in walker {
+                    let relative = String(file.path.dropFirst(staging.path.count + 1))
+                    _ = try path(relative, in: staging)
+                    if (try file.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) == true { continue }
+                    if relative.split(separator: "/").contains(where: { $0.hasPrefix(".") }) { continue }
+                    try regular(file); files.append(relative)
                 }
-                try? fm.removeItem(at: out)
-            default:
-                try fm.copyItem(at: item, to: staging.appendingPathComponent(item.lastPathComponent))
+                guard !files.isEmpty else { throw PatchError.nothingToInstall }
+                let entries = try files.sorted().map { relative -> Entry in
+                    let destination = try path(relative, in: gameRoot)
+                    if FileSafety.exists(destination) { try regular(destination) }
+                    return Entry(relative: relative, existed: FileSafety.exists(destination), expectedHash: try EngineStore.sha256(of: path(relative, in: staging)))
+                }
+                try backup(entries, into: record)
+                for entry in entries where entry.existed {
+                    let destination = try path("backup/" + entry.relative, in: record)
+                    try fm.ensureDirectory(destination.deletingLastPathComponent())
+                    try fm.copyItem(at: path("rollback/" + entry.relative, in: record), to: destination)
+                }
+                let journal = Journal(operation: "install", state: "mutating", entries: entries)
+                try JSONFile.write(journal, to: record.appendingPathComponent("journal.json")); mutation = journal
+                for entry in entries { try copyAtomically(path(entry.relative, in: staging), to: path(entry.relative, in: gameRoot)) }
+                let manifest = Manifest(installedAt: Identifiers.timestamp(), sources: items.map(\.lastPathComponent),
+                                        added: entries.filter { !$0.existed }.map(\.relative), replaced: entries.filter(\.existed).map(\.relative), sequence: try nextSequence())
+                try JSONFile.write(manifest, to: record.appendingPathComponent("manifest.json"))
+                var completed = journal; completed.state = "installed"
+                try JSONFile.write(completed, to: record.appendingPathComponent("journal.json"))
+                try? fm.removeItem(at: staging)
+                return manifest
+            } catch {
+                if let mutation {
+                    do { try rollback(mutation, record: record) }
+                    catch { throw PatchError.recoveryRequired(record.path) }
+                } else { try? fm.removeItem(at: record) }
+                throw error
             }
         }
-
-        // 2. Merge the staged tree into the game root, backing up anything it replaces.
-        var added: [String] = []
-        var replaced: [String] = []
-        guard let walker = fm.enumerator(at: staging, includingPropertiesForKeys: [.isDirectoryKey]) else { throw PatchError.nothingToInstall }
-        for case let file as URL in walker {
-            guard (try? file.resourceValues(forKeys: [.isDirectoryKey]).isDirectory) != true else { continue }
-            let relative = String(file.standardizedFileURL.path.dropFirst(staging.standardizedFileURL.path.count + 1))
-            guard !relative.hasPrefix(".") , !relative.contains("/.") else { continue }
-            let destination = gameRoot.appendingPathComponent(relative)
-            try fm.ensureDirectory(destination.deletingLastPathComponent())
-            if fm.fileExists(atPath: destination.path) {
-                let saved = backup.appendingPathComponent(relative)
-                try fm.ensureDirectory(saved.deletingLastPathComponent())
-                try fm.moveItem(at: destination, to: saved)
-                replaced.append(relative)
-            } else {
-                added.append(relative)
-            }
-            try fm.copyItem(at: file, to: destination)
-        }
-        guard !added.isEmpty || !replaced.isEmpty else { throw PatchError.nothingToInstall }
-        let manifest = Manifest(installedAt: Identifiers.timestamp(), sources: items.map(\.lastPathComponent), added: added, replaced: replaced)
-        try JSONFile.write(manifest, to: record.appendingPathComponent("manifest.json"))
-        return manifest
     }
-
-    /// The most recent install, if any.
     public func lastInstall() -> (record: URL, manifest: Manifest)? {
         let fm = FileManager.default
-        guard let records = try? fm.contentsOfDirectory(atPath: historyRoot.path) else { return nil }
-        for name in records.sorted(by: >) {
-            let record = historyRoot.appendingPathComponent(name, isDirectory: true)
-            if let manifest = try? JSONFile.read(Manifest.self, from: record.appendingPathComponent("manifest.json")) {
-                return (record, manifest)
+        let ordered = ((try? fm.contentsOfDirectory(atPath: historyRoot.path)) ?? []).filter { !$0.hasPrefix(".") && $0 != "sequence.json" }.sorted { a, b in
+            let left = try? JSONFile.read(Manifest.self, from: historyRoot.appendingPathComponent(a + "/manifest.json"))
+            let right = try? JSONFile.read(Manifest.self, from: historyRoot.appendingPathComponent(b + "/manifest.json"))
+            if left?.sequence != right?.sequence { return (left?.sequence ?? 0) > (right?.sequence ?? 0) }
+            return a > b
+        }
+        for name in ordered {
+            guard let record = try? path(name, in: historyRoot), let manifest = try? JSONFile.read(Manifest.self, from: record.appendingPathComponent("manifest.json")) else { continue }
+            if FileSafety.exists(record.appendingPathComponent("journal.json")) {
+                guard let journal = try? JSONFile.read(Journal.self, from: record.appendingPathComponent("journal.json")), journal.state == "installed" else { continue }
             }
+            guard (try? validate(manifest, record: record)) != nil else { continue }
+            return (record, manifest)
         }
         return nil
     }
-
-    /// Reverts the most recent install: removes the files it added and restores the ones it replaced.
     @discardableResult
     public func undoLast() throws -> Manifest? {
-        guard let (record, manifest) = lastInstall() else { return nil }
-        let fm = FileManager.default
-        for relative in manifest.added { try? fm.removeItem(at: gameRoot.appendingPathComponent(relative)) }
-        for relative in manifest.replaced {
-            let destination = gameRoot.appendingPathComponent(relative)
-            try? fm.removeItem(at: destination)
-            try fm.moveItem(at: record.appendingPathComponent("backup/\(relative)"), to: destination)
+        try locked {
+            try recoverLocked()
+            guard let (record, manifest) = lastInstall() else { return nil }
+            try validate(manifest, record: record)
+            let recovery = try FileSafety.reserveDirectory(in: historyRoot) { "undo-" + UUID().uuidString }
+            let entries = try (manifest.added + manifest.replaced).map { relative -> Entry in
+                let destination = try path(relative, in: gameRoot)
+                if FileSafety.exists(destination) { try regular(destination) }
+                let expected = manifest.replaced.contains(relative) ? try EngineStore.sha256(of: path("backup/" + relative, in: record)) : nil
+                return Entry(relative: relative, existed: FileSafety.exists(destination), expectedHash: expected)
+            }
+            try backup(entries, into: recovery)
+            let journal = Journal(operation: "undo", state: "mutating", entries: entries, sourceRecord: record.lastPathComponent)
+            try JSONFile.write(journal, to: recovery.appendingPathComponent("journal.json"))
+            do {
+                for relative in manifest.added {
+                    let destination = try path(relative, in: gameRoot)
+                    if FileSafety.exists(destination) { try FileManager.default.removeItem(at: destination) }
+                }
+                for relative in manifest.replaced { try copyAtomically(path("backup/" + relative, in: record), to: path(relative, in: gameRoot)) }
+                var installed = (try? JSONFile.read(Journal.self, from: record.appendingPathComponent("journal.json")))
+                    ?? Journal(operation: "install", state: "installed", entries: [])
+                installed.state = "undone"
+                try JSONFile.write(installed, to: record.appendingPathComponent("journal.json"))
+                var completed = journal; completed.state = "undone"
+                try JSONFile.write(completed, to: recovery.appendingPathComponent("journal.json"))
+                return manifest
+            } catch {
+                do { try rollback(journal, record: recovery) }
+                catch { throw PatchError.recoveryRequired(recovery.path) }
+                throw error
+            }
         }
-        try fm.removeItem(at: record)
-        return manifest
     }
 }

@@ -26,7 +26,9 @@ Wine 原 `loader/wine_info.plist.in` 带 LSUIElement；Cider 自建宿主没有�
 
 依据：[Apple LSUIElement](https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/LaunchServicesKeys.html#//apple_ref/doc/uid/20001402-108256)。本地 App/CLI 构建通过，米哈游在新宿主下重新启动且主/辅助进程均被 Cider 正确识别。自动化工具读取 Dock/该 Wine 窗口仍返回 timeout，故没有取得修复后 Dock 截图或声称逐个 Windows 软件完整视觉验收。通用入口已修，与全目录实际软件验收分开记录。
 
-## 拟议修正清单
+## 原评审修正清单（已被纳入实施）
+
+2026-10-07 用户随后授权现在实施；下表保留原缺陷证据，当前进度以 `docs/plan/13-roadmap.md` A01–A17 与 research/29 为准。
 
 | # | 优先级 / 类型 | 源码证据与触发 | 后果 | 最小建议与验收 |
 |---|---|---|---|---|
