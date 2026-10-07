@@ -2,7 +2,7 @@
 
 状态：文档契约与当前 CX26.3 源码已复核；尚无本轮真实 Windows 输出，不代表内核 API 已修复。接续 [research/23](23-kernel-feasibility-20261006.md) 和 [接管评审](27-current-code-review-20261007.md)。本轮没有创建/运行测试驱动或修改内核代码。
 
-环境更新：用户已提供 ToDesk 设备 Cervantes 作为独立 Windows 参考机并授权访问，手动连接后已读到远程画面；输入/终端焦点仍受工具错误阻碍，版本与开发工具待核实。截图反馈、接入状态、采集脚本和依赖矩阵校正见 [research/31](31-hy1-user-evidence-and-windows-reference-20261007.md)，不作为 Windows 执行输出。
+环境更新：用户提供 ToDesk Windows 参考机并手动接通/打开终端；已实际读到 Windows 10.0.26200.9457、PowerShell5.1.26100.9444、AMD64环境值。开发工具清单仍待取得，复杂输入受工具错误阻碍。接入、采集脚本和依赖矩阵校正见 [research/31](31-hy1-user-evidence-and-windows-reference-20261007.md)。环境查询不作为本规格的 API/驱动执行结果。
 
 ## 为什么先做这一组
 

@@ -1,0 +1,29 @@
+{
+  "schema": "cider.windows-reference-observation/v1",
+  "observed_date": "2026-10-07",
+  "source": "Visible command results read with cua_repl in the user-authorized ToDesk session; relevant fields manually transcribed",
+  "observations": [
+    {
+      "command": "cmd /c ver",
+      "windows_version": "10.0.26200.9457"
+    },
+    {
+      "command": "get-host",
+      "powershell_host": "ConsoleHost",
+      "powershell_version": "5.1.26100.9444",
+      "culture": "zh-CN",
+      "ui_culture": "zh-CN"
+    },
+    {
+      "command": "cmd /c set processor",
+      "processor_architecture_environment": "AMD64"
+    }
+  ],
+  "limitations": [
+    "Environment observations only; no Windows API or driver contract results",
+    "No verified SDK, WDK or compiler inventory yet",
+    "The user opened an administrator console; these commands only read information",
+    "Remote coordinate input returns noWindowsAvailable; text/modifier input is unreliable",
+    "The complete collection script has not run; user-assisted execution requested"
+  ]
+}

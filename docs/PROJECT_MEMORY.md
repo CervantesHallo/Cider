@@ -28,7 +28,7 @@
 - 自动化读取裸/宿主 Wine 窗口仍 timeout。2026-10-07 独立的逐程序 bundle ID 已生成并实际重启HYP，但按路径/唯一ID读取仍timeout；该方案已撤回。新标识不等于视觉验收，不重复无变化重试。
 - 历史 HYP 日志30.76GB且末段有msync pool exhausted。不能把它直接认定为每次白屏根因。诊断已改每文件最多4MiB头尾读取；不要全读巨型日志。
 - SePrivilegeCheck/SeSinglePrivilegeCheck 的 KernelMode 成功有微软契约依据；前者还有输出标记义务。UserMode 的令牌/启用状态、集合和输出须独立实现/对照。当前 CX26.3 的 token 引用及 context 捕获/锁定/释放仍为空桩，不能拿 user-mode token API 冒充已完成依赖。矩阵 revision 2 校正了两个权限条目与模型概述；不是运行时修复或全表重新对照。
-- 2026-10-07 用户授权通过 ToDesk 访问 Windows 参考机 Cervantes，并手动接通；已读到远程画面。坐标输入仍报 noWindowsAvailable，键盘/终端焦点未稳定，已请求打开普通 PowerShell。Windows/WDK 版本仍未核实。只读环境采集脚本已准备，未执行；记忆不保存设备代码、IP 或凭据。
+- 2026-10-07 用户授权通过 ToDesk 访问 Windows 参考机 Cervantes，手动接通并打开 PowerShell。实际只读输出：Windows 10.0.26200.9457、PowerShell5.1.26100.9444、AMD64环境值。坐标仍报 noWindowsAvailable；复杂文本/组合键丢失，错误命令执行前已清空。SDK/WDK/compiler未知，已请求用户执行固定提交/哈希校验的只读采集脚本，不改执行策略。记忆不保存设备代码、IP 或凭据。
 - A01–A17 的代码已实施并构建，故障注入、完整回归、真实Windows对照仍待完成。内核矩阵/参考规格不是内核运行时实现，启动器不是游戏可玩性。
 
 ## 接管入口
