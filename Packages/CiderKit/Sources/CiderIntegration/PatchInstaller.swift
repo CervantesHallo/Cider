@@ -64,16 +64,39 @@ public struct PatchInstaller: Sendable {
     }
     private func nextSequence() throws -> UInt64 {
         let file = try path("sequence.json", in: historyRoot)
-        let previous = FileSafety.exists(file) ? try JSONFile.read(UInt64.self, from: file) : 0
-        let maximum = try FileManager.default.contentsOfDirectory(at: historyRoot, includingPropertiesForKeys: nil)
-            .compactMap { try? JSONFile.read(Manifest.self, from: $0.appendingPathComponent("manifest.json")) }.compactMap(\.sequence).max() ?? 0
+        let previous = FileSafety.exists(file) ? try JSONFile.readMetadata(UInt64.self, from: file) : 0
+        let maximum = try metadataRecords().compactMap { $0.manifest?.sequence }.max() ?? 0
         guard max(previous, maximum) < UInt64.max else { throw CiderError.invalid("补丁提交序号已耗尽。") }
         let next = max(previous, maximum) + 1
-        try JSONFile.write(next, to: file)
+        try JSONFile.writeMetadata(next, to: file)
         return next
     }
     private func path(_ relative: String, in root: URL) throws -> URL {
         try FileSafety.child(relative, in: root, rejectSymlinks: true)
+    }
+    private func read<T: Decodable>(_ type: T.Type, name: String, record: URL) throws -> T {
+        try JSONFile.readMetadata(type, from: path(name, in: record))
+    }
+    private func existingJournal(record: URL) throws -> Journal? {
+        let file = try path("journal.json", in: record)
+        return FileSafety.exists(file) ? try JSONFile.readMetadata(Journal.self, from: file) : nil
+    }
+    private func metadataRecords() throws -> [(record: URL, manifest: Manifest?, journal: Journal?)] {
+        let fm = FileManager.default
+        guard FileSafety.exists(historyRoot) else { return [] }
+        var result: [(record: URL, manifest: Manifest?, journal: Journal?)] = []
+        for name in try fm.contentsOfDirectory(atPath: historyRoot.path) where !name.hasPrefix(".") && name != "sequence.json" {
+            let record = try path(name, in: historyRoot)
+            guard (try fm.attributesOfItem(atPath: record.path)[.type] as? FileAttributeType) == .typeDirectory else {
+                throw CiderError.invalid("补丁恢复目录损坏。")
+            }
+            let manifestURL = try path("manifest.json", in: record)
+            let journalURL = try path("journal.json", in: record)
+            let manifest = FileSafety.exists(manifestURL) ? try read(Manifest.self, name: "manifest.json", record: record) : nil
+            let journal = FileSafety.exists(journalURL) ? try read(Journal.self, name: "journal.json", record: record) : nil
+            result.append((record, manifest, journal))
+        }
+        return result
     }
     private func regular(_ url: URL) throws {
         guard (try FileManager.default.attributesOfItem(atPath: url.path)[.type] as? FileAttributeType) == .typeRegular else {
@@ -128,21 +151,18 @@ public struct PatchInstaller: Sendable {
         if journal.operation == "undo", let source = journal.sourceRecord {
             _ = try FileSafety.component(source)
             let installedRecord = try path(source, in: historyRoot)
-            var installed = (try? JSONFile.read(Journal.self, from: installedRecord.appendingPathComponent("journal.json")))
+            var installed = (try existingJournal(record: installedRecord))
                 ?? Journal(operation: "install", state: "installed", entries: [])
             installed.state = "installed"
-            try JSONFile.write(installed, to: installedRecord.appendingPathComponent("journal.json"))
+            try JSONFile.writeMetadata(installed, to: installedRecord.appendingPathComponent("journal.json"))
         }
         var completed = journal; completed.state = "rolled_back"
-        try JSONFile.write(completed, to: record.appendingPathComponent("journal.json"))
+        try JSONFile.writeMetadata(completed, to: record.appendingPathComponent("journal.json"))
     }
     public func recoverPending() throws { try locked { try recoverLocked() } }
     private func recoverLocked() throws {
-        for name in (try? FileManager.default.contentsOfDirectory(atPath: historyRoot.path)) ?? [] where !name.hasPrefix(".") && name != "sequence.json" {
-            let record = try path(name, in: historyRoot)
-            guard FileSafety.exists(record.appendingPathComponent("journal.json")) else { continue }
-            let journal = try JSONFile.read(Journal.self, from: record.appendingPathComponent("journal.json"))
-            if journal.state == "mutating" { try rollback(journal, record: record) }
+        for entry in try metadataRecords() {
+            if let journal = entry.journal, journal.state == "mutating" { try rollback(journal, record: entry.record) }
         }
     }
     @discardableResult
@@ -196,13 +216,13 @@ public struct PatchInstaller: Sendable {
                     try fm.copyItem(at: path("rollback/" + entry.relative, in: record), to: destination)
                 }
                 let journal = Journal(operation: "install", state: "mutating", entries: entries)
-                try JSONFile.write(journal, to: record.appendingPathComponent("journal.json")); mutation = journal
+                try JSONFile.writeMetadata(journal, to: record.appendingPathComponent("journal.json")); mutation = journal
                 for entry in entries { try copyAtomically(path(entry.relative, in: staging), to: path(entry.relative, in: gameRoot)) }
                 let manifest = Manifest(installedAt: Identifiers.timestamp(), sources: items.map(\.lastPathComponent),
                                         added: entries.filter { !$0.existed }.map(\.relative), replaced: entries.filter(\.existed).map(\.relative), sequence: try nextSequence())
-                try JSONFile.write(manifest, to: record.appendingPathComponent("manifest.json"))
+                try JSONFile.writeMetadata(manifest, to: record.appendingPathComponent("manifest.json"))
                 var completed = journal; completed.state = "installed"
-                try JSONFile.write(completed, to: record.appendingPathComponent("journal.json"))
+                try JSONFile.writeMetadata(completed, to: record.appendingPathComponent("journal.json"))
                 try? fm.removeItem(at: staging)
                 return manifest
             } catch {
@@ -214,29 +234,25 @@ public struct PatchInstaller: Sendable {
             }
         }
     }
-    public func lastInstall() -> (record: URL, manifest: Manifest)? {
-        let fm = FileManager.default
-        let ordered = ((try? fm.contentsOfDirectory(atPath: historyRoot.path)) ?? []).filter { !$0.hasPrefix(".") && $0 != "sequence.json" }.sorted { a, b in
-            let left = try? JSONFile.read(Manifest.self, from: historyRoot.appendingPathComponent(a + "/manifest.json"))
-            let right = try? JSONFile.read(Manifest.self, from: historyRoot.appendingPathComponent(b + "/manifest.json"))
-            if left?.sequence != right?.sequence { return (left?.sequence ?? 0) > (right?.sequence ?? 0) }
-            return a > b
+    private func latestInstall() throws -> (record: URL, manifest: Manifest)? {
+        let records = try metadataRecords().filter { $0.manifest != nil && ($0.journal == nil || $0.journal?.state == "installed") }.sorted { a, b in
+            let left = a.manifest!, right = b.manifest!
+            if left.sequence != right.sequence { return (left.sequence ?? 0) > (right.sequence ?? 0) }
+            return a.record.lastPathComponent > b.record.lastPathComponent
         }
-        for name in ordered {
-            guard let record = try? path(name, in: historyRoot), let manifest = try? JSONFile.read(Manifest.self, from: record.appendingPathComponent("manifest.json")) else { continue }
-            if FileSafety.exists(record.appendingPathComponent("journal.json")) {
-                guard let journal = try? JSONFile.read(Journal.self, from: record.appendingPathComponent("journal.json")), journal.state == "installed" else { continue }
-            }
-            guard (try? validate(manifest, record: record)) != nil else { continue }
-            return (record, manifest)
+        guard let first = records.first, let manifest = first.manifest else { return nil }
+        if manifest.sequence == nil && records.dropFirst().contains(where: { $0.manifest?.sequence == nil && $0.manifest?.installedAt == manifest.installedAt }) {
+            throw CiderError.invalid("旧补丁记录的先后顺序不明确，请保留记录并人工复核后恢复。")
         }
-        return nil
+        try validate(manifest, record: first.record)
+        return (first.record, manifest)
     }
+    public func lastInstall() -> (record: URL, manifest: Manifest)? { try? latestInstall() }
     @discardableResult
     public func undoLast() throws -> Manifest? {
         try locked {
             try recoverLocked()
-            guard let (record, manifest) = lastInstall() else { return nil }
+            guard let (record, manifest) = try latestInstall() else { return nil }
             try validate(manifest, record: record)
             let recovery = try FileSafety.reserveDirectory(in: historyRoot) { "undo-" + UUID().uuidString }
             let entries = try (manifest.added + manifest.replaced).map { relative -> Entry in
@@ -247,19 +263,19 @@ public struct PatchInstaller: Sendable {
             }
             try backup(entries, into: recovery)
             let journal = Journal(operation: "undo", state: "mutating", entries: entries, sourceRecord: record.lastPathComponent)
-            try JSONFile.write(journal, to: recovery.appendingPathComponent("journal.json"))
+            try JSONFile.writeMetadata(journal, to: recovery.appendingPathComponent("journal.json"))
             do {
                 for relative in manifest.added {
                     let destination = try path(relative, in: gameRoot)
                     if FileSafety.exists(destination) { try FileManager.default.removeItem(at: destination) }
                 }
                 for relative in manifest.replaced { try copyAtomically(path("backup/" + relative, in: record), to: path(relative, in: gameRoot)) }
-                var installed = (try? JSONFile.read(Journal.self, from: record.appendingPathComponent("journal.json")))
+                var installed = (try existingJournal(record: record))
                     ?? Journal(operation: "install", state: "installed", entries: [])
                 installed.state = "undone"
-                try JSONFile.write(installed, to: record.appendingPathComponent("journal.json"))
+                try JSONFile.writeMetadata(installed, to: record.appendingPathComponent("journal.json"))
                 var completed = journal; completed.state = "undone"
-                try JSONFile.write(completed, to: recovery.appendingPathComponent("journal.json"))
+                try JSONFile.writeMetadata(completed, to: recovery.appendingPathComponent("journal.json"))
                 return manifest
             } catch {
                 do { try rollback(journal, record: recovery) }

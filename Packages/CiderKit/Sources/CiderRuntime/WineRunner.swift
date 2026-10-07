@@ -191,23 +191,7 @@ public struct WineRunner: Sendable {
             throw CiderError.invalid("此瓶子是 Steam 前缀的副本，为保护原登录，不能在副本中启动 Steam。请新建瓶子并重新安装登录。")
         }
         try EnginePolicy.requireChildPreflight(engine)
-        // Runtime cannot repair Integration's journals, but must never start a partly patched prefix.
-        let bottleDirectory = expectedPrefix.deletingLastPathComponent()
-        let history = try FileSafety.child(".cider/patches", in: bottleDirectory, rejectSymlinks: true)
-        if FileSafety.exists(history) {
-            for app in try FileManager.default.contentsOfDirectory(at: history, includingPropertiesForKeys: nil) where !app.lastPathComponent.hasPrefix(".") {
-                _ = try FileSafety.child(".cider/patches/" + app.lastPathComponent, in: bottleDirectory, rejectSymlinks: true)
-                for record in try FileManager.default.contentsOfDirectory(at: app, includingPropertiesForKeys: nil) where !record.lastPathComponent.hasPrefix(".") && record.lastPathComponent != "sequence.json" {
-                    let journal = try FileSafety.child("journal.json", in: record, rejectSymlinks: true)
-                    if FileSafety.exists(journal) {
-                        let data = try Data(contentsOf: journal)
-                        guard let value = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-                              let state = value["state"] as? String else { throw CiderError.invalid("补丁恢复记录损坏，启动已暂停。") }
-                        if state == "mutating" { throw CiderError.invalid("补丁操作尚未恢复。请在游戏详情重新安装或撤销补丁，恢复成功后再启动。") }
-                    }
-                }
-            }
-        }
+        try PatchState.requireRecovered(in: expectedPrefix.deletingLastPathComponent())
         // Upgrade host metadata before starting any Wine child, including existing engines.
         // Do this only on launch: stopping a process must not depend on writable engine metadata.
         try EngineHost.ensure(engineDirectory: engine.directory, wineRoot: engine.wineRoot,

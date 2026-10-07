@@ -89,9 +89,16 @@ extension BottleStore {
     public func duplicate(_ bottle: Bottle, name: String) throws -> Bottle {
         try withOperation(bottle) { current in
             try runner(for: current).killAll()
+            try PatchState.requireRecovered(in: current.directory)
             let dir = try FileSafety.reserveDirectory(in: paths.bottles) { Identifiers.make(from: name) }
             do {
                 try Command.run("/bin/cp", ["-c", "-R", current.prefix.path, dir.appendingPathComponent("prefix").path])
+                let history = try FileSafety.child(".cider/patches", in: current.directory, rejectSymlinks: true)
+                if FileSafety.exists(history) {
+                    let destination = try FileSafety.child(".cider/patches", in: dir, rejectSymlinks: true)
+                    try FileManager.default.ensureDirectory(destination.deletingLastPathComponent())
+                    try Command.run("/bin/cp", ["-c", "-R", history.path, destination.path])
+                }
                 var config = current.config
                 config.id = dir.lastPathComponent
                 config.name = name

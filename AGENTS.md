@@ -9,6 +9,10 @@ Open-source macOS app (Apple Silicon) that runs Windows programs and games on Wi
 - Default to doing research and implementation locally. Use subagents only for exceptionally large tasks, with bounded, independent research or code deliverables while doing critical-path work locally. Start with one or two agents, give each a concrete deliverable and disjoint write scope, reuse completed results, and stop unproductive retries. The parent reviews and integrates findings; an agent report alone is not verification. Include adversarial review of material changes.
 - Git author and committer must both be CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>. Do not add AI coauthor or generated-by attribution.
 
+## Project memory
+
+- Read `docs/PROJECT_MEMORY.md` when taking over this project. Keep confirmed user decisions, operational lessons, evidence boundaries, and failed experiments current there; source code and the roadmap remain authoritative for implementation state. Do not store credentials or unrelated personal data.
+
 ## Layout
 
 - `Packages/CiderKit/` — all business logic (SwiftPM, no UI). Modules: CiderCore, CiderSchema, CiderStore (engines, D3DMetal import), CiderRuntime (spawning Wine, preflight gate), CiderBottle, CiderPE, CiderData (compat DB, recipes, red lines), CiderIntegration (Steam, catalog, recipe installer).
