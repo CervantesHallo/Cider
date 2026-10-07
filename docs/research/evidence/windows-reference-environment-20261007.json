@@ -1,0 +1,31 @@
+{
+  "schema": "cider.windows-reference-environment/v1",
+  "collected_utc": "2026-10-07T03:06:24.5132552Z",
+  "collector_scope": "OS and installed SDK/WDK headers/MSVC directories; availability only, no compilation or contract result",
+  "powershell_version": "5.1.26100.9444",
+  "operating_system": {
+    "caption": "Microsoft Windows 11 专业版",
+    "version": "10.0.26200",
+    "build": "26200",
+    "architecture": "64 位",
+    "is_64_bit_process": true
+  },
+  "windows_kits_root_registered": true,
+  "windows_kits": [
+    {
+      "version": "10.0.26100.0",
+      "sdk_windows_header": true,
+      "wdk_kernel_header": false
+    }
+  ],
+  "vswhere_present": true,
+  "visual_studio": [
+    {
+      "name": "Visual Studio 生成工具 2022",
+      "version": "17.14.36518.9",
+      "complete": true,
+      "x64_msvc_directories": ["14.44.35207"]
+    }
+  ],
+  "errors": []
+}

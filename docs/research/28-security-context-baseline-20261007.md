@@ -4,6 +4,8 @@
 
 环境更新：用户提供 ToDesk Windows 参考机并手动接通/打开终端；已实际读到 Windows 10.0.26200.9457、PowerShell5.1.26100.9444、AMD64环境值。开发工具清单仍待取得，复杂输入受工具错误阻碍。接入、采集脚本和依赖矩阵校正见 [research/31](31-hy1-user-evidence-and-windows-reference-20261007.md)。环境查询不作为本规格的 API/驱动执行结果。
 
+清单更新：用户完成了固定提交/哈希校验的采集，Windows11专业版、SDK26100 Include目录、VS2022 BuildTools/MSVC已确认；所查目录没有WDK内核头文件，独立EWDK候选待补齐，见 [research/32](32-windows-reference-toolchain-20261007.md)。本规格仍未执行内核对照。
+
 ## 为什么先做这一组
 
 当前缓存 CX26.3 树的 ntoskrnl.c 中，SeSinglePrivilegeCheck 与 SePrivilegeCheck 不区分 mode，均直接 TRUE。缺陷不能简单概括成“TRUE 就是伪成功”：微软规定 KernelMode 走成功分支。UserMode 才须核对真实令牌及 enabled privileges；SePrivilegeCheck 还涉及集合 Control 与输出 Attributes。[单项契约](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntddk/nf-ntddk-sesingleprivilegecheck)、[集合契约](https://learn.microsoft.com/en-us/windows-hardware/drivers/ddi/ntifs/nf-ntifs-seprivilegecheck)

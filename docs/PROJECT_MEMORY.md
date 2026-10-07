@@ -22,13 +22,15 @@
 
 - 千恋＊万花、魔女的夜宴及 Steam 有历史运行证据；不能把它们推广成全部柚子社或全部 Windows 程序已经通过。
 - 原神本地7.1.0国服安装：7777个本地清单项存在且大小一致，主程序MD5符合本地清单；Windows路径可访问。未做全部资产哈希或游戏会话。当前确定启动障碍为 Cider 门禁，原“找不到文件”弹窗/返回码尚未复现。
-- HYP 顶部裁切有真实日志：client.top=82、r1 visible.top=112；本机 r2 修复后 Wine/Cocoa.top=82。2026-10-07 用户完整截图显示顶部/底部内容完整，用户确认可拖动、不能缩放；缩放是否为原生固定尺寸行为待 Windows 对照。按钮点击、最小化/恢复、不同显示比例仍待验收。
+- HYP 顶部裁切有真实日志：client.top=82、r1 visible.top=112；本机 r2 修复后 Wine/Cocoa.top=82。2026-10-07 用户完整截图显示顶部/底部内容完整，可拖动不能缩放；用户Windows对照的最新纠正也是“不能改变大小”，以最后回复为准，不强制加缩放。Windows启动器版本未记录；按钮点击、最小化/恢复、不同显示比例仍待验收。
 - 米哈游 CEF 必须有跨进程子窗口支持和 DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN=1。Profile 现在匹配默认安装路径及数字版本目录，不凭裸 launcher.exe/HYP 名称命中；自定义目录需要明确范围。
 - 多个灰色 Dock 图标与宿主缺 LSUIElement 有关。已设 agent、保留真窗口前台晋升，7个引擎已迁移。不要改系统 Dock 固定项掩盖问题。
 - 自动化读取裸/宿主 Wine 窗口仍 timeout。2026-10-07 独立的逐程序 bundle ID 已生成并实际重启HYP，但按路径/唯一ID读取仍timeout；该方案已撤回。新标识不等于视觉验收，不重复无变化重试。
 - 历史 HYP 日志30.76GB且末段有msync pool exhausted。不能把它直接认定为每次白屏根因。诊断已改每文件最多4MiB头尾读取；不要全读巨型日志。
 - SePrivilegeCheck/SeSinglePrivilegeCheck 的 KernelMode 成功有微软契约依据；前者还有输出标记义务。UserMode 的令牌/启用状态、集合和输出须独立实现/对照。当前 CX26.3 的 token 引用及 context 捕获/锁定/释放仍为空桩，不能拿 user-mode token API 冒充已完成依赖。矩阵 revision 2 校正了两个权限条目与模型概述；不是运行时修复或全表重新对照。
-- 2026-10-07 用户授权通过 ToDesk 访问 Windows 参考机 Cervantes，手动接通并打开 PowerShell。实际只读输出：Windows 10.0.26200.9457、PowerShell5.1.26100.9444、AMD64环境值。坐标仍报 noWindowsAvailable；复杂文本/组合键丢失，错误命令执行前已清空。SDK/WDK/compiler未知，已请求用户执行固定提交/哈希校验的只读采集脚本，不改执行策略。记忆不保存设备代码、IP 或凭据。
+- 2026-10-07 用户授权通过 ToDesk 访问 Windows 参考机 Cervantes，手动接通并打开 PowerShell。实际只读输出：Windows11专业版10.0.26200.9457、PowerShell5.1.26100.9444、AMD64；用户完成固定提交/哈希校验采集，SDK Include26100.0有Windows.h无km/ntddk.h，VS2022 BuildTools17.14.36518.9/MSVC14.44.35207可用。不是构建或内核对照通过；EWDK VS2022候选待补齐。Include目录`.0`不能当成真实QFE。
+- ToDesk坐标仍报noWindowsAvailable；复杂文本/组合键丢失，错误命令执行前清空。关键命令须核对实际输入，不执行丢字符后的代码。普通字符/回车仅能完成有限查询；不绕过执行策略或改变系统保护来补工具通道。记忆不保存设备代码、IP或凭据。
+- 用户已确认获取/使用微软25H2 EWDK VS2022，ISO约18.63GiB，下载进入本机Cider缓存；尚未完成/启用时不能记成WDK环境就绪。Wine固定快照已有primary token引用/释放，当前CX对象映射可评估复用；impersonation/context与权限检查仍需实现/对照，见research/33。
 - A01–A17 的代码已实施并构建，故障注入、完整回归、真实Windows对照仍待完成。内核矩阵/参考规格不是内核运行时实现，启动器不是游戏可玩性。
 
 ## 接管入口
