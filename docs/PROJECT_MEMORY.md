@@ -22,6 +22,7 @@
 - 用户确认真实公网入口后，假定2222的严格握手验证只得到连接关闭，没有宿主密钥，不曾登录或执行Windows命令。用户随后澄清“转发完毕”其实只是Windows防火墙入/出站放行，路由器NAT映射仍缺；不要混淆两层配置，不继续无变化端口探测。额外180秒接入预约已结束，无pending；剩余准备2220秒（37分钟）+测试3600秒（60分钟）。Windows就绪、外网路由、认证、桌面控制、watchdog分别验收，见research/evidence/windows-reference-access-setup-20261011.json。
 - 后续新证据替代“路由器映射仍缺”的旧状态：用户路由器截图确认TCP2222正确映射到Windows的2222，WAN与已提供公网入口相同；设备页16KB/s/26KB/s是当前流量，旁边注明无限制，不是已设限速。Windows回环探测返回`SSH-2.0-OpenSSH_for_Windows_10.0 Win32-OpenSSH-GitHub`，证明本机版本响应，尚不证明宿主密钥或公钥认证。Mac系统路径keyscan仍在取宿主密钥前关闭，绑定物理网卡的连接超时；显式本地SOCKS连接获成功回复后未收到SSH标识。控制器未捕获目标规则，不能宣称已查明走DIRECT或代理、不能把物理绑定超时定为Windows故障。没有修改代理/防火墙或执行远程命令。该180秒准备预约已结算，无pending；剩余准备2040秒（34分钟）、测试3600秒（60分钟）。下一步只读Windows SSH日志，不重复安装或改NAT。 已另预扣60秒用于在场只读日志交接，剩余准备1980秒（33分钟），当前该预约pending；回传命令结束结果前不新开Windows任务。
 - 用户明确要求结束当前回合后才能上传截图/结果；需要人工交接时给简短具体操作并及时yield，不让连续异步追问阻碍上传。
+- 最新只读日志确认Windows在所有IPv4/IPv6接口监听2222，唯一会话记录为用户回环查询；安装期间22的监听属于先前短暂默认服务，不能记成当前22/2222同时开放。Mac随后通过核心`/logs`捕获本次SSH实际选路：`dial DIRECT (match GeoIP/cn)`，随后公网TCP2222的真实拨号`i/o timeout`。这次已确认Mac发起端使用DIRECT；早先本地TCP established/Connection closed可能来自TUN/SOCKS代理端，不足以证明Windows端曾接受再关闭连接。默认Windows事件日志没有公网会话本身不证明包未到达。下一步核对Windows代理软件及TUN配置，区分回程/入站路径与实际转发，不能直接归咎密码、反作弊或断言TUN根因；保留终端代理，不关闭TUN或重装服务。两次60秒准备预约均已结束，无pending，剩余准备1920秒（32分钟）、测试3600秒（60分钟）。
 - Git 作者和提交者只能是 CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>，不加 AI 署名。
 
 ## 始终保留的边界

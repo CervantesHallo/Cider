@@ -49,15 +49,31 @@
     "system_route_keyscan_result": "closed-before-host-key",
     "physical_interface_bound_probe_result": "timeout",
     "explicit_local_socks_probe_result": "SOCKS success response followed by no SSH identification within deadline",
-    "matching_proxy_route_observed": false,
-    "proxy_configuration_changed": false
+    "matching_proxy_route_observed": true,
+    "proxy_configuration_changed": false,
+    "windows_eventlog": {
+      "source": "user supplied Get-WinEvent output",
+      "listening_ipv4_any": true,
+      "listening_ipv6_any": true,
+      "port": 2222,
+      "latest_observed_session_source": "loopback",
+      "public_peer_observed": false,
+      "missing_peer_is_not_packet_delivery_proof": true
+    },
+    "mac_route_trace": {
+      "source": "local mihomo /logs stream during the bounded connection",
+      "route": "DIRECT",
+      "matched_rule": "GeoIP/cn",
+      "actual_public_tcp_dial_result": "i/o timeout",
+      "observed_socket_operation_seconds": 5.018,
+      "local_established_or_socks_success_is_not_remote_tcp_handshake_proof": true
+    }
   },
   "budget": {
-    "remaining_preparation_seconds": 1980,
+    "remaining_preparation_seconds": 1920,
     "remaining_test_seconds": 3600,
-    "pending_reservations": 1,
-    "accounting": "full reservation charged, not a report of measured actual total",
-    "pending_scope": "attended read-only SSH event-log handoff, 60 seconds charged"
+    "pending_reservations": 0,
+    "accounting": "full reservation charged, not a report of measured actual total"
   },
-  "boundary": "router mapping and Windows loopback SSH version response confirmed; no host key, authentication, remote command or RDP session; actual proxy rule and network failure cause unresolved; bounded Windows runner pending"
+  "boundary": "Windows all-interface listening and Mac DIRECT route confirmed; public TCP dial timed out; no host key/authentication/remote command/RDP; Windows return route, inbound filtering and actual NAT path unresolved; bounded runner pending"
 }
