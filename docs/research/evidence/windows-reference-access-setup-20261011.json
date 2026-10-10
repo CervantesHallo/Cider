@@ -1,0 +1,49 @@
+{
+  "schema": "cider.windows-reference-access-setup/v1",
+  "date": "2026-10-11",
+  "windows": {
+    "user_result_received": true,
+    "source_sha256": "a3f7d089424f9efaeadac813e8a204032cfe101aa075855562ab941febcf233b",
+    "provider": "microsoft-msi-10.0.0.0p2-preview",
+    "script_elapsed_seconds": 19.92,
+    "duration_scope": "script body only, excludes parent loader and manual handoff",
+    "status": "configured",
+    "project_public_key_fingerprint_matched": true,
+    "signature_size_hash_checks_passed_by_source": true,
+    "server_service_path_and_listening_checks_passed_by_source": true,
+    "rdp_enabled": true
+  },
+  "mac_client": {
+    "installed": true,
+    "name": "Windows App",
+    "version": "11.4.3",
+    "build": "3115",
+    "bundle_id": "com.microsoft.rdc.macos",
+    "publisher_team_id": "UBF8T346G9",
+    "package_sha256": "9dc0e5f4abecfe9dc02d45fafc9813881bd24ecb84125eabe522b01b11a039ca",
+    "package_signature_and_notarization_verified": true,
+    "bundle_deep_strict_signature_verified": true,
+    "saved_profile_verified_in_cua": true,
+    "clipboard_redirection": "disabled",
+    "folders_printers_smartcards_cameras_microphones_redirected": false,
+    "credentials_saved": false
+  },
+  "external_access": {
+    "user_confirmed_real_public_address": true,
+    "address_kept_private": true,
+    "tested_only_assumed_tcp_port": 2222,
+    "host_key_received": false,
+    "authenticated": false,
+    "remote_command_executed": false,
+    "user_clarified_only_windows_firewall_rules": true,
+    "router_forwarding_missing": true,
+    "rdp_desktop_automation_verified": false
+  },
+  "budget": {
+    "remaining_preparation_seconds": 2220,
+    "remaining_test_seconds": 3600,
+    "pending_reservations": 0,
+    "accounting": "full reservation charged, not a report of measured actual total"
+  },
+  "boundary": "server installation and client setup verified; public routing, SSH login, screen control and bounded Windows runner still pending"
+}

@@ -17,6 +17,9 @@
 - 用户执行906e199后下载/校验/Windows解析通过，进入OpenSSH组件安装；Wait-Job的300秒限额触发，尚未执行密钥/端口配置。Windows servicing后台是否结束未知，原预约保持pending，不重跑安装或并行换另一套部署，不称已清理。用户确认Windows为TUN规则模式（国内直连），终端必须保留代理；不关闭TUN/终端代理，不擅自改WinHTTP/更新组策略。系统组件的Windows Update通道与终端下载成功分开判断，超时不证明代理根因；下一步只读服务/WinHTTP/DISM末段。微软官方独立MSI为未采用候选（约6.6MB、10.0.0.0p2-Preview，维护更新另算），见plan/14。
 - 后续原始输出确认WinHTTP配置DIRECT（不等于TUN未作用）、仍无sshd；DISM在01:31:58以0x800704c7取消，随后Finalize/DeletedSession/Shutdown/Ending均出现。结合脚本300秒限额，确认这次请求已取消并关闭；初始耗时原因未证实，日志没有给出代理连接错误。仅观察到309秒DISM片段，不能冒充整个准备总耗时。按真实关闭证据关闭首个600秒预约、不退款；人工交接总时间无测量则明确null/保守上限，不填虚构数字。另预留600秒用于MSI准备，剩余准备2400秒+测试3600秒，新预约pending。
 - 已准备UseMsi替代执行：官方10.0.0.0p2-Preview临时测试接入包；用户终端下载、固定长度/SHA256及Windows微软Authenticode双校验、只装Server、不改代理/客户端PATH。安装前只读确认in-box NotPresent，15秒查状态限额、下载120秒、MSI等待120秒；超时保留未知状态不重试、不杀系统安装服务。验证真实服务路径后才管理本次服务，SFTP使用明确路径。Mac语法解析通过，Windows签名/安装/连接仍待回传，见research/evidence/windows-access-capability-cancellation-20261011.json。
+- 后续实际成功：用户回传UseMsi结果configured，来源a3f7d089…，脚本体19.92秒（不含外部下载/人工交接），项目公钥指纹匹配，SSH监听/真实服务路径检查通过，RDP启用。第二600秒准备预约已按成功结束证据关闭、不退款。安装不等于外网登录；账号/宿主指纹/地址只在受限本机配置，不写公开记忆。
+- Mac Windows App11.4.3(3115)已从微软官方独立pkg准备，Microsoft UBF8T346G9签名/公证和app深度签名均核对；只部署app载荷，未改现有Microsoft AutoUpdate。CUA已完成初始页并保存Cider Windows Reference本地SSH隧道连接，剪贴板/文件夹/打印机/智能卡/相机/麦克风未重定向，无保存凭据。后台App弹出菜单需先调用已暴露的Raise再点击；坐标输入仍报noWindowsAvailable，真实RDP画面操作尚未验收。
+- 用户确认真实公网入口后，假定2222的严格握手验证只得到连接关闭，没有宿主密钥，不曾登录或执行Windows命令。用户随后澄清“转发完毕”其实只是Windows防火墙入/出站放行，路由器NAT映射仍缺；不要混淆两层配置，不继续无变化端口探测。额外180秒接入预约已结束，无pending；剩余准备2220秒（37分钟）+测试3600秒（60分钟）。Windows就绪、外网路由、认证、桌面控制、watchdog分别验收，见research/evidence/windows-reference-access-setup-20261011.json。
 - Git 作者和提交者只能是 CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>，不加 AI 署名。
 
 ## 始终保留的边界
