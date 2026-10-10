@@ -55,3 +55,5 @@
 用户实际执行 r1 的 build.cmd，客户端 reference.c:98、108 出现 C4018（有/无符号比较），并因警告视为错误触发 C2220。脚本正确报失败，未到驱动构建或客户端采集；没有任何原生契约成功结果。[原始诊断字段](evidence/windows-reference-r1-build-failure-20261010.json)
 
 根因为 FIELD_OFFSET 的 LONG 结果与 GetTokenInformation 使用的 DWORD 长度比较。改为标准 offsetof 并显式存入 DWORD，长度下界及计数检查共用该常量；W4 / TreatWarningAsError 和零项、上界、减法前下界检查继续保留。本机 GCC 以 Wall/Wextra/Werror/Wsign-compare/Wconversion 重新编译成功；r2 的 Windows 原生重建仍待用户回传。小型修正由主代理完成，没有启用新子代理或Actions。
+
+修正源提交c81f34c已推送，[r2源包](https://github.com/CervantesHallo/Cider/releases/tag/windows-reference-20261010-r2)已发布，大小14875bytes，SHA256为5c113ebcaa8044a0330a7c155f384c5a9a8a6024fb82bf0c56f9e5b6b4fde746，清单全部文件重新核对。用户继续使用原EWDK CMD及原目录重建；没有把这个本机修正标为MSVC原生通过。

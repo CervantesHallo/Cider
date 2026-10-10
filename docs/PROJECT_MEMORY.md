@@ -43,6 +43,7 @@
 - 本轮新版out/Cider.app已通过CUA菜单退出旧主界面并重开，原5项资料库保留、Steam/HYP运行状态仍可见；点击HYP启动返回“已在运行”。米哈游瓶子仍r2、Retina off；这是GUI/已有实例分支观察，不扩大为真实停止/重启或1×/2×通过。
 - Windows参考源包已发布为windows-reference-20261010-r1（实验prerelease），源提交c41b3d2，ZIP 14858bytes / SHA256 ce5bd8b0da26890e52f3c12ce0371e8943ce7902a87962cf71460f4da32eab9b；GitHub资产摘要与本地一致。已请用户在EWDK CMD以一行完整路径执行build.cmd，回传user.jsonl及client/user两份SHA256。这是原生执行的人类交接，尚未收到本工程Windows结果；不重复远程长命令、不把代码发布当作契约通过。所有子代理已关闭。
 - 用户随后实际执行r1原生编译：client/reference.c第98/108行C4018，有/无符号比较；WX触发C2220，未进入驱动或采集。FIELD_OFFSET的LONG与DWORD长度比较是根因；r2用标准offsetof并显式存入DWORD，保持所有边界检查和W4/WX。本机额外Wsign-compare/Wconversion交叉编译成功；Windows r2结果待回传。不要再把本机交叉编译推广为MSVC警告兼容。
+- 修正已提交c81f34c并发布windows-reference-20261010-r2；源包14875bytes、SHA256 5c113ebcaa8044a0330a7c155f384c5a9a8a6024fb82bf0c56f9e5b6b4fde746。用户原解压目录为D:\\windows-reference，重新覆盖源码后可直接在原EWDK CMD执行同一build.cmd路径。r1编译失败作为历史证据保留，r2原生重建待回传。
 
 ## 接管入口
 
