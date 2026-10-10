@@ -1,0 +1,19 @@
+{
+  "schema": "cider.windows-reference-build-observation/v1",
+  "observation_date": "2026-10-10",
+  "source": "User-supplied EWDK CMD screenshot",
+  "source_release": "windows-reference-20261010-r1",
+  "source_commit": "c41b3d2aa808bf94a95419485fcaa71ed94ba5fa",
+  "stage": "client C compilation",
+  "outcome": "failed",
+  "diagnostics": [
+    {"code": "C2220", "meaning": "warning treated as error", "file": "client/reference.c", "line": 98},
+    {"code": "C4018", "meaning": "signed/unsigned mismatch in less-than comparison", "file": "client/reference.c", "line": 98},
+    {"code": "C4018", "meaning": "signed/unsigned mismatch in less-than comparison", "file": "client/reference.c", "line": 108}
+  ],
+  "driver_build_reached": false,
+  "client_execution_reached": false,
+  "fix": "Use standard offsetof, explicitly stored as DWORD, for header length and count validation; retain W4 and warnings-as-errors",
+  "post_fix_local_evidence": "x86_64 mingw GCC build succeeded with Wall, Wextra, Werror, Wsign-compare and Wconversion",
+  "post_fix_windows_result": "pending"
+}

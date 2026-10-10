@@ -7,6 +7,7 @@
 #include <winioctl.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include <string.h>
 #include "../shared/protocol.h"
 #include "../shared/source-version.h"
@@ -81,6 +82,7 @@ static int select_token(HANDLE *token, BOOL *impersonating)
 static int token_snapshot(HANDLE token, BOOL impersonating, const char *label)
 {
     DWORD size = 0, capacity, error;
+    const DWORD privileges_offset = (DWORD)offsetof(TOKEN_PRIVILEGES, Privileges);
     TOKEN_PRIVILEGES *privileges;
     TOKEN_TYPE type;
     SECURITY_IMPERSONATION_LEVEL level = SecurityAnonymous;
@@ -95,7 +97,7 @@ static int token_snapshot(HANDLE token, BOOL impersonating, const char *label)
     if (GetTokenInformation(token, TokenPrivileges, NULL, 0, &size) ||
         GetLastError() != ERROR_INSUFFICIENT_BUFFER)
         return error_record("TokenPrivileges.size", GetLastError());
-    if (size < FIELD_OFFSET(TOKEN_PRIVILEGES, Privileges) || size > 1024u * 1024u)
+    if (size < privileges_offset || size > 1024u * 1024u)
         return error_record("TokenPrivileges.size-validation", ERROR_INVALID_DATA);
     capacity = size;
     privileges = (TOKEN_PRIVILEGES *)malloc(size);
@@ -105,8 +107,8 @@ static int token_snapshot(HANDLE token, BOOL impersonating, const char *label)
         free(privileges);
         return error_record("TokenPrivileges", error);
     }
-    if (size > capacity || size < FIELD_OFFSET(TOKEN_PRIVILEGES, Privileges) ||
-        privileges->PrivilegeCount > (size - FIELD_OFFSET(TOKEN_PRIVILEGES, Privileges)) / sizeof(LUID_AND_ATTRIBUTES)) {
+    if (size > capacity || size < privileges_offset ||
+        privileges->PrivilegeCount > (size - privileges_offset) / sizeof(LUID_AND_ATTRIBUTES)) {
         free(privileges);
         return error_record("TokenPrivileges.count-validation", ERROR_INVALID_DATA);
     }

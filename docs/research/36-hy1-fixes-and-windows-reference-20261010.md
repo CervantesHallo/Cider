@@ -49,3 +49,9 @@
 源提交 `c41b3d2` 已推送，作者/提交者均为用户。约15KB的[Windows参考源包](https://github.com/CervantesHallo/Cider/releases/tag/windows-reference-20261010-r1)已作为实验prerelease发布，GitHub资产摘要和本地SHA256一致；源包全部10个有效负载文件的长度与SHA256匹配清单。[发布记录](evidence/windows-reference-source-publication-20261010.json)
 
 已通过异步问题给出实际下载地址和单行build.cmd执行步骤，请用户回传user.jsonl及两份哈希。用户已选择自行执行简单Windows操作，可靠远程输入失败路线不再尝试；Windows原生执行是当前交接，发布和本机编译不作为它的替代。没有触发新Actions，也没有新测试驱动加载或游戏启动。
+
+## Windows 首次编译失败与 r2 修正
+
+用户实际执行 r1 的 build.cmd，客户端 reference.c:98、108 出现 C4018（有/无符号比较），并因警告视为错误触发 C2220。脚本正确报失败，未到驱动构建或客户端采集；没有任何原生契约成功结果。[原始诊断字段](evidence/windows-reference-r1-build-failure-20261010.json)
+
+根因为 FIELD_OFFSET 的 LONG 结果与 GetTokenInformation 使用的 DWORD 长度比较。改为标准 offsetof 并显式存入 DWORD，长度下界及计数检查共用该常量；W4 / TreatWarningAsError 和零项、上界、减法前下界检查继续保留。本机 GCC 以 Wall/Wextra/Werror/Wsign-compare/Wconversion 重新编译成功；r2 的 Windows 原生重建仍待用户回传。小型修正由主代理完成，没有启用新子代理或Actions。
