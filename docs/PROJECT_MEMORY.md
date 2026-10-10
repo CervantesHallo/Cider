@@ -20,6 +20,8 @@
 - 后续实际成功：用户回传UseMsi结果configured，来源a3f7d089…，脚本体19.92秒（不含外部下载/人工交接），项目公钥指纹匹配，SSH监听/真实服务路径检查通过，RDP启用。第二600秒准备预约已按成功结束证据关闭、不退款。安装不等于外网登录；账号/宿主指纹/地址只在受限本机配置，不写公开记忆。
 - Mac Windows App11.4.3(3115)已从微软官方独立pkg准备，Microsoft UBF8T346G9签名/公证和app深度签名均核对；只部署app载荷，未改现有Microsoft AutoUpdate。CUA已完成初始页并保存Cider Windows Reference本地SSH隧道连接，剪贴板/文件夹/打印机/智能卡/相机/麦克风未重定向，无保存凭据。后台App弹出菜单需先调用已暴露的Raise再点击；坐标输入仍报noWindowsAvailable，真实RDP画面操作尚未验收。
 - 用户确认真实公网入口后，假定2222的严格握手验证只得到连接关闭，没有宿主密钥，不曾登录或执行Windows命令。用户随后澄清“转发完毕”其实只是Windows防火墙入/出站放行，路由器NAT映射仍缺；不要混淆两层配置，不继续无变化端口探测。额外180秒接入预约已结束，无pending；剩余准备2220秒（37分钟）+测试3600秒（60分钟）。Windows就绪、外网路由、认证、桌面控制、watchdog分别验收，见research/evidence/windows-reference-access-setup-20261011.json。
+- 后续新证据替代“路由器映射仍缺”的旧状态：用户路由器截图确认TCP2222正确映射到Windows的2222，WAN与已提供公网入口相同；设备页16KB/s/26KB/s是当前流量，旁边注明无限制，不是已设限速。Windows回环探测返回`SSH-2.0-OpenSSH_for_Windows_10.0 Win32-OpenSSH-GitHub`，证明本机版本响应，尚不证明宿主密钥或公钥认证。Mac系统路径keyscan仍在取宿主密钥前关闭，绑定物理网卡的连接超时；显式本地SOCKS连接获成功回复后未收到SSH标识。控制器未捕获目标规则，不能宣称已查明走DIRECT或代理、不能把物理绑定超时定为Windows故障。没有修改代理/防火墙或执行远程命令。该180秒准备预约已结算，无pending；剩余准备2040秒（34分钟）、测试3600秒（60分钟）。下一步只读Windows SSH日志，不重复安装或改NAT。 已另预扣60秒用于在场只读日志交接，剩余准备1980秒（33分钟），当前该预约pending；回传命令结束结果前不新开Windows任务。
+- 用户明确要求结束当前回合后才能上传截图/结果；需要人工交接时给简短具体操作并及时yield，不让连续异步追问阻碍上传。
 - Git 作者和提交者只能是 CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>，不加 AI 署名。
 
 ## 始终保留的边界
