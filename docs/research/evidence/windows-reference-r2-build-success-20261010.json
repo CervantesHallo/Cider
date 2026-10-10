@@ -1,0 +1,26 @@
+{
+  "schema": "cider.windows-reference-build-observation/v1",
+  "observation_date": "2026-10-10",
+  "source": "User-supplied EWDK CMD screenshot following r2 replacement instructions",
+  "intended_source_release": "windows-reference-20261010-r2",
+  "source_commit_verified_from_result": false,
+  "client_build": {"outcome": "executable generated", "filename": "cider-reference.exe"},
+  "driver_build": {
+    "outcome": "sys generated",
+    "filename": "CiderContractReference.sys",
+    "toolset": "WindowsKernelModeDriver10.0",
+    "target_platform": "Desktop",
+    "signing": "Off",
+    "inf2cat": "skipped; no INF",
+    "drvcat": "skipped; no catalog"
+  },
+  "win32_collection": {
+    "script_reported_saved": true,
+    "filename": "user.jsonl",
+    "script_reported_completed": true,
+    "raw_result_received": false,
+    "hash_files_received": false
+  },
+  "kernel_execution_observed": false,
+  "scope": "Native client and driver build output plus collection-script completion observed; source provenance, raw Win32 data and hashes pending; no kernel-contract or game result"
+}

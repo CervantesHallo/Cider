@@ -57,3 +57,9 @@
 根因为 FIELD_OFFSET 的 LONG 结果与 GetTokenInformation 使用的 DWORD 长度比较。改为标准 offsetof 并显式存入 DWORD，长度下界及计数检查共用该常量；W4 / TreatWarningAsError 和零项、上界、减法前下界检查继续保留。本机 GCC 以 Wall/Wextra/Werror/Wsign-compare/Wconversion 重新编译成功；r2 的 Windows 原生重建仍待用户回传。小型修正由主代理完成，没有启用新子代理或Actions。
 
 修正源提交c81f34c已推送，[r2源包](https://github.com/CervantesHallo/Cider/releases/tag/windows-reference-20261010-r2)已发布，大小14875bytes，SHA256为5c113ebcaa8044a0330a7c155f384c5a9a8a6024fb82bf0c56f9e5b6b4fde746，清单全部文件重新核对。用户继续使用原EWDK CMD及原目录重建；没有把这个本机修正标为MSVC原生通过。
+
+## r2 原生构建及采集完成截图
+
+用户随后回传终端截图：新一次构建已生成cider-reference.exe及CiderContractReference.sys，驱动使用WindowsKernelModeDriver10.0 / Desktop；Inf2Cat和DrvCat因没有INF/catalog跳过。脚本显示Win32 observations saved以及Completed，返回CMD提示符。上方C4018是前一轮失败的滚动历史，不是本次诊断。[观察字段](evidence/windows-reference-r2-build-success-20261010.json)
+
+这次取得了客户端和驱动的真实Windows构建输出、采集脚本完成证据。user.jsonl及client/user两份SHA256尚未收到，来源提交、原始API行为和输出完整性仍需文件核对；驱动此步没有执行，不能升级内核保真度或游戏许可。
