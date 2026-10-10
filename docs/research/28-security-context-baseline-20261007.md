@@ -2,6 +2,8 @@
 
 状态：文档契约与当前 CX26.3 源码已复核；尚无本轮真实 Windows 输出，不代表内核 API 已修复。接续 [research/23](23-kernel-feasibility-20261006.md) 和 [接管评审](27-current-code-review-20261007.md)。本轮没有创建/运行测试驱动或修改内核代码。
 
+2026-10-10更新：Win32权限检查的原生32条记录、构建日志及EXE哈希已核对；相同二进制在独立Cider r2的5个快照/25个检查一致，见 [research/37](37-native-win32-and-cider-comparison-20261010.md)。这不是下表Se*/Ps*/context的原生内核执行结果；该部分仍待参考驱动环境。
+
 环境更新：用户提供 ToDesk Windows 参考机并手动接通/打开终端；已实际读到 Windows 10.0.26200.9457、PowerShell5.1.26100.9444、AMD64环境值。开发工具清单仍待取得，复杂输入受工具错误阻碍。接入、采集脚本和依赖矩阵校正见 [research/31](31-hy1-user-evidence-and-windows-reference-20261007.md)。环境查询不作为本规格的 API/驱动执行结果。
 
 清单更新：用户完成了固定提交/哈希校验的采集，Windows11专业版、SDK26100 Include目录、VS2022 BuildTools/MSVC已确认；所查目录没有WDK内核头文件，独立EWDK候选待补齐，见 [research/32](32-windows-reference-toolchain-20261007.md)。本规格仍未执行内核对照。

@@ -184,7 +184,11 @@ public struct WineRunner: Sendable {
         let configURL = paths.bottles.appendingPathComponent(bottleID + "/cider-bottle.json")
         let current = try JSONFile.read(BottleConfig.self, from: configURL)
         let expectedPrefix = try FileSafety.child(bottleID + "/prefix", in: paths.bottles, rejectSymlinks: true)
-        guard current.id == bottleID, expectedPrefix.standardizedFileURL == prefix.standardizedFileURL,
+        // Foundation preserves a directory URL's trailing slash, which differs
+        // before wineboot creates the prefix. Compare filesystem paths after
+        // validating the expected boundary, not URL directory-hint metadata.
+        guard current.id == bottleID, prefix.isFileURL,
+              expectedPrefix.standardizedFileURL.path == prefix.standardizedFileURL.path,
               current.engine.id == engine.manifest.id, current.locale == locale,
               SyncMode(setting: current.settings[SyncMode.settingKey]) == sync else {
             throw CiderError.invalid("瓶子设置已改变，请重新发起启动。")

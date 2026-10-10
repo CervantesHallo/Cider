@@ -45,6 +45,10 @@
 - 用户随后实际执行r1原生编译：client/reference.c第98/108行C4018，有/无符号比较；WX触发C2220，未进入驱动或采集。FIELD_OFFSET的LONG与DWORD长度比较是根因；r2用标准offsetof并显式存入DWORD，保持所有边界检查和W4/WX。本机额外Wsign-compare/Wconversion交叉编译成功；Windows r2结果待回传。不要再把本机交叉编译推广为MSVC警告兼容。
 - 修正已提交c81f34c并发布windows-reference-20261010-r2；源包14875bytes、SHA256 5c113ebcaa8044a0330a7c155f384c5a9a8a6024fb82bf0c56f9e5b6b4fde746。用户原解压目录为D:\\windows-reference，重新覆盖源码后可直接在原EWDK CMD执行同一build.cmd路径。r1编译失败作为历史证据保留，r2原生重建待回传。
 - r2后续原生截图已回传：客户端exe、WDM驱动sys均生成，Win32采集显示Saved/Completed且回到提示符。Inf2Cat/DrvCat因无INF/catalog跳过是此次仅构建流程的预期状态；截图上方C4018属旧轮次。原始user.jsonl和两份哈希尚未收到，不能确认源码提交或实际API输出/完整性；kernel驱动尚未执行，游戏门禁维持。
+- 原始32条Win32数据及两份构建日志已收到，JSONL e1cbb124…哈希匹配；随后ZIP中681472bytes x64 EXE的16ef0e9e…SHA256也独立匹配。实际来源c81f34c、MSVC19.44.35209、Win build26200；目录14.44.35207不是完整编译器版本。两份构建均0警告/0错误。WDM构建通知Using KMDF 1.15不等于WDF运行或KMDF验收。
+- 同一EXE已在全新CIDER_HOME/r2/en_US.UTF-8/msync瓶子运行，退出0；5个令牌快照、25个PrivilegeCheck和完成记录与原生一致，session仅Wine可见/OS build不同。原始三项权限状态相同；ALL部分失败仍标记启用项USED_FOR_ACCESS。只证实这组Win32输入，不证实Se*/Ps*、并发锁或游戏；原生kernel测试环境问题待用户回复。实验瓶子已停止，未复制用户前缀或启动游戏/Steam/HYP。
+- 实验发现新建prefix尚未存在时URL目录尾斜杠导致一致性校验误拒。WineRunner已保留FileSafety/链接/配置/引擎/locale/sync检查并改比标准化file path；真实新瓶子创建及参考运行通过，App/CLI构建成功。见research/37。后续不要用URL目录hint的相等代替同一文件路径身份。
+- 新瓶子修复后的out/Cider.app已打包签名并经CUA菜单重开，原资料库/Steam/HYP运行状态保留；原生kernel环境的问题已发给用户，仍等现有VM/签名环境说明。不要把等待原生kernel环境改成重复执行Win32或重新传20GB EWDK。
 
 ## 接管入口
 

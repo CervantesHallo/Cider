@@ -1,0 +1,49 @@
+{
+  "schema": "cider.windows-wine-reference-comparison/v1",
+  "observation_date": "2026-10-10",
+  "source_commit": "c81f34cb4d296c8eb3f715885d5b786efd1154ae",
+  "binary_sha256": "16ef0e9e102557f4016e73f9cb7591ed0e9b30f0f7d8e76af10494c2c86452fa",
+  "same_binary_hash_verified": true,
+  "windows_result_sha256": "e1cbb1246dfd4a8c9ad99b0ceaa06649d1a29b5dc7b143be581608f73c2ac1e5",
+  "wine_result_file": "cider-r2-win32-privilege-reference-20261010.jsonl",
+  "wine_result_sha256": "e332e101919dbaa8b4ce09de656f9d5d95a189b8aa1f169555a2265437e25de0",
+  "wine_log_sha256": "80919491380d47c3d71f679358a2a17ed9b686fda019a97f71cf7547d35dc8bb",
+  "engine_id": "cider-cx26.3-r2-x86_64",
+  "engine_wine": {
+    "tree": "crossover-sources-26.3.0 + highball 0001-0013 + cider 0001-0006",
+    "version": "wine-11.0"
+  },
+  "engine_cpu_backend": "rosetta-x86_64",
+  "engine_ntdll_so_sha256": "a9e5d97fd8596865df93829e93bef843da0bafd137bf0999bc26e7254c5aa4fd",
+  "fresh_prefix": true,
+  "user_prefix_copied": false,
+  "locale": "en_US.UTF-8",
+  "sync": "msync",
+  "exit_code": 0,
+  "rows_equal_after_session_header": 31,
+  "token_snapshots_equal": 5,
+  "privilege_checks_equal": 25,
+  "completion_equal": true,
+  "session_header_differences": {
+    "os_version": {
+      "windows": {
+        "major": 10,
+        "minor": 0,
+        "build": 26200
+      },
+      "wine": {
+        "major": 10,
+        "minor": 0,
+        "build": 19045
+      }
+    },
+    "runtime_has_wine_version_export": {
+      "windows": false,
+      "wine": true
+    }
+  },
+  "scope": "win32-only",
+  "kernel_driver_execution": false,
+  "kernel_token_context_conformance": false,
+  "game_session_verified": false
+}

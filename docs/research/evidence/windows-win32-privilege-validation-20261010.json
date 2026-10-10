@@ -1,0 +1,77 @@
+{
+  "schema": "cider.windows-reference-validation/v1",
+  "observation_date": "2026-10-10",
+  "source_commit": "c81f34cb4d296c8eb3f715885d5b786efd1154ae",
+  "result_file": "windows-win32-privilege-reference-20261010.jsonl",
+  "result_bytes": 8648,
+  "result_sha256": "e1cbb1246dfd4a8c9ad99b0ceaa06649d1a29b5dc7b143be581608f73c2ac1e5",
+  "result_hash_verified": true,
+  "user_reported_client_sha256": "16ef0e9e102557f4016e73f9cb7591ed0e9b30f0f7d8e76af10494c2c86452fa",
+  "client_binary_received": true,
+  "records": 32,
+  "token_snapshots": 5,
+  "privilege_checks": 25,
+  "all_privilege_calls_succeeded": true,
+  "all_checks_match_enabled_state_and_used_attributes": true,
+  "scope": "win32-only",
+  "kernel_results_present": false,
+  "native_session": {
+    "schema": "cider.windows-reference-session/v1",
+    "protocol": 1,
+    "source_commit": "c81f34cb4d296c8eb3f715885d5b786efd1154ae",
+    "msc_full_ver": 194435209,
+    "scope": "win32-only",
+    "pointer_bits": 64,
+    "initial_thread_impersonation": false,
+    "runtime_has_wine_version_export": false,
+    "os_version_query_status": 0,
+    "os_version": {
+      "major": 10,
+      "minor": 0,
+      "build": 26200
+    },
+    "privileges": [
+      {
+        "name": "SeChangeNotifyPrivilege",
+        "luid_low": 23,
+        "luid_high": 0
+      },
+      {
+        "name": "SeBackupPrivilege",
+        "luid_low": 17,
+        "luid_high": 0
+      },
+      {
+        "name": "SeRestorePrivilege",
+        "luid_low": 18,
+        "luid_high": 0
+      }
+    ]
+  },
+  "build_logs": {
+    "client-build.log": {
+      "bytes": 2524,
+      "sha256": "95330bc88c124b86bda2c2f9b9429260908a27bf01b5a36ff64f10ddf7bfbc00",
+      "encoding": "gb18030",
+      "zero_warnings": true,
+      "zero_errors": true,
+      "raw_log_published": false
+    },
+    "driver-build.log": {
+      "bytes": 3839,
+      "sha256": "ce43d2964e46193607bdb910686e69acc3f4752558b90eb42eadc0326a511526",
+      "encoding": "gb18030",
+      "zero_warnings": true,
+      "zero_errors": true,
+      "raw_log_published": false
+    }
+  },
+  "primary_selected_privileges_restored": true,
+  "client_binary_sha256_independently_verified": true,
+  "client_binary_bytes": 681472,
+  "client_binary_pe_machine": "0x8664",
+  "client_import_dlls": [
+    "ADVAPI32.dll",
+    "KERNEL32.dll"
+  ]
+}
