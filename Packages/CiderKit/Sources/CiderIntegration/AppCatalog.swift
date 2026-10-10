@@ -41,6 +41,7 @@ public struct CatalogApp: Identifiable, Hashable, Sendable {
     public var launchEnvironment: [String: String] = [:]
     /// Helper names explicitly declared by a profile. Arbitrary same-directory programs are independent.
     public var ownedProcessNames: Set<String> = []
+    public var ownedProcessInstallationScopes: [String]? = nil
     public var prefixPath: String? = nil
     /// File name of the program's main executable (the key for per-program Wine settings, AppDefaults).
     public var executableName: String? {
@@ -51,6 +52,11 @@ public struct CatalogApp: Identifiable, Hashable, Sendable {
         }
     }
     public var mainExecutableName: String? = nil
+
+    public var profileProgram: String {
+        if case .program(let target) = kind { return target }
+        return launchProgram
+    }
 
     public var isGame: Bool { if case .steamGame = kind { return true }; return false }
 
@@ -80,6 +86,8 @@ public struct CatalogApp: Identifiable, Hashable, Sendable {
             let name = process.imageName
             let declaredHelper = ownedProcessNames.contains(name)
                 || (!name.contains(".") && ownedProcessNames.contains(name + ".exe"))
+            if let scopes = ownedProcessInstallationScopes,
+               !CompatDB.isWithinInstallationScope(exe: image, directories: scopes) { return false }
             return child != "games" && child != "steamapps" && declaredHelper
         }
     }
@@ -124,7 +132,9 @@ public struct AppCatalog: Sendable {
         return apps.map { original in
             var app = original
             app.prefixPath = bottle.prefix.path
-            app.ownedProcessNames = Set(compat.profile(exe: app.launchProgram)?.actions.processNames?.map { $0.lowercased() } ?? [])
+            let profile = compat.profile(exe: app.profileProgram)
+            app.ownedProcessNames = Set(profile?.actions.processNames?.map { $0.lowercased() } ?? [])
+            app.ownedProcessInstallationScopes = profile?.installationDirectories
             return app
         }
     }

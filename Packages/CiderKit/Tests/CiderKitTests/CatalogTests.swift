@@ -51,6 +51,7 @@ import Testing
     @Test func launcherDoesNotOwnNestedGameLibraries() {
         var launcher = app(.program(target: #"C:\Program Files\miHoYo Launcher\launcher.exe"#))
         launcher.ownedProcessNames = ["hyp.exe", "hyphelper.exe"]
+        launcher.ownedProcessInstallationScopes = ["C:/Program Files/miHoYo Launcher"]
         #expect(launcher.owns(proc(#"C:\Program Files\miHoYo Launcher\1.18.0\HYP.exe"#)))
         #expect(launcher.owns(proc(#"C:\Program Files\miHoYo Launcher\1.18.0\HYPHelper.exe"#)))
         #expect(launcher.owns(proc(#"C:\Program Files\miHoYo Launcher\1.18.0\HYPHelper"#)))

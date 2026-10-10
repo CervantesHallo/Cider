@@ -142,7 +142,9 @@ public struct WineRunner: Sendable {
                      debug: DebugPreset = .default, extraEnv: [String: String] = [:]) -> LaunchPlan {
         // A profile hot-fixes the program (e.g. a CEF launcher that needs DXMT's cross-process
         // swapchain opt-in); an explicit per-launch value still wins over it.
-        let profileEnv = compat?.profile(exe: program)?.actions.env ?? [:]
+        let profileProgram = program.hasPrefix("/")
+            ? WinePathMapping.windowsPath(forHostPath: program, prefix: prefix) : program
+        let profileEnv = compat?.profile(exe: profileProgram)?.actions.env ?? [:]
         return LaunchPlan(
             bottleID: bottleID,
             engineID: engine.manifest.id,

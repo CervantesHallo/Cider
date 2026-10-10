@@ -102,6 +102,12 @@ public struct Profile: Codable, Sendable, Equatable {
     public var actions: Actions
     public var knownIssues: [KnownIssue]?
 
+    /// Older local HYP data keeps the same installation boundary.
+    public var installationDirectories: [String]? {
+        match.installDirectories ?? ((target == "launcher.mihoyo-cn" || id == "profile.launcher.mihoyo-cn")
+            ? ["C:/Program Files/miHoYo Launcher", "C:/Program Files (x86)/miHoYo Launcher"] : nil)
+    }
+
     public struct Match: Codable, Sendable, Equatable {
         public var steamAppID: String?
         public var exe: String?
@@ -218,20 +224,20 @@ public struct CompatDB: Sendable {
     }
 
     /// Profile for a program about to be launched. Unscoped legacy profiles still match by image name.
-    /// Scoped profiles additionally require an absolute Windows path or a host path under drive_c.
+    /// Scoped profiles require an absolute Windows path. Host paths must first be
+    /// mapped by the caller using the selected bottle's actual prefix.
     /// Conflicts prefer the deepest installation scope, then the primary exe over an alias, then the
     /// higher revision, then lexical profile id. Filesystem enumeration never decides the winner.
     public func profile(exe program: String) -> Profile? {
         let name = (program.replacingOccurrences(of: "\\", with: "/") as NSString).lastPathComponent.lowercased()
         guard !name.isEmpty else { return nil }
-        let directory = Self.windowsPathComponents(program, allowHostPath: true).map { Array($0.dropLast()) }
+        let directory = Self.windowsPathComponents(program).map { Array($0.dropLast()) }
         let candidates = profiles.compactMap { profile -> (profile: Profile, scope: Int, primary: Bool)? in
             let primary = profile.match.exe?.lowercased() == name
             guard primary || (profile.match.exeAliases?.contains { $0.lowercased() == name } ?? false) else { return nil }
             // Older local data may override the bundled profile without the new scope field. Keep it
             // decodable and useful at known installations, but never restore basename-only matching.
-            let legacyMihoyo = profile.target == "launcher.mihoyo-cn" || profile.id == "profile.launcher.mihoyo-cn"
-            let roots = profile.match.installDirectories ?? (legacyMihoyo ? Self.mihoyoInstallDirectories : nil)
+            let roots = profile.installationDirectories
             if let roots {
                 guard let directory,
                       let scope = roots.compactMap({ Self.installationScope($0, directory: directory) }).max() else { return nil }
@@ -247,12 +253,15 @@ public struct CompatDB: Sendable {
         }.first?.profile
     }
 
-    private static let mihoyoInstallDirectories = [
-        "C:/Program Files/miHoYo Launcher", "C:/Program Files (x86)/miHoYo Launcher",
-    ]
+    /// Share the exact profile installation boundary with declared helper ownership.
+    public static func isWithinInstallationScope(exe program: String, directories: [String]) -> Bool {
+        guard let parts = windowsPathComponents(program), parts.count > 1 else { return false }
+        let directory = Array(parts.dropLast())
+        return directories.contains { installationScope($0, directory: directory) != nil }
+    }
 
     private static func installationScope(_ root: String, directory: [String]) -> Int? {
-        guard let components = windowsPathComponents(root, allowHostPath: false), components.count > 1,
+        guard let components = windowsPathComponents(root), components.count > 1,
               directory.starts(with: components) else { return nil }
         let suffix = directory.dropFirst(components.count)
         if suffix.isEmpty { return components.count }
@@ -265,31 +274,26 @@ public struct CompatDB: Sendable {
     }
 
     /// Pure lexical normalization: no filesystem access or assumption about the caller's current directory.
-    /// Resolve dot components before mapping a host's drive_c into C:, so traversal cannot escape a scope.
-    private static func windowsPathComponents(_ path: String, allowHostPath: Bool) -> [String]? {
+    /// Resolve dot components before scope checking. Host identity belongs to the caller.
+    private static func windowsPathComponents(_ path: String) -> [String]? {
         let normalized = path.replacingOccurrences(of: "\\", with: "/").lowercased()
         let parts = normalized.split(separator: "/").map(String.init)
         guard let first = parts.first else { return nil }
         let isDrive = first.utf8.count == 2 && first.utf8.last == 58
             && first.utf8.first.map { $0 >= 97 && $0 <= 122 } == true
         let isWindowsPath = isDrive && normalized.hasPrefix(first + "/")
-        guard isWindowsPath || (allowHostPath && normalized.hasPrefix("/") && !normalized.hasPrefix("//")) else { return nil }
-        var components: [String] = isWindowsPath ? [first] : []
-        for part in parts.dropFirst(isWindowsPath ? 1 : 0) {
+        guard isWindowsPath else { return nil }
+        var components: [String] = [first]
+        for part in parts.dropFirst() {
             if part == "." { continue }
             if part == ".." {
-                guard components.count > (isWindowsPath ? 1 : 0) else { return nil }
+                guard components.count > 1 else { return nil }
                 components.removeLast()
             } else {
                 components.append(part)
             }
         }
-        if isWindowsPath { return components }
-        // The caller provides no prefix identity. Multiple drive_c markers are ambiguous; do not
-        // interpret a nested product's directory as a second Windows drive and widen the scope.
-        guard let driveC = components.firstIndex(of: "drive_c"),
-              components.lastIndex(of: "drive_c") == driveC else { return nil }
-        return ["c:"] + Array(components.dropFirst(driveC + 1))
+        return components
     }
 
     /// Most specific verdict covering the key (fewest `*` dimensions; ties → most recently verified).

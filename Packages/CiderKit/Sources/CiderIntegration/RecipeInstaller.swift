@@ -98,6 +98,13 @@ public struct RecipeInstaller: Sendable {
         for step in recipe.steps {
             try Task.checkCancellation()
             if let run = step.runInstaller {
+                var installerEnvironment: [String: String] = [:]
+                if let id = step.environmentProfile {
+                    guard let profile = db.profiles.first(where: { $0.id == id }), profile.target == recipe.id else {
+                        throw CiderError.invalid("安装步骤的环境档案不存在、被拒绝或不属于此配方：\(id)")
+                    }
+                    installerEnvironment = profile.actions.env ?? [:]
+                }
                 guard let source = recipe.sources[run.source] else { throw CiderError.invalid("配方引用了不存在的下载来源") }
                 let file: URL
                 if let cached = files[run.source] {
@@ -113,9 +120,10 @@ public struct RecipeInstaller: Sendable {
                 try Task.checkCancellation()
                 progress("正在安装 \(recipe.title())…")
                 let plan = run.kind == "msi"
-                    ? runner.plan(program: "msiexec", arguments: ["/i", file.path] + (run.args ?? []), label: "install-\(recipe.id)")
+                    ? runner.plan(program: "msiexec", arguments: ["/i", file.path] + (run.args ?? []), label: "install-\(recipe.id)",
+                                  extraEnv: installerEnvironment)
                     : runner.plan(program: file.path, arguments: run.args ?? [], label: "install-\(recipe.id)",
-                                  cwd: file.deletingLastPathComponent())
+                                  cwd: file.deletingLastPathComponent(), extraEnv: installerEnvironment)
                 _ = try runner.runToCompletion(plan)
             }
             if let sets = step.registry, !sets.isEmpty {

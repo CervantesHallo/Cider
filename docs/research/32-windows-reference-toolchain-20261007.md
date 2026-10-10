@@ -36,3 +36,7 @@ EWDK是微软提供的独立命令行环境，挂载ISO后运行LaunchBuildEnv�
 获取更新：用户已在本轮明确确认获取/使用25H2 EWDK。官方下载入口`https://go.microsoft.com/fwlink/?linkid=2335681`返回`download.microsoft.com`的`EWDK_ge_release_svc_prod1_26100_250904-1728.iso`；HEAD长度20,002,537,472 bytes（约18.63 GiB），ETag `0x4F6217B721FF5C31A2556CFD4F7D3C202FF522B3549F0981D410871629329287`。ETag不当作独立发布的SHA256。下载进入Cider本机缓存并采用部分文件，完成后才校验大小、计算SHA256并记录；不把下载开始当作工具就绪。实际ISO内SDK/WDK/QFE仍待Windows挂载确认。
 
 依赖实现准备：上游主令牌引用/释放与本机对象映射机制的复用范围已复核，见 [research/33](33-token-dependency-reuse-20261007.md)，没有据此先改权限函数或放行游戏。
+
+完成更新：ISO已完整获取并记录SHA256，内部实际版本/头文件/构建入口已只读检查；Windows启用仍待用户协助，详见 [research/34](34-ewdk-ready-and-input-integrity-20261007.md)。不将此前“下载进行中”作为当前状态。
+
+2026-10-10更新：用户回传Windows端一致ISO哈希，截图确认CMD、Platform=x64及镜像内Hostx64/x64的cl文件位置；明确路径调用MSBuild输出17.14.10.27608。工具初始化前置已取得，尚无编译/链接或内核契约结果；当前状态以research/34及其结构化观察为准。

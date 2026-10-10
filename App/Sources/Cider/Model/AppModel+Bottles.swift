@@ -127,12 +127,27 @@ extension AppModel {
         }
     }
 
+    /// Saved launchers use the library's same environment, cwd and lifecycle.
+    func runLauncher(id: String, in bottle: Bottle) {
+        let catalogID = "\(bottle.config.id)/launcher/\(id)"
+        if let item = items.first(where: { $0.id == catalogID }) {
+            launch(item)
+            return
+        }
+        Task {
+            await refresh()
+            guard let item = items.first(where: { $0.id == catalogID }) else {
+                message = "未找到这个保存的启动器，可能已被修改或删除。"
+                return
+            }
+            launch(item)
+        }
+    }
+
     /// CrossOver's "Simulate Reboot": `wineboot -r` runs what Windows runs at restart (RunOnce, pending renames).
     func simulateReboot(_ bottle: Bottle) {
         perform("reboot:\(bottle.config.id)", "正在模拟重启“\(bottle.config.name)”…", done: { _ in "模拟重启完成。" }) { store in
-            let runner = try store.runner(for: bottle)
-            try runner.killAll()
-            _ = try runner.runToCompletion(runner.plan(program: "wineboot", arguments: ["-r"], label: "wineboot-restart"))
+            try store.simulateReboot(bottle)
             return nil
         }
     }

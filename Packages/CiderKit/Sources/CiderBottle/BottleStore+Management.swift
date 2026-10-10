@@ -12,6 +12,19 @@ public struct BottleSnapshot: Sendable, Identifiable, Equatable {
 }
 
 extension BottleStore {
+    /// Stop and restart as one cooperative transaction, using current settings.
+    public func simulateReboot(_ bottle: Bottle) throws {
+        try withOperation(bottle) { current in
+            let runner = try runner(for: current)
+            try runner.killAll()
+            let result = try runner.runToCompletion(runner.plan(program: "wineboot", arguments: ["-r"], label: "wineboot-restart"))
+            guard result.code == 0 else {
+                throw CiderError.commandFailed(command: "wineboot -r", status: result.code,
+                                               output: "log: \(result.session.log.path)")
+            }
+        }
+    }
+
     /// Snapshots of the bottle, newest first.
     public func snapshots(of bottle: Bottle) -> [BottleSnapshot] {
         let root = bottle.directory.appendingPathComponent(".cider/snapshots", isDirectory: true)

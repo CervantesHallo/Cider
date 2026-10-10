@@ -179,15 +179,15 @@ import Testing
 }
 
 @Suite struct ProfileLookupTests {
-    /// A profile is matched by the program's Windows image name, whatever path form the caller used.
+    /// Scoped profiles use Windows paths; host paths require bottle-aware mapping first.
     @Test func profilesMatchAProgramByImageName() {
         let db = CompatDB(directories: [CompatDBTests.repoData])
         #expect(db.rejected.isEmpty, "\(db.rejected)")
         for form in [#"C:\Program Files\miHoYo Launcher\launcher.exe"#,
-                     "/Users/x/Bottles/b/drive_c/Program Files/miHoYo Launcher/launcher.exe",
                      #"C:\PROGRAM FILES\MIHOYO LAUNCHER\LAUNCHER.EXE"#] {
             #expect(db.profile(exe: form)?.id == "profile.launcher.mihoyo-cn", "did not match \(form)")
         }
+        #expect(db.profile(exe: "/Users/x/Bottles/b/drive_c/Program Files/miHoYo Launcher/launcher.exe") == nil)
         #expect(db.profile(exe: "notepad.exe") == nil)
         #expect(db.profile(exe: "") == nil)
         #expect(db.profile(exe: #"C:\Program Files\miHoYo Launcher\1.18.0\HYP.exe"#)?.id == "profile.launcher.mihoyo-cn")

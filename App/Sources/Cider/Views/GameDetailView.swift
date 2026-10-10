@@ -293,7 +293,7 @@ struct CompatCard: View {
         let verdict = model.verdict(for: item)
         let decision = model.compatDecisions[item.id]
         let profile = item.steamAppID.flatMap { model.compat.profile(steamAppID: $0) }
-            ?? model.compat.profile(exe: item.launchProgram)
+            ?? model.compat.profile(exe: item.profileProgram)
         Card {
             VStack(alignment: .leading, spacing: 10) {
                 HStack {

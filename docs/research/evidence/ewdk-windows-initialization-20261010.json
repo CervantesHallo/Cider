@@ -1,0 +1,23 @@
+{
+  "schema": "cider.windows-reference-tool-initialization/v1",
+  "observation_date": "2026-10-10",
+  "source": "User-supplied Windows console screenshots and copied command output",
+  "iso_sha256": "9f48251dd24ad31aac206d8256e95bda5f90a9783982c45a8aafeb9054562379",
+  "ewdk_banner_version": "ge_release_svc_prod1.26100.6584",
+  "visual_studio_banner_version": "17.14.5",
+  "cmd_prompt_observed": true,
+  "platform_environment_value": "x64",
+  "compiler_file_located": {
+    "relative_to_ewdk_root": "Program Files/Microsoft Visual Studio/2022/BuildTools/VC/Tools/MSVC/14.44.35207/bin/Hostx64/x64/cl.exe",
+    "method": "where cl printed a matching file before the query stopped returning",
+    "compiler_executed": false
+  },
+  "msbuild_version_command": {
+    "relative_executable_path": "Program Files/Microsoft Visual Studio/2022/BuildTools/MSBuild/Current/Bin/MSBuild.exe",
+    "arguments": ["-version", "-nologo"],
+    "user_reported_output": "17.14.10.27608",
+    "exit_code": null,
+    "process_architecture": null
+  },
+  "scope": "ISO hash, initialized CMD, target Platform environment, compiler file location and MSBuild version output only; no compiler/linker build or Windows kernel contract result"
+}

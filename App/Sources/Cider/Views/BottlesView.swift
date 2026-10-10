@@ -352,7 +352,7 @@ struct LaunchersCard: View {
                                 .font(.system(size: 11.5)).foregroundStyle(Theme.textTertiary).lineLimit(1).truncationMode(.middle)
                         }
                         Spacer()
-                        Button { model.runCommand(program: launcher.program, arguments: launcher.arguments, in: bottle, verbose: false) } label: {
+                        Button { model.runLauncher(id: launcher.id, in: bottle) } label: {
                             Image(systemName: "play.fill")
                         }
                         .buttonStyle(.plain).foregroundStyle(Theme.accent).help("运行")

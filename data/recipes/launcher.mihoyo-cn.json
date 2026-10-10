@@ -2,7 +2,7 @@
   "schema": "cider.recipe/v1",
   "id": "launcher.mihoyo-cn",
   "kind": "launcher",
-  "revision": 2,
+  "revision": 3,
   "name": {
     "zh-Hans": "米哈游启动器（国服）",
     "en": "miHoYo Launcher (China)"
@@ -27,6 +27,7 @@
   },
   "steps": [
     {
+      "environment_profile": "profile.launcher.mihoyo-cn",
       "run_installer": {
         "source": "installer",
         "kind": "exe"

@@ -37,6 +37,8 @@ public struct Recipe: Codable, Sendable, Equatable, Identifiable {
         public var runInstaller: RunInstaller?
         public var registry: [Profile.RegistrySet]?
         public var winver: String?
+        /// Accepted profile whose environment is inherited by the installer tree.
+        public var environmentProfile: String? = nil
 
         public struct RunInstaller: Codable, Sendable, Equatable {
             public var source: String
@@ -46,6 +48,7 @@ public struct Recipe: Codable, Sendable, Equatable, Identifiable {
 
         enum CodingKeys: String, CodingKey {
             case runInstaller = "run_installer", registry, winver
+            case environmentProfile = "environment_profile"
         }
     }
 
@@ -100,6 +103,12 @@ public enum RecipePolicy {
         }
         for step in recipe.steps {
             if let run = step.runInstaller, recipe.sources[run.source] == nil { return "step uses unknown source \(run.source)" }
+            if let profile = step.environmentProfile {
+                guard step.runInstaller != nil, profile.hasPrefix("profile."), profile.utf8.count <= 128,
+                      profile.unicodeScalars.allSatisfy({ $0.isASCII && (CharacterSet.alphanumerics.contains($0) || "._-".unicodeScalars.contains($0)) }) else {
+                    return "environment_profile requires an installer step and a valid profile id"
+                }
+            }
         }
         return nil
     }

@@ -1,0 +1,23 @@
+{
+  "schema": "cider.reference-tool-download/v1",
+  "official_entry": "https://go.microsoft.com/fwlink/?linkid=2335681",
+  "url": "https://download.microsoft.com/download/be985897-caaa-4497-9ea4-17fa7065cd8a/EWDK_ge_release_svc_prod1_26100_250904-1728.iso",
+  "filename": "EWDK_ge_release_svc_prod1_26100_250904-1728.iso",
+  "size": 20002537472,
+  "sha256": "9f48251dd24ad31aac206d8256e95bda5f90a9783982c45a8aafeb9054562379",
+  "etag": "0x4F6217B721FF5C31A2556CFD4F7D3C202FF522B3549F0981D410871629329287",
+  "completed_utc": "2026-10-07T04:43:48.631446+00:00",
+  "verification_scope": "Official HTTPS source, expected byte length and locally computed SHA256; ETag is not an independent published checksum; Windows mounting and tool execution pending",
+  "payload_observation": {
+    "method": "Read-only macOS UDF mount; file metadata and setup script inspected, no Windows executable run",
+    "ewdk_version": "ge_release_svc_prod1.26100.6584",
+    "visual_studio_version": "17.14.5 [36203.30.d17.14]",
+    "msvc_default_toolset": "14.44.35207",
+    "kit_include_directory": "10.0.26100.0",
+    "kernel_header_present": true,
+    "sdk_header_present": true,
+    "x64_driver_msbuild_props_present": true,
+    "build_environment_entry": "LaunchBuildEnv.cmd amd64",
+    "default_without_architecture_argument": "x86"
+  }
+}
