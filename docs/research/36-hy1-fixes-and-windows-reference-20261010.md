@@ -43,3 +43,9 @@
 单次捕获和配对释放的记录不证明跨进程 token 锁、并发变更、异步上下文、无泄漏或 KMDF 生命周期。当前源码是原生观察工程，尚未修复 Wine 的 token/context 空桩、修改内核保真度 disposition 或解除任何游戏门禁。三款本地会话按 HY3/HY4/HY5 继续分别验收。
 
 取舍：以独立、可撤回的参考代码及用户一条脚本换取实际 Windows 构建/输出；成本是另需合法可加载自有驱动的原生内核运行环境，不能只凭 Win32 结果代替。回退为移除参考目录/退出终端/卸载镜像；没有系统服务需要清理。本轮没有触发 GitHub Actions。
+
+## 已发布的人类执行交接
+
+源提交 `c41b3d2` 已推送，作者/提交者均为用户。约15KB的[Windows参考源包](https://github.com/CervantesHallo/Cider/releases/tag/windows-reference-20261010-r1)已作为实验prerelease发布，GitHub资产摘要和本地SHA256一致；源包全部10个有效负载文件的长度与SHA256匹配清单。[发布记录](evidence/windows-reference-source-publication-20261010.json)
+
+已通过异步问题给出实际下载地址和单行build.cmd执行步骤，请用户回传user.jsonl及两份哈希。用户已选择自行执行简单Windows操作，可靠远程输入失败路线不再尝试；Windows原生执行是当前交接，发布和本机编译不作为它的替代。没有触发新Actions，也没有新测试驱动加载或游戏启动。

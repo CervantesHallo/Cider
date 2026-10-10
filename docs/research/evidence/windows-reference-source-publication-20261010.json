@@ -1,0 +1,19 @@
+{
+  "schema": "cider.windows-reference-source-publication/v1",
+  "observation_date": "2026-10-10",
+  "source_commit": "c41b3d2aa808bf94a95419485fcaa71ed94ba5fa",
+  "author_and_committer": "CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>",
+  "release_tag": "windows-reference-20261010-r1",
+  "prerelease": true,
+  "release_url": "https://github.com/CervantesHallo/Cider/releases/tag/windows-reference-20261010-r1",
+  "asset": {
+    "name": "cider-windows-reference-20261010-r1.zip",
+    "bytes": 14858,
+    "sha256": "ce5bd8b0da26890e52f3c12ce0371e8943ce7902a87962cf71460f4da32eab9b",
+    "github_asset_digest_matches_local": true,
+    "download_url": "https://github.com/CervantesHallo/Cider/releases/download/windows-reference-20261010-r1/cider-windows-reference-20261010-r1.zip",
+    "manifest_payload_files": 10,
+    "all_manifest_lengths_and_hashes_verified": true
+  },
+  "scope": "Source publication and artifact integrity only; Windows native compilation and execution results pending"
+}

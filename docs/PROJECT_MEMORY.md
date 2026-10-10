@@ -41,6 +41,7 @@
 - Tools/windows-reference 已有独立Win32客户端/只读WDM参考驱动、定长无指针IOCTL和MSBuild脚本。客户端交叉编译、驱动真实WDK头文件语法检查成功，不是Windows原生构建/驱动运行。客户端只改变私有token副本并恢复线程；输出只读观察，不采集SID/用户信息。Win32结果不代替kernel契约，KernelMode合法成功不等于空桩。
 - Windows采集脚本必须同时处理正/负退出状态；if errorlevel 1不等于“非零”，可能漏掉崩溃。输出流必须检查fflush与sticky ferror，参考输入/产物有来源提交及哈希；不得把部分文件作为成功记录。build.cmd只构建未签名驱动并运行Win32部分，不改变系统保护或加载驱动；原生kernel环境仍须独立补齐。
 - 本轮新版out/Cider.app已通过CUA菜单退出旧主界面并重开，原5项资料库保留、Steam/HYP运行状态仍可见；点击HYP启动返回“已在运行”。米哈游瓶子仍r2、Retina off；这是GUI/已有实例分支观察，不扩大为真实停止/重启或1×/2×通过。
+- Windows参考源包已发布为windows-reference-20261010-r1（实验prerelease），源提交c41b3d2，ZIP 14858bytes / SHA256 ce5bd8b0da26890e52f3c12ce0371e8943ce7902a87962cf71460f4da32eab9b；GitHub资产摘要与本地一致。已请用户在EWDK CMD以一行完整路径执行build.cmd，回传user.jsonl及client/user两份SHA256。这是原生执行的人类交接，尚未收到本工程Windows结果；不重复远程长命令、不把代码发布当作契约通过。所有子代理已关闭。
 
 ## 接管入口
 
