@@ -14,6 +14,7 @@
 - 用户回传服务查询截图：TermService=Running，sshd没有返回记录；两条Select-Object输出列不同，被PowerShell合并格式化，第二项fDenyTSConnections未显示，不能据此判断RDP已启用。后续用单一JSON/明确文本避免混合表格。Mac标准路径未见Windows App/Microsoft Remote Desktop；桌面客户端还须准备。
 - 已为当前在场手动SSH开通交接预扣600秒准备预算（预约ssh-attended-setup-20261011，pending，持久账本保存唯一ID）。剩余准备3000秒、测试3600秒；返回安装结果/实际进程清理证据前不关闭预约或新开Windows任务。人工准备可在用户当前在场时进行，自动化不能使用attended-setup标志绕过09:00–17:00窗口。新SSH脚本仅静态审查，尚未Windows运行或外网连接。
 - SSH交接脚本a42b3d4在Windows解析失败：26:9 MissingEndParenthesisAfterStatement、28:80 UnexpectedToken。逻辑操作符放在下一行造成断句，脚本体未执行，不能记为安装失败或系统配置已改。已在Mac缓存取得微软PowerShell7.6.6（官方资产SHA256校验），完整复现同样错误；操作符移到上一行末尾后，四份PS脚本均零解析错误。以后发送PS脚本前先本机解析，执行命令再用Windows自身Parser.ParseFile检查，不让用户承担可本机发现的语法问题。Mac语法结果不替代Windows5.1实际cmdlet/安装验收；修正沿用原600秒预留，不新增扣账。见research/evidence/windows-access-powershell-syntax-20261011.json。
+- 用户执行906e199后下载/校验/Windows解析通过，进入OpenSSH组件安装；Wait-Job的300秒限额触发，尚未执行密钥/端口配置。Windows servicing后台是否结束未知，原预约保持pending，不重跑安装或并行换另一套部署，不称已清理。用户确认Windows为TUN规则模式（国内直连），终端必须保留代理；不关闭TUN/终端代理，不擅自改WinHTTP/更新组策略。系统组件的Windows Update通道与终端下载成功分开判断，超时不证明代理根因；下一步只读服务/WinHTTP/DISM末段。微软官方独立MSI为未采用候选（约6.6MB、10.0.0.0p2-Preview，维护更新另算），见plan/14。
 - Git 作者和提交者只能是 CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>，不加 AI 署名。
 
 ## 始终保留的边界

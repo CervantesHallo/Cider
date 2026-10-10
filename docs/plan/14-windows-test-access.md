@@ -50,9 +50,19 @@
    `scripts/windows/setup-reference-ssh.ps1` 为新部署的在场手动准备脚本：仅接受专用ed25519公钥，拒绝覆盖已有服务/配置；组件安装等待最多5分钟，超时停止准备并标记Windows servicing状态未知（不能声称后台安装已停）；配置2222端口、仅公钥登录/当前账户、RDP目的端口限定转发，输出真实宿主指纹和RDP状态。未启用RDP、未改路由器、公网可达及桌面工具可用性仍待验证。配置失败撤销本次访问规则/密钥，组件与故障记录保留。不作为Windows测试watchdog或原生验证结果。
    本轮自审覆盖：已有SSH/宿主密钥不覆盖；账户/公钥禁止注入配置文本；本次私钥ACL只限SYSTEM/Administrators；安装失败/不确定状态不重复；配置写入失败恢复原文件；混合表格改JSON。仅静态审查，当前没有本机PowerShell解析器或Windows运行结果，执行失败即保留交接，不宣称脚本已实机验收。
    后续实测：用户执行a42b3d4时在脚本体前解析失败（26:9/28:80），SSH安装/配置未执行。已用本机微软PowerShell7.6.6复现同样两项错误；改为行末逻辑操作符后四个PS源文件均零解析错误，结果见 [语法修复记录](../research/evidence/windows-access-powershell-syntax-20261011.json)。新增`check-powershell-syntax.ps1`仅解析不执行源码；后续用户命令也先用Windows自身Parser.ParseFile校验。语法通过不记为Windows组件安装或连接已验收，本次仍沿用原10分钟预留。
+   用户执行906e199后实际进入系统组件安装，300秒Wait-Job超时，密钥/端口配置尚未开始。后台Windows servicing是否结束未知，原预约保持pending，先只读服务/WinHTTP/DISM末段，不再次安装或并行部署其他版本。用户确认TUN规则模式、国内直连，终端代理必须保留；不改全局代理、WinHTTP设置或更新组策略。超时只能说明未在本批等待时间内完成，不能认定为代理根因。
 3. 部署Windows本机的限时执行/所属进程清理，再闭合断线、窗口和累计预算。能连接之前不“测试”原生行为；桌面点击自动化没有通过时不能承诺全自动图形验证。
 4. Windows实际测试优先Se*/Ps*/context的第一批原生结果；VM准备是否可在剩余额度完成，以实际硬件/配置判断，卡住即明确交接，不反复远程试键盘。
 5. 后续并发、异步、KMDF生命周期只随对应实现推进，合并成必要批次。六批10分钟是当前实际测试预算的最多批次数，不代表只需六批就能完成所有契约或游戏适配。
+
+### 系统组件下载的替代提案（未采用）
+
+- 候选：微软`PowerShell/Win32-OpenSSH`独立MSI，10.0.0.0p2-Preview，6586368bytes，SHA256`ddec9c53864280759cf9f74791cefd387100e3946aa849a1c138a4ed1b96b7d9`。GitHub最新release API的prerelease字段为false，但标签/仓库仍称Preview，不改称Windows内置正式组件。
+- 收益：文件可通过当前终端下载通道取得，不依赖Windows Update扫描；避免为了访问准备修改用户终端/TUN代理。
+- 代价：额外安装提供者，放在Program Files而非System32；自行配置与后续更新，须调整服务路径验证，不能与未结束的系统组件安装并行。
+- 证据：微软OpenSSH排障页列出GitHub替代包；项目MSI文档说明Server功能和路径；已在Mac完整下载并核对长度/SHA256，Windows签名/安装/服务尚未验证。原超时根因没有日志，不能以候选下载成功证明原代理配置有误。
+- 验收：先确认原组件状态与后台安装结束，再校验Windows上的Authenticode、文件摘要、实际服务路径/账户/宿主密钥、数据传输和RDP通道；按同一累计预算执行。
+- 回退：卸载仅本次新增的MSI提供者，恢复本次备份的配置/规则；保留系统组件原状态和诊断记录，不清空系统更新服务/缓存。
 
 ## 本轮对抗性自审与证据范围
 
@@ -66,6 +76,9 @@
 
 - [Windows OpenSSH 安装与服务](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse)
 - [Windows OpenSSH 公钥与服务器配置](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_server_configuration)
+- [OpenSSH 组件安装与替代获取方式](https://learn.microsoft.com/en-us/troubleshoot/windows-server/system-management-components/cant-install-openssh-features)
+- [Windows Update 的代理选择](https://learn.microsoft.com/en-us/troubleshoot/windows-server/installing-updates-features-roles/windows-update-client-determines-proxy-server-connect)
+- [微软独立 OpenSSH MSI 安装方式](https://github.com/PowerShell/Win32-OpenSSH/wiki/Install-Win32-OpenSSH-Using-MSI)
 - [Windows 远程桌面支持与连接条件](https://learn.microsoft.com/en-us/windows-server/remote/remote-desktop-services/remotepc/remote-desktop-allow-access)
 - [Tailscale 跨设备访问服务](https://tailscale.com/kb/1452/connect-to-devices)
 - [Tailscale SSH 支持平台与普通 SSH 叠加](https://tailscale.com/docs/features/tailscale-ssh)
