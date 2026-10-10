@@ -21,6 +21,7 @@
 - `reserve --phase preparation|test --seconds N --label task-id` 在窗口内先扣账、记录唯一预约；批次全长不得超过距离17:00的剩余时间，文件锁和原子写防止重入。未解决的预约阻止新任务，断线不能视为退出；仍须在已有预约内核对/清理本次进程，不能以pending为由放弃清理。
 - 当前用户亲自操作的连接准备交接，可用`--attended-setup`预扣准备预算，不限定于后台09:00–17:00窗口。此标志只适用于当前在场人工准备，不用于自动化唤醒、任何实际测试或扩大额度；heartbeat不得自行使用它。脚本/回执失败时预约继续pending。准备流程保留的已配置SSH服务是接入设施，不宣称已停止，不等同于留下测试进程。
 - `close --id UUID --receipt FILE` 只接受同一预约的 `cider.windows-run-cleanup/v1` 完成记录：包含 `reservation_id`、`cleanup_confirmed: true`、`elapsed_seconds`，不返还已扣时间。维护者须核对真实进程/VM已停止，不凭 SSH 返回码生成“清理成功”。超预算观察保持阻塞，不能擦除记录继续跑。
+- 人工准备没有整体秒表数据时，允许仅attended预约使用`elapsed_seconds: null`、`duration_measurement: unmeasured-attended-handoff`、等于原预约的保守上限及明确已核对的cleanup_evidence；仍须真实关闭证据、仍全额扣账。不能把DISM片段或猜测的0秒记作整个准备实测时间；无人值守任务不使用此例外。
 - 用户要停止时，在同一控制目录创建 `STOP` 即拒绝后续预约；撤销停止须依用户指令。已经运行的 Windows 任务还须由其本机 watchdog 负责终止。
 - **当前账本不是远程执行器**。Windows 本机超时、进程归属和清理回执尚未部署；落实之前不启用 Windows 无人值守测试。不能将脚本存在写成总时限已实机验证。
 
@@ -55,7 +56,7 @@
 4. Windows实际测试优先Se*/Ps*/context的第一批原生结果；VM准备是否可在剩余额度完成，以实际硬件/配置判断，卡住即明确交接，不反复远程试键盘。
 5. 后续并发、异步、KMDF生命周期只随对应实现推进，合并成必要批次。六批10分钟是当前实际测试预算的最多批次数，不代表只需六批就能完成所有契约或游戏适配。
 
-### 系统组件下载的替代提案（未采用）
+### 系统组件下载的替代路线（已准备执行，未实机验收）
 
 - 候选：微软`PowerShell/Win32-OpenSSH`独立MSI，10.0.0.0p2-Preview，6586368bytes，SHA256`ddec9c53864280759cf9f74791cefd387100e3946aa849a1c138a4ed1b96b7d9`。GitHub最新release API的prerelease字段为false，但标签/仓库仍称Preview，不改称Windows内置正式组件。
 - 收益：文件可通过当前终端下载通道取得，不依赖Windows Update扫描；避免为了访问准备修改用户终端/TUN代理。
@@ -63,6 +64,8 @@
 - 证据：微软OpenSSH排障页列出GitHub替代包；项目MSI文档说明Server功能和路径；已在Mac完整下载并核对长度/SHA256，Windows签名/安装/服务尚未验证。原超时根因没有日志，不能以候选下载成功证明原代理配置有误。
 - 验收：先确认原组件状态与后台安装结束，再校验Windows上的Authenticode、文件摘要、实际服务路径/账户/宿主密钥、数据传输和RDP通道；按同一累计预算执行。
 - 回退：卸载仅本次新增的MSI提供者，恢复本次备份的配置/规则；保留系统组件原状态和诊断记录，不清空系统更新服务/缓存。
+
+后续证据与采用：用户原始输出显示此次DISM请求在01:31:58以0x800704c7取消并完成会话关闭；仍无sshd，记录见 [取消及替代路径证据](../research/evidence/windows-access-capability-cancellation-20261011.json)。这是脚本300秒截止后取消，不证明TUN/终端代理不兼容，原慢的原因未确定。为控制主力机准备成本，采用`setup-reference-ssh.ps1 -UseMsi`作为临时测试接入准备：状态查询15秒，只在in-box NotPresent/无已有服务配置时下载官方包，下载/微软签名验证后只装Server，MSI等待最多120秒、禁止强制重启；超时不并行重试或杀系统msiexec。真实服务ImagePath必须匹配提供者，SFTP显式路径避免改用户客户端PATH。软件是Preview发布包，配置/更新/撤销由本项目维护，不把它称为正式in-box组件。原600秒预算已根据真实取消/关闭证据结算且不退款；另预留600秒MSI准备，剩余准备40分钟、测试60分钟。新安装和外网/桌面连接尚未完成。
 
 ## 本轮对抗性自审与证据范围
 

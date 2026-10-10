@@ -157,14 +157,23 @@ def main():
             receipt = json.loads(args.receipt.read_text(encoding="utf-8"))
             item = next((x for x in state["reservations"] if x["id"] == args.id), None)
             elapsed = receipt.get("elapsed_seconds")
+            measured = type(elapsed) in (int, float) and item is not None and 0 <= elapsed <= item["seconds"]
+            attended_bound = (item is not None and item.get("attended_setup") is True
+                              and elapsed is None
+                              and receipt.get("duration_measurement") == "unmeasured-attended-handoff"
+                              and receipt.get("elapsed_seconds_upper_bound") == item["seconds"]
+                              and isinstance(receipt.get("cleanup_evidence"), dict)
+                              and receipt["cleanup_evidence"].get("verified") is True)
             if (item is None or item["status"] != "pending"
                     or receipt.get("schema") != "cider.windows-run-cleanup/v1"
                     or receipt.get("reservation_id") != args.id
                     or receipt.get("cleanup_confirmed") is not True
-                    or type(elapsed) not in (int, float)
-                    or not 0 <= elapsed <= item["seconds"]):
+                    or not (measured or attended_bound)):
                 raise ValueError("Missing, incomplete or over-budget runner cleanup; keep reservation unresolved.")
             item.update(status="closed", closed_utc=timestamp(), observed_elapsed_seconds=elapsed)
+            if attended_bound:
+                item.update(duration_measurement=receipt["duration_measurement"],
+                            elapsed_seconds_upper_bound=item["seconds"])
             write_state(state)
             result = status(state)
     print(json.dumps(result, ensure_ascii=False, indent=2))

@@ -1,0 +1,45 @@
+{
+  "schema": "cider.windows-access-capability-cancellation/v1",
+  "date": "2026-10-11",
+  "source_sha256": "b2eceb5703020d5ce7e14884feef1cbcc5e9b516ac71b09b56e1d256c3adc8bf",
+  "winhttp_config": "DIRECT",
+  "user_confirmed_tun": "rule mode; domestic traffic direct; terminal proxy required",
+  "sshd_service_query_returned": false,
+  "dism_local_times": {
+    "observed_start": "2026-10-11 01:26:49",
+    "cancel_and_close": "2026-10-11 01:31:58"
+  },
+  "observed_log_span_seconds": 309,
+  "log_span_is_total_setup_duration": false,
+  "hresults": [
+    "0x800f0820",
+    "0x800704c7"
+  ],
+  "cancellation_session_finalized": true,
+  "dism_api_shutdown_seen": true,
+  "interpretation": "the 300-second caller deadline cancelled this request; initial slow completion cause remains unproven",
+  "proxy_connection_error_present_in_supplied_excerpt": false,
+  "standalone_package": {
+    "provider": "PowerShell/Win32-OpenSSH",
+    "tag": "10.0.0.0p2-Preview",
+    "bytes": 6586368,
+    "sha256": "ddec9c53864280759cf9f74791cefd387100e3946aa849a1c138a4ed1b96b7d9",
+    "mac_cache_verified": true,
+    "windows_authenticode_verified": false,
+    "windows_installation_verified": false
+  },
+  "setup_syntax": {
+    "schema": "cider.powershell-syntax-check/v1",
+    "parser_version": "7.6.6",
+    "scope": "syntax only; script bodies and Windows cmdlets were not executed",
+    "files": [
+      {
+        "file": "setup-reference-ssh.ps1",
+        "source_sha256": "a3f7d089424f9efaeadac813e8a204032cfe101aa075855562ab941febcf233b",
+        "errors": []
+      }
+    ],
+    "success": true
+  },
+  "budget": "original 600 seconds fully charged with unmeasured attended total; separate 600-second MSI preparation reserved; remaining preparation 2400/test 3600 seconds"
+}

@@ -15,6 +15,8 @@
 - 已为当前在场手动SSH开通交接预扣600秒准备预算（预约ssh-attended-setup-20261011，pending，持久账本保存唯一ID）。剩余准备3000秒、测试3600秒；返回安装结果/实际进程清理证据前不关闭预约或新开Windows任务。人工准备可在用户当前在场时进行，自动化不能使用attended-setup标志绕过09:00–17:00窗口。新SSH脚本仅静态审查，尚未Windows运行或外网连接。
 - SSH交接脚本a42b3d4在Windows解析失败：26:9 MissingEndParenthesisAfterStatement、28:80 UnexpectedToken。逻辑操作符放在下一行造成断句，脚本体未执行，不能记为安装失败或系统配置已改。已在Mac缓存取得微软PowerShell7.6.6（官方资产SHA256校验），完整复现同样错误；操作符移到上一行末尾后，四份PS脚本均零解析错误。以后发送PS脚本前先本机解析，执行命令再用Windows自身Parser.ParseFile检查，不让用户承担可本机发现的语法问题。Mac语法结果不替代Windows5.1实际cmdlet/安装验收；修正沿用原600秒预留，不新增扣账。见research/evidence/windows-access-powershell-syntax-20261011.json。
 - 用户执行906e199后下载/校验/Windows解析通过，进入OpenSSH组件安装；Wait-Job的300秒限额触发，尚未执行密钥/端口配置。Windows servicing后台是否结束未知，原预约保持pending，不重跑安装或并行换另一套部署，不称已清理。用户确认Windows为TUN规则模式（国内直连），终端必须保留代理；不关闭TUN/终端代理，不擅自改WinHTTP/更新组策略。系统组件的Windows Update通道与终端下载成功分开判断，超时不证明代理根因；下一步只读服务/WinHTTP/DISM末段。微软官方独立MSI为未采用候选（约6.6MB、10.0.0.0p2-Preview，维护更新另算），见plan/14。
+- 后续原始输出确认WinHTTP配置DIRECT（不等于TUN未作用）、仍无sshd；DISM在01:31:58以0x800704c7取消，随后Finalize/DeletedSession/Shutdown/Ending均出现。结合脚本300秒限额，确认这次请求已取消并关闭；初始耗时原因未证实，日志没有给出代理连接错误。仅观察到309秒DISM片段，不能冒充整个准备总耗时。按真实关闭证据关闭首个600秒预约、不退款；人工交接总时间无测量则明确null/保守上限，不填虚构数字。另预留600秒用于MSI准备，剩余准备2400秒+测试3600秒，新预约pending。
+- 已准备UseMsi替代执行：官方10.0.0.0p2-Preview临时测试接入包；用户终端下载、固定长度/SHA256及Windows微软Authenticode双校验、只装Server、不改代理/客户端PATH。安装前只读确认in-box NotPresent，15秒查状态限额、下载120秒、MSI等待120秒；超时保留未知状态不重试、不杀系统安装服务。验证真实服务路径后才管理本次服务，SFTP使用明确路径。Mac语法解析通过，Windows签名/安装/连接仍待回传，见research/evidence/windows-access-capability-cancellation-20261011.json。
 - Git 作者和提交者只能是 CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>，不加 AI 署名。
 
 ## 始终保留的边界

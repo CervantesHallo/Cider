@@ -2,7 +2,8 @@
 # Account/key and host-address results are operational data: do not commit the receipt.
 param(
     [Parameter(Mandatory = $true)][string]$PublicKey,
-    [ValidateRange(1024, 65535)][int]$Port = 2222
+    [ValidateRange(1024, 65535)][int]$Port = 2222,
+    [switch]$UseMsi
 )
 $ErrorActionPreference = 'Stop'
 $clock = [Diagnostics.Stopwatch]::StartNew()
@@ -34,17 +35,73 @@ if (@([Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties().GetAc
         Where-Object { $_.Port -eq $Port }).Count -ne 0) {
     throw 'Requested SSH port is already occupied.'
 }
-$capability = Get-WindowsCapability -Online -Name 'OpenSSH.Server~~~~0.0.1.0'
+$capability = $null
+if (-not $UseMsi) { $capability = Get-WindowsCapability -Online -Name 'OpenSSH.Server~~~~0.0.1.0' }
 $installedHere = $false
 $installationUncertain = $false
 $configured = $false
+$ownedService = $false
 $ownedProject = $false
 $ownedRule = $false
 $configWritten = $false
 $backup = $null
 $installJob = $null
+$queryJob = $null
+$msiProcess = $null
+$provider = 'windows-capability'
 try {
-    if ($capability.State -ne 'Installed') {
+    if ($UseMsi) {
+        $provider = 'microsoft-msi-10.0.0.0p2-preview'
+        # Read the in-box state without starting another update/install request.
+        $queryJob = Start-Job -ScriptBlock {
+            $ErrorActionPreference = 'Stop'
+            [string](Get-WindowsCapability -Online -Name 'OpenSSH.Server~~~~0.0.1.0').State
+        }
+        if (-not (Wait-Job -Job $queryJob -Timeout 15)) {
+            throw 'Windows component state could not be read promptly. Stop instead of installing a second provider.'
+        }
+        $inboxState = @(Receive-Job -Job $queryJob -ErrorAction Stop)
+        if ($queryJob.State -ne 'Completed' -or $inboxState.Count -ne 1 -or $inboxState[0] -ne 'NotPresent') {
+            throw 'The in-box OpenSSH state is not NotPresent. Stop instead of installing a second provider.'
+        }
+        Remove-Job -Job $queryJob
+        $queryJob = $null
+        $packageDirectory = Join-Path $env:TEMP ('Cider-OpenSSH-' + [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $packageDirectory | Out-Null
+        $package = Join-Path $packageDirectory 'OpenSSH-Win64-v10.0.0.0.msi'
+        $msiLog = Join-Path $packageDirectory 'install.log'
+        Write-Host 'Downloading the standalone Microsoft package using this PowerShell session...'
+        Invoke-WebRequest -UseBasicParsing -TimeoutSec 120 -Uri 'https://github.com/PowerShell/Win32-OpenSSH/releases/download/10.0.0.0p2-Preview/OpenSSH-Win64-v10.0.0.0.msi' -OutFile $package
+        if ((Get-Item -LiteralPath $package).Length -ne 6586368 -or
+                (Get-FileHash -LiteralPath $package -Algorithm SHA256).Hash -ne 'ddec9c53864280759cf9f74791cefd387100e3946aa849a1c138a4ed1b96b7d9') {
+            throw 'Microsoft package size/hash mismatch.'
+        }
+        $signature = Get-AuthenticodeSignature -LiteralPath $package
+        if ($signature.Status -ne 'Valid' -or -not $signature.SignerCertificate -or
+                $signature.SignerCertificate.Subject -notmatch '(^|,\s*)O=Microsoft Corporation(,|$)') {
+            throw 'The package does not have a valid Microsoft Authenticode signature.'
+        }
+        # Server only: keep the existing Windows SSH client and its search path.
+        $arguments = '/i "' + $package + '" ADDLOCAL=Server /qn /norestart /L*v "' + $msiLog + '"'
+        Write-Host 'Installing the standalone server (waiting at most 2 minutes)...'
+        $msiProcess = Start-Process -FilePath (Join-Path $env:WINDIR 'System32\msiexec.exe') -ArgumentList $arguments -PassThru
+        $null = $msiProcess.Handle
+        if (-not $msiProcess.WaitForExit(120000)) {
+            $installationUncertain = $true
+            Write-Host ('Installer log: ' + $msiLog)
+            throw 'The MSI request is still running. Stop here; do not repeat setup or start another installer.'
+        }
+        $msiProcess.Refresh()
+        if ($msiProcess.ExitCode -eq 3010 -or $msiProcess.ExitCode -eq 1641) {
+            throw 'The MSI requested a restart. A human handoff is needed; SSH has not been configured.'
+        }
+        if ($msiProcess.ExitCode -ne 0) {
+            Write-Host ('Installer log: ' + $msiLog)
+            throw ('Standalone installer failed with exit code ' + $msiProcess.ExitCode)
+        }
+        $installedHere = $true
+        $serverDirectory = Join-Path $env:ProgramFiles 'OpenSSH'
+    } elseif ($capability.State -ne 'Installed') {
         Write-Host 'Installing Windows OpenSSH Server (waiting at most 5 minutes)...'
         $installJob = Start-Job -ScriptBlock {
             $ErrorActionPreference = 'Stop'
@@ -67,13 +124,20 @@ try {
             throw 'Windows requested a restart. SSH has not been configured; a human handoff is needed.'
         }
     }
-    $server = Join-Path $env:WINDIR 'System32\OpenSSH\sshd.exe'
-    $keygen = Join-Path $env:WINDIR 'System32\OpenSSH\ssh-keygen.exe'
+    if (-not $UseMsi) { $serverDirectory = Join-Path $env:WINDIR 'System32\OpenSSH' }
+    $server = Join-Path $serverDirectory 'sshd.exe'
+    $keygen = Join-Path $serverDirectory 'ssh-keygen.exe'
     if (-not (Test-Path -LiteralPath $server -PathType Leaf) -or
             -not (Test-Path -LiteralPath $keygen -PathType Leaf) -or
             -not (Get-Service -Name sshd -ErrorAction SilentlyContinue)) {
-        throw 'The Windows OpenSSH component did not provide the expected service and binaries.'
+        throw 'The OpenSSH provider did not provide the expected service and binaries.'
     }
+    $serviceRegistration = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Services\sshd'
+    $expectedImage = '"' + $server + '"'
+    if ($serviceRegistration.ImagePath -ne $server -and $serviceRegistration.ImagePath -ne $expectedImage) {
+        throw 'The SSH service points at a different provider. Stop instead of changing it.'
+    }
+    $ownedService = $true
     Stop-Service -Name sshd
     Set-Service -Name sshd -StartupType Manual
     # Installation can create a default port-22 firewall rule; this fresh service uses another port.
@@ -111,7 +175,7 @@ try {
         ('AuthorizedKeysFile "' + $keysPath + '"')
         'AllowTcpForwarding local'
         "PermitOpen 127.0.0.1:$rdpPort"
-        'Subsystem sftp sftp-server.exe'
+        ('Subsystem sftp "' + (Join-Path $serverDirectory 'sftp-server.exe').Replace('\', '/') + '"')
     ) -join "`r`n"
     $configWritten = $true
     [IO.File]::WriteAllText($config, $text + "`r`n", $encoding)
@@ -149,6 +213,7 @@ try {
     $report = [ordered]@{
         schema = 'cider.windows-ssh-setup/v1'
         status = 'configured'
+        provider = $provider
         elapsed_seconds = [Math]::Round($clock.Elapsed.TotalSeconds, 2)
         setup_source_sha256 = (Get-FileHash -LiteralPath $PSCommandPath -Algorithm SHA256).Hash.ToLowerInvariant()
         ssh_user = $login
@@ -170,8 +235,10 @@ try {
     Write-Host ('Setup failed: ' + $_.Exception.Message)
     if (-not $configured -and -not $installationUncertain) {
         # Only the fresh service and files created by this attempt are involved.
-        Get-Service -Name sshd -ErrorAction SilentlyContinue | Stop-Service -ErrorAction SilentlyContinue
-        if (Get-Service -Name sshd -ErrorAction SilentlyContinue) { Set-Service -Name sshd -StartupType Manual }
+        if ($ownedService) {
+            Get-Service -Name sshd -ErrorAction SilentlyContinue | Stop-Service -ErrorAction SilentlyContinue
+            if (Get-Service -Name sshd -ErrorAction SilentlyContinue) { Set-Service -Name sshd -StartupType Manual }
+        }
         if ($ownedRule) { Remove-NetFirewallRule -Name $ruleName -ErrorAction SilentlyContinue }
         if ($configWritten -and $backup) { Copy-Item -LiteralPath $backup -Destination $config -Force }
         elseif ($configWritten -and (Test-Path -LiteralPath $config)) { Remove-Item -LiteralPath $config }
@@ -179,6 +246,10 @@ try {
     }
     throw
 } finally {
+    if ($queryJob) {
+        Stop-Job -Job $queryJob -ErrorAction SilentlyContinue
+        Remove-Job -Job $queryJob -Force -ErrorAction SilentlyContinue
+    }
     if ($installJob) {
         Stop-Job -Job $installJob -ErrorAction SilentlyContinue
         Remove-Job -Job $installJob -Force -ErrorAction SilentlyContinue
