@@ -118,6 +118,10 @@ try {
     foreach ($hostPrivateKey in @(Get-ChildItem -LiteralPath $sshRoot -Filter 'ssh_host_*_key' -File)) {
         & "$env:WINDIR\System32\icacls.exe" $hostPrivateKey.FullName '/inheritance:r' '/grant:r' '*S-1-5-32-544:F' '*S-1-5-18:F' | Out-Null
         if ($LASTEXITCODE -ne 0) { throw 'Cannot protect a new SSH host private key.' }
+        & "$env:WINDIR\System32\icacls.exe" $hostPrivateKey.FullName '/setowner' '*S-1-5-18' | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw 'Cannot assign the host private key to SYSTEM.' }
+        & "$env:WINDIR\System32\icacls.exe" $hostPrivateKey.FullName '/remove:g' ('*' + $identity.User.Value) | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw 'Cannot remove the installer-only host-key permission.' }
     }
     & $server -t -f $config
     if ($LASTEXITCODE -ne 0) { throw 'OpenSSH rejected the configuration.' }
