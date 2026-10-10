@@ -22,10 +22,12 @@ $sshRoot = Join-Path $env:ProgramData 'ssh'
 $config = Join-Path $sshRoot 'sshd_config'
 $project = Join-Path $env:ProgramData 'Cider\WindowsReferenceAccess'
 $ruleName = 'Cider-WindowsReference-SSH'
-if ((Get-Service -Name sshd -ErrorAction SilentlyContinue) -or (Test-Path -LiteralPath $config)
-        -or (Test-Path -LiteralPath $project)
-        -or @(Get-ChildItem -LiteralPath $sshRoot -Filter 'ssh_host_*' -ErrorAction SilentlyContinue).Count -ne 0
-        -or (Get-NetFirewallRule -Name $ruleName -ErrorAction SilentlyContinue)) {
+$existingHostKeys = @(Get-ChildItem -LiteralPath $sshRoot -Filter 'ssh_host_*' -ErrorAction SilentlyContinue)
+if ((Get-Service -Name sshd -ErrorAction SilentlyContinue) -or
+        (Test-Path -LiteralPath $config) -or
+        (Test-Path -LiteralPath $project) -or
+        ($existingHostKeys.Count -ne 0) -or
+        (Get-NetFirewallRule -Name $ruleName -ErrorAction SilentlyContinue)) {
     throw 'Existing SSH or project setup found. Stop and send its state; do not overwrite or repeat setup.'
 }
 if (@([Net.NetworkInformation.IPGlobalProperties]::GetIPGlobalProperties().GetActiveTcpListeners() |

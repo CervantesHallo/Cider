@@ -13,6 +13,7 @@
 - 已创建当前聊天每天09:00 heartbeat `cider`；配置已核对ACTIVE。SSH还未接通，定时任务在此前只推进Mac工作，相同阻塞保持安静。用户随后说明有公网IP、能开服务，但不知道已有服务/端口。先只读核对SSH/RDP，再评估复用公网SSH+原生RDP桌面通道（可经SSH隧道）；Tailscale是未安装的备选。CUA的RDP截图/点击须实测，RDP不代替物理控制台图形/性能证据，断开不等于清理。密码由用户输入，私钥/地址不记入公开记忆。机时持久账本与待部署本机watchdog边界见plan/14。
 - 用户回传服务查询截图：TermService=Running，sshd没有返回记录；两条Select-Object输出列不同，被PowerShell合并格式化，第二项fDenyTSConnections未显示，不能据此判断RDP已启用。后续用单一JSON/明确文本避免混合表格。Mac标准路径未见Windows App/Microsoft Remote Desktop；桌面客户端还须准备。
 - 已为当前在场手动SSH开通交接预扣600秒准备预算（预约ssh-attended-setup-20261011，pending，持久账本保存唯一ID）。剩余准备3000秒、测试3600秒；返回安装结果/实际进程清理证据前不关闭预约或新开Windows任务。人工准备可在用户当前在场时进行，自动化不能使用attended-setup标志绕过09:00–17:00窗口。新SSH脚本仅静态审查，尚未Windows运行或外网连接。
+- SSH交接脚本a42b3d4在Windows解析失败：26:9 MissingEndParenthesisAfterStatement、28:80 UnexpectedToken。逻辑操作符放在下一行造成断句，脚本体未执行，不能记为安装失败或系统配置已改。已在Mac缓存取得微软PowerShell7.6.6（官方资产SHA256校验），完整复现同样错误；操作符移到上一行末尾后，四份PS脚本均零解析错误。以后发送PS脚本前先本机解析，执行命令再用Windows自身Parser.ParseFile检查，不让用户承担可本机发现的语法问题。Mac语法结果不替代Windows5.1实际cmdlet/安装验收；修正沿用原600秒预留，不新增扣账。见research/evidence/windows-access-powershell-syntax-20261011.json。
 - Git 作者和提交者只能是 CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>，不加 AI 署名。
 
 ## 始终保留的边界

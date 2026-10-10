@@ -1,0 +1,85 @@
+{
+  "schema": "cider.windows-access-syntax-repair/v1",
+  "date": "2026-10-11",
+  "user_observation": {
+    "source_commit": "a42b3d46e8d96ab0a37f6ba828c61e197f4ebb9c",
+    "source_sha256": "3b29a078a5f6c50614a907b40d12ec09b1a2e10299dd5973c993bf42ed31f685",
+    "environment": "Windows PowerShell; exact build not re-queried",
+    "errors": [
+      {
+        "error_id": "MissingEndParenthesisAfterStatement",
+        "line": 26,
+        "column": 9
+      },
+      {
+        "error_id": "UnexpectedToken",
+        "line": 28,
+        "column": 80
+      }
+    ],
+    "boundary": "file parsing failed before script body execution; no installation/configuration by this script"
+  },
+  "local_runtime": {
+    "version": "7.6.6",
+    "platform": "macOS arm64",
+    "archive_bytes": 70604356,
+    "archive_sha256": "6df833d094ebac1c1a74340d7b3437f4aaf5e03ce640484a1c4359f3ce8b3db1",
+    "source": "https://github.com/PowerShell/PowerShell/releases/tag/v7.6.6"
+  },
+  "original_reproduction": {
+    "schema": "cider.powershell-syntax-check/v1",
+    "parser_version": "7.6.6",
+    "scope": "syntax only; script bodies and Windows cmdlets were not executed",
+    "files": [
+      {
+        "file": "setup-reference-ssh-a42b3d4.ps1",
+        "source_sha256": "3b29a078a5f6c50614a907b40d12ec09b1a2e10299dd5973c993bf42ed31f685",
+        "errors": [
+          {
+            "error_id": "MissingEndParenthesisAfterStatement",
+            "line": 26,
+            "column": 9,
+            "message": "Missing closing ')' after expression in 'if' statement."
+          },
+          {
+            "error_id": "UnexpectedToken",
+            "line": 28,
+            "column": 80,
+            "message": "Unexpected token ')' in expression or statement."
+          }
+        ]
+      }
+    ],
+    "success": false
+  },
+  "corrected_sources": {
+    "schema": "cider.powershell-syntax-check/v1",
+    "parser_version": "7.6.6",
+    "scope": "syntax only; script bodies and Windows cmdlets were not executed",
+    "files": [
+      {
+        "file": "check-powershell-syntax.ps1",
+        "source_sha256": "c4edc90c0a50aa81a85ac42d09437902ab242ff3274e5ac72b389f80c69d21a9",
+        "errors": []
+      },
+      {
+        "file": "collect-access-readiness.ps1",
+        "source_sha256": "5a181fc60034a7990a65c049af324ded9f6316ee02368a3bb26fa5d70cc8f9eb",
+        "errors": []
+      },
+      {
+        "file": "collect-reference-environment.ps1",
+        "source_sha256": "35a09ca24dd33035464f2a2122af2d85a0cbf6b648d9bfeab2adfe40ccf46e47",
+        "errors": []
+      },
+      {
+        "file": "setup-reference-ssh.ps1",
+        "source_sha256": "23387d9df544f517c743e085aaeb5c598951be011540ada6ddcee74771d3297e",
+        "errors": []
+      }
+    ],
+    "success": true
+  },
+  "windows_installation_verified": false,
+  "budget_boundary": "same pending attended setup reservation; no refund or new reservation; elapsed machine time not invented"
+}
