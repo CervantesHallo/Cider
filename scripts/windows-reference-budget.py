@@ -49,6 +49,9 @@ def validate(state):
             raise ValueError("Invalid duration or phase.")
         if item["status"] not in ("pending", "closed"):
             raise ValueError("Invalid reservation status.")
+        if (type(item.get("attended_setup", False)) is not bool
+                or (item.get("attended_setup") and item["phase"] != "preparation")):
+            raise ValueError("Invalid attended preparation reservation.")
     if any(sum(x["seconds"] for x in reservations if x["phase"] == phase) > cap
            for phase, cap in LIMITS.items()):
         raise ValueError("Ledger exceeds the adopted cumulative budget.")
@@ -118,6 +121,8 @@ def main():
     reserve.add_argument("--phase", choices=LIMITS, required=True)
     reserve.add_argument("--seconds", type=int, required=True)
     reserve.add_argument("--label", required=True)
+    reserve.add_argument("--attended-setup", action="store_true",
+                         help="Only for a current human-operated setup handoff, never a background test.")
     close = commands.add_parser("close")
     close.add_argument("--id", required=True)
     close.add_argument("--receipt", type=Path, required=True,
@@ -128,16 +133,21 @@ def main():
         if args.command == "status":
             result = current
         elif args.command == "reserve":
-            if not current["window_open"] or current["stopped_by_user"] or current["pending"]:
+            if args.attended_setup and args.phase != "preparation":
+                raise ValueError("Attended handoff is only a preparation reservation.")
+            if ((not current["window_open"] and not args.attended_setup)
+                    or current["stopped_by_user"] or current["pending"]):
                 raise ValueError("Outside window, stopped, or unresolved cleanup; refusing Windows work.")
             if (not 1 <= args.seconds <= 600
                     or args.seconds > current["remaining_seconds"][args.phase]
-                    or args.seconds > current["window_remaining_seconds"]):
+                    or (not args.attended_setup and args.seconds > current["window_remaining_seconds"])):
                 raise ValueError("Reservation exceeds a batch or cumulative limit.")
             if not re.fullmatch(r"[a-z0-9][a-z0-9.-]{0,63}", args.label):
                 raise ValueError("Label must be a short task ID, without personal or connection data.")
             item = {"id": str(uuid.uuid4()), "phase": args.phase, "seconds": args.seconds,
                     "label": args.label, "status": "pending", "reserved_utc": timestamp()}
+            if args.attended_setup:
+                item["attended_setup"] = True
             state["reservations"].append(item)
             write_state(state)
             result = item

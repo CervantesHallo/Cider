@@ -11,6 +11,8 @@
 - 2026-10-10 用户愿意自行复制执行简单的 Windows 操作；优先提供简短、可核对的命令和所需输出，不重复已失败的远程长文本输入路线。
 - 2026-10-11 用户明确Windows是主力机，要求累计占用时间、方便的远程通道和白天无人值守调度；确认09:00–17:00 UTC+8、与Mac不在同一局域网。维护者将后续使用封顶为累计准备60分钟+测试60分钟，非每日额度，不承诺该额度内完整游戏适配；既往真实机时缺记录，不编造。失败/重试/启动/清理计时，单批最多10分钟，预算耗尽停止Windows工作。
 - 已创建当前聊天每天09:00 heartbeat `cider`；配置已核对ACTIVE。SSH还未接通，定时任务在此前只推进Mac工作，相同阻塞保持安静。用户随后说明有公网IP、能开服务，但不知道已有服务/端口。先只读核对SSH/RDP，再评估复用公网SSH+原生RDP桌面通道（可经SSH隧道）；Tailscale是未安装的备选。CUA的RDP截图/点击须实测，RDP不代替物理控制台图形/性能证据，断开不等于清理。密码由用户输入，私钥/地址不记入公开记忆。机时持久账本与待部署本机watchdog边界见plan/14。
+- 用户回传服务查询截图：TermService=Running，sshd没有返回记录；两条Select-Object输出列不同，被PowerShell合并格式化，第二项fDenyTSConnections未显示，不能据此判断RDP已启用。后续用单一JSON/明确文本避免混合表格。Mac标准路径未见Windows App/Microsoft Remote Desktop；桌面客户端还须准备。
+- 已为当前在场手动SSH开通交接预扣600秒准备预算（预约ssh-attended-setup-20261011，pending，持久账本保存唯一ID）。剩余准备3000秒、测试3600秒；返回安装结果/实际进程清理证据前不关闭预约或新开Windows任务。人工准备可在用户当前在场时进行，自动化不能使用attended-setup标志绕过09:00–17:00窗口。新SSH脚本仅静态审查，尚未Windows运行或外网连接。
 - Git 作者和提交者只能是 CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>，不加 AI 署名。
 
 ## 始终保留的边界
