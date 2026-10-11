@@ -9,6 +9,15 @@ if (Test-Path -LiteralPath $tailscalePath -PathType Leaf) {
     if ($LASTEXITCODE -ne 0) { $errors.Add('tailscale ip -4 failed'); $addresses = @() }
 }
 $computer = Get-CimInstance Win32_ComputerSystem
+$accountSource = $null
+try {
+    # Classify the caller's account without collecting email, password or its SID.
+    $callerSid = [Security.Principal.WindowsIdentity]::GetCurrent().User
+    $callerAccount = Get-LocalUser -SID $callerSid
+    if ($callerAccount.PrincipalSource) { $accountSource = $callerAccount.PrincipalSource.ToString() }
+} catch {
+    $errors.Add('The current account source could not be read: ' + $_.Exception.Message)
+}
 $processors = @(Get-CimInstance Win32_Processor)
 $sshService = Get-Service -Name sshd -ErrorAction SilentlyContinue
 $sshBinary = Join-Path $env:WINDIR 'System32\OpenSSH\sshd.exe'
@@ -61,6 +70,7 @@ $report = [ordered]@{
     schema = 'cider.windows-access-readiness/v1'
     collected_utc = [DateTime]::UtcNow.ToString('o')
     scope = 'availability only; no installation, connection or driver execution'
+    current_account_principal_source = $accountSource
     tailscale_installed = (Test-Path -LiteralPath $tailscalePath -PathType Leaf)
     tailscale_ipv4 = $addresses
     openssh_server_binary_present = $(if ($sshBinary) { Test-Path -LiteralPath $sshBinary -PathType Leaf } else { $null })
