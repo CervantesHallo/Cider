@@ -19,16 +19,16 @@
       "engine_major": "11",
       "macos_major": "26",
       "cpu_backend": "rosetta-x86_64",
-      "result": "playable",
+      "result": "playable-caveats",
       "notes": {
-        "zh-Hans": "经 Steam 启动，中文界面、CG 与音乐鉴赏、云存档正常。",
-        "en": "Launches through Steam; Chinese UI, gallery and cloud saves work."
+        "zh-Hans": "旧r1存在Control快进时WMA媒体停止卡死。使用cider-cx26.3-r1-wma1后长时间快进已实测通过；Steam/Cider启动偶发无响应仍在调查。中文界面、鉴赏与云存档有既往运行记录。",
+        "en": "Long Control skipping verified with cider-cx26.3-r1-wma1; original r1 has a WMA stop hang. Intermittent launch requests through Steam/Cider remain under investigation. Chinese UI, gallery and cloud saves have prior observations."
       },
-      "last_verified": "2026-09-28",
+      "last_verified": "2026-10-11",
       "provenance": {
         "source": "maintainer",
         "hw": "M3 8GB",
-        "engine": "cider-cx26.3-r1-x86_64",
+        "engine": "cider-cx26.3-r1-wma1-x86_64",
         "envModified": false
       }
     }

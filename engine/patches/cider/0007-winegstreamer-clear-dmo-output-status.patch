@@ -1,0 +1,34 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [PATCH] winegstreamer: Clear DMO output status before requesting data.
+
+The WMA DMO marks successful output INCOMPLETE to drain all packets. Its
+next read can return MF_E_TRANSFORM_NEED_MORE_INPUT, which is converted to
+S_FALSE. Leaving the previous flags in the reused descriptor makes the
+DirectShow DMO wrapper drain empty buffers forever while holding stream_cs.
+Stopping KiriKiri movie playback then blocks the game's UI thread.
+
+Reset the output status before the read, including paths that are later
+converted to S_FALSE. Keep valid output flags and buffer contents intact.
+The same helper serves the other GStreamer-backed DMOs.
+
+--- a/dlls/winegstreamer/wg_sample.c
++++ b/dlls/winegstreamer/wg_sample.c
+@@ -492,6 +492,10 @@ HRESULT wg_transform_read_dmo(wg_transform_t transform, DMO_OUTPUT_DATA_BUFFER *buffer)
+ 
+     TRACE_(mfplat)("transform %#I64x, buffer %p.\n", transform, buffer);
+ 
++    /* A failed read may become S_FALSE in the DMO. Do not retain flags
++     * from the preceding output, especially INCOMPLETE. */
++    buffer->dwStatus = 0;
++
+     if (FAILED(hr = wg_sample_create_dmo(buffer->pBuffer, &wg_sample)))
+         return hr;
+     wg_sample->size = 0;
+@@ -505,7 +509,6 @@ HRESULT wg_transform_read_dmo(wg_transform_t transform, DMO_OUTPUT_DATA_BUFFER *buffer)
+         return hr;
+     }
+ 
+-    buffer->dwStatus = 0;
+     if (wg_sample->flags & WG_SAMPLE_FLAG_INCOMPLETE)
+         buffer->dwStatus |= DMO_OUTPUT_DATA_BUFFERF_INCOMPLETE;
+     if (wg_sample->flags & WG_SAMPLE_FLAG_HAS_PTS)

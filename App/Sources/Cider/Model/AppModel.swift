@@ -73,7 +73,8 @@ final class AppModel {
     var items: [LibraryItem] = []
     var bottles: [Bottle] = []
     var environment = EnvironmentStatus()
-    var message: String?
+    @ObservationIgnored private var feedbackGeneration: UInt64 = 0
+    var message: String? { didSet { feedbackGeneration &+= 1 } }
     var busy: Set<String> = []
     /// App id → running pids, updated every second from the process scanner.
     var running: [String: [pid_t]] = [:]
@@ -101,6 +102,23 @@ final class AppModel {
     private var refreshPending = false
     private var lastRefresh = Date.distantPast
     private var refreshSequence = 0
+    private typealias ProcessSnapshot = (map: [String: [pid_t]], bottles: Set<String>, gated: Preflight.Block?)
+    private struct ActiveProcessScan {
+        let id: UUID
+        let startedAt: Double
+        let task: Task<ProcessSnapshot, Never>
+    }
+    @ObservationIgnored private var activeProcessScan: ActiveProcessScan?
+
+    private struct PendingLaunch {
+        let title: String
+        let bottleID: String
+        let steamGame: Bool
+        let deadline: Double
+        var feedback: UInt64
+        let warning: String?
+    }
+    private var pendingLaunches: [String: PendingLaunch] = [:]
 
     var games: [LibraryItem] { items.filter(\.isGame) }
     var continueItem: LibraryItem? {
@@ -221,24 +239,77 @@ final class AppModel {
         }
     }
 
-    func scanProcesses() async {
-        let apps = items
-        let (map, bottlesUp, gated) = await Task.detached(priority: .utility) { () -> ([String: [pid_t]], Set<String>, Preflight.Block?) in
-            let processes = ProcessScanner.scan()
-            // A launcher inside the bottle can start a gated game itself; stop it before its anti-cheat comes up.
-            // (Cider's own engine refuses these at CreateProcess; this covers engines without that patch.)
-            let blocked = processes.filter { Preflight.check(program: $0.windowsImage, db: nil) != nil }
-            if !blocked.isEmpty { ProcessScanner.terminate(blocked, grace: 0) }
-            var map: [String: [pid_t]] = [:]
-            for app in apps {
-                let pids = processes.filter { app.owns($0) }.map(\.pid)
-                if !pids.isEmpty { map[app.id] = pids }
+    @discardableResult
+    func scanProcesses(after minimumStart: Double? = nil) async -> [String: [pid_t]] {
+        while true {
+            let scan: ActiveProcessScan
+            if let activeProcessScan {
+                scan = activeProcessScan
+            } else {
+                let apps = items
+                let startedAt = ProcessInfo.processInfo.systemUptime
+                let task = Task.detached(priority: .utility) { () -> ProcessSnapshot in
+                    let processes = ProcessScanner.scan()
+                    // Preserve the existing fallback gate for launcher children.
+                    let blocked = processes.filter { Preflight.check(program: $0.windowsImage, db: nil) != nil }
+                    if !blocked.isEmpty { ProcessScanner.terminate(blocked, grace: 0) }
+                    var map: [String: [pid_t]] = [:]
+                    for app in apps {
+                        let pids = processes.filter { app.owns($0) }.map(\.pid)
+                        if !pids.isEmpty { map[app.id] = pids }
+                    }
+                    return (map, Set(processes.map(\.bottleID)), blocked.first.flatMap {
+                        Preflight.check(program: $0.windowsImage, db: nil)
+                    })
+                }
+                scan = ActiveProcessScan(id: UUID(), startedAt: startedAt, task: task)
+                activeProcessScan = scan
             }
-            return (map, Set(processes.map(\.bottleID)), blocked.first.flatMap { Preflight.check(program: $0.windowsImage, db: nil) })
-        }.value
-        if map != running { running = map }
-        if bottlesUp != runningBottles { runningBottles = bottlesUp }
-        if let gated, routeCard == nil { showRouteCard(gated) }
+            let snapshot = await scan.task.value
+            if activeProcessScan?.id == scan.id {
+                activeProcessScan = nil
+                if snapshot.map != running { running = snapshot.map }
+                if snapshot.bottles != runningBottles { runningBottles = snapshot.bottles }
+                reconcilePendingLaunches(with: snapshot.map)
+                if let gated = snapshot.gated, routeCard == nil { showRouteCard(gated) }
+            }
+            // An action needs an observation begun after its dispatch/stop,
+            // rather than a coalesced scan from before the action completed.
+            if let minimumStart, scan.startedAt < minimumStart { continue }
+            return snapshot.map
+        }
+    }
+
+    private func updateFeedback(_ text: String, owning generation: UInt64) -> UInt64 {
+        guard feedbackGeneration == generation else { return generation }
+        message = text
+        return feedbackGeneration
+    }
+
+    /// Process observation acknowledges the real app, not Steam's short-lived
+    /// forwarding process. Window visibility is not inferred from a PID.
+    private func reconcilePendingLaunches(with processes: [String: [pid_t]]? = nil) {
+        let now = ProcessInfo.processInfo.systemUptime
+        let catalogIDs = Set(items.map(\.id))
+        for id in Array(pendingLaunches.keys).sorted() {
+            guard let pending = pendingLaunches[id] else { continue }
+            let update: String
+            if !catalogIDs.contains(id) {
+                update = "\(pending.title) 的资料库条目已变更，请刷新后确认程序状态。"
+            } else if let processes, !(processes[id] ?? []).isEmpty {
+                update = "\(pending.title) 已开始运行。" + (pending.warning.map { " " + $0 } ?? "")
+            } else if now >= pending.deadline {
+                update = pending.steamGame
+                    ? "尚未检测到 \(pending.title) 运行。请检查 Steam 的提示，或确认游戏是否启动后退出。"
+                    : "尚未检测到 \(pending.title) 运行。请检查程序的启动提示。"
+            } else {
+                continue
+            }
+            pendingLaunches.removeValue(forKey: id)
+            // A delayed observation must not overwrite another operation's
+            // feedback or a message the user has already dismissed.
+            _ = updateFeedback(update, owning: pending.feedback)
+        }
     }
 
     // MARK: Monitoring
@@ -251,7 +322,11 @@ final class AppModel {
             forName: NSApplication.didBecomeActiveNotification, object: nil, queue: .main
         ) { [weak self] _ in Task { @MainActor in self?.scheduleRefresh() } }
         scanTimer = Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { [weak self] _ in
-            Task { @MainActor in await self?.scanProcesses() }
+            Task { @MainActor in
+                // Expiry remains bounded even when a process scan is slow.
+                self?.reconcilePendingLaunches()
+                await self?.scanProcesses()
+            }
         }
     }
 
@@ -296,6 +371,14 @@ final class AppModel {
             message = "这个瓶子的操作正在进行，请稍候。"
             return
         }
+        if action == .start, var pending = pendingLaunches[item.id] {
+            let waiting = "\(item.title) 的启动请求仍在处理中，请稍候。"
+            message = waiting
+            pending.feedback = feedbackGeneration
+            pendingLaunches[item.id] = pending
+            return
+        }
+        pendingLaunches.removeValue(forKey: item.id)
         busy.insert(bottleKey)
         busy.insert(item.id)
         let actionKey = "\(action.rawValue):\(item.id)"
@@ -305,6 +388,7 @@ final class AppModel {
         case .stop: message = "正在停止 \(item.title)…"
         case .restart: message = "正在重启 \(item.title)…"
         }
+        let feedback = feedbackGeneration
         Task {
             defer { busy.remove(item.id); busy.remove(actionKey); busy.remove(bottleKey) }
             do {
@@ -323,19 +407,32 @@ final class AppModel {
                     case .stop: try AppLifecycle.stop(item, using: runner); return (false, nil)
                     }
                 }.value
-                await scanProcesses()
+                let observed = await scanProcesses(after: ProcessInfo.processInfo.systemUptime)
                 if action == .stop {
-                    message = "已停止 \(item.title)。"
+                    _ = updateFeedback("已停止 \(item.title)。", owning: feedback)
                 } else if started.started {
-                    message = "已发起\(action == .restart ? "重启" : "启动") \(item.title)，等待窗口就绪。" + (started.warning.map { " " + $0 } ?? "")
+                    if !(observed[item.id] ?? []).isEmpty {
+                        _ = updateFeedback("\(item.title) 已开始运行。" + (started.warning.map { " " + $0 } ?? ""), owning: feedback)
+                    } else {
+                        let steamGame: Bool = { if case .steamGame = item.kind { return true }; return false }()
+                        let waiting = steamGame
+                            ? "已发送 \(item.title) 的启动请求，正在等待 Steam 启动游戏。"
+                            : "已发送 \(item.title) 的启动请求，正在等待程序响应。"
+                        let displayed = waiting + (started.warning.map { " " + $0 } ?? "")
+                        let owner = updateFeedback(displayed, owning: feedback)
+                        pendingLaunches[item.id] = PendingLaunch(
+                            title: item.title, bottleID: item.bottleID, steamGame: steamGame,
+                            deadline: ProcessInfo.processInfo.systemUptime + 120,
+                            feedback: owner, warning: started.warning)
+                    }
                 } else {
-                    message = "\(item.title) 已在运行；需要重新启动时，请使用“重启”。"
+                    _ = updateFeedback("\(item.title) 已在运行；需要重新启动时，请使用“重启”。", owning: feedback)
                 }
             } catch let block as Preflight.Block {
-                showRouteCard(block)
+                if feedbackGeneration == feedback { showRouteCard(block) }
             } catch {
                 await scanProcesses()
-                message = "操作未完成：\(error)"
+                _ = updateFeedback("操作未完成：\(error)", owning: feedback)
             }
         }
     }
@@ -410,7 +507,9 @@ final class AppModel {
             busy.insert(key)
         }
         busy.insert(stopKey)
+        pendingLaunches = pendingLaunches.filter { $0.value.bottleID != bottleID }
         message = interrupted == nil ? "正在停止瓶子内的程序…" : "正在取消安装并停止瓶子内的程序…"
+        let feedback = feedbackGeneration
         Task {
             var releaseActivity = true
             defer {
@@ -428,7 +527,7 @@ final class AppModel {
                 // Await cancellation so a download/installer cannot start another step after Stop reports success.
                 if let interrupted, case .failure(let error) = await interrupted.task.result,
                    !(error is CancellationError) { throw error }
-                message = "瓶子内的程序已停止。"
+                _ = updateFeedback("瓶子内的程序已停止。", owning: feedback)
             } catch {
                 if let interrupted, recipeWorkers[bottleID]?.owner == owner {
                     if recipeWorkers[bottleID]?.completed == true {
@@ -438,7 +537,7 @@ final class AppModel {
                         releaseActivity = false
                     }
                 }
-                message = "停止未完成：\(error)"
+                _ = updateFeedback("停止未完成：\(error)", owning: feedback)
             }
             await scanProcesses()
         }

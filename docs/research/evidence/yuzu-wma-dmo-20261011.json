@@ -1,0 +1,124 @@
+{
+  "schema": "cider.yuzu-wma-dmo-evidence/v1",
+  "collected_utc": "2026-10-11T03:22:16Z",
+  "scope": "Wine/macOS diagnostic and local candidate verification; no native Windows or end-to-end story acceptance",
+  "game": {
+    "steam_appid": "2458530",
+    "steam_build": "11913959",
+    "exe": "SabbatOfTheWitch.exe",
+    "reported_trigger": "holding Control during story skip",
+    "other_game_same_bug_confirmed": false
+  },
+  "hang": {
+    "main_thread": "0x4f4",
+    "owner_thread": "0x51c",
+    "lock": "strmbase_filter.stream_cs",
+    "main_stack": [
+      "krmovie Stop",
+      "quartz MediaFilter_Stop",
+      "qasf dmo_wrapper_cleanup_stream",
+      "RtlEnterCriticalSection"
+    ],
+    "owner_stack": [
+      "krmovie",
+      "qasf MemInputPin_Receive",
+      "qasf process_output",
+      "qasf release_output_samples",
+      "quartz BaseMemAllocator_ReleaseBuffer",
+      "ReleaseSemaphore"
+    ],
+    "dmo": "WineGStreamer WMA decoder",
+    "decoder_identification": "IUnknown vtable RVA 0x5cd48 resolves to wma_decoder.c:143 in old i386 PE",
+    "output_flags": "0x01000007",
+    "output_length": 0,
+    "filter_state": "paused",
+    "stream_lock_recursion": 1,
+    "native_unix_owner_stack_available": false,
+    "msync_causality_confirmed": false,
+    "steam_launch_failure_causality_confirmed": false
+  },
+  "baseline_probe": {
+    "engine": "cider-cx26.3-r1-x86_64",
+    "process_output_hresult": 1,
+    "preseed_flags": "0x01000000",
+    "returned_flags": "0x01000000",
+    "output_length": 0,
+    "log_sha256": "a3bc32d94b44397f26c2f889c9efd5c6ea87725f9b343442190cc2facd8fcd18"
+  },
+  "candidate": {
+    "engine": "cider-cx26.3-r1-wma1-x86_64",
+    "recipe": "engine/recipes/cider-cx26-wma1.json",
+    "recipe_sha256": "ca5c97d665def164e2181465c3e9e3af6491b7eeed06a14cc7662e3cf5d678e9",
+    "patch": "engine/patches/cider/0007-winegstreamer-clear-dmo-output-status.patch",
+    "patch_sha256": "054aeaaff50d87b2d8c7aa6e56fd2fe9b5b43c512e56048f74c35b1fade9b788",
+    "changed_engine_files": [
+      "engine/lib/wine/i386-windows/winegstreamer.dll",
+      "engine/lib/wine/x86_64-windows/winegstreamer.dll"
+    ],
+    "i386_module_sha256": "b40e6d72f044f231a0c61297ade379f2bcc6a6cfe69743c3f28c5d972d1eb4ab",
+    "x86_64_module_sha256": "ece772c2a92e4ad0ec644bc905ba4db35be8115e58a262b3d5bf12284af230da",
+    "original_engine_retained": true,
+    "bottle_snapshot_recorded": true,
+    "normal_logging_restored": true
+  },
+  "verification": {
+    "source_sha256": "9486776089397f7f909c8829e9a6189207267d571e8dde72ff4e8b2ee8efcac6",
+    "final_receipt_sha256": "362740d96accd5607bc20b71b2e6ec04cc872b11a5e732486592b63b0223cafb",
+    "architectures": {
+      "i386": {
+        "actual_exit_code": 0,
+        "empty_output_checks": 32,
+        "preseed_flags": [
+          "0x01000000",
+          "0x01000007"
+        ],
+        "returned_empty_flags": 0,
+        "decoded_bytes": 32768,
+        "pcm_block_alignment": 4,
+        "pcm_reference_difference_percent": 7,
+        "nonzero_pcm_checked": true,
+        "drain_exhausted": true
+      },
+      "x86_64": {
+        "actual_exit_code": 0,
+        "empty_output_checks": 32,
+        "preseed_flags": [
+          "0x01000000",
+          "0x01000007"
+        ],
+        "returned_empty_flags": 0,
+        "decoded_bytes": 32768,
+        "pcm_block_alignment": 4,
+        "pcm_reference_difference_percent": 7,
+        "nonzero_pcm_checked": true,
+        "drain_exhausted": true
+      }
+    },
+    "fixtures": {
+      "wmaencdata.bin": "6779b11e83469e2adc0fb728002213da1c50bcd1bfb385993662a6ef2fcfdf2c",
+      "wmadecdata.bin": "207ab29b5cce8df1f26d9c05486cd4bcd043c0d28464e31549206b2a794bc049"
+    },
+    "general_directshow_cycles": {
+      "count": 32,
+      "stop_latency_ms_max": 9,
+      "seek_each_cycle": true,
+      "alternate_pause_stop": true,
+      "selected_wma_decoder_confirmed": false,
+      "frame_pixels_verified": false
+    },
+    "game_control_skip_acceptance": "user confirmed holding Control long enough did not hang; usable",
+    "game_relaunch_observed": true,
+    "video_dmo_content_regression": "pending",
+    "control_hold_duration_seconds": null,
+    "cider_gui_launch_process_observed": true
+  },
+  "limitations": [
+    "Fresh isolated prefix COM initialization timed out before SetInputType in bounded probes; not used as root-cause evidence.",
+    "Forcing Wine builtin PE as a native DLL failed; candidate verified after normal engine install and prefix update.",
+    "Cross-bitness WineDbg remote break-in caused a diagnostic-only execute fault after the original hang; not counted as the game fault.",
+    "WINEDEBUG install preset produced excessive SEH logs; game acceptance must use normal logging."
+  ],
+  "windows_main_pc_used_seconds": 0,
+  "github_actions_dispatched": false,
+  "adversarial_review_completed": true
+}
