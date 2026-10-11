@@ -21,3 +21,17 @@ TUN只读查看的180秒预约根据完整参数截图结算：未启动Windows�
 准备一次管理员PowerShell只读快照，合并当前sshd服务/映像、22与2222监听、自机IPv4、有效防火墙及项目规则/程序范围、到Mac的源地址约束选路。使用一个JSON避免混合表格丢字段。[Find-NetRoute契约](https://learn.microsoft.com/en-us/powershell/module/nettcpip/find-netroute?view=windowsserver2025-ps)
 
 命令已由Mac缓存PowerShell7.6.6仅解析、零语法错误；没有在Mac执行Windows cmdlet，也未产生Windows结果。另预扣60秒人工只读准备，预约18e4f325-733b-46eb-a24e-6b862968764f pending；余准备1560秒（26分钟）、测试3600秒。输出和返回提示符后核对完成再结算，不新开Windows批次。原HY顺序与游戏门禁保持，未复跑原生Win32基线、启动游戏或触发Actions。
+
+## 快照已返回：防火墙允许规则总开关（最新）
+
+用户完整JSON确认：sshd Running，IPv4/IPv6的2222监听进程与服务一致；项目允许规则启用且程序路径匹配服务。源地址约束的到Mac选路落在物理以太网的本地子网，未经过TUN。以上只覆盖本次快照，不能证明公网回程、实际包处理或可信SSH已经通过。原始地址、PID、输出及其摘要仅存私有控制目录。
+
+三种有效防火墙配置均Enabled=1、DefaultInboundAction=4、AllowInboundRules=0、AllowLocalFirewallRules=1。`0`需要原生文字值核对，不能只把数值未经解释直接作最终根因。[微软Set-NetFirewallProfile契约](https://learn.microsoft.com/en-us/powershell/module/netsecurity/set-netfirewallprofile?view=windowsserver2025-ps)明确：AllowInboundRules=False且默认入站Block时进入Shields-Up，入站允许规则被忽略；[CIM属性说明](https://learn.microsoft.com/en-us/windows/win32/fwp/wmi/wfascimprov/msft-netfirewallprofile)同样说明False使允许规则无效。这是当前主要嫌疑；TUN参数本身没有新增错误证据。
+
+准备的人工修正先发现该物理接口唯一NetworkCategory并映射Domain/Private/Public，读取ActiveStore文字状态。只有Enabled=True、默认入站Block、AllowInboundRules=False全部成立才继续；先保存该配置PersistentStore原AllowInboundRules，再仅设置该配置的AllowInboundRules=True并回读有效状态。未知分类、多个配置或状态不符均停止，不猜数值。脚本仅Mac PowerShell7.6.6解析通过，SHA256 `0b87cf9934fb9341513844175eb417ff9ce8a38a6f8927c7f1f043b6fd1416ea`；尚未在Windows执行。
+
+取舍：收益是让已有SSH允许规则被评估，保留防火墙开启和默认入站拒绝；代价是同一配置中其他已有允许规则也恢复生效，不能把它称为只开放2222。当前为待用户执行的具体方案，不记已采用或连接修复。验收需要有效状态回读True、既有防火墙/default Block保持，以及一次严格宿主pin/公钥认证；组策略覆盖或仍失败时保留新证据，不反复切换代理。回退使用打印的备份Profile及原AllowInboundRules恢复PersistentStore，随后回读；不关闭防火墙、不改代理或启动保护。
+
+对抗性自审：不用全profile命令，不改变网络分类，不修改默认入站/其他规则；备份唯一文件避免覆盖原值，修改前任何错误停止；有效策略可能覆盖本地改动，回读不是可达/认证成功；此次准备未启动测试、驱动、VM或额外服务。
+
+前60秒只读预约按完整JSON、无项目运行任务的完成范围结算，人工时长未测量，仍全额扣账。新120秒在场修正预约c20cbefe-18dd-44df-bdf8-b35b470a3e66 pending；余准备1440秒（24分钟）、测试3600秒。待用户操作输出后才结算和预约新连接批次。
