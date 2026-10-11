@@ -85,5 +85,37 @@
   ],
   "windows_main_pc_seconds": 0,
   "github_actions_dispatched": false,
-  "adversarial_source_review": "parent review plus bounded peer implementation/audit, runtime integration parent-owned"
+  "adversarial_source_review": "parent review plus bounded peer implementation/audit, runtime integration parent-owned",
+  "interactive_retest": {
+    "local_date": "2026-10-11",
+    "timezone": "UTC+8",
+    "engine": "cider-cx26.3-r1-wma1-mm1-x86_64",
+    "steam_host_pid": 97843,
+    "steam_restarted_for_retest": false,
+    "remaining_launch_waits": [
+      {
+        "local_time": "12:26:53",
+        "state": "KickingOtherSession",
+        "automatically_confirmed": false
+      },
+      {
+        "local_time": "13:10:32",
+        "state": "ShowInterstitials"
+      }
+    ],
+    "steam_entry_user_report": "Game launches, is interactive and has sound; lifecycle not independently captured for this report.",
+    "cider_entry": {
+      "request_local_time": "13:11:57",
+      "game_created_local_time": "13:12:07",
+      "steam_completed_local_time": "13:12:08",
+      "app_id": "2458530",
+      "windows_pid": 1696,
+      "host_pid": 489,
+      "cua_feedback": "魔女的夜宴 已开始运行。",
+      "cua_catalog_running": true,
+      "window_inferred_from_pid": false,
+      "human_interaction_and_clean_exit": "pending"
+    },
+    "limitations": "One observed Cider launch is not long-term reliability or other-game acceptance."
+  }
 }

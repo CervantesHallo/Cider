@@ -29,6 +29,8 @@
 
 后续Steam现场已取得：当前客户端为PE64；主线程等回复，IPC线程在mixerOpen的捕获格式首项11025Hz/mono8bit枚举，继而pipe fatal。0008将真实wave格式查询延后到需要mask的接口，并修正元数据完成发布；旧单/并发mixer均20秒超时，新32/64并发/mapper/部分input metadata/真实output及HWAVE caps均退出0。原瓶子已切换组合r1-wma1-mm1，WMA两架构回归退出0，Steam自动登录/IPC恢复。游戏入口仍未观察到新进程，当前需用户检查Steam实际弹窗/启动选项；这项保持◐，不得以音频修正覆盖剩余启动证据。新限度与回退见 [research/40](../research/40-steam-audio-enumeration-stall-20261011.md)。
 
+13:10后入口复测：用户报告Steam游戏可启动/操作/有声音；该次生命周期未被扫描独立捕获。剩余等待已取得KickingOtherSession/ShowInterstitials日志，属于Steam确认阶段，不能归作音频阻塞。CUA实际Cider启动于13:11:57被Steam接受，13:12:07游戏创建、13:12:08Completed，Cider正确显示“已开始运行/运行中”，原Steam实例未重启。当前等待这轮真实画面/声音/Control及正常退出回执，再核对重新启动；长期与其他游戏范围仍为◐。不自动结束另一设备会话，详见research/40最新节。
+
 ## 2026-10-06 目标与执行修订（原阶段暂缓，检查点保留）
 
 - 最终目标包含柚子社全系，以及原神、星穹铁道、绝区零 Windows 国服的本地适配。三款分别验收登录、可操作场景、图形/音视频/输入、更新和重新启动，细则见 `09-hoyoverse-games.md`。

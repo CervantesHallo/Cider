@@ -4,6 +4,7 @@
 
 ## 用户目标与协作
 
+- 13:10用户回场复测：报告Steam能进入魔女游戏且有操作/声音；该次生命周期未被本机独立捕获。新增日志确认修复后12:26请求等待KickingOtherSession、13:10请求等待ShowInterstitials，不能把这两项正常确认等待归作音频死锁。随后CUA点击Cider启动，13:11:57新请求→13:12:07真实游戏WinPID1696/宿主489→13:12:08Completed，Cider显示“已开始运行”和“运行中”。Steam宿主97843未重启、组合引擎/msync未改。当前等用户这一轮画面/声音/Control与正常退出回执，再核对重新启动；PID不是窗口证据，不自动踢出其他设备。见research/40最新节；下方无游戏/待回场条目为此前阶段。
 - 音频阻塞修正已本机落地：0008 WinMM按需真实format mask、局部caps/独立COM、InitOnce暂存/完整发布及失败重试。基线serial/concurrent均20秒退出124；新32/64 mixer4并发、错误ID、mapper、两capture metadata部分请求、真实output及HWAVE分支均退出0（650/1324ms,count3）。原Steam瓶子切组合cider-cx26.3-r1-wma1-mm1，WinMM哈希匹配、原引擎/快照保留；WMA32/64再次实际退出0。12:26:09自动登录OK，正确64位live附加已采到正常IPC事件等待/UI消息循环，无音频阻塞。游戏进程仍未出现、云同步已结束，Wine AX仍timeout；已请用户点Steam开始检查弹窗/启动选项，等待该人类证据，不能标全部入口已修复。完整输入format mask仍走同步HAL，未录音/改系统设备/msync，详见research/40。
 - 最新启动失效证据：新版Cider冷启动真实复现，120秒未见游戏，Steam自身BMainLoop停滞/跨线程pipe fatal并退出。原assert dump离线真实上下文：主24等服务；IPC240卡mmdevapi IsFormatSupported→WinMM测试所有设备/格式→mixerOpen。实际params为eCapture/shared/mono11025Hz8bit首项；具体Apple阻塞调用/端点UID尚未确认，msync因果无证据。Steam.exe当前PE64/AMD64，先查架构，不能用常见32位假设；派生线程视图元数据非真实异常。原始dump私有，见research/40。默认内建音频和非默认Continuity输入仅作候选，不写设备姓名/UID、不改系统设置或录音。
 - 当前音频源码工作：优先WinMM懒查询真实dwFormats，让mixerOpen只初始化需要的元数据；并复核完成发布/失败重试。真实wave-capability/实际Initialize保留原支持判断，不用AudioConverter成功假造AUHAL支持；底层HAL延迟仍有验收缺口。源码子代理范围仅0008补丁，主代理构建/整合/验证。WMA/Control修复及用户实测通过保持，原HY/Windows队列暂缓。
