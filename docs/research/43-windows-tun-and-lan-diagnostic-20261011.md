@@ -45,3 +45,13 @@ TUN只读查看的180秒预约根据完整参数截图结算：未启动Windows�
 该查询仅在Mac PowerShell7.6.6解析通过，SHA256 `47e9393b7d3a52dd9c393a3ebdc75d7768343efde04815adbfb947e6717bbff7`，Windows未执行。对抗性自审：存储读取失败保留错误；只看Public，不读取完整GPO/设备管理报告中的身份信息；本地策略与有效策略不同不直接归因于企业管理；新来源未取得前不重复修正或探测。备份/真实连接信息只私有。
 
 前120秒人工准备已根据最终读回状态和无项目运行任务完成结算，不声称配置回滚或SSH成功。另预扣60秒在场只读来源查询，预约d83462da-0859-4914-a13d-b2f7a27c9085 pending；余准备1380秒（23分钟）/测试3600秒。待用户输出；未触发Actions、测试、VM或驱动加载。
+
+## 已确认组策略覆盖：仅本机Public策略修正（当前）
+
+用户来源查询真实返回：Public在PersistentStore为Enabled=True、默认入站NotConfigured、AllowInboundRules=True；ActiveStore为True/Block/False，RSOP为True/NotConfigured/False。Policies的PublicProfile中DoNotAllowExceptions=1，而本地对应值为0，两处EnableFirewall均1。COM当前配置4、PublicBlockAllInbound=False、LocalPolicyModifyState=1。[微软枚举](https://learn.microsoft.com/en-us/windows/win32/api/icftypes/ne-icftypes-net_fw_modify_state)的1是GP_OVERRIDE，明确表示本地规则修改被组策略覆盖。结合RSOP/ActiveStore，阻断来自有效组策略已确认；尚不知具体GPO身份/是否是本地来源，不能由COM的False否定有效合并结果，也不能归因Clash。
+
+下一具体方案使用微软记录的[PolicyStore localhost](https://learn.microsoft.com/en-us/powershell/module/netsecurity/set-netfirewallprofile?view=windowsserver2025-ps#-policystore)读取本机Public组策略；只在该存储确实AllowInboundRules=False时继续，读取失败或其他值停止，不改远端/域GPO、不强行覆盖未知来源。先保存唯一JSON备份该项，再仅设置localhost/Public/AllowInboundRules=True，使用[gpupdate](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/gpupdate)刷新计算机已变化策略，等待30秒、不加force/logoff/boot；刷新非零退出保留不确定状态与pending，不重复或假称后台刷新已经停止。最后读取有效Public三项。此方案尚未在Windows执行，仅Mac7.6.6解析通过，SHA256 `96493992899760d45a4b43b8e2b2bbf8f5d5e9eeae55d81fcf1acf4dde934fbd`。
+
+取舍：从本机GPO源修改可避免只写合并结果或直接改Policies注册表后被重新覆盖；代价仍是该Public配置所有已有入站允许规则恢复评估，gpupdate也可能处理其他已变化的计算机策略。保持防火墙启用、原默认拒绝与代理设置，命令不改变这些项。当前为待执行方案；验收仍需有效Public为True/Block/True及可信SSH，不将策略修改通过等同于游戏或无人值守接通。回退按此唯一备份在localhost/Public恢复原AllowInboundRules，再刷新/回读；前一PersistentStore备份仍保留，未声称已回滚。
+
+对抗性自审：不能把RSOP误当可写来源；local GPO读回不匹配即停，不用删策略键/全防火墙重置；不触发强制刷新、重启、驱动或VM；gpupdate的wait是等待上限而非后台取消保证，失败保持交接与预约。前60秒只读预约已根据全部返回字段/无项目运行任务结算；新180秒在场本地GPO准备预约e5285384-67c4-4ba5-9dcf-3fae6a8760a5 pending，余准备1200秒（20分钟）/测试3600秒。等用户操作回执，不新开Windows连接批次。

@@ -4,6 +4,8 @@
 
 ## 2026-10-11 原队列恢复（当前）
 
+当前网络来源已确认组策略覆盖，具体GPO来源待核对；仅localhost/Public且False保护的源修正/备份/等待30秒刷新已准备，Windows未执行。前来源查询结算，新180秒人工准备pending，余准备1200秒/测试3600秒；失败或未确认刷新完成保留pending。见research/43当前末节，不触发连接/内核测试或改变HY顺序。
+
 Windows本地修正回执：Public有效AllowInboundRules仍False，前120秒准备已结算；覆盖来源尚未确认，下一60秒只读来源预约pending，余准备1380秒/测试3600秒。见research/43最新节；未重复失败探测或绕过策略，HY顺序保持。
 
 接入最新检查点：[research/43末节](../research/43-windows-tun-and-lan-diagnostic-20261011.md)已取得Windows服务/监听/规则及物理回程快照，当前主要嫌疑为AllowInboundRules总开关。仅当前接口配置的受保护修正已准备/解析，待人工执行及有效状态回读，尚无可信SSH或无人值守环境。前只读预约已结算，新120秒预约pending，余准备1440秒/测试3600秒；以下旧额度是历史检查点，以账本和该节为准。HY顺序不变。
