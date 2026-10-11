@@ -35,3 +35,13 @@ TUN只读查看的180秒预约根据完整参数截图结算：未启动Windows�
 对抗性自审：不用全profile命令，不改变网络分类，不修改默认入站/其他规则；备份唯一文件避免覆盖原值，修改前任何错误停止；有效策略可能覆盖本地改动，回读不是可达/认证成功；此次准备未启动测试、驱动、VM或额外服务。
 
 前60秒只读预约按完整JSON、无项目运行任务的完成范围结算，人工时长未测量，仍全额扣账。新120秒在场修正预约c20cbefe-18dd-44df-bdf8-b35b470a3e66 pending；余准备1440秒（24分钟）、测试3600秒。待用户操作输出后才结算和预约新连接批次。
+
+## 本地修正未改变有效值：核对来源（最新）
+
+用户实际输出确认接口对应Public；前后均Enabled=True、DefaultInboundAction=Block、AllowInboundRules=False，备份文件路径已打印，Set命令后没有报告错误。False文字值已确认，但本地设置没有改变最后读到的有效策略；没有采集PersistentStore修改后的值，不能据此断言已写成功、由域管理、MDM或Clash覆盖。没有进行新的网络重试。
+
+[微软Get-NetFirewallProfile](https://learn.microsoft.com/en-us/powershell/module/netsecurity/get-netfirewallprofile?view=windowsserver2022-ps)区分本地PersistentStore、合并后的ActiveStore和只读组策略RSOP；[Firewall CSP的Shielded](https://learn.microsoft.com/en-us/windows/client-management/mdm/firewall-csp#mdmstorepublicprofileshielded)说明开启值在合并时优先。这说明覆盖是候选解释，不是本机已验证来源。下一条仅查询Public在三个存储的文字值、[COM阻断全部入站状态](https://learn.microsoft.com/en-us/windows/win32/api/netfw/nf-netfw-inetfwpolicy2-get_blockallinboundtraffic)、[本地规则修改有效性](https://learn.microsoft.com/en-us/windows/win32/api/netfw/nf-netfw-inetfwpolicy2-get_localpolicymodifystate)，以及Public本地/Policies键中相关两个值；不写注册表、清空策略、停服务或再修改防火墙。
+
+该查询仅在Mac PowerShell7.6.6解析通过，SHA256 `47e9393b7d3a52dd9c393a3ebdc75d7768343efde04815adbfb947e6717bbff7`，Windows未执行。对抗性自审：存储读取失败保留错误；只看Public，不读取完整GPO/设备管理报告中的身份信息；本地策略与有效策略不同不直接归因于企业管理；新来源未取得前不重复修正或探测。备份/真实连接信息只私有。
+
+前120秒人工准备已根据最终读回状态和无项目运行任务完成结算，不声称配置回滚或SSH成功。另预扣60秒在场只读来源查询，预约d83462da-0859-4914-a13d-b2f7a27c9085 pending；余准备1380秒（23分钟）/测试3600秒。待用户输出；未触发Actions、测试、VM或驱动加载。
