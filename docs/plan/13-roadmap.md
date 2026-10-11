@@ -4,6 +4,8 @@
 
 ## 2026-10-11 原队列恢复（当前）
 
+持续Mac交付：research/47补自动环境档案的真实选择记录并在spawn前重算，research/48新增完整Windows退出码候选/解码器（x64/i686编译，未运行/未接入默认安装）；App/CLI及debug app打包通过。首次安装的退出状态忽略缺陷仍待完整链修复，不能低字节猜MSI结果。用户要求不停推进/锁屏后继续，已有同一heartbeat改每小时推进Mac；Windows窗口/预算/未结算阻断保持，不复跑旧基线或在未验证时提升HY阶段。原HY順序保持。
+
 Mac执行检查：[research/46](../research/46-hy1-shortcut-arguments-20261011.md)按原HY順序修正快捷方式参数尾解析（空参数/Tab/反斜杠引号/NUL），App/CLI构建及debug app打包签名通过、旧包保留。源码/自审不等同真实运行；HY1仍待特殊参数/Retina/完整入口及首次安装显示，HY2原生kernel/context、HY3闭环和三款会话仍未完成。没有Windows操作/Actions或额外代理，45的过额预约保持pending。
 
 19:41最新检查点：[research/45](../research/45-rdp-public-and-control-handoff-20261011.md)已按用户空闲消息解除busy，公网严格SSH真实认证/标记通过、专用账户启用原生读回。桌面/输入未验收，截图展示/返回内容不一致并最终0x204；已结束隧道/客户端，无项目/VM/驱动/主动锁屏。300秒外层观察330.987秒，真实回执被拒，预约pending、准备0/测试3600；不能继续Windows或改账，Mac工作不依赖此项可继续。用户新增Mac锁屏后继续后台工作、控制结束不主动锁屏要求已记入45/14；最终Windows解锁仍待证据，原HY順序保持。

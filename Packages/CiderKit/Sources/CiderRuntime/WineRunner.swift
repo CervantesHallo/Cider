@@ -2,6 +2,7 @@ import CiderCore
 import CiderData
 import CiderSchema
 import CiderStore
+import CryptoKit
 import Darwin
 import Foundation
 
@@ -14,6 +15,21 @@ public struct LaunchPlan: Codable, Sendable {
     public var env: [String: String]
     public var cwd: String?
     public var label: String
+    /// Diagnostic snapshot of executable-based environment selection, never a launch permission.
+    /// Old sessions decode without this field. Installer bindings are a separate source of environment.
+    public var matchingEnvironmentProfile: EnvironmentProfileTrace? = nil
+}
+
+public struct EnvironmentProfileTrace: Codable, Sendable {
+    public let id: String
+    public let revision: Int
+    public let target: String
+    public let program: String
+    public let contentSHA256: String?
+    public let environmentKeys: [String]
+    /// Keys whose effective value differs from the profile, including filtered/bottle-fixed values.
+    /// Equal values do not prove which caller supplied them; values themselves are not duplicated here.
+    public let differingEnvironmentKeys: [String]
 }
 
 public struct SessionHandle: Sendable {
@@ -145,15 +161,33 @@ public struct WineRunner: Sendable {
         let profileProgram = program.hasPrefix("/")
             ? WinePathMapping.windowsPath(forHostPath: program, prefix: prefix) : program
         let profileEnv = compat?.profile(exe: profileProgram)?.actions.env ?? [:]
+        let effectiveEnvironment = environment(debug: debug, extra: profileEnv.merging(extraEnv) { _, explicit in explicit })
         return LaunchPlan(
             bottleID: bottleID,
             engineID: engine.manifest.id,
             loader: engine.wine.path,
             argv: [program] + arguments,
-            env: environment(debug: debug, extra: profileEnv.merging(extraEnv) { _, explicit in explicit }),
+            env: effectiveEnvironment,
             cwd: cwd?.path,
-            label: label ?? URL(fileURLWithPath: program.replacingOccurrences(of: "\\", with: "/")).deletingPathExtension().lastPathComponent
+            label: label ?? URL(fileURLWithPath: program.replacingOccurrences(of: "\\", with: "/")).deletingPathExtension().lastPathComponent,
+            matchingEnvironmentProfile: environmentProfileTrace(program: program, effectiveEnvironment: effectiveEnvironment)
         )
+    }
+
+    private func environmentProfileTrace(program: String, effectiveEnvironment: [String: String]) -> EnvironmentProfileTrace? {
+        let mapped = program.hasPrefix("/")
+            ? WinePathMapping.windowsPath(forHostPath: program, prefix: prefix) : program
+        guard let profile = compat?.profile(exe: mapped) else { return nil }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = [.sortedKeys]
+        let digest = (try? encoder.encode(profile)).map { data in
+            SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined()
+        }
+        let profileEnvironment = profile.actions.env ?? [:]
+        let keys = profileEnvironment.keys.sorted()
+        return EnvironmentProfileTrace(id: profile.id, revision: profile.revision, target: profile.target,
+                                       program: mapped, contentSHA256: digest, environmentKeys: keys,
+                                       differingEnvironmentKeys: keys.filter { effectiveEnvironment[$0] != profileEnvironment[$0] })
     }
 
     /// Spawns the plan, recording `session.json` and an audit line. Returns immediately.
@@ -211,6 +245,10 @@ public struct WineRunner: Sendable {
             plan.loader = engine.wine.path
             plan.env["WINELOADER"] = engine.wine.path
         }
+        // Recompute from the runner's accepted data snapshot and the actual argv/environment.
+        // A decoded or edited public plan cannot assert its own matching profile in our records.
+        plan.matchingEnvironmentProfile = environmentProfileTrace(program: plan.argv.first ?? "",
+                                                                  effectiveEnvironment: plan.env)
         let fm = FileManager.default
         let safeLabel = plan.label.replacingOccurrences(of: "/", with: "_")
         let sessionDir = paths.sessions
@@ -297,10 +335,16 @@ public struct WineRunner: Sendable {
     }
 
     private func appendAudit(plan: LaunchPlan, pid: pid_t, descriptor: Int32) throws {
-        let entry: [String: String] = [
+        var entry: [String: String] = [
             "t": Identifiers.timestamp(), "pid": String(pid), "bottle": plan.bottleID,
             "engine": plan.engineID, "program": plan.argv.first ?? "",
         ]
+        if let profile = plan.matchingEnvironmentProfile {
+            entry["profile"] = profile.id
+            entry["profile_revision"] = String(profile.revision)
+            entry["profile_sha256"] = profile.contentSHA256
+            entry["profile_differing_env_keys"] = profile.differingEnvironmentKeys.joined(separator: ";")
+        }
         let data = try JSONSerialization.data(withJSONObject: entry, options: [.sortedKeys]) + Data([0x0A])
         try FileOperationLock.withLock(at: paths.state.appendingPathComponent("locks/spawn-audit.lock")) {
             try data.withUnsafeBytes { bytes in
