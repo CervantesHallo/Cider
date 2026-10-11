@@ -1,5 +1,13 @@
 # 14 Windows 主力机的时间预算与无人值守访问
 
+## 2026-10-11 专用本地管理员账户（用户请求，已部分实施）
+
+用户确认当前自己仍连接Windows，并明确要求再建管理员账户。采用专用本地`CiderReference`：独立凭据与后续用户配置可避免混用日常微软账户，代价是增加一个管理员身份及维护成本；它不解决客户端Windows交互会话争用，不承诺两路并发，不修改会话限制/NLA/原SSH账户策略。
+
+实际实施：可信SSH在60秒在场准备预约内创建禁用账户，未设置密码；按内置组SID而非中文名称加入管理员及远程桌面用户组，独立读回来源Local、enabled=false和两组成员都符合。已有同名账户时脚本拒绝修改；若配置失败保留禁用状态，不将部分结果记作可登录。原始SID和回执仅私有。31.429秒范围回执已关闭此预约，余准备60秒/测试3600秒、无pending。
+
+待验收：用户亲自在Windows输入至少12字符新密码后启用，核对Enabled；用该本地身份完成一次RDP截图/真实输入。不能仅凭管理员成员/网络认证标记桌面可用。人工启用步骤同样预约准备机时；测试额度保持。对抗性自审：无已有账号修改/密码采集/空密码启用/SSH公开权限扩大，locale独立组SID、成员以新账户SID核对，失败不继续启用。回退先`Disable-LocalUser -Name CiderReference`，不自动删除账户或用户文件；原日常身份访问保留。参考[New-LocalUser](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/new-localuser?view=powershell-5.1)和[Add-LocalGroupMember](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/add-localgroupmember?view=powershell-5.1)。
+
 更新：2026-10-11。适用于 HY2 的 Windows 参考采集和后续确需 Windows 的验证，沿用原项目目标与 HY1→HY2→HY3→HY4/HY5 顺序。
 
 ## 用户决定与当前执行限额
