@@ -4,6 +4,9 @@
 
 ## 用户目标与协作
 
+- 音频阻塞修正已本机落地：0008 WinMM按需真实format mask、局部caps/独立COM、InitOnce暂存/完整发布及失败重试。基线serial/concurrent均20秒退出124；新32/64 mixer4并发、错误ID、mapper、两capture metadata部分请求、真实output及HWAVE分支均退出0（650/1324ms,count3）。原Steam瓶子切组合cider-cx26.3-r1-wma1-mm1，WinMM哈希匹配、原引擎/快照保留；WMA32/64再次实际退出0。12:26:09自动登录OK，正确64位live附加已采到正常IPC事件等待/UI消息循环，无音频阻塞。游戏进程仍未出现、云同步已结束，Wine AX仍timeout；已请用户点Steam开始检查弹窗/启动选项，等待该人类证据，不能标全部入口已修复。完整输入format mask仍走同步HAL，未录音/改系统设备/msync，详见research/40。
+- 最新启动失效证据：新版Cider冷启动真实复现，120秒未见游戏，Steam自身BMainLoop停滞/跨线程pipe fatal并退出。原assert dump离线真实上下文：主24等服务；IPC240卡mmdevapi IsFormatSupported→WinMM测试所有设备/格式→mixerOpen。实际params为eCapture/shared/mono11025Hz8bit首项；具体Apple阻塞调用/端点UID尚未确认，msync因果无证据。Steam.exe当前PE64/AMD64，先查架构，不能用常见32位假设；派生线程视图元数据非真实异常。原始dump私有，见research/40。默认内建音频和非默认Continuity输入仅作候选，不写设备姓名/UID、不改系统设置或录音。
+- 当前音频源码工作：优先WinMM懒查询真实dwFormats，让mixerOpen只初始化需要的元数据；并复核完成发布/失败重试。真实wave-capability/实际Initialize保留原支持判断，不用AudioConverter成功假造AUHAL支持；底层HAL延迟仍有验收缺口。源码子代理范围仅0008补丁，主代理构建/整合/验证。WMA/Control修复及用户实测通过保持，原HY/Windows队列暂缓。
 - 最新修复（2026-10-11）：魔女中文版2458530/build11913959真实挂起为WMA DMO耗尽后遗留INCOMPLETE，qasf持stream_cs空转，游戏主线程Stop媒体等待。Cider0007把dwStatus清理提前；候选cider-cx26.3-r1-wma1只改32/64 WineGStreamer PE，原引擎/完整前缀快照保留，已切换原Steam瓶子并恢复普通日志。32/64各32次空输出及有效WMA→32768 bytes非零PCM→耗尽检查均真实退出0；用户确认长时间Control无卡死、可用。此项已验收，千恋与视频像素/长期重启仍独立待验。
 - 当前剩余优先级：用户特别确认Steam按钮和Cider启动游戏迟迟无窗口两入口都需定位。两入口共有Steam-applaunch请求，旧客户端未处理启动及正常退出，新实例可启动；尚无失效时Steam线程证据，不宣称WMA已修复Steam。CUA实际点击Cider已观察到新游戏进程。AppModel原永久“等待窗口”反馈没有确认逻辑，现已实现真实app进程确认/120秒状态提示/重复请求抑制/迟到提示保护，构建及新UI部署/复核继续收尾；PID不等于可见窗口。原HY1–HY5/Windows队列保持暂缓、额度32+60分钟无变化。
 - 启动反馈复核/部署后续：单个合并扫描，操作使用dispatch之后扫描的返回结果；提示代际含相同文本赋值/关闭，整瓶停止按保存的瓶子身份清pending；期限独立于扫描处理，目录移除中性提示。四项审查及停止成功/失败代际修正通过源码复核；debug构建/打包签名和CUA重开新界面完成、五项资料库保留。没有做超时/并发故障注入。更新主界面附近原Steam和游戏均退出，用户已确认是其手动关闭；不计异常退出。正在从新版Cider复核完整启动/反馈。

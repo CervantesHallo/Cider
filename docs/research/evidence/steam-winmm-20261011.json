@@ -1,0 +1,89 @@
+{
+  "schema": "cider.steam-winmm-evidence/v1",
+  "scope": "macOS/Wine mixer metadata and waveform output checks; no native Windows, microphone recording or all-input-format acceptance",
+  "original_assert_dump": {
+    "sha256": "a5d25b4ff226d025e50efd21fe85ea1caf588525e72787975dcfe731036710e3",
+    "architecture": "AMD64",
+    "private_only": true,
+    "ipc_thread": "0x240",
+    "main_thread": "0x24",
+    "captured_call": "mixerOpen -> InitMMDevices -> GetSupportedFormats -> IAudioClient IsFormatSupported -> CoreAudio Unix call",
+    "capture_probe": {
+      "flow": 1,
+      "share": 0,
+      "sample_rate": 11025,
+      "channels": 1,
+      "bits": 8,
+      "block_align": 1,
+      "actual_endpoint_uid_available": false
+    }
+  },
+  "baseline": {
+    "engine": "cider-cx26.3-r1-wma1-x86_64",
+    "concurrent_exit_code": 124,
+    "serial_exit_code": 124,
+    "watchdog_seconds": 20
+  },
+  "candidate": {
+    "engine": "cider-cx26.3-r1-wma1-mm1-x86_64",
+    "patch_sha256": "0dcf673b1d0e754091e0fdee46f92c72efef1c8ee908ecadf1f602bcfe47e01c",
+    "recipe_sha256": "63807210c5433fdfb36fa88365ba4c2f076b0a3bdea434c4014368186a359d0e",
+    "source_fixture_sha256": "f4822077f3c8a5196604d02b840d5f047f81d66cd8f9a6e9213e323c64f6da69",
+    "i386_winmm_sha256": "0febed40ba2a816f623b16e741f2ff8990e0a2dd19b657b2b6aaa4fddc7ad214",
+    "x86_64_winmm_sha256": "e8abbc24143f18a31e53ac1e70363112b4da568e00654607ae2befaa62f07ca9",
+    "other_modules_unchanged_from_r1_wma1": true,
+    "original_engine_and_prefix_snapshot_retained": true
+  },
+  "checks": {
+    "x86_64": {
+      "exit_code": 0,
+      "concurrent_callers": 4,
+      "mixer_result": 0,
+      "init_ms_each": 1324,
+      "mixer_count": 3,
+      "invalid_id_result": 2,
+      "mapper_formats": "0xffffffff",
+      "input_metadata_only_calls": 2,
+      "output_formats": "0xfffff",
+      "open_wave_handle_caps_consistent": true,
+      "log_sha256": "33ff27f25e23b7b369cde9cd48cfcb20f845edf38bcfb3c11664e16e3b1c3284"
+    },
+    "i386": {
+      "exit_code": 0,
+      "concurrent_callers": 4,
+      "mixer_result": 0,
+      "init_ms_each": 650,
+      "mixer_count": 3,
+      "invalid_id_result": 2,
+      "mapper_formats": "0xffffffff",
+      "input_metadata_only_calls": 2,
+      "output_formats": "0xfffff",
+      "open_wave_handle_caps_consistent": true,
+      "log_sha256": "4874187181ed987a58061f92d21a15d5963e200728e4083c8c31cd0430e9a3ea"
+    }
+  },
+  "combined_wma": {
+    "i386_exit_code": 0,
+    "x86_64_exit_code": 0,
+    "decoded_bytes_each": 32768,
+    "exhausted": true
+  },
+  "steam_observation": {
+    "cold_login_ok": true,
+    "login_local_time": "2026-10-11 12:26:09 UTC+8",
+    "audio_stall_absent_in_live_snapshot": true,
+    "ipc_wait": "WaitForMultipleObjects count5 wait_all0",
+    "game_launch_process_observed": false,
+    "window_automation": "timeoutReached",
+    "human_steam_launch_prompt_check": "pending"
+  },
+  "limitations": [
+    "Full waveform input-format queries still use synchronous HAL checks; lazy metadata does not remove all HAL delays.",
+    "Endpoint transport identity and exact Apple blocking call were not captured.",
+    "Decoded dump thread-view metadata is a viewing aid, not synthetic fault evidence.",
+    "Isolated cold-prefix WMA COM startup watchdog fired before normal probe completion; combined WMA checks were verified in the original initialized prefix."
+  ],
+  "windows_main_pc_seconds": 0,
+  "github_actions_dispatched": false,
+  "adversarial_source_review": "parent review plus bounded peer implementation/audit, runtime integration parent-owned"
+}
