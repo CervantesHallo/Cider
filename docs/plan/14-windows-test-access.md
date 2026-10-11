@@ -8,6 +8,8 @@
 
 待验收：用户亲自在Windows输入至少12字符新密码后启用，核对Enabled；用该本地身份完成一次RDP截图/真实输入。不能仅凭管理员成员/网络认证标记桌面可用。人工启用步骤同样预约准备机时；测试额度保持。对抗性自审：无已有账号修改/密码采集/空密码启用/SSH公开权限扩大，locale独立组SID、成员以新账户SID核对，失败不继续启用。回退先`Disable-LocalUser -Name CiderReference`，不自动删除账户或用户文件；原日常身份访问保留。参考[New-LocalUser](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/new-localuser?view=powershell-5.1)和[Add-LocalGroupMember](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/add-localgroupmember?view=powershell-5.1)。
 
+用户随后报告已启用；仅人类确认，尚非独立原生读回/登录。人工最后60秒预约已按unmeasured attended手动交接例外结算，无退款、总输入时长未知，交接墙钟另存并不作为活跃操作时长。当前准备0秒/测试3600秒、无pending。Mac预填新凭据用户名并停在空白密码框，未保存或重连。追加5分钟准备只是待批准提案，用途限定首次专用RDP桌面/截图/输入；获实际批准前不扩大4200秒上限、不将接入准备计入测试额度。
+
 更新：2026-10-11。适用于 HY2 的 Windows 参考采集和后续确需 Windows 的验证，沿用原项目目标与 HY1→HY2→HY3→HY4/HY5 顺序。
 
 ## 用户决定与当前执行限额
