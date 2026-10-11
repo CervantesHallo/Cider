@@ -4,6 +4,8 @@
 
 ## 2026-10-11 原队列恢复（当前）
 
+18:06后新检查点：用户重启Codex后窗口读取仍失败，本机崩溃报告确认SkyComputerUseService的SIGTRAP/Swift数组断言；不是新Windows认证结果。先请人类退出并重新打开Windows App到电脑列表，检查脱离凭据页后的读取。未开Windows连接或消耗追加额度，准备600秒/测试3600秒、无pending；HY顺序保持，详见research/44末节。
+
 最新授权：用户已在Mac Windows App保存并绑定凭据，明确批准Windows准备再增加10分钟；追加授权已记录，原扣费不动，余准备600秒/测试3600秒，无pending。CUA读取凭据管理页时native pipe断开，重建会话未恢复；当前未消耗新增Windows额度。需恢复客户端窗口读取后，先核对实际用户名/认证失败，再验收RDP屏幕；不能用后续超时弹窗否定先前人工报告的凭据无效。原HY顺序不变，详见research/44最新节。
 
 最新接入：[research/44](../research/44-windows-trusted-channel-20261011.md)确认LAN严格pin/公钥远程命令、SFTP与Windows三份SHA256一致、临时文件清理；Public有效True/Block/True。Mac Windows App窗口定位失败，需人工打开主窗口，RDP/native watchdog/独立kernel未验收。余准备660秒/测试3600秒，无pending；原HY顺序保持。采集器补实际MSI服务映像与有效FW诊断，Mac仅解析通过。以下旧网络检查点按历史保留，以账本和44为准。
