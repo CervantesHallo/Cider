@@ -75,7 +75,9 @@
     "ipc_wait": "WaitForMultipleObjects count5 wait_all0",
     "game_launch_process_observed": false,
     "window_automation": "timeoutReached",
-    "human_steam_launch_prompt_check": "pending"
+    "human_steam_launch_prompt_check": "pending",
+    "phase": "initial post-patch snapshot before interactive retest",
+    "superseded_by": "interactive_retest"
   },
   "limitations": [
     "Full waveform input-format queries still use synchronous HAL checks; lazy metadata does not remove all HAL delays.",
@@ -114,8 +116,90 @@
       "cua_feedback": "魔女的夜宴 已开始运行。",
       "cua_catalog_running": true,
       "window_inferred_from_pid": false,
-      "human_interaction_and_clean_exit": "pending"
+      "human_interaction_and_clean_exit": "passed; user explicitly reported normal and exited",
+      "user_confirmed": {
+        "picture": true,
+        "controls": true,
+        "audio": true,
+        "control_skip_and_release": true,
+        "normal_menu_exit": true
+      },
+      "control_held_seconds": null,
+      "exit_local_time": "13:36:25",
+      "exit_code": 0,
+      "observed_process_lifetime_seconds": 1458,
+      "cloud_upload_ok_local_time": "13:36:28",
+      "host_game_process_gone_after_exit": true,
+      "cua_after_exit": "可运行 / 开始游戏"
     },
-    "limitations": "One observed Cider launch is not long-term reliability or other-game acceptance."
+    "limitations": "Both installed Steam games accepted for limited interaction/Control, two clean exits and one warm relaunch each. No prior Senren same-failure proof, measured Control duration, target video-pixel, repeated cold-start, long-term or full-catalog acceptance.",
+    "cider_relaunch": {
+      "request_local_time": "13:37:02",
+      "game_created_local_time": "13:37:09",
+      "steam_completed_local_time": "13:37:10",
+      "request_to_process_seconds": 7,
+      "windows_pid": 2064,
+      "host_pid": 1967,
+      "steam_host_pid_unchanged": 97843,
+      "cua_feedback": "魔女的夜宴 已开始运行。",
+      "cua_catalog_running": true,
+      "human_window_and_exit_confirmation": "passed; user explicitly reported normal relaunch and exited",
+      "normal_steam_confirmation_phase": "ShowInterstitials 13:37:05–13:37:09",
+      "exit_local_time": "13:39:29",
+      "exit_code": 0,
+      "cloud_upload_ok_local_time": "13:39:38",
+      "host_game_process_gone_after_exit": true
+    },
+    "senren_independent_check": {
+      "app_id": "1144400",
+      "steam_build": "9212004",
+      "architecture": "i386",
+      "request_local_time": "13:39:56",
+      "game_created_local_time": "13:40:05",
+      "steam_completed_local_time": "13:40:06",
+      "windows_pid": 2296,
+      "host_pid": 2141,
+      "steam_host_pid_unchanged": 97843,
+      "cua_feedback": "Senren＊Banka 已开始运行。",
+      "cua_catalog_running": true,
+      "human_control_and_clean_exit": "passed; user reported normal and exited",
+      "prior_same_failure_established": false,
+      "user_confirmed": {
+        "picture": true,
+        "audio": true,
+        "controls": true,
+        "control_skip_and_release": true,
+        "normal_menu_exit": true
+      },
+      "control_held_seconds": null,
+      "exit_local_time": "13:42:25",
+      "exit_code": 0,
+      "observed_process_lifetime_seconds": 140,
+      "cloud_upload_ok_local_time": "13:42:29",
+      "host_game_process_gone_after_exit": true
+    },
+    "senren_relaunch": {
+      "request_local_time": "13:43:04",
+      "game_created_local_time": "13:43:08",
+      "steam_completed_local_time": "13:43:11",
+      "request_to_process_seconds": 4,
+      "windows_pid": 2708,
+      "host_pid": 2333,
+      "steam_host_pid_unchanged": 97843,
+      "cua_feedback": "Senren＊Banka 已开始运行。",
+      "cua_catalog_running": true,
+      "human_window_and_exit_confirmation": "passed; user reported normal and exited",
+      "exit_local_time": "13:43:57",
+      "exit_code": 0,
+      "cloud_upload_ok_local_time": "13:44:01",
+      "host_game_process_gone_after_exit": true
+    },
+    "final_observation": {
+      "both_games_exited": true,
+      "steam_host_pid_unchanged": 97843,
+      "successful_game_exit_count": 4,
+      "warm_relaunches_accepted_each": 1,
+      "forced_game_termination": false
+    }
   }
 }

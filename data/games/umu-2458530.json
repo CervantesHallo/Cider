@@ -21,14 +21,14 @@
       "cpu_backend": "rosetta-x86_64",
       "result": "playable-caveats",
       "notes": {
-        "zh-Hans": "旧r1存在Control快进时WMA媒体停止卡死。使用cider-cx26.3-r1-wma1后长时间快进已实测通过；Steam/Cider启动偶发无响应仍在调查。中文界面、鉴赏与云存档有既往运行记录。",
-        "en": "Long Control skipping verified with cider-cx26.3-r1-wma1; original r1 has a WMA stop hang. Intermittent launch requests through Steam/Cider remain under investigation. Chinese UI, gallery and cloud saves have prior observations."
+        "zh-Hans": "使用 cider-cx26.3-r1-wma1-mm1 后，画面、声音、Control快进及正常退出已实测通过；同一Steam会话下退出后重开正常。旧r1有WMA快进卡死和Steam音频枚举阻塞。长期稳定性与开场视频仍需单独复核；鉴赏和云存档有既往运行记录。",
+        "en": "Picture, audio, Control skipping, clean exit and a warm relaunch verified on cider-cx26.3-r1-wma1-mm1. Original r1 has WMA skipping and Steam audio-enumeration stalls. Long-term stability and opening video need separate checks; gallery and cloud saves have prior observations."
       },
       "last_verified": "2026-10-11",
       "provenance": {
         "source": "maintainer",
         "hw": "M3 8GB",
-        "engine": "cider-cx26.3-r1-wma1-x86_64",
+        "engine": "cider-cx26.3-r1-wma1-mm1-x86_64",
         "envModified": false
       }
     }

@@ -22,14 +22,14 @@
       "cpu_backend": "rosetta-x86_64",
       "result": "playable-caveats",
       "notes": {
-        "zh-Hans": "经 Steam 启动，云存档正常。Cider 自建引擎上标题画面 CPU 约 100–115%（游戏每帧读回渲染结果，Mac 上代价较高），不影响游玩。",
-        "en": "Launches through Steam with working cloud saves. On Cider's own engine the title screen uses ~100-115% CPU (the game reads its render target back every frame), playable."
+        "zh-Hans": "在 cider-cx26.3-r1-wma1-mm1 上，Control快进、画面/声音/按钮、正常退出及同一Steam会话内重开已独立实测通过，云存档上传正常。此前r1标题画面CPU约100–115%，本轮未重新测量；长期稳定性与开场视频仍需单独复核。",
+        "en": "Control skipping, picture/audio/controls, clean exit and a warm relaunch independently verified on cider-cx26.3-r1-wma1-mm1; cloud uploads succeeded. Prior r1 title-screen CPU was about 100–115%, not remeasured here. Long-term stability and opening video need separate checks."
       },
-      "last_verified": "2026-09-27",
+      "last_verified": "2026-10-11",
       "provenance": {
         "source": "maintainer",
         "hw": "M3 8GB",
-        "engine": "cider-cx26.3-r1-x86_64",
+        "engine": "cider-cx26.3-r1-wma1-mm1-x86_64",
         "envModified": false
       }
     }
