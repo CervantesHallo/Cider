@@ -23,3 +23,11 @@
 本轮后续连接预约120秒、客户端路径修正60秒、文件/构建只读准备120秒都已按真实结果结算；文件批次包含解码/路径修正及清理，累计观察3.240秒。全额扣账、不退款；余准备660秒（11分钟）、测试3600秒（60分钟），无pending，没有保留项目SSH客户端、探测文件或Windows测试进程。
 
 下一顺序：人工显示Mac Windows App主窗口→在预约内准备既有配置的SSH限定RDP隧道，用户自行登录→真实截图/点击验证；原生CLI限时执行器的构建/新验证可走已通SSH文件通道。Windows native watchdog/真实清理回执闭合前不启用无人值守测试；随后独立VM/kernel参考与token/context实现，不能在日用Windows加载未签名驱动。保留原生RDP不替代物理控制台图形/性能的边界。工作窗口外不自动开展Windows操作，下一09:00按账本继续，不重做已通过的连接/基线。
+
+## 人工在场的RDP登录交接（后续）
+
+用户手动打开Mac Windows App后CUA实际取得主窗口与配置表单。保存配置为回环隧道端口、需要时询问凭据、自动重连off；剪贴板/文件夹/打印机/智能卡/麦克风/摄像头均不重定向。只查看并取消配置表单，未修改这些设置。此前noWindowsAvailable/timeout现因用户打开窗口而解除，不当作屏幕会话已验收。
+
+在当前人类在场准备例外下预扣180秒预约3d1b22b8-7b85-4541-a496-3e8c0c3f8a25，余准备480秒/测试3600秒，pending。SSH只读确认RDP监听与TLS层2，但NLA要求原为0、策略来源0；按原计划保持NLA要求，先保存本机原值，再调用[微软SetUserAuthenticationRequired方法](https://learn.microsoft.com/en-us/windows/win32/termserv/setuserauthenticationrequired-win32-tsgeneralsetting)设1。脚本误以ReturnValue字段判断结果而退出1，字段未取得；随后独立读回required=1/security_layer=2，实际状态验证通过，没有重复Set或伪造方法返回0。备份仅私有；采用此NLA设置，要求支持RDP6及以上客户端，回退须明确用户决定并按备份恢复该项，不因登录失败自动降级。
+
+已用严格pin/项目公钥启动仅绑定Mac回环、只转发Windows回环RDP的隧道；Mac控制器150秒截止/STOP会终止本次SSH客户端，隧道返回也不自动证明RDP UI/进程已清理。CUA双击保存配置实际出现凭据表单，仅填写既有Windows账户名，密码/证书接受交给用户，不保存凭据。未建立已认证桌面、未执行桌面点击/原生watchdog/测试/VM/驱动。预约需隧道停止及实际UI关闭/断开证据后结算，不能先自动标完成；下一自动运行先处理pending与用户回执。
