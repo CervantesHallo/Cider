@@ -10,6 +10,8 @@ HY1先补齐现有r2启动器的1×/2×显示及入口验收；用户确认当�
 
 后续检查点：[research/41](../research/41-hy1-retina-and-access-resumption-20261011.md)记录r2 Retina开启的完整截图与恢复关闭/96DPI重开，以及GUI→launcher→HYP/CEF实际三项环境继承。静态显示通过，真实Retina点击/完整入口仍待；原队列继续。Windows首页确认Verge2.2.2/Mihomo1.19.3/服务模式，TUN页待回传；180秒只读准备预约pending，余准备1740秒/测试3600秒。[research/42](../research/42-token-locking-dependency-audit-20261011.md)共享token锁提案的哈希/关键链已由父代理抽查，尚非运行时或kernel验收。
 
+接入新快照：[research/43](../research/43-windows-tun-and-lan-diagnostic-20261011.md)已取得真实TUN参数（GVisor、auto-route on、strict-route off等），不认定为根因。新Mac局域网/ARP路径线索下首次pin准备仍未收到宿主密钥，无认证/Windows任务；120秒预约已结算，代理未改。当前60秒只读服务/监听/FW/回程JSON交接pending，余准备1560秒/测试3600秒，先收新证据再决定修正，不重装或重复旧拨号。
+
 ## 2026-10-11 柚子社快速跳过卡死（本轮已验收，历史过程）
 
 用户要求先记录并搁置原HY1–HY5推进及Windows接入/参考环境待办，优先修复《魔女的夜宴》按住Control快速跳过一段时间后卡死、只能退出的问题。原目标保留，原路线待用户后续恢复；此修复直接服务柚子社全系目标。当前《千恋＊万花》有相同故障仅为用户推测，分别复现/验收，不能标为已确认同一根因。

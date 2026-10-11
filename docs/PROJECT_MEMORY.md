@@ -4,6 +4,7 @@
 
 ## 用户目标与协作
 
+- Windows新接入事实见research/43：TUN界面GVisor/Mihomo、auto-route on、strict-route off、auto-detect on、any:53/MTU1500，与Verge2.2.2若干默认值一致，不认定为错误，不再要求关闭已off的严格路由。Mac当前en0有到Windows内网地址的直连路由，ARP MAC匹配用户路由器截图；物理公网查询超时，没有验证同WAN。原只读180秒按已返回参数/没有runtime任务的范围结算；新120秒局域网pin准备实际5.025秒未取得宿主密钥，无认证/shell/测试，客户端退出后结算；没有改代理或接受未知host key。当前下一只读Windows服务/监听/FW/回程JSON命令已本机解析通过，60秒预约18e4f325-733b-46eb-a24e-6b862968764f pending，余准备1560秒/测试3600秒。不要因ARP或TCP本地建立声称已接通，不重复相同失败探测；等新快照。连接信息和原始输出只私有。
 - 原队列恢复后的新检查点：HYP无下载/更新获用户确认。CUA在米哈游瓶子r2上off→on→off，用户Retina完整图顶部/底部未裁切（静态显示证据，非点击/游戏证据）；已恢复Retina=n、DPI96、高分辨率0并重开HYP5591，Steam未动。真实KERN_PROCARGS2读取HYP及五个helper均DXMT跨进程=1、msync=1、zh_CN.UTF-8；ps未读到不能记为变量不存在，spawn目标是根launcher.exe而非后续HYP。Windows首页确认Verge2.2.2/Mihomo1.19.3/服务模式，TUN参数未取得；现有180秒人工只读预约7ab55f34-be07-4136-8ef3-69bb539737ff pending，余准备1740秒/测试3600秒，不新开Windows工作。只读锁依赖代理报告42已收齐/关闭，父代理核对十个源码哈希及三条关键链，方案尚未实现/native验证；见research/41。用户需结束当前回合才能上传图片，交接时及时yield。
 - 最新用户决定：本轮柚子社专项结束，恢复原HY1→HY2→HY3→HY4/HY5队列；视频有效帧/冷启动/长期质量回归保留，不继续挡住原队列。用户确认HYP当前正常、无下载/更新，允许必要显示验收；Windows代理软件已确认Clash Verge，版本/TUN设置仍未取得。预算status核对仍准备1920秒/测试3600秒且无pending，不重复已有基线/安装/旧连接探测。get_goal仍返回原Goal paused，工具无active恢复接口；按聊天恢复授权推进并更新同一heartbeat，不伪造状态或另建Goal。下方“原队列暂缓”为历史决定，已由本条取代。
 - 验收交付已落地：两款兼容数据记录更新到组合引擎/2026-10-11，保持playable-caveats并明确视频/长期边界。debug App重新打包签名，CUA只重开Cider主界面，两款详情实际显示新说明、五项资料库保留，Steam97843/HYP49797保持、无游戏进程；当前留在资料库。同一heartbeat cider已更新到这次完整回执/下一视频与可靠性检查点，ACTIVE/每天09:00/原线程均核对，原Goal与HY/Windows暂缓不恢复。
