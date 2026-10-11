@@ -63,3 +63,15 @@
 这证明本次界面控制服务发生崩溃，尚不能确定被操作数组、具体触发页面、权限原因或Windows App本身缺陷。没有新的远端认证结果，不能将其解释成密码错误。下一项有变化的诊断是用户用⌘Q退出Windows App、重新打开到电脑列表，随后重新读取窗口；它是待验证尝试，不承诺修复。无需再次重启Codex、重新保存凭据、关闭NLA或引入另一输入通道。
 
 本轮只在Mac读取诊断，未预约或开展Windows操作/隧道。账本核对仍准备600秒/测试3600秒、无pending。原始本机崩溃报告保留原处，公开文档仅上述无凭据元数据；不上传整份日志。
+
+用户随后退出并重新打开Windows App到电脑列表，CUA实际恢复。240秒在场准备预约f1deade7-31b7-407d-95d3-75c92f83ce92内建立严格SSH回环隧道，210秒截止18:14:50（UTC+8）。双击保存配置到达证书确认页；显示细节中的SHA-1完全匹配先前通过可信SSH读取的RDP证书。未勾永久信任或自动接受警告，交给用户点击本次继续。没有已验证桌面或项目/VM/驱动执行；预约pending，余准备360秒/测试3600秒。后续先收登录与隧道/UI真实清理证据再结算。
+
+## 此轮凭据无效的服务器证据与清理
+
+用户报告无效后，CUA实读同一认证表单。界面提交的用户名与已通过可信SSH确定的Windows本机SAM名称不一致。该预约内一次只读SSH查询（0.687秒/退出0）取得10:12:44.106及10:12:49.082 UTC两条Security4625，均匹配本轮客户端输入、非已确认SAM，Status=0xc000006d、SubStatus=0xc0000064、LogonType=3。依据[微软NTSTATUS规范](https://learn.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55)，后者为STATUS_NO_SUCH_USER；本轮提交身份没有解析到有效账户。用户名/命名空间先纠正，尚无正确账户密码校验结果。此前账户PrincipalSource=MicrosoftAccount仍有效；完整格式参照[Get-LocalUser例2](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/get-localuser?view=powershell-5.1)，具体邮箱不猜测。
+
+UI显示Caps Lock提示，但没有读取密码或输入过程，不能认定为失败原因。采集脚本误选AuthenticationPackage而非AuthenticationPackageName，故输出的null不能作为认证包不可用证据；本轮结论只依赖正确采集的目标匹配、时间、Status/SubStatus与LogonType，不为补非必要字段再占Windows额度。
+
+点击取消后才出现0x1f07超时提示，已关闭并实际观察电脑列表；后续取消状态不能覆盖早先认证失败。仅终止本预约隧道，控制器记录156.243秒，子PID已消失、回环监听关闭；只读查询已经返回，无项目桌面任务/驱动/VM启动。累计190.816秒的限定清理回执关闭240秒预约，全额计费无退款，剩准备360秒/测试3600秒、无pending。原始字段及回执仅私有。
+
+Mac改用该电脑“配置→凭据→添加凭据”打开空白表单，避免全局凭据管理页的历史崩溃路径。尚未填写、保存或自动再次登录。交由用户依据Windows实际微软账户身份亲自填写、保存并绑定，原有保存授权有效；不复制聊天密码或读取客户端密码，不关闭NLA或创建另一个账户。原HY顺序保持。
