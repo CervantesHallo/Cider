@@ -1,0 +1,79 @@
+{
+  "schema": "cider.hy1-retina-evidence/v1",
+  "date": "2026-10-11",
+  "bottle": "bottle-ca8f",
+  "engine": "cider-cx26.3-r2-x86_64",
+  "launcher_version": "1.18.0.380",
+  "user_report_before_test": "normal; no active downloads or updates; necessary verification authorized",
+  "retina_enabled": {
+    "setting": "1",
+    "retina_mode": "y",
+    "configured_dpi": 192,
+    "host_main_pid": 3791,
+    "screenshot": {
+      "width": 2662,
+      "height": 1528,
+      "sha256": "e50d83b94e7aa84346480086ccef0443dee3e5da4b78a8195d7a9cb81a94704f",
+      "original_private_only": true
+    },
+    "layout_observed": "complete top and bottom content/buttons; previous top clipping absent",
+    "actual_button_clicks_in_this_mode": "not independently observed"
+  },
+  "restored": {
+    "setting": "0",
+    "retina_mode": "n",
+    "configured_desktop_and_fonts_dpi": 96,
+    "host_main_pid": 5591,
+    "same_engine": true,
+    "byte_identical_registry_restore_claimed": false
+  },
+  "gui_spawn_plan": {
+    "program_basename": "launcher.exe",
+    "environment": {
+      "DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN": "1",
+      "WINEMSYNC": "1",
+      "LC_ALL": "zh_CN.UTF-8"
+    }
+  },
+  "live_environment_probe": {
+    "api": "Darwin KERN_PROCARGS2",
+    "probe_source_sha256": "f1b4fdea07917e4167995b9c1c2b865bfb2a6a64cd333c1b7424e63d1b0373b7",
+    "probe_private_cache_only": true,
+    "bottle_identity_checked_before_output": true,
+    "only_three_selected_environment_fields_saved": true,
+    "host_pids": [
+      5591,
+      5605,
+      5607,
+      5610,
+      5612,
+      5626
+    ],
+    "all_observed": {
+      "DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN": "1",
+      "WINEMSYNC": "1",
+      "LC_ALL": "zh_CN.UTF-8"
+    }
+  },
+  "limitations": [
+    "Static screenshot does not verify live button actions, actual backing scale measurements, all entrypoints or local game gameplay.",
+    "ps eww missing output is not proof of absent environment.",
+    "Bootstrap audit target launcher.exe differs from running HYP.exe image."
+  ],
+  "windows_readonly_preparation": {
+    "verge_version": "2.2.2",
+    "mihomo_version": "1.19.3",
+    "shown_mode": "service",
+    "mixed_port": 7897,
+    "tun_configuration_received": false,
+    "homepage_screenshot_sha256": "64d2555d92c97241df29137a4b75c895b80cb995c7d525550b66150a3a48991f",
+    "original_private_only": true,
+    "reservation_id": "7ab55f34-be07-4136-8ef3-69bb539737ff",
+    "reserved_preparation_seconds": 180,
+    "status": "pending",
+    "remaining_preparation_seconds": 1740,
+    "remaining_test_seconds": 3600
+  },
+  "windows_remote_commands_executed": false,
+  "github_actions_dispatched": false
+}
