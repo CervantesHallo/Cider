@@ -24,6 +24,7 @@
 - 人工准备没有整体秒表数据时，允许仅attended预约使用`elapsed_seconds: null`、`duration_measurement: unmeasured-attended-handoff`、等于原预约的保守上限及明确已核对的cleanup_evidence；仍须真实关闭证据、仍全额扣账。不能把DISM片段或猜测的0秒记作整个准备实测时间；无人值守任务不使用此例外。
 - 用户要停止时，在同一控制目录创建 `STOP` 即拒绝后续预约；撤销停止须依用户指令。已经运行的 Windows 任务还须由其本机 watchdog 负责终止。
 - **当前账本不是远程执行器**。Windows 本机超时、进程归属和清理回执尚未部署；落实之前不启用 Windows 无人值守测试。不能将脚本存在写成总时限已实机验证。
+- 2026-10-11 本机已实现 `Tools/windows-task-runner` 普通CLI执行器：创建时绑定Job、独立截止线程、STOP、窗口及清理回执；在无账户隔离r2瓶子9项新夹具检查通过。Windows原生构建/失联/边界验证及部署尚未完成；不覆盖WMI/服务/已有VM或另一RDP会话。回执只计到子进程清理，控制器须另测完整操作。具体取舍、对抗性自审与未验收项见 [research/38](../research/38-windows-cli-deadline-runner-20261011.md)。没有占用Windows预算，当前仍准备32分钟、测试60分钟，无pending。
 
 ## 跨网络连接与屏幕操作（准备中）
 

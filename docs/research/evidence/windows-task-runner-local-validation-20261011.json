@@ -1,0 +1,211 @@
+{
+  "schema": "cider.windows-cli-runner-local-validation/v1",
+  "date": "2026-10-11",
+  "environment": "isolated Cider r2 on macOS; not native Windows",
+  "engine_id": "cider-cx26.3-r2-x86_64",
+  "windows_machine_used": false,
+  "runner_source_sha256": "8486693f5793cdb39f5d00de230100feb2a8aa81c6ea2530d6326294a66d9af2",
+  "fixture_source_sha256": "7a8ae83f87f6e3dc6a059d277bc357145f50a8a35d53fc8776ea9c477f63d25d",
+  "binaries": {
+    "cider-task-runner.exe": "c9a37cb8a66aa505fc45e101f499eef8f819b07017fbd3f39182bb876ae34ae8",
+    "cider-task-fixture.exe": "1828f560479e3cd336c1ef1fe6e6cd7f43d6b08e8c303af79b3385c14dfeac1a",
+    "cider-task-deadline-fixture.exe": "b58cf344ecfecfd638d1dbb08c5ea02ac88cb34d62b44d4accedd19facb97c9c"
+  },
+  "deadline_fixture_definition": "CIDER_RUNNER_DEADLINE_FIXTURE (separate binary only)",
+  "cases": [
+    {
+      "case": "quoted-argv",
+      "cli_exit": 0,
+      "local_wall_seconds": 6.655,
+      "receipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "56d8be9d-b559-4f77-a2cb-859c606a3cf2",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "completed",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 0.091,
+        "reserved_seconds": 20,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 0,
+        "job_total_processes": 1
+      },
+      "partial_receipt": null,
+      "echo_lines": [
+        "0:",
+        "9:00740077006f00200077006f007200640073",
+        "3:006100220062",
+        "8:0043003a005c007400610069006c005c",
+        "2:4e2d6587"
+      ],
+      "checks_passed": true
+    },
+    {
+      "case": "stale-receipt",
+      "cli_exit": 1,
+      "local_wall_seconds": 5.206,
+      "receipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "56d8be9d-b559-4f77-a2cb-859c606a3cf2",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "completed",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 0.091,
+        "reserved_seconds": 20,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 0,
+        "job_total_processes": 1
+      },
+      "partial_receipt": null,
+      "echo_lines": [],
+      "checks_passed": true
+    },
+    {
+      "case": "nonzero",
+      "cli_exit": 1,
+      "local_wall_seconds": 4.766,
+      "receipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "aa3e0616-0b3b-41d9-aca7-78e8d06641b8",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "completed",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 0.089,
+        "reserved_seconds": 20,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 37,
+        "job_total_processes": 1
+      },
+      "partial_receipt": null,
+      "echo_lines": [],
+      "checks_passed": true
+    },
+    {
+      "case": "timeout",
+      "cli_exit": 1,
+      "local_wall_seconds": 10.566,
+      "receipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "3a95e4c3-47e3-4d4c-b685-96d5df57ad87",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "timeout",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 5.027,
+        "reserved_seconds": 10,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 1223,
+        "job_total_processes": 1
+      },
+      "partial_receipt": null,
+      "echo_lines": [],
+      "checks_passed": true
+    },
+    {
+      "case": "descendant-after-parent-exit",
+      "cli_exit": 1,
+      "local_wall_seconds": 9.632,
+      "receipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "4c94ddf9-947b-439a-ba54-dfe105a58a76",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "timeout",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 5.029,
+        "reserved_seconds": 10,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 0,
+        "job_total_processes": 2
+      },
+      "partial_receipt": null,
+      "echo_lines": [],
+      "checks_passed": true
+    },
+    {
+      "case": "breakaway-denied",
+      "cli_exit": 0,
+      "local_wall_seconds": 4.704,
+      "receipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "fed4e3b0-b6be-4874-b46f-f7bb8cc63fc8",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "completed",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 0.085,
+        "reserved_seconds": 20,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 0,
+        "job_total_processes": 1
+      },
+      "partial_receipt": null,
+      "echo_lines": [],
+      "checks_passed": true
+    },
+    {
+      "case": "stop-file",
+      "cli_exit": 1,
+      "local_wall_seconds": 4.79,
+      "receipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "ad9a6ef6-88b1-4391-a6b9-23dbe386c749",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "stopped",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 0.089,
+        "reserved_seconds": 20,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 1223,
+        "job_total_processes": 1
+      },
+      "partial_receipt": null,
+      "echo_lines": [],
+      "checks_passed": true
+    },
+    {
+      "case": "short-reservation-denied",
+      "cli_exit": 2,
+      "local_wall_seconds": 4.537,
+      "receipt": null,
+      "partial_receipt": null,
+      "echo_lines": [],
+      "checks_passed": true
+    },
+    {
+      "case": "blocked-main-thread-hard-deadline",
+      "cli_exit": 180,
+      "local_wall_seconds": 14.602,
+      "receipt": null,
+      "partial_receipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "a77b654a-49c1-46f2-b85a-72d05ecbb7c7",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "running",
+        "cleanup_confirmed": false,
+        "elapsed_seconds": 0.028,
+        "reserved_seconds": 10,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": null,
+        "primary_exit_code": null,
+        "job_total_processes": 1
+      },
+      "echo_lines": [],
+      "checks_passed": true
+    }
+  ],
+  "experiment_bottle_stopped": true,
+  "all_checks_passed": true,
+  "native_windows_verified": false
+}
