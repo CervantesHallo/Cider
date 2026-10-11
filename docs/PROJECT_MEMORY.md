@@ -25,6 +25,7 @@
 - 最新只读日志确认Windows在所有IPv4/IPv6接口监听2222，唯一会话记录为用户回环查询；安装期间22的监听属于先前短暂默认服务，不能记成当前22/2222同时开放。Mac随后通过核心`/logs`捕获本次SSH实际选路：`dial DIRECT (match GeoIP/cn)`，随后公网TCP2222的真实拨号`i/o timeout`。这次已确认Mac发起端使用DIRECT；早先本地TCP established/Connection closed可能来自TUN/SOCKS代理端，不足以证明Windows端曾接受再关闭连接。默认Windows事件日志没有公网会话本身不证明包未到达。下一步核对Windows代理软件及TUN配置，区分回程/入站路径与实际转发，不能直接归咎密码、反作弊或断言TUN根因；保留终端代理，不关闭TUN或重装服务。两次60秒准备预约均已结束，无pending，剩余准备1920秒（32分钟）、测试3600秒（60分钟）。
 - 2026-10-11 白天heartbeat：仅Mac实现Tools/windows-task-runner，创建时Job绑定、独立截止线程、STOP/窗口检查及未确认/完整回执分开；交叉构建和隔离r2的9项新合成进程检查通过，实验瓶子已停止。主线程故意卡住时仍由独立线程到期终止，不生成成功回执；Unix退出状态180是ERROR_TIMEOUT低8位，不冒充Windows原生结果。尚未Windows原生构建/部署或验证SSH嵌套Job、失联、窗口边界/I/O故障；不管理服务/WMI/已有VM/另一RDP活动。完整机时还需控制器测量，不能仅凭回执关闭失联预约。见research/38。没有使用Windows、复跑权限基线或触发Actions；预算保持32+60分钟且无pending。
 - 已更新同一heartbeat的提示，删除“服务/端口未确认”旧事实，按最新记忆复用接入和本机验证结果；相同阻塞不重装、不扫端口、不反复索取原有TUN交接。
+- 2026-10-11 用户询问前台目标暂停与方向。get_goal确认原目标仍为HY1→HY2→HY3→三款本地适配，paused更新于10月7日13:03（UTC+8）；原始历史确认是用户当时“你先休息会吧”后的显式暂停。后续聊天/每日heartbeat有实际推进，但这张Goal卡尚未恢复；Goal连续推进与heartbeat状态分开核对。恢复由用户/系统目标控件管理，当前目标工具没有active恢复操作，不改底层数据库、不伪造恢复或另建重复目标。最近接入/限时工具属于用户新增主力机预算要求；工具准备已收敛，继续将可推进工作集中于HY1余项与HY2契约/实现，原生kernel/KMDF及三款本地会话仍未通过。
 - Git 作者和提交者只能是 CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>，不加 AI 署名。
 
 ## 始终保留的边界
