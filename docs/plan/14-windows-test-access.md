@@ -4,6 +4,8 @@
 
 ## 用户决定与当前执行限额
 
+- 2026-10-11最新明确变更：用户同意追加10分钟Windows准备时间。当前累计上限为准备70分钟（4200秒）、测试仍60分钟（3600秒），合计130分钟；这是一次具体授权，不是每日额度或无限延长。原60/60基线与所有扣费记录保留，`extensions`仅追加本次600秒授权。余准备600秒/测试3600秒、无pending；此次尚未开始新的Windows操作。
+- `windows-reference-budget.py extend`仅在真实明确人类批准后由维护者调用，heartbeat不得自行使用。稳定authorization-id使重试不会重复加额；同ID条款不同拒绝；有pending/STOP拒绝新授权。原base limits不变、旧记录不退款，状态计算只加已确认授权。若不再使用新增额度，停止预约并保留历史，不删除记录回滚；每批600秒和时间窗/在场准备例外均保持。
 - 最新接入完成记录：Public本地策略刷新成功且有效True/Block/True；LAN严格原pin/项目公钥登录、远程命令、SFTP和Windows SHA256实际通过，临时文件目录已删除。余准备660秒/测试3600秒，无pending；未运行测试或内核驱动，RDP/native watchdog未验收。Mac Windows App窗口读取失败，需人工打开主窗口。见research/44；旧下文未连通/额度值为历史，下一窗口仍按账本先预约，不重复成功基线。
 - 当前检查点（16:38 UTC+8）：用户gpresult独立工作站、仅应用本地组策略、PartOfDomain=False；来源查询已结算。下一180秒为localhost/Public明确新设AllowInboundRules=True的保护/备份/刷新回读准备预约pending，余准备960秒/测试3600秒，Windows尚未执行。原写入者与MDM状态不明，失败/刷新不确定保持pending；SSH未接通。具体取舍见research/43当前末节。
 - 最新检查点（16:23 UTC+8）：Public本地修改后有效AllowInboundRules仍False，前120秒准备已结算；下一60秒只读来源预约pending，余准备1380秒/测试3600秒。不重复Set/网络探测、不猜管理来源；先核对存储差异及相关阻断状态，详见research/43最新节。

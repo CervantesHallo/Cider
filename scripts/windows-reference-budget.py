@@ -5,6 +5,7 @@ Reservations are charged in full before a Windows operation and never refunded.
 An unresolved reservation prevents further work, including after a disconnect.
 This ledger is not a Windows process watchdog: the remote runner must independently
 enforce the reserved duration and confirm cleanup before the reservation is closed.
+Explicit user-approved additions are append-only; they never reset reservations.
 """
 import argparse
 from contextlib import contextmanager
@@ -29,12 +30,32 @@ def timestamp():
 
 def initial_state():
     return {"schema": "cider.windows-machine-budget/v1", "limits_seconds": LIMITS,
-            "created_utc": timestamp(), "reservations": []}
+            "created_utc": timestamp(), "reservations": [], "extensions": []}
+
+
+def effective_limits(state):
+    caps = dict(LIMITS)
+    for item in state.get("extensions", []):
+        caps[item["phase"]] += item["seconds"]
+    return caps
 
 
 def validate(state):
     if state.get("schema") != "cider.windows-machine-budget/v1" or state.get("limits_seconds") != LIMITS:
         raise ValueError("Unknown or changed budget; refusing to reset it.")
+    extensions = state.get("extensions", [])
+    if not isinstance(extensions, list):
+        raise ValueError("Invalid authorization history.")
+    authorizations = set()
+    for item in extensions:
+        ident = item["authorization_id"]
+        if (not isinstance(ident, str) or not re.fullmatch(r"[a-z0-9][a-z0-9.-]{0,63}", ident)
+                or ident in authorizations or item.get("user_approved") is not True
+                or item["phase"] not in LIMITS or type(item["seconds"]) is not int
+                or not 1 <= item["seconds"] <= 3600
+                or not isinstance(item.get("reason"), str) or not 1 <= len(item["reason"]) <= 512):
+            raise ValueError("Invalid or duplicated user budget authorization.")
+        authorizations.add(ident)
     reservations = state.get("reservations")
     if not isinstance(reservations, list):
         raise ValueError("Invalid reservation list.")
@@ -53,7 +74,7 @@ def validate(state):
                 or (item.get("attended_setup") and item["phase"] != "preparation")):
             raise ValueError("Invalid attended preparation reservation.")
     if any(sum(x["seconds"] for x in reservations if x["phase"] == phase) > cap
-           for phase, cap in LIMITS.items()):
+           for phase, cap in effective_limits(state).items()):
         raise ValueError("Ledger exceeds the adopted cumulative budget.")
 
 
@@ -101,12 +122,13 @@ def locked_state():
 
 def status(state):
     remaining = {phase: cap - sum(x["seconds"] for x in state["reservations"] if x["phase"] == phase)
-                 for phase, cap in LIMITS.items()}
+                 for phase, cap in effective_limits(state).items()}
     now = datetime.now(LOCAL_TIME)
     pending = [x["id"] for x in state["reservations"] if x["status"] == "pending"]
     window_open = 9 <= now.hour < 17
     window_remaining = max(0, int((now.replace(hour=17, minute=0, second=0, microsecond=0) - now).total_seconds())) if window_open else 0
     return {"schema": state["schema"], "remaining_seconds": remaining, "pending": pending,
+            "effective_limits_seconds": effective_limits(state),
             "window_open": window_open, "window_remaining_seconds": window_remaining,
             "window": "09:00-17:00 UTC+08:00 daily",
             "stopped_by_user": (STATE_ROOT / "STOP").exists(),
@@ -117,6 +139,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("status")
+    extend = commands.add_parser("extend", help="Apply one explicitly approved user addition; never use automatically.")
+    extend.add_argument("--phase", choices=LIMITS, required=True)
+    extend.add_argument("--seconds", type=int, required=True)
+    extend.add_argument("--authorization-id", required=True, help="Stable ID for this exact human approval; reuse on retry.")
+    extend.add_argument("--reason", required=True, help="Approval summary without connection data or credentials.")
+    extend.add_argument("--user-approved", action="store_true", required=True)
     reserve = commands.add_parser("reserve")
     reserve.add_argument("--phase", choices=LIMITS, required=True)
     reserve.add_argument("--seconds", type=int, required=True)
@@ -132,6 +160,25 @@ def main():
         current = status(state)
         if args.command == "status":
             result = current
+        elif args.command == "extend":
+            if (not args.user_approved or not 1 <= args.seconds <= 3600
+                    or not re.fullmatch(r"[a-z0-9][a-z0-9.-]{0,63}", args.authorization_id)
+                    or not 1 <= len(args.reason) <= 512):
+                raise ValueError("Explicit, bounded user approval is required.")
+            existing = next((x for x in state.get("extensions", [])
+                             if x["authorization_id"] == args.authorization_id), None)
+            if existing:
+                if (existing["phase"], existing["seconds"], existing["reason"]) != (args.phase, args.seconds, args.reason):
+                    raise ValueError("Authorization already used for different terms.")
+            else:
+                if current["pending"] or current["stopped_by_user"]:
+                    raise ValueError("Unresolved cleanup or STOP; refusing a new addition.")
+                state.setdefault("extensions", []).append({
+                    "authorization_id": args.authorization_id, "user_approved": True,
+                    "phase": args.phase, "seconds": args.seconds,
+                    "reason": args.reason, "recorded_utc": timestamp()})
+                write_state(state)
+            result = status(state)
         elif args.command == "reserve":
             if args.attended_setup and args.phase != "preparation":
                 raise ValueError("Attended handoff is only a preparation reservation.")
