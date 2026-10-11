@@ -43,3 +43,5 @@
 本次预约内的只读查询确认账户启用且PrincipalSource=MicrosoftAccount，SSH当前身份仍是本机SAM名称。之前未先核对来源就预填本地形式不够严谨；本地SAM身份不一定必然失效，不能把账户类型直接升级成最终根因。[微软Get-LocalUser](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.localaccounts/get-localuser?view=powershell-5.1)例2展示MicrosoftAccount加邮箱的完整身份。下一轮需核对此身份及由用户本人录入的对应账户密码；未使用密码进行测试、保存、哈希或传入任何工具。审计只筛本账户近10分钟的相关字段，未匹配到失败记录，依[4625字段契约](https://learn.microsoft.com/en-us/windows/security/threat-protection/auditing/event-4625)不能据此认定密码正确或没有发生失败。
 
 隧道按210秒截止退出，客户端超时提示已关闭并实际回到主界面；加入并发只读查询的保守累计观察211.462秒，预约已结算，准备余0秒/测试3600秒、无pending。未登录桌面、运行项目桌面程序、驱动或VM，不称为RDP验收完成。下一方案为连接前由用户在Windows App本地录入凭据，保存行为须明确用户决定；Windows准备再开展前需用户明确追加额度，不自动重置/退款或归到测试预算。NLA不降级。Mac侧采集器补当前调用账户的PrincipalSource，输出不含邮箱/密码/SID，仅语法检查，新版未在Windows执行。
+
+用户随后明确指出：超时前实际已发生过“凭据无效”。保留这一早期人工报告，不能用后来读取的0x1F07否定它；时序上的误判已向用户说明。认证失败的原始代码/服务端原因仍未确认，不能升级“完整微软身份”候选为已修复。当前已在Mac配置内打开空白“添加凭据”表单，尚未输入密码或点击添加/保存。此准备不接触Windows；保存现有凭据涉及Mac客户端持续保留账户密码，必须明确用户决定，密码由用户本人录入。随后才在用户明确追加准备额度后重连。没有改NLA、清除认证保护或新建账户。
