@@ -55,3 +55,11 @@ TUN只读查看的180秒预约根据完整参数截图结算：未启动Windows�
 取舍：从本机GPO源修改可避免只写合并结果或直接改Policies注册表后被重新覆盖；代价仍是该Public配置所有已有入站允许规则恢复评估，gpupdate也可能处理其他已变化的计算机策略。保持防火墙启用、原默认拒绝与代理设置，命令不改变这些项。当前为待执行方案；验收仍需有效Public为True/Block/True及可信SSH，不将策略修改通过等同于游戏或无人值守接通。回退按此唯一备份在localhost/Public恢复原AllowInboundRules，再刷新/回读；前一PersistentStore备份仍保留，未声称已回滚。
 
 对抗性自审：不能把RSOP误当可写来源；local GPO读回不匹配即停，不用删策略键/全防火墙重置；不触发强制刷新、重启、驱动或VM；gpupdate的wait是等待上限而非后台取消保证，失败保持交接与预约。前60秒只读预约已根据全部返回字段/无项目运行任务结算；新180秒在场本地GPO准备预约e5285384-67c4-4ba5-9dcf-3fae6a8760a5 pending，余准备1200秒（20分钟）/测试3600秒。等用户操作回执，不新开Windows连接批次。
+
+## 本机GPO未配置：保护拒绝与来源查询（当前）
+
+用户输出localhost/Public的Enabled、DefaultInboundAction、AllowInboundRules均NotConfigured；随后在False保护条件抛错。备份、Set、gpupdate、最终Active读回均未执行，不能声称修改/刷新成功或遗留刷新进程。此项排除了“该本机Public GPO确有False”的候选；既有RSOP/Active阻断和Policies键仍有效，具体GPO/管理来源未证实，也可能存在外部写入或残留，后两者只是候选。
+
+下一只读交接仅三行：Win32_ComputerSystem.PartOfDomain、[dsregcmd /status](https://learn.microsoft.com/en-us/entra/identity/devices/troubleshoot-device-dsregcmd)中四个注册/加入标志、[gpresult /scope computer /r](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/gpresult)应用策略摘要。用于区分已有管理来源与残留策略值；不变更域/注册、查询其他设备、清除策略或修改注册表。相关来源结果只私有，摘要中的无关身份/组信息不加入记忆或公开仓库。没有匹配GPO也不能独自证明外部策略作者是谁。
+
+三行命令Mac PowerShell7.6.6仅解析通过，SHA256 `8ba85097c8b9459ab3a1ea44520b18ff9b347c8632f6c28b00fc8f13e28b5741`，Windows尚未执行。180秒人工准备预约已按只读返回及保护失败结算，无任何修改/新增运行任务；新60秒只读来源预约69da8a01-ad32-4d13-8f59-cc7b8d0114f3 pending，余准备1140秒（19分钟）/测试3600秒。未占用测试额度或触发Actions，及时结束回合供用户返回输出。
