@@ -4,6 +4,8 @@
 
 ## 2026-10-11 原队列恢复（当前）
 
+最新接入：[research/44](../research/44-windows-trusted-channel-20261011.md)确认LAN严格pin/公钥远程命令、SFTP与Windows三份SHA256一致、临时文件清理；Public有效True/Block/True。Mac Windows App窗口定位失败，需人工打开主窗口，RDP/native watchdog/独立kernel未验收。余准备660秒/测试3600秒，无pending；原HY顺序保持。采集器补实际MSI服务映像与有效FW诊断，Mac仅解析通过。以下旧网络检查点按历史保留，以账本和44为准。
+
 当前用户来源输出为独立工作站、只应用本地GPO、PartOfDomain=False；下一方案为未配置的localhost/Public明确创建AllowInboundRules=True，备份原值/保护状态后刷新回读，Windows未执行。来源查询已结算，新180秒准备pending，余准备960秒/测试3600秒；见research/43当前末节。SSH/无人值守/游戏仍未接通或验收，HY顺序保持。
 
 Windows本地修正回执：Public有效AllowInboundRules仍False，前120秒准备已结算；覆盖来源尚未确认，下一60秒只读来源预约pending，余准备1380秒/测试3600秒。见research/43最新节；未重复失败探测或绕过策略，HY顺序保持。

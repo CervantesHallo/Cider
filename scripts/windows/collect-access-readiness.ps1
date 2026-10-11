@@ -12,6 +12,44 @@ $computer = Get-CimInstance Win32_ComputerSystem
 $processors = @(Get-CimInstance Win32_Processor)
 $sshService = Get-Service -Name sshd -ErrorAction SilentlyContinue
 $sshBinary = Join-Path $env:WINDIR 'System32\OpenSSH\sshd.exe'
+if ($sshService) {
+    # A standalone Microsoft MSI uses Program Files, not the in-box path.
+    # Read the actual service image; never evaluate its command line.
+    try {
+        $sshImage = Get-CimInstance Win32_Service -Filter "Name='sshd'"
+        if ($sshImage -and $sshImage.PathName -match '^\s*(?:"([^"]+)"|(\S+))') {
+            $candidate = $(if ($Matches[1]) { $Matches[1] } else { $Matches[2] })
+            if ($candidate -match '\.exe$' -and (Test-Path -LiteralPath $candidate -PathType Leaf)) {
+                $sshBinary = $candidate
+            } else {
+                $sshBinary = $null
+                $errors.Add('The sshd service executable path could not be verified.')
+            }
+        } else {
+            $sshBinary = $null
+            $errors.Add('The sshd service image was not available.')
+        }
+    } catch {
+        $sshBinary = $null
+        $errors.Add('The sshd service image could not be read: ' + $_.Exception.Message)
+    }
+}
+$firewallProfiles = $null
+try {
+    $firewallProfiles = @(Get-NetFirewallProfile -PolicyStore ActiveStore | ForEach-Object {
+        [ordered]@{
+            name = $_.Name
+            enabled = $_.Enabled.ToString()
+            default_inbound_action = $_.DefaultInboundAction.ToString()
+            allow_inbound_rules = $_.AllowInboundRules.ToString()
+            shields_up_effective = ($_.Enabled.ToString() -eq 'True' -and
+                $_.DefaultInboundAction.ToString() -eq 'Block' -and
+                $_.AllowInboundRules.ToString() -eq 'False')
+        }
+    })
+} catch {
+    $errors.Add('Effective firewall profiles could not be read: ' + $_.Exception.Message)
+}
 $rdpService = Get-Service -Name TermService -ErrorAction SilentlyContinue
 $rdpSettings = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server' -ErrorAction SilentlyContinue
 $rdpTransport = Get-ItemProperty -LiteralPath 'HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -ErrorAction SilentlyContinue
@@ -25,8 +63,10 @@ $report = [ordered]@{
     scope = 'availability only; no installation, connection or driver execution'
     tailscale_installed = (Test-Path -LiteralPath $tailscalePath -PathType Leaf)
     tailscale_ipv4 = $addresses
-    openssh_server_binary_present = (Test-Path -LiteralPath $sshBinary -PathType Leaf)
+    openssh_server_binary_present = $(if ($sshBinary) { Test-Path -LiteralPath $sshBinary -PathType Leaf } else { $null })
+    openssh_server_binary_path = $sshBinary
     sshd_service_status = $(if ($sshService) { [string]$sshService.Status } else { 'NotInstalled' })
+    firewall_effective_profiles = $firewallProfiles
     rdp_connections_enabled = $(if ($rdpSettings) { $rdpSettings.fDenyTSConnections -eq 0 } else { $null })
     rdp_service_status = $(if ($rdpService) { [string]$rdpService.Status } else { 'NotInstalled' })
     rdp_port = $(if ($rdpTransport) { $rdpTransport.PortNumber } else { $null })

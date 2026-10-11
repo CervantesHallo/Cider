@@ -1,0 +1,47 @@
+{
+  "schema": "cider.trusted-windows-channel-summary/v1",
+  "date": "2026-10-11",
+  "policy_user_readback": {
+    "profile": "Public",
+    "enabled": "True",
+    "default_inbound_action": "Block",
+    "allow_inbound_rules": "True",
+    "computer_policy_refresh_completed": true
+  },
+  "transport": "verified LAN endpoint; public forwarding not verified",
+  "ssh": {
+    "host_key_verified": true,
+    "public_key_authenticated": true,
+    "remote_marker_verified": true,
+    "ssh_exit_code": 0,
+    "elapsed_seconds": 0.282
+  },
+  "sftp": {
+    "upload_download_hash_equal": true,
+    "windows_hash_equal": true,
+    "remote_probe_removed": true,
+    "sha256": "dd458abf0399c971478bbc9bd662a9166c8728b41a3720fbaa68253197155467",
+    "elapsed_seconds": 3.24
+  },
+  "windows_build_inventory": {
+    "ewdk_mounted": true,
+    "visual_studio_buildtools_available": true,
+    "native_build_run_this_turn": false
+  },
+  "mac_windows_app_ui": [
+    "display-name selection: noWindowsAvailable",
+    "actual bundle-ID selection: timeoutReached"
+  ],
+  "native_rdp_screen_verified": false,
+  "native_watchdog_verified": false,
+  "kernel_driver_loaded": false,
+  "game_launched": false,
+  "actions_triggered": false,
+  "budget_remaining_seconds": {
+    "preparation": 660,
+    "test": 3600
+  },
+  "pending_reservations": [],
+  "collector_source_sha256": "1329667740041ef738479da453890bbc9b2efe1c2a65b05cac6a87a1d80be0bb",
+  "collector_validation": "Mac PowerShell 7.6.6 syntax only; revised collector not executed on Windows"
+}
