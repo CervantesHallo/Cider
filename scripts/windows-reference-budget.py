@@ -127,11 +127,23 @@ def status(state):
     pending = [x["id"] for x in state["reservations"] if x["status"] == "pending"]
     window_open = 9 <= now.hour < 17
     window_remaining = max(0, int((now.replace(hour=17, minute=0, second=0, microsecond=0) - now).total_seconds())) if window_open else 0
+    availability_path = STATE_ROOT / "windows-availability.json"
+    user_busy = False
+    if availability_path.exists() or availability_path.is_symlink():
+        if (availability_path.is_symlink() or not availability_path.is_file()
+                or availability_path.stat().st_size > 65536):
+            raise ValueError("Invalid Windows availability record; refusing work.")
+        availability = json.loads(availability_path.read_text(encoding="utf-8"))
+        if (availability.get("schema") != "cider.windows-availability/v1"
+                or type(availability.get("user_busy")) is not bool):
+            raise ValueError("Unknown Windows availability record; refusing work.")
+        user_busy = availability["user_busy"]
     return {"schema": state["schema"], "remaining_seconds": remaining, "pending": pending,
             "effective_limits_seconds": effective_limits(state),
             "window_open": window_open, "window_remaining_seconds": window_remaining,
             "window": "09:00-17:00 UTC+08:00 daily",
             "stopped_by_user": (STATE_ROOT / "STOP").exists(),
+            "user_busy": user_busy,
             "accounting": "charge-full-reservation-no-refund", "ledger": str(STATE_FILE)}
 
 
@@ -183,8 +195,8 @@ def main():
             if args.attended_setup and args.phase != "preparation":
                 raise ValueError("Attended handoff is only a preparation reservation.")
             if ((not current["window_open"] and not args.attended_setup)
-                    or current["stopped_by_user"] or current["pending"]):
-                raise ValueError("Outside window, stopped, or unresolved cleanup; refusing Windows work.")
+                    or current["stopped_by_user"] or current["pending"] or current["user_busy"]):
+                raise ValueError("Outside window, stopped, user busy, or unresolved cleanup; refusing Windows work.")
             if (not 1 <= args.seconds <= 600
                     or args.seconds > current["remaining_seconds"][args.phase]
                     or (not args.attended_setup and args.seconds > current["window_remaining_seconds"])):

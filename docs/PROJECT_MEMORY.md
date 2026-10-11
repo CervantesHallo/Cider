@@ -4,6 +4,7 @@
 
 ## 用户目标与协作
 
+- 最新用户批准追加5分钟准备（两条回复为同一次授权，不能重复加额），且明确主账号正在使用Windows。已追加稳定授权user-preparation-20261011-dedicated-rdp5：有效准备4500秒/测试3600秒，余准备300秒/测试3600秒、无pending，新增额度尚未使用。Mac实际确认保存的CiderReference标签已绑定目标配置，取消查看回电脑列表，未连接/读取密码。私有windows-availability.json记录user_busy=true；budget status暴露该值、reserve在任何阶段/attended模式均拒绝忙碌预约，close/已批准extend在有效记录下仍可进行。缺失旧文件兼容不代表自动确认空闲；未知schema/非bool/异常文件拒绝。只做语法编译及真实status读取，自审检查忙碌保护不能由追加额度、在场标志或测试阶段绕过；它阻断新预约，不声称自动停止既有任务。用户明确确认空闲或给出新可用安排前，不清除此标记、不发起Windows/RDP/SSH工作；继续可在Mac准备，原HY顺序保持。
 - 最新用户报告专用账户“已启用”。最后人工60秒预约已按attended unmeasured规则关闭：实际输入命令没有整体计时，交接墙钟间隔单独保留不冒充活跃机时；完成/Enabled证据来自人类报告而非SSH读回，密码未采集，没有启动连接/项目/VM/驱动。准备余0/测试3600、无pending，有效上限4200/3600。Mac只在新凭据表单预填CERVANTES\CiderReference及友好名称，密码框为空/焦点交用户；未添加/保存新凭据或重连。已请求明确再加5分钟准备、只做专用账户首桌面/截图/输入验收，尚无批准，不能apply extend或开Windows任务。用户须先断开当前桌面连接避免重现0x5；账户启用不等于桌面验收。
 - 当前人工交接：最后60秒准备已预约c5b7763d-dca0-4ab5-a87d-a2c52411049c，余准备0/测试3600，pending；仅用户在Windows管理员PowerShell以Read-Host SecureString设置CiderReference密码并启用/读回，无RDP隧道或自动新操作。未收到Enabled结果前账户仍按禁用/无密码的已验证状态记载，不能关闭预约或再开展Windows任务。后续读用户回执，按真实人工范围结算；若没有总秒表只能明确unmeasured，不猜0秒。测试额度不得补准备预算，追加需新明确授权。
 - 用户明确请求新建管理员账户，并确认自己仍在连接Windows；此前另一连接的具体程序尚未确认。采用专用本地CiderReference，独立身份/配置是收益，新增管理员权限与维护账户是成本，不承诺Win11Pro能并发两个桌面、不修改多会话/保护策略。60秒在场准备44b7d396-48c6-4fc2-b301-056726cb4d82内可信SSH创建NoPassword且Disabled账户并验证禁用、Local来源、Administrators及Remote Desktop Users成员；密码未输入/保存，SSH原AllowUsers未改。31.429秒范围回执关闭预约，全扣，余准备60秒/测试3600秒、无pending。新账户尚不能登录，必须用户在Windows亲自输入至少12字符密码再启用；不把创建/管理员成员等同RDP验收。账户SID/原始回执仅私有；撤回先Disable-LocalUser，保留可能出现的用户文件，不自动删除。接下来人工密码步骤需另预约剩余准备时间，不能免计或切入测试额度。
