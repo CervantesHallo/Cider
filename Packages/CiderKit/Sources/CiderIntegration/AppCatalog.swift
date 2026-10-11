@@ -207,17 +207,8 @@ public struct AppCatalog: Sendable {
         return best?.0
     }
 
-    /// Splits a Windows command-line argument string, honouring double quotes.
+    /// Shortcut arguments exclude the executable; use the runtime's argument-tail rules.
     func splitArguments(_ line: String) -> [String] {
-        var args: [String] = []
-        var current = ""
-        var quoted = false
-        for ch in line {
-            if ch == "\"" { quoted.toggle(); continue }
-            if ch == " ", !quoted { if !current.isEmpty { args.append(current); current = "" }; continue }
-            current.append(ch)
-        }
-        if !current.isEmpty { args.append(current) }
-        return args
+        WindowsArgumentParser.parse(line)
     }
 }
