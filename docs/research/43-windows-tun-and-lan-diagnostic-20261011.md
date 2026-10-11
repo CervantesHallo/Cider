@@ -63,3 +63,15 @@ TUN只读查看的180秒预约根据完整参数截图结算：未启动Windows�
 下一只读交接仅三行：Win32_ComputerSystem.PartOfDomain、[dsregcmd /status](https://learn.microsoft.com/en-us/entra/identity/devices/troubleshoot-device-dsregcmd)中四个注册/加入标志、[gpresult /scope computer /r](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/gpresult)应用策略摘要。用于区分已有管理来源与残留策略值；不变更域/注册、查询其他设备、清除策略或修改注册表。相关来源结果只私有，摘要中的无关身份/组信息不加入记忆或公开仓库。没有匹配GPO也不能独自证明外部策略作者是谁。
 
 三行命令Mac PowerShell7.6.6仅解析通过，SHA256 `8ba85097c8b9459ab3a1ea44520b18ff9b347c8632f6c28b00fc8f13e28b5741`，Windows尚未执行。180秒人工准备预约已按只读返回及保护失败结算，无任何修改/新增运行任务；新60秒只读来源预约69da8a01-ad32-4d13-8f59-cc7b8d0114f3 pending，余准备1140秒（19分钟）/测试3600秒。未占用测试额度或触发Actions，及时结束回合供用户返回输出。
+
+## 独立工作站：明确创建本地Public策略（当前）
+
+用户gpresult返回独立工作站、域类型为本地计算机，已应用对象仅本地组策略；PartOfDomain=False。过滤的dsreg四个标志未显示，可能是混合对象/原生输出格式问题，不能记为NO或证明没有MDM。不保存报告的无关安全组成员信息。原始阻断值写入者仍未知；已有证据允许区分“本机Public GPO已配置False”（已排除）和“当前Policies/RSOP仍有False”（已证实）。
+
+具体方案修订为：在用户既有接入配置授权内，给未配置的localhost/Public明确新设AllowInboundRules=True作为期望本地策略；使用前述[官方PolicyStore支持](https://learn.microsoft.com/en-us/powershell/module/netsecurity/set-netfirewallprofile?view=windowsserver2025-ps#-policystore)，不把新设策略冒充找到了原写入者。先确认PartOfDomain仍False，有效防火墙Enabled=True/默认Block，localhost原值仍NotConfigured；唯一JSON备份该项后，仅设置AllowInboundRules，刷新变化的计算机策略wait30、不加force，非零则保留不确定状态/pending，完成后回读ActiveStore。
+
+收益：以可回退的本地GPO持久记录所需状态，并验证是否消除当前阻断；代价：本机Public已有允许规则都恢复评估，刷新可能处理其他已变化的计算机策略。启用防火墙/默认Block不改；不能承诺存在其他管理者时本地策略必定胜出。验收为有效True/Block/True、随后严格pin/公钥连接；若仍False，保留新本地GPO及有效差异证据，不重复刷新或删除Policies键。回退按备份将localhost/Public这一项恢复NotConfigured并刷新/回读；原PersistentStore备份继续保留。
+
+对抗性自审：只创建这一明确设置，不碰域GPO/其他profile/默认行为；原状态变更或域加入则保护停止；不依赖不可见dsreg标志，不声称无MDM；gpupdate等待上限不等于后台终止。命令仅Mac PowerShell7.6.6解析通过，SHA256 `ab9f48340087d6c9b32a84b11b538d0dcd3474368e4f4a19228969d81f56c106`，Windows未执行。
+
+前60秒只读查询按完整计算机摘要/成员布尔值、无配置或运行任务结算；新180秒人工准备预约b2d7ea45-5f1c-4fd8-9b74-9ce77b2e1fba pending，余准备960秒（16分钟）/测试3600秒。连接、文件/屏幕通道、原生watchdog与独立内核环境仍待；未启动测试或Actions。

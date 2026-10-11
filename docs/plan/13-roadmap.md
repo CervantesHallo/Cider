@@ -4,7 +4,7 @@
 
 ## 2026-10-11 原队列恢复（当前）
 
-本机Public GPO实际为NotConfigured，保护条件拒绝且未修改/刷新；阻断具体来源未找到，下一60秒域/注册状态与计算机应用策略只读查询pending，余准备1140秒/测试3600秒。见research/43当前末节；HY顺序保持，不重试连接或清除策略。
+当前用户来源输出为独立工作站、只应用本地GPO、PartOfDomain=False；下一方案为未配置的localhost/Public明确创建AllowInboundRules=True，备份原值/保护状态后刷新回读，Windows未执行。来源查询已结算，新180秒准备pending，余准备960秒/测试3600秒；见research/43当前末节。SSH/无人值守/游戏仍未接通或验收，HY顺序保持。
 
 Windows本地修正回执：Public有效AllowInboundRules仍False，前120秒准备已结算；覆盖来源尚未确认，下一60秒只读来源预约pending，余准备1380秒/测试3600秒。见research/43最新节；未重复失败探测或绕过策略，HY顺序保持。
 

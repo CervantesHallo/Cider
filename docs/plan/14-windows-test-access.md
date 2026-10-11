@@ -4,7 +4,7 @@
 
 ## 用户决定与当前执行限额
 
-- 当前检查点（16:35 UTC+8）：localhost/Public实际三项NotConfigured，保护条件阻止了任何写入与gpupdate；前180秒已结算。下一60秒只读域/注册状态及gpresult计算机应用策略预约pending，余准备1140秒/测试3600秒。不能凭Policies键或RSOP名称断言实际GPO来源；查询后再决定有依据的修正，连接仍未接通。
+- 当前检查点（16:38 UTC+8）：用户gpresult独立工作站、仅应用本地组策略、PartOfDomain=False；来源查询已结算。下一180秒为localhost/Public明确新设AllowInboundRules=True的保护/备份/刷新回读准备预约pending，余准备960秒/测试3600秒，Windows尚未执行。原写入者与MDM状态不明，失败/刷新不确定保持pending；SSH未接通。具体取舍见research/43当前末节。
 - 最新检查点（16:23 UTC+8）：Public本地修改后有效AllowInboundRules仍False，前120秒准备已结算；下一60秒只读来源预约pending，余准备1380秒/测试3600秒。不重复Set/网络探测、不猜管理来源；先核对存储差异及相关阻断状态，详见research/43最新节。
 - 最新接入检查点（2026-10-11 16:14 UTC+8）：Windows快照返回后前60秒只读预约已结算；新120秒在场防火墙配置准备预约pending，余准备1440秒/测试3600秒。物理回程与2222监听已观测，AllowInboundRules=0需原生文字核对；仅当前接口配置、保留默认Block及开启防火墙、备份原值的修正待用户执行。会恢复该配置所有已有允许规则，未声称只2222或已连通。详见research/43末节；账本是机时权威，旧下文额度是历史值。
 - 用户要求明确累计 Windows 占用时间，不能无限占用主力机；白天不在家，授权定时自主规划测试。
