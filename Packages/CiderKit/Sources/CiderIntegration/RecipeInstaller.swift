@@ -36,27 +36,47 @@ public struct RecipeInstaller: Sendable {
 
     /// Whether everything `detect` lists exists in the bottle.
     public func isInstalled(_ recipe: Recipe, in bottle: Bottle) -> Bool {
-        let files = recipe.detect.files.allSatisfy { path in
-            (try? WindowsPath.hostURL(for: path, in: bottle)).map { FileManager.default.fileExists(atPath: $0.path) } ?? false
-        }
-        let any = recipe.detect.anyFiles.map { list in list.contains { path in
-            (try? WindowsPath.hostURL(for: path, in: bottle)).map { FileManager.default.fileExists(atPath: $0.path) } ?? false
-        } } ?? true
+        guard RecipePolicy.detectionViolation(in: recipe.detect) == nil else { return false }
+        let files = recipe.detect.files.allSatisfy { detectedFileExists($0, in: bottle) }
+        let any = recipe.detect.anyFiles.map { list in list.contains { detectedFileExists($0, in: bottle) } } ?? true
         return files && any && (recipe.detect.registryKeys ?? []).allSatisfy { registryKeyExists($0, in: bottle) }
-            && (recipe.detect.registryValues ?? []).allSatisfy { (registryDWORD($0.key, $0.name, in: bottle) ?? 0) >= $0.atLeast }
+            && (recipe.detect.registryValues ?? []).allSatisfy {
+                guard let value = registryDWORD($0.key, $0.name, in: bottle) else { return false }
+                return value >= $0.atLeast
+            }
+    }
+
+    private func detectedFileExists(_ path: String, in bottle: Bottle) -> Bool {
+        guard let url = try? WindowsPath.hostURL(for: path, in: bottle) else { return false }
+        var info = stat()
+        // Follow legitimate Wine drive mappings; presence checks do not authorize writes.
+        return stat(url.path, &info) == 0 && info.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG)
     }
 
     /// A DWORD value from Wine's registry files, or nil.
     func registryDWORD(_ key: String, _ name: String, in bottle: Bottle) -> UInt32? {
-        guard let (text, needle) = registryText(for: key, in: bottle),
-              let start = text.range(of: needle, options: .caseInsensitive) else { return nil }
-        let block = text[start.upperBound...]
-        for line in block.split(separator: "\n").dropFirst() {
-            if line.hasPrefix("[") { break }
-            let prefix = "\"\(name)\"=dword:"
-            if line.lowercased().hasPrefix(prefix.lowercased()) { return UInt32(line.dropFirst(prefix.count), radix: 16) }
+        guard let block = registryBlock(for: key, in: bottle) else { return nil }
+        for line in block {
+            let prefix = name.isEmpty ? "@=dword:" : "\"\(name)\"=dword:"
+            if line.lowercased().hasPrefix(prefix.lowercased()) {
+                return UInt32(line.dropFirst(prefix.count).trimmingCharacters(in: .whitespacesAndNewlines), radix: 16)
+            }
         }
         return nil
+    }
+
+    private func registryBlock(for key: String, in bottle: Bottle) -> [Substring]? {
+        guard let (text, needle) = registryText(for: key, in: bottle) else { return nil }
+        let lines = text.split(separator: "\n", omittingEmptySubsequences: false)
+        guard let header = lines.firstIndex(where: { line in
+            guard let range = line.range(of: needle, options: [.anchored, .caseInsensitive]) else { return false }
+            let suffix = line[range.upperBound...]
+            // Wine section headers may carry a timestamp after the closing bracket.
+            return suffix.isEmpty || suffix.first?.isWhitespace == true
+        }) else { return nil }
+        let start = header + 1
+        let end = lines[start...].firstIndex(where: { $0.hasPrefix("[") }) ?? lines.endIndex
+        return Array(lines[start..<end])
     }
 
     private func registryText(for key: String, in bottle: Bottle) -> (String, String)? {
@@ -76,8 +96,7 @@ public struct RecipeInstaller: Sendable {
     /// written as `[Software\\Microsoft\\…]` with doubled backslashes. Wine flushes these files a few seconds
     /// after a change, which the post-install polling absorbs.
     func registryKeyExists(_ key: String, in bottle: Bottle) -> Bool {
-        guard let (text, needle) = registryText(for: key, in: bottle) else { return false }
-        return text.range(of: needle, options: .caseInsensitive) != nil
+        registryBlock(for: key, in: bottle) != nil
     }
 
     /// Installs the recipe and its missing dependencies. `progress` gets short user-facing steps.

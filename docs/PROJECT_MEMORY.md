@@ -4,6 +4,8 @@
 
 ## 用户目标与协作
 
+- 最新续做research/50：首次安装detect静态缺口已修正，空条件/空any_files、缺失DWORD当零、目录当文件、文本子串当注册表节均不再作为完成证据；元数据接纳/整图预检/直接检测共用条件校验。仅支持规范化绝对盘符路径与HKLM/HKCU，特殊转义名/隐式父键/完整Windows文件语义等仍待完善；未运行测试或安装。最终CLI3.13秒/App3.25秒构建0、debug打包签名0，上一包备份，未重启GUI/Wine。49已按用户身份skip ci提交推送9338898。本机账本实读仍准备0/测试3600/同一pending，未改账/连接Windows；完整32位退出状态链、HY1运行缺项、原生kernel与三游戏会话均未闭合，不升级许可/评级。
+
 - 最新Mac交付见research/49：RecipeInstaller先验证完整依赖图，循环明确失败，共享节点去重，来源/类型/参数/环境归属静态错误前置；检查仍未覆盖真实安装失败/取消回滚，运行验收待做。新增PEHeader共用资源读取边界，以及退出码候选的显式准备/有界读取API；没有App/CLI/RecipeInstaller调用或伴随EXE打包，不声明修复了完整退出状态链。CLI9.17秒/App13.13秒构建0，debug app打包签名0、旧包已备份；未重启GUI/Wine，无测试/Windows/Actions/子代理。候选的目录/计划/Unix零返回不是来源进程或后代清理证明；native kernel和三游戏门禁保持。用户要锁Mac时已说明当前无需手动步骤，保持开机联网/Codex运行即可继续命令/文件工作，屏幕步骤留待解锁，不保证睡眠/关机时运行。45的超额预约仍pending，不自动结算或扩额。
 
 - 用户再次要求不要停下、只有重大问题才停止。已继续Mac代码：research/47新增LaunchPlan/session/audit的自动环境profile id/revision/内容摘要及最终值差异键，launchLocked按accepted DB快照/实际argv-env重算，不把可编辑metadata当授权；没有扩大安装器匹配或断言子进程继承。research/48记录安装退出码被忽略且Unix8位不能推定Windows32位，新增Tools/wine-exit-status候选及CiderCore.WindowsExitStatus有界/严格解码、MSI专用分类；x64/i686 PE严格编译、App/CLI构建及debug打包签名成功，自审补强phase=captured。候选未运行/未接入安装/未bundled，原缺陷仍待真实状态链修复；不是Watchdog/整树清理/内核证明。无测试/Windows/Actions/子代理，45的超额预约仍pending，不自动修账。为落实Mac锁屏后持续推进，复用同一heartbeat cider改为每小时回本聊天，Windows仍09–17且受原预算/busy/pending保护；相同阻塞不反复通知/盲重试，不运行未要求测试、不将构建当验收。Mac/应用须持续运行，锁屏不等于睡眠，不恢复旧paused Goal或另建重复Goal。

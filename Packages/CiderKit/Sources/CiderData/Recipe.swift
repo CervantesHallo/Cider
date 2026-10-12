@@ -62,6 +62,10 @@ public struct Recipe: Codable, Sendable, Equatable, Identifiable {
         /// DWORD values that must be at least `atLeast` — e.g. the VC++ runtime's build number, because Wine
         /// pre-creates the runtime's keys with its own (older) build to satisfy installers' checks.
         public var registryValues: [RegistryValue]?
+        /// An empty conjunction is not evidence of an installation.
+        public var hasConditions: Bool {
+            !files.isEmpty || !(anyFiles ?? []).isEmpty || !(registryKeys ?? []).isEmpty || !(registryValues ?? []).isEmpty
+        }
         enum CodingKeys: String, CodingKey {
             case files, anyFiles = "any_files", registryKeys = "registry_keys", registryValues = "registry_values"
         }
@@ -108,6 +112,38 @@ public enum RecipePolicy {
                       profile.unicodeScalars.allSatisfy({ $0.isASCII && (CharacterSet.alphanumerics.contains($0) || "._-".unicodeScalars.contains($0)) }) else {
                     return "environment_profile requires an installer step and a valid profile id"
                 }
+            }
+        }
+        return detectionViolation(in: recipe.detect)
+    }
+
+    /// Validate the supported detect subset without accessing a prefix or executing Wine.
+    public static func detectionViolation(in detect: Recipe.Detect) -> String? {
+        guard detect.hasConditions else { return "detect requires at least one installation condition" }
+        if detect.anyFiles?.isEmpty == true { return "detect any_files must not be empty when present" }
+        for path in detect.files + (detect.anyFiles ?? []) {
+            let head = Array(path.unicodeScalars.prefix(3))
+            guard !path.contains("\0"), head.count == 3,
+                  (65...90).contains(head[0].value) || (97...122).contains(head[0].value),
+                  head[1].value == 58, head[2].value == 47 || head[2].value == 92 else {
+                return "detect file requires an absolute Windows drive path without NUL"
+            }
+            let parts = path.dropFirst(3).split(whereSeparator: { $0 == "\\" || $0 == "/" })
+            if parts.contains(where: { $0 == "." || $0 == ".." }) {
+                return "detect file requires a normalized path without dot components"
+            }
+        }
+        for key in (detect.registryKeys ?? []) + (detect.registryValues ?? []).map(\.key) {
+            let parts = key.split(separator: "\\", maxSplits: 1, omittingEmptySubsequences: false)
+            guard parts.count == 2, !parts[1].isEmpty,
+                  ["HKLM", "HKEY_LOCAL_MACHINE", "HKCU", "HKEY_CURRENT_USER"].contains(parts[0].uppercased()),
+                  !key.contains("\0"), !key.contains("\n"), !key.contains("\r") else {
+                return "detect registry key requires a supported hive and a nonempty single-line path"
+            }
+        }
+        for value in detect.registryValues ?? [] {
+            guard !value.name.contains("\0"), !value.name.contains("\n"), !value.name.contains("\r") else {
+                return "detect registry value name must not contain NUL or line breaks"
             }
         }
         return nil
