@@ -21,11 +21,13 @@ public struct RecipeInstaller: Sendable {
 
     public enum InstallError: Error, CustomStringConvertible {
         case unknownRecipe(String)
+        case dependencyCycle([String])
         case checksum(String)
         case notDetected(String)
         public var description: String {
             switch self {
             case .unknownRecipe(let id): return "没有找到配方 \(id)"
+            case .dependencyCycle(let path): return "配方依赖形成循环，安装未开始：" + path.joined(separator: " → ")
             case .checksum(let file): return "\(file) 的校验和不匹配，已停止安装（文件可能被篡改或下载不完整）"
             case .notDetected(let name): return "\(name) 的安装程序结束了，但没有找到安装结果"
             }
@@ -80,31 +82,82 @@ public struct RecipeInstaller: Sendable {
 
     /// Installs the recipe and its missing dependencies. `progress` gets short user-facing steps.
     public func install(_ recipeID: String, in bottle: Bottle, progress: @Sendable (String) -> Void = { _ in }) throws {
-        try install(recipeID, in: bottle, progress: progress, visiting: [])
+        // Validate the complete accepted-data graph before any download or prefix mutation.
+        // An installed dependency does not make an invalid graph safe to execute.
+        let ordered = try installationOrder(for: recipeID)
+        for recipe in ordered {
+            try Task.checkCancellation()
+            try install(recipe, in: bottle, progress: progress)
+        }
     }
 
-    private func install(_ recipeID: String, in bottle: Bottle, progress: @Sendable (String) -> Void, visiting: Set<String>) throws {
-        try Task.checkCancellation()
-        guard let recipe = db.recipes[recipeID] else { throw InstallError.unknownRecipe(recipeID) }
-        guard !visiting.contains(recipeID) else { return }                     // dependency cycle: ignore
-        for dependency in recipe.dependencies ?? [] {
+    private func installationOrder(for recipeID: String) throws -> [Recipe] {
+        var complete: Set<String> = []
+        var active: Set<String> = []
+        var path: [String] = []
+        var ordered: [Recipe] = []
+        // Iterative depth-first traversal avoids a Swift call stack per dependency.
+        var pending: [(id: String, finish: Bool)] = [(recipeID, false)]
+        while let frame = pending.popLast() {
             try Task.checkCancellation()
-            if let dep = db.recipes[dependency], isInstalled(dep, in: bottle) { continue }
-            try install(dependency, in: bottle, progress: progress, visiting: visiting.union([recipeID]))
+            if frame.finish {
+                guard let recipe = db.recipes[frame.id] else { throw InstallError.unknownRecipe(frame.id) }
+                active.remove(frame.id)
+                path.removeLast()
+                complete.insert(frame.id)
+                ordered.append(recipe)
+                continue
+            }
+            if complete.contains(frame.id) { continue }
+            if active.contains(frame.id) {
+                let start = path.firstIndex(of: frame.id) ?? path.startIndex
+                throw InstallError.dependencyCycle(Array(path[start...]) + [frame.id])
+            }
+            guard let recipe = db.recipes[frame.id] else { throw InstallError.unknownRecipe(frame.id) }
+            guard recipe.id == frame.id else { throw CiderError.invalid("配方身份与依赖名称不一致：\(frame.id)") }
+            if let reason = RecipePolicy.violation(in: recipe) { throw CiderError.invalid("配方无效：\(frame.id)：\(reason)") }
+            for step in recipe.steps {
+                try Task.checkCancellation()
+                if let run = step.runInstaller {
+                    guard run.kind == "exe" || run.kind == "msi",
+                          (run.args ?? []).allSatisfy({ !$0.contains("\0") }) else {
+                        throw CiderError.invalid("配方安装器类型或参数无效：\(frame.id)")
+                    }
+                    guard let source = recipe.sources[run.source] else { throw CiderError.invalid("配方引用了不存在的下载来源") }
+                    _ = try Self.filename(for: source, fallback: run.source)
+                    _ = try Self.acceptedHashes(for: source)
+                    _ = try installerEnvironment(for: step, recipe: recipe)
+                }
+            }
+            active.insert(frame.id)
+            path.append(frame.id)
+            pending.append((frame.id, true))
+            for dependency in (recipe.dependencies ?? []).reversed() { pending.append((dependency, false)) }
         }
+        return ordered
+    }
+
+    private func installerEnvironment(for step: Recipe.Step, recipe: Recipe) throws -> [String: String] {
+        guard let id = step.environmentProfile else { return [:] }
+        guard let profile = db.profiles.first(where: { $0.id == id }), profile.target == recipe.id else {
+            throw CiderError.invalid("安装步骤的环境档案不存在、被拒绝或不属于此配方：\(id)")
+        }
+        let environment = profile.actions.env ?? [:]
+        guard environment.allSatisfy({ key, value in
+            !key.isEmpty && !key.contains("=") && !key.contains("\0") && !value.contains("\0")
+        }) else { throw CiderError.invalid("安装环境档案含无效变量：\(id)") }
+        return environment
+    }
+
+    private func install(_ recipe: Recipe, in bottle: Bottle, progress: @Sendable (String) -> Void) throws {
+        try Task.checkCancellation()
         if isInstalled(recipe, in: bottle) { return }
         let runner = try store.runner(for: bottle)
         var files: [String: URL] = [:]
         for step in recipe.steps {
             try Task.checkCancellation()
             if let run = step.runInstaller {
-                var installerEnvironment: [String: String] = [:]
-                if let id = step.environmentProfile {
-                    guard let profile = db.profiles.first(where: { $0.id == id }), profile.target == recipe.id else {
-                        throw CiderError.invalid("安装步骤的环境档案不存在、被拒绝或不属于此配方：\(id)")
-                    }
-                    installerEnvironment = profile.actions.env ?? [:]
-                }
+                let installerEnvironment = try installerEnvironment(for: step, recipe: recipe)
                 guard let source = recipe.sources[run.source] else { throw CiderError.invalid("配方引用了不存在的下载来源") }
                 let file: URL
                 if let cached = files[run.source] {

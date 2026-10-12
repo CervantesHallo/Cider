@@ -1,8 +1,10 @@
 # Cider 项目持久记忆
 
-更新：2026-10-11。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
+更新：2026-10-12。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
 
 ## 用户目标与协作
+
+- 最新Mac交付见research/49：RecipeInstaller先验证完整依赖图，循环明确失败，共享节点去重，来源/类型/参数/环境归属静态错误前置；检查仍未覆盖真实安装失败/取消回滚，运行验收待做。新增PEHeader共用资源读取边界，以及退出码候选的显式准备/有界读取API；没有App/CLI/RecipeInstaller调用或伴随EXE打包，不声明修复了完整退出状态链。CLI9.17秒/App13.13秒构建0，debug app打包签名0、旧包已备份；未重启GUI/Wine，无测试/Windows/Actions/子代理。候选的目录/计划/Unix零返回不是来源进程或后代清理证明；native kernel和三游戏门禁保持。用户要锁Mac时已说明当前无需手动步骤，保持开机联网/Codex运行即可继续命令/文件工作，屏幕步骤留待解锁，不保证睡眠/关机时运行。45的超额预约仍pending，不自动结算或扩额。
 
 - 用户再次要求不要停下、只有重大问题才停止。已继续Mac代码：research/47新增LaunchPlan/session/audit的自动环境profile id/revision/内容摘要及最终值差异键，launchLocked按accepted DB快照/实际argv-env重算，不把可编辑metadata当授权；没有扩大安装器匹配或断言子进程继承。research/48记录安装退出码被忽略且Unix8位不能推定Windows32位，新增Tools/wine-exit-status候选及CiderCore.WindowsExitStatus有界/严格解码、MSI专用分类；x64/i686 PE严格编译、App/CLI构建及debug打包签名成功，自审补强phase=captured。候选未运行/未接入安装/未bundled，原缺陷仍待真实状态链修复；不是Watchdog/整树清理/内核证明。无测试/Windows/Actions/子代理，45的超额预约仍pending，不自动修账。为落实Mac锁屏后持续推进，复用同一heartbeat cider改为每小时回本聊天，Windows仍09–17且受原预算/busy/pending保护；相同阻塞不反复通知/盲重试，不运行未要求测试、不将构建当验收。Mac/应用须持续运行，锁屏不等于睡眠，不恢复旧paused Goal或另建重复Goal。
 - 原计划继续后的Mac交付：research/46复核HY顺序/证据，从HY1快捷方式入口发现旧splitArguments静态缺口，新增CiderCore.WindowsArgumentParser并替换AppCatalog委托。保持空参数、Space/Tab、反斜杠/引号及Unicode；自审补首NUL终止，不解释宿主shell或冒充完整CommandLineToArgvW。最终CLI/App swift build均0，debug out/Cider.app已打包签名，旧包out/backups保留；未重启GUI/Wine、未新增/运行测试/Windows/Actions或子代理。真实特殊快捷方式/Retina/完整入口仍待验；HY2 token/context方案42仍需原生kernel依据，HY3及三款门禁不提升。Windows过额预约45仍pending，不能因本机代码交付自动解除或扩大预算。

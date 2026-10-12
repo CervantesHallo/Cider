@@ -4,6 +4,8 @@
 
 ## 2026-10-11 原队列恢复（当前）
 
+2026-10-12：[research/49](../research/49-hy1-install-preparation-20261012.md)继续HY1安装可靠性：RecipeInstaller已接入整图预检/明确循环失败，静态错误在本安装器下载或前缀修改前报告；共用PEHeader及显式退出码准备/有界读取接口已实现。CLI/App构建与debug app签名成功，没有测试/运行验收/Windows操作；准备接口没有默认调用、伴随工具没有bundled，原退出码忽略问题仍未闭合。取舍/对抗性静态审查/回退见49。原HY順序和阶段缺口保持，45的超额预约仍pending；Mac锁屏不妨碍可执行的源码工作。
+
 持续Mac交付：research/47补自动环境档案的真实选择记录并在spawn前重算，research/48新增完整Windows退出码候选/解码器（x64/i686编译，未运行/未接入默认安装）；App/CLI及debug app打包通过。首次安装的退出状态忽略缺陷仍待完整链修复，不能低字节猜MSI结果。用户要求不停推进/锁屏后继续，已有同一heartbeat改每小时推进Mac；Windows窗口/预算/未结算阻断保持，不复跑旧基线或在未验证时提升HY阶段。原HY順序保持。
 
 Mac执行检查：[research/46](../research/46-hy1-shortcut-arguments-20261011.md)按原HY順序修正快捷方式参数尾解析（空参数/Tab/反斜杠引号/NUL），App/CLI构建及debug app打包签名通过、旧包保留。源码/自审不等同真实运行；HY1仍待特殊参数/Retina/完整入口及首次安装显示，HY2原生kernel/context、HY3闭环和三款会话仍未完成。没有Windows操作/Actions或额外代理，45的过额预约保持pending。

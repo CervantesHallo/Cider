@@ -78,16 +78,11 @@ struct PEImage {
 
     init?(data: Data) {
         bytes = ByteReader(data)
-        guard bytes.u16(0) == 0x5A4D, let peOffset = bytes.u32(0x3C).map(Int.init),
-              bytes.u32(peOffset) == 0x0000_4550,
-              let sectionCount = bytes.u16(peOffset + 6), let optionalSize = bytes.u16(peOffset + 20) else { return nil }
-        let optional = peOffset + 24
-        guard let magic = bytes.u16(optional) else { return nil }
-        let dataDirectories = optional + (magic == 0x20B ? 112 : 96)
-        resourceRVA = bytes.u32(dataDirectories + 2 * 8) ?? 0
+        guard let header = PEHeader(data: data) else { return nil }
+        resourceRVA = header.directoryRVA(2, in: data) ?? 0
         var sections: [(UInt32, UInt32, UInt32, UInt32)] = []
-        let table = optional + Int(optionalSize)
-        for i in 0..<Int(sectionCount) {
+        let table = header.sectionTableOffset
+        for i in 0..<Int(header.sectionCount) {
             let s = table + i * 40
             guard let vsize = bytes.u32(s + 8), let va = bytes.u32(s + 12),
                   let rawSize = bytes.u32(s + 16), let raw = bytes.u32(s + 20) else { return nil }

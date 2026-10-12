@@ -11,7 +11,7 @@ let package = Package(
         .target(name: "CiderCore"),
         .target(name: "CiderSchema", dependencies: ["CiderCore"]),
         .target(name: "CiderStore", dependencies: ["CiderCore", "CiderSchema"]),
-        .target(name: "CiderRuntime", dependencies: ["CiderCore", "CiderSchema", "CiderStore", "CiderData"]),
+        .target(name: "CiderRuntime", dependencies: ["CiderCore", "CiderSchema", "CiderStore", "CiderData", "CiderPE"]),
         .target(name: "CiderBottle", dependencies: ["CiderCore", "CiderSchema", "CiderStore", "CiderRuntime"]),
         .target(name: "CiderPE"),
         .target(name: "CiderData"),
