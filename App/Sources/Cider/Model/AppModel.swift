@@ -396,7 +396,9 @@ final class AppModel {
                     let store = BottleStore(paths: paths, compat: snapshot)
                     let bottle = try store.bottle(item.bottleID)
                     let runner = try store.runner(for: bottle)
-                    let cwd = item.workingDirectory.flatMap { try? WindowsPath.hostURL(for: $0, in: bottle) }
+                    let cwd: URL?
+                    if action == .stop { cwd = nil }
+                    else { cwd = try WindowsPath.workingDirectory(item.workingDirectory, in: bottle) }
                     switch action {
                     case .start:
                         let session = try AppLifecycle.start(item, using: runner, cwd: cwd)

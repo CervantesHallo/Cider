@@ -301,6 +301,7 @@ struct Run: ParsableCommand {
     @Flag(help: "Wait for the program (and the whole bottle) to exit.") var wait = false
     @Option(help: "WINEDEBUG preset: \(DebugPreset.allCases.map(\.rawValue).joined(separator: ", ")).") var debug = "default"
     @Option(name: .customLong("env"), help: "Extra KEY=VALUE environment (repeatable).") var env: [String] = []
+    @Option(name: .customLong("cwd"), help: "Working directory: absolute Mac path or Windows drive path.") var workingDirectory: String?
     @Argument(help: "Program to run.") var program: String
     @Argument(parsing: .captureForPassthrough, help: "Arguments passed to the program.") var arguments: [String] = []
 
@@ -315,12 +316,12 @@ struct Run: ParsableCommand {
         let b = try store.bottle(bottle)
         let runner = try store.runner(for: b)
 
-        var cwd: URL?
+        var cwd = try WindowsPath.workingDirectory(workingDirectory, in: b)
         var target = program
         let expanded = (program as NSString).expandingTildeInPath
         if expanded.hasPrefix("/") {
             guard FileManager.default.fileExists(atPath: expanded) else { throw CiderError.notFound(expanded) }
-            cwd = URL(fileURLWithPath: expanded).deletingLastPathComponent()
+            if workingDirectory == nil { cwd = URL(fileURLWithPath: expanded).deletingLastPathComponent() }
             target = expanded
         }
         let args = arguments.first == "--" ? Array(arguments.dropFirst()) : arguments

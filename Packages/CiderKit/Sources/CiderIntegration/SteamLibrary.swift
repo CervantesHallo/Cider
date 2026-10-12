@@ -157,13 +157,37 @@ public enum WindowsPath {
 
     public static func hostURL(for windowsPath: String, in bottle: Bottle) throws -> URL {
         let normalized = windowsPath.replacingOccurrences(of: "/", with: "\\")
-        guard normalized.count >= 2, normalized.dropFirst().first == ":" else {
-            throw CiderError.invalid("not an absolute Windows path: \(windowsPath)")
+        let head = Array(normalized.unicodeScalars.prefix(3))
+        guard !normalized.contains("\0"), head.count == 3,
+              (65...90).contains(head[0].value) || (97...122).contains(head[0].value),
+              head[1].value == 58, head[2].value == 92 else {
+            throw CiderError.invalid("需要绝对 Windows 盘符路径：\(windowsPath)")
         }
         let drive = normalized.prefix(1).lowercased()
-        let rest = normalized.dropFirst(2).split(separator: "\\").map(String.init)
+        // DOS absolute paths normalize dot components within their drive root.
+        // Do this before appending host components, so C:\.. never escapes drive_c.
+        var rest: [String] = []
+        for part in normalized.dropFirst(3).split(separator: "\\") {
+            if part == "." { continue }
+            if part == ".." { if !rest.isEmpty { rest.removeLast() }; continue }
+            rest.append(String(part))
+        }
         let driveLink = bottle.prefix.appendingPathComponent("dosdevices/\(drive):")
         let base = drive == "c" ? bottle.driveC : driveLink.resolvingSymlinksInPath()
         return rest.reduce(base) { $0.appendingPathComponent($1) }
+    }
+
+    /// An explicit launch cwd must resolve to a real directory, never silently become nil.
+    /// Empty shortcut cwd keeps the existing inherited-directory behavior.
+    public static func workingDirectory(_ path: String?, in bottle: Bottle) throws -> URL? {
+        guard let path, !path.isEmpty else { return nil }
+        guard !path.contains("\0") else { throw CiderError.invalid("工作目录路径无效。") }
+        let directory = path.hasPrefix("/") ? URL(fileURLWithPath: path, isDirectory: true)
+            : try hostURL(for: path, in: bottle)
+        var isDirectory: ObjCBool = false
+        guard FileManager.default.fileExists(atPath: directory.path, isDirectory: &isDirectory), isDirectory.boolValue else {
+            throw CiderError.invalid("工作目录不存在或不是文件夹：\(path)")
+        }
+        return directory
     }
 }

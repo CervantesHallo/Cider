@@ -12,26 +12,37 @@ public enum Spawn {
         workingDirectory: String?,
         logPath: String
     ) throws -> pid_t {
+        guard !executable.isEmpty, !logPath.isEmpty,
+              !executable.contains("\0"), !logPath.contains("\0"),
+              arguments.allSatisfy({ !$0.contains("\0") }),
+              workingDirectory.map({ !$0.isEmpty && !$0.contains("\0") }) ?? true,
+              environment.allSatisfy({ key, value in
+                  !key.isEmpty && !key.contains("=") && !key.contains("\0") && !value.contains("\0")
+              }) else { throw CiderError.invalid("启动路径、参数或环境格式无效。") }
         var actions: posix_spawn_file_actions_t?
-        posix_spawn_file_actions_init(&actions)
+        try requireSuccess(posix_spawn_file_actions_init(&actions))
         defer { posix_spawn_file_actions_destroy(&actions) }
-        posix_spawn_file_actions_addopen(&actions, 0, "/dev/null", O_RDONLY, 0)
-        posix_spawn_file_actions_addopen(&actions, 1, logPath, O_WRONLY | O_CREAT | O_APPEND, 0o644)
-        posix_spawn_file_actions_adddup2(&actions, 1, 2)
-        if let workingDirectory { posix_spawn_file_actions_addchdir_np(&actions, workingDirectory) }
+        try requireSuccess(posix_spawn_file_actions_addopen(&actions, 0, "/dev/null", O_RDONLY, 0))
+        try requireSuccess(posix_spawn_file_actions_addopen(&actions, 1, logPath, O_WRONLY | O_CREAT | O_APPEND, 0o644))
+        try requireSuccess(posix_spawn_file_actions_adddup2(&actions, 1, 2))
+        if let workingDirectory { try requireSuccess(posix_spawn_file_actions_addchdir_np(&actions, workingDirectory)) }
 
         var attributes: posix_spawnattr_t?
-        posix_spawnattr_init(&attributes)
+        try requireSuccess(posix_spawnattr_init(&attributes))
         defer { posix_spawnattr_destroy(&attributes) }
-        posix_spawnattr_setflags(&attributes, Int16(POSIX_SPAWN_SETPGROUP | POSIX_SPAWN_CLOEXEC_DEFAULT))
-        posix_spawnattr_setpgroup(&attributes, 0)
+        try requireSuccess(posix_spawnattr_setflags(&attributes, Int16(POSIX_SPAWN_SETPGROUP | POSIX_SPAWN_CLOEXEC_DEFAULT)))
+        try requireSuccess(posix_spawnattr_setpgroup(&attributes, 0))
 
-        let argv = ([executable] + arguments).map { strdup($0) } + [nil]
-        let envp = environment.map { strdup("\($0.key)=\($0.value)") } + [nil]
+        var argv: [UnsafeMutablePointer<CChar>?] = []
+        var envp: [UnsafeMutablePointer<CChar>?] = []
         defer {
             argv.forEach { free($0) }
             envp.forEach { free($0) }
         }
+        for argument in [executable] + arguments { argv.append(try allocatedCString(argument)) }
+        for (key, value) in environment { envp.append(try allocatedCString("\(key)=\(value)")) }
+        argv.append(nil)
+        envp.append(nil)
 
         var pid: pid_t = 0
         let rc = posix_spawn(&pid, executable, &actions, &attributes, argv, envp)
@@ -39,6 +50,15 @@ public enum Spawn {
             throw CiderError.commandFailed(command: executable, status: rc, output: String(cString: strerror(rc)))
         }
         return pid
+    }
+
+    private static func requireSuccess(_ code: Int32) throws {
+        guard code == 0 else { throw POSIXError(POSIXErrorCode(rawValue: code) ?? .EIO) }
+    }
+
+    private static func allocatedCString(_ value: String) throws -> UnsafeMutablePointer<CChar> {
+        guard let pointer = strdup(value) else { throw POSIXError(.ENOMEM) }
+        return pointer
     }
 
     /// Blocks until `pid` exits. Returns the exit code, or 128+signal when killed by a signal.
