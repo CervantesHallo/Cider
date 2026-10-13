@@ -4,6 +4,8 @@
 
 ## 用户目标与协作
 
+- 2026-10-13用户询问需要做什么、预算追加量/独立环境步骤；不是追加批准。research59具体建议准备+3600秒、测试仍剩3600，同时允许旧300秒预约实测330.987秒真实结算，超额ceil31秒计入追加，获批准后可用准备3569秒。reconcile-preparation源码已准备（精确人类条款/原verified回执/单pending/同锁原子/授权幂等/额外计费），仅语法/help/status，无测试或执行改账，私有账本摘要未变。独立环境提案为主机Hyper-V Gen2空白Windows x64、4vCPU/8GiB/100GiB动态盘/干净checkpoint，硬件先核对，系统ISO由用户处理，复用EWDK；只在客机签名/测试配置。Job不覆盖VM，宿主截止/实际Saved或Off回执仍必须实现，屏幕和账号协议由用户处理，不重复盲RDP。当前原pending/额度不变，自动化仍PAUSED。
+
 - HY2后续设计58为未采用提案：caller强引用/输入副本/实际对象/独立reply、排队→一次提交→回复或未送达终态、kill阶段先撤等待/租约。新增静态发现当前HAVE_KQUEUE=1、events0禁用READ/WRITE，不能假定仍有pipe EOF可及时cleanup；保留READ但pending不进入普通read_request，并处理非法额外数据是待审方案，无探针/运行结果。自冲突同步writer、nested/跨线程context原生规则仍缺；下一关键原生节点需要人类合法处理预算pending及独立环境。两个候选编译交付不等于HY2或游戏验收，不反复旧基线/盲远控或擅自改账继续。
 
 - HY2候选56/57：在独立APFS源码/构建副本实现0009 token kernel列表与登记/引用失败处理，以及依赖它的0010 primary引用/释放。对抗性自审发现void引用失败仅日志仍可能继续，已改退出锁后RtlRaiseStatus；带状态码路径失败不增计数/不发布指针。server与两架构PE编译成功，最终导出与fuzz0顺序重建符合输入；仅增量配置复用，未运行/打包/安装、任何配方无引用，原缓存摘要未变。primary query-only/类型检查是候选取舍，NULL是兼容失败而非微软正常失败契约；宿主访问身份、lookup/free竞态、释放失败及模拟/context整组未闭合。原生内核参考、预算pending/watchdog与独立环境仍需要外部条件，不重跑Win32基线或把源码当已兼容。用户离开后继续授权不扩大机时，门禁/矩阵/原游戏文件保持。
