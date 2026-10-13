@@ -41,13 +41,22 @@ public struct ShellLink: Equatable, Sendable {
             let bytes = unicode ? count * 2 : count
             guard let slice = r.slice(offset + 2, bytes) else { return nil }
             offset += 2 + bytes
-            return unicode ? String(data: slice, encoding: .utf16LittleEndian) : String(data: slice, encoding: .windowsCP1252)
+            guard var value = unicode ? String(data: slice, encoding: .utf16LittleEndian)
+                : String(data: slice, encoding: .windowsCP1252) else { return nil }
+            // Some installed shortcuts count one terminal NUL, contrary to MS-SHLLINK.
+            // Consume the complete counted field, tolerate that terminator only,
+            // and never silently accept embedded NUL or unreadable string data.
+            if value.unicodeScalars.last?.value == 0 { value.unicodeScalars.removeLast() }
+            guard !value.contains("\0") else { return nil }
+            return value
         }
-        if hasName { _ = string() }
-        let relative = hasRelative ? string() : nil
-        if hasWorkingDir { link.workingDirectory = string() }
-        if hasArguments { link.arguments = string() }
-        if hasIcon { link.iconLocation = string() }
+        if hasName, string() == nil { return nil }
+        let relative: String?
+        if hasRelative { guard let value = string() else { return nil }; relative = value }
+        else { relative = nil }
+        if hasWorkingDir { guard let value = string() else { return nil }; link.workingDirectory = value }
+        if hasArguments { guard let value = string() else { return nil }; link.arguments = value }
+        if hasIcon { guard let value = string() else { return nil }; link.iconLocation = value }
         if link.target == nil { link.target = idListTarget }
         if link.target == nil, let relative, let dir = link.workingDirectory, relative.hasPrefix(".\\") {
             link.target = dir + "\\" + relative.dropFirst(2)

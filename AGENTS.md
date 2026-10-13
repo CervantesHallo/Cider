@@ -32,6 +32,8 @@ cd Tools/ciderctl && swift build          # builds CiderKit too
 
 `CIDER_HOME=/tmp/x` redirects all data (App Support, Caches, Logs) for experiments. Unit tests need the `Testing` module, which ships with Xcode, not the Command Line Tools.
 
+`scripts/build-app.sh` also packages `Cider.app/Contents/MacOS/ciderctl`; that CLI shares the app's resource data independent of cwd. For the standalone development CLI above, run from the checkout root or set `CIDER_DATA` to the checkout's absolute `data` path. A CLI built in isolation does not bundle the compatibility data.
+
 Runtime data: `~/Library/Application Support/Cider/{Engines,Bottles}`, logs per session in `~/Library/Logs/Cider/sessions/<bottle>/<time>-<program>/wine.log`, spawn audit in `~/Library/Logs/Cider/audit/spawn.jsonl`.
 
 ## Rules

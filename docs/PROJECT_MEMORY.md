@@ -1,8 +1,10 @@
 # Cider 项目持久记忆
 
-更新：2026-10-12。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
+更新：2026-10-13。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
 
 ## 用户目标与协作
+
+- 最新真实验收52：51严格cwd在真实链接末尾NUL上导致重开失败，已修复ShellLink仅容忍一个终止NUL、坏声明字段整体拒绝；没有弱化Spawn。独立debugCLI缺兼容数据的实际会话已停止，既有CLI改随App打包共用数据，从/tmp启动实际取得同一rev4/profile摘要及HYP/helper的DXMT1/msync1/中文locale。GUI停止/资料库重开、GUI重启旧PID退出新PID创建、重复启动抑制均实测；运行命令Retina入口也启动。用户分别确认标准模式及Retina画面/顶部/设置/最小化/拖动正常。已恢复原highResolution0/DPI96/RetinaMode=n，并从资料库正常重开，HYP+五helper当前运行；Steam主PID97843全程未变。结构化证据保留初始失败/未载档案及修正结果，不把环境当像素证据。保存启动器/首次安装/特殊参数与guest cwd仍待，HY1整体未完成；内核和三款门禁不提升。CLI/App/打包/严格签名验证通过，无合成测试/Windows/Actions/代理，定时PAUSED。下一步准备全新无账户首装瓶子，原有会话/游戏保持。
 
 - 用户在关闭定时任务后授权按正确方向继续，未授权恢复自动化或扩大Windows预算。research/51继续HY1入口：显式cwd不再try?静默丢弃，宿主/绝对盘符目录共用解析，stop不依赖cwd、restart先验证；CLI新增--cwd保留旧默认。WindowsPath要求绝对ASCII盘符/NUL拒绝、点归一化限盘根，非完整Windows路径/guest cwd契约。Spawn检查所有准备返回及CString分配，坏字符串明确失败，未运行故障注入。最终CLI3.28秒/App4.34秒构建0、help已显示选项、debug打包签名0、旧包备份；未重启现有会话。Cider AX可读，当前r2完整宿主路径读取仍timeout，不能视觉验收；现有HYP+五helper只读可见，已询问当下下载任务，答复前保留会话。无Windows操作/改账/Actions/测试套件/子代理，定时仍PAUSED，不把源码推进当三游戏兼容验收。
 
