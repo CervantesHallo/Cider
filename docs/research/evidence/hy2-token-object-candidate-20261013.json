@@ -1,0 +1,75 @@
+{
+  "schema": "cider.hy2-token-object-candidate-build/v1",
+  "recorded_utc": "2026-10-13T10:36:52.492000+00:00",
+  "candidate_patch": "engine/patches/candidates/0009-token-kernel-object-mapping.patch",
+  "patch_sha256": "0cbec0c196641061f1e05e00fe92f296a00a5d6ab621940c2c916204a268e6a2",
+  "baseline_sources": {
+    "server/token.c": "3f4ede2a7499939d11e2d9b10e9dfd6fc08572f8cbc5361317ef6654c199cbc0",
+    "dlls/ntoskrnl.exe/ntoskrnl.c": "562ef9e96648665b8c2ef1b1637f476b06db1d0eeca0a8734a24d6e859e8e79a"
+  },
+  "baseline_sources_unchanged": true,
+  "candidate_sources": {
+    "server/token.c": "e50dbadfd28a8d01b5cf258912c5162085ee8d7640cc93fb241e5465c662d0a5",
+    "dlls/ntoskrnl.exe/ntoskrnl.c": "9973897c17a10bb3ca8d795955d0aebeaec760a6dc3e138ca7dc8d68156a1cd6"
+  },
+  "build": {
+    "exit_code": 0,
+    "elapsed_seconds": 2.749,
+    "targets": [
+      "server/wineserver",
+      "dlls/ntoskrnl.exe/all"
+    ],
+    "configuration": "relocated existing configured build, incremental, SDK15.4; no runtime/test/packaging"
+  },
+  "initial_mapping_registration_build_exit_code": 0,
+  "artifacts": [
+    {
+      "path": "server/wineserver",
+      "sha256": "f387139b1561c79de87fe12eb86fd2d0789b22e97f1ee27a55c3c6bedc4cadf9",
+      "bytes": 835792,
+      "file": "Mach-O 64-bit executable x86_64"
+    },
+    {
+      "path": "dlls/ntoskrnl.exe/i386-windows/ntoskrnl.exe",
+      "sha256": "f2e423d59216690731fac07e517a0ce93a6832b5e8ecb720f1c3f3c5a9f52aa1",
+      "bytes": 1650971,
+      "file": "PE32 executable (DLL) (console) Intel 80386, for MS Windows"
+    },
+    {
+      "path": "dlls/ntoskrnl.exe/x86_64-windows/ntoskrnl.exe",
+      "sha256": "ccf19ec8fdfc5178a2678bbdc06a72055e45d07755947e4ba66e826b3026ef16",
+      "bytes": 1900377,
+      "file": "PE32+ executable (DLL) (console) x86-64, for MS Windows"
+    }
+  ],
+  "build_logs": [
+    {
+      "name": "candidate-build.log",
+      "sha256": "66ea61b8e9846a12a44970c0b7b5693df9e25061274e92302ee1fe364ff1e66f",
+      "warning_or_error_lines": []
+    },
+    {
+      "name": "candidate-build-final.log",
+      "sha256": "46b2df190a1ca218fe50e3a9a845e77c0559212f2838d88bb8473f02fbdf2c54",
+      "warning_or_error_lines": []
+    }
+  ],
+  "static_patch_application": "dry-run on unchanged pinned source succeeded for recorded prior patch digest",
+  "default_engine_recipe_references": [],
+  "adoption": {
+    "installed": false,
+    "packaged": false,
+    "executed": false,
+    "game_gate_changed": false,
+    "native_windows_accessed": false
+  },
+  "remaining": [
+    "native token lifecycle/alias and failure comparison",
+    "lookup/grab versus concurrent last-handle closure and free delivery",
+    "void reference callers and release failures",
+    "constructor status preservation",
+    "primary/impersonation/context/privilege group"
+  ],
+  "historical_build_iteration": true,
+  "superseded_by": "hy2-primary-token-candidate-20261013.json (after adversarial void-failure correction; current combined candidate)"
+}
