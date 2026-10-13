@@ -2,14 +2,14 @@
   "schema": "cider.recipe/v1",
   "id": "launcher.mihoyo-cn",
   "kind": "launcher",
-  "revision": 3,
+  "revision": 4,
   "name": {
     "zh-Hans": "米哈游启动器（国服）",
     "en": "miHoYo Launcher (China)"
   },
   "summary": {
-    "zh-Hans": "原神、星穹铁道、绝区零国服的官方启动器。可以用它下载和更新；游戏本体在反作弊验证通过前不会在本机启动，会改为提供官方云游戏入口。尚未在 Cider 上验证。",
-    "en": "Official launcher for the China-server games. Games themselves are held back by Cider's anti-cheat preflight; official cloud versions are offered instead."
+    "zh-Hans": "原神、星穹铁道、绝区零国服的官方启动器。1.18.0.380 的安装、显示和重启已在记录的环境验证；游戏本体尚未通过本地兼容验证，提供官方云备用入口。",
+    "en": "Official China-server launcher. Installation, rendering and relaunch of 1.18.0.380 were verified in the documented environment. Local game compatibility remains unverified; official cloud fallback is available."
   },
   "bottle": {
     "locale": "zh-Hans",

@@ -1,3 +1,4 @@
+import CiderCore
 import Darwin
 import Foundation
 
@@ -5,7 +6,7 @@ import Foundation
 public struct WineProcess: Hashable, Sendable {
     public let pid: pid_t
     public let bottleID: String
-    /// Windows path of the executable as Wine reports it in argv[0], e.g. `C:\Program Files (x86)\Steam\steam.exe`.
+    /// Windows executable path, preserving Wine's argv[0] or mapping its absolute host path through this prefix.
     public let windowsImage: String
     /// Host start time, captured with the PID. A PID alone can be reused after a process exits.
     public let startTime: UInt64?
@@ -39,7 +40,7 @@ public struct WineProcess: Hashable, Sendable {
 }
 
 /// Finds Wine processes launched by Cider by reading each process's argv/environment (KERN_PROCARGS2).
-/// Cider sets `CIDER_BOTTLE` for every session and Wine children inherit it, so attribution is exact.
+/// Cider sets `CIDER_BOTTLE` for cooperating sessions; the tag is not a hostile-process sandbox.
 public enum ProcessScanner {
     public static func scan(includeLoaders: Bool = false) -> [WineProcess] {
         let uid = getuid()
@@ -50,9 +51,17 @@ public enum ProcessScanner {
                   info.pbi_uid == uid, info.pbi_status != SZOMB else { continue }
             guard let args = processArguments(pid), args.executable.contains("/wine"),
                   let bottle = args.environment["CIDER_BOTTLE"],
-                  let prefix = args.environment["WINEPREFIX"], let image = args.argv.first else { continue }
-            let isWindowsImage = image.count > 2 && image.dropFirst().first == ":"
-            guard isWindowsImage || includeLoaders else { continue }
+                  let prefix = args.environment["WINEPREFIX"], let rawImage = args.argv.first else { continue }
+            let isWindowsImage = rawImage.count > 2 && rawImage.dropFirst().first == ":"
+            let image: String
+            if isWindowsImage { image = rawImage }
+            else if rawImage.hasPrefix("/"), rawImage.lowercased().hasSuffix(".exe") {
+                // Wine can preserve the host-path argv[0] used to start an installer.
+                // Map it using this process's prefix, without treating the loader itself as an app.
+                image = WinePathMapping.windowsPath(forHostPath: rawImage,
+                                                    prefix: URL(fileURLWithPath: prefix, isDirectory: true))
+            } else if includeLoaders { image = rawImage }
+            else { continue }
             let identity = auditIdentity(for: pid)
             let process = WineProcess(pid: pid, bottleID: bottle, windowsImage: image, startTime: startTime(info), auditIdentity: identity, prefixPath: prefix)
             // argv and the process metadata were read separately; reject a PID reused between the reads.

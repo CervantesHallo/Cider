@@ -337,8 +337,13 @@ final class AppModel {
             guard let info else { return }
             let model = Unmanaged<AppModel>.fromOpaque(info).takeUnretainedValue()
             let list = (unsafeBitCast(paths, to: NSArray.self) as? [String]) ?? []
+            let bottleRoot = model.paths.bottles.standardizedFileURL.path
             let relevant = list.prefix(count).contains { p in
-                p.hasSuffix(".acf") || p.hasSuffix(".lnk") || p.hasSuffix("cider-bottle.json") || p.hasSuffix("libraryfolders.vdf")
+                // A CLI move/delete can report the direct bottle directory, not its config file.
+                // Match only managed top-level entries; game asset writes must not rescan the library.
+                let entry = URL(fileURLWithPath: p).standardizedFileURL
+                let topLevelBottle = entry.path == bottleRoot || entry.deletingLastPathComponent().path == bottleRoot
+                return topLevelBottle || p.hasSuffix(".acf") || p.hasSuffix(".lnk") || p.hasSuffix("cider-bottle.json") || p.hasSuffix("libraryfolders.vdf")
                     || p.contains("/Data/") || p.hasSuffix("/Data") || p.hasSuffix("/Data/")
                     || p.contains("/librarycache/") || p.hasSuffix("/Bottles") || p.hasSuffix("/Bottles/")
             }
