@@ -34,21 +34,19 @@ Cider 是一个从零打造的 Mac 兼容层。它基于 Wine，配有一套原�
 
 ```sh
 # App 与命令行
-./scripts/build-app.sh                  # → out/Cider.app，含 GUI、CLI 和共同兼容数据
-swift build --package-path Tools/ciderctl # 独立调试版 CLI
-swift test --package-path Packages/CiderKit # 单元测试
+./scripts/build-app.sh                  # → out/Cider.app
+cd Tools/ciderctl && swift build        # → .build/debug/ciderctl
+cd Packages/CiderKit && swift test      # 单元测试
 
 # 引擎（第一次需要几个小时：先构建工具链，再编译 Wine）
 engine/toolchain.sh                     # bison、gettext、mingw-w64 gcc …（缓存在 ~/Library/Caches/Cider/toolchain）
 engine/deps.sh                          # x86_64 的 freetype、gnutls、SDL2、MoltenVK、GStreamer 头文件
 engine/build.sh engine/recipes/cider-cx26.json   # → out/engines/<id>
 scripts/smoke.sh out/engines/<id>       # 冒烟测试
-out/Cider.app/Contents/MacOS/ciderctl engine install out/engines/<id>
+.build/debug/ciderctl engine install out/engines/<id>
 ```
 
 引擎必须用 macOS 15 SDK 构建（Command Line Tools 里的 `MacOSX15.x.sdk`，可用 `CIDER_SDK` 指定）。原因见 `docs/plan/02-engine-r-wine.md`。
-
-应用内的 CLI 位于 `Cider.app/Contents/MacOS/ciderctl`，与 GUI 读取同一份资源数据，可从任意工作目录调用。独立调试版请从仓库根目录调用，或将 `CIDER_DATA` 指向本仓库的 `data` 绝对路径；它自身不携带兼容数据。
 
 常用命令：
 

@@ -11,9 +11,7 @@ import argparse
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 import fcntl
-import hashlib
 import json
-import math
 import os
 from pathlib import Path
 import re
@@ -42,10 +40,6 @@ def effective_limits(state):
     return caps
 
 
-def charged_seconds(item):
-    return item["seconds"] + item.get("overrun_reconciliation", {}).get("extra_charged_seconds", 0)
-
-
 def validate(state):
     if state.get("schema") != "cider.windows-machine-budget/v1" or state.get("limits_seconds") != LIMITS:
         raise ValueError("Unknown or changed budget; refusing to reset it.")
@@ -53,7 +47,6 @@ def validate(state):
     if not isinstance(extensions, list):
         raise ValueError("Invalid authorization history.")
     authorizations = set()
-    additions = {}
     for item in extensions:
         ident = item["authorization_id"]
         if (not isinstance(ident, str) or not re.fullmatch(r"[a-z0-9][a-z0-9.-]{0,63}", ident)
@@ -63,7 +56,6 @@ def validate(state):
                 or not isinstance(item.get("reason"), str) or not 1 <= len(item["reason"]) <= 512):
             raise ValueError("Invalid or duplicated user budget authorization.")
         authorizations.add(ident)
-        additions[ident] = item
     reservations = state.get("reservations")
     if not isinstance(reservations, list):
         raise ValueError("Invalid reservation list.")
@@ -81,33 +73,7 @@ def validate(state):
         if (type(item.get("attended_setup", False)) is not bool
                 or (item.get("attended_setup") and item["phase"] != "preparation")):
             raise ValueError("Invalid attended preparation reservation.")
-        if "overrun_reconciliation" in item:
-            record = item["overrun_reconciliation"]
-            if not isinstance(record, dict):
-                raise ValueError("Invalid overrun reconciliation.")
-            addition = additions.get(record.get("authorization_id"))
-            elapsed = item.get("observed_elapsed_seconds")
-            charge = record.get("extra_charged_seconds")
-            digest = record.get("receipt_sha256")
-            if (item["status"] != "closed" or item["phase"] != "preparation"
-                    or item.get("attended_setup") is not True
-                    or type(elapsed) not in (int, float) or not math.isfinite(elapsed)
-                    or elapsed <= seconds or type(charge) is not int
-                    or charge != math.ceil(elapsed - seconds)
-                    or not isinstance(digest, str) or not re.fullmatch(r"[a-f0-9]{64}", digest)
-                    or addition is None or addition["phase"] != "preparation"
-                    or addition["seconds"] < charge
-                    or addition.get("overrun_reservation_id") != ident
-                    or addition.get("approved_elapsed_seconds") != elapsed
-                    or addition.get("receipt_sha256") != digest):
-                raise ValueError("Overrun lacks matching bounded human authorization and receipt.")
-    for addition in additions.values():
-        if "overrun_reservation_id" in addition:
-            item = next((x for x in reservations if x["id"] == addition["overrun_reservation_id"]), None)
-            if (item is None or item.get("overrun_reconciliation", {}).get("authorization_id")
-                    != addition["authorization_id"]):
-                raise ValueError("Overrun addition has no matching reconciliation.")
-    if any(sum(charged_seconds(x) for x in reservations if x["phase"] == phase) > cap
+    if any(sum(x["seconds"] for x in reservations if x["phase"] == phase) > cap
            for phase, cap in effective_limits(state).items()):
         raise ValueError("Ledger exceeds the adopted cumulative budget.")
 
@@ -155,7 +121,7 @@ def locked_state():
 
 
 def status(state):
-    remaining = {phase: cap - sum(charged_seconds(x) for x in state["reservations"] if x["phase"] == phase)
+    remaining = {phase: cap - sum(x["seconds"] for x in state["reservations"] if x["phase"] == phase)
                  for phase, cap in effective_limits(state).items()}
     now = datetime.now(LOCAL_TIME)
     pending = [x["id"] for x in state["reservations"] if x["status"] == "pending"]
@@ -181,60 +147,6 @@ def status(state):
             "accounting": "charge-full-reservation-no-refund", "ledger": str(STATE_FILE)}
 
 
-def reconcile_preparation(state, current, args):
-    """Only after the human approves both the exact old overrun and this bounded addition.
-
-    This is local accounting, not authorization to start Windows work. Existing
-    reservation seconds, receipt bytes and base limits are never rewritten.
-    """
-    if (not args.user_approved or not 1 <= args.additional_seconds <= 3600
-            or not re.fullmatch(r"[a-z0-9][a-z0-9.-]{0,63}", args.authorization_id)
-            or not 1 <= len(args.reason) <= 512
-            or not math.isfinite(args.approved_elapsed_seconds)):
-        raise ValueError("Explicit approval of exact observed duration and a bounded addition is required.")
-    if args.receipt.is_symlink() or not args.receipt.is_file() or args.receipt.stat().st_size > 65536:
-        raise ValueError("Invalid runner receipt path.")
-    raw = args.receipt.read_bytes()
-    receipt = json.loads(raw)
-    digest = hashlib.sha256(raw).hexdigest()
-    item = next((x for x in state["reservations"] if x["id"] == args.id), None)
-    elapsed = receipt.get("elapsed_seconds")
-    if (item is None or item["phase"] != "preparation" or item.get("attended_setup") is not True
-            or receipt.get("schema") != "cider.windows-run-cleanup/v1"
-            or receipt.get("reservation_id") != args.id or receipt.get("cleanup_confirmed") is not True
-            or not isinstance(receipt.get("cleanup_evidence"), dict)
-            or receipt["cleanup_evidence"].get("verified") is not True
-            or type(elapsed) not in (int, float) or not math.isfinite(elapsed)
-            or elapsed != args.approved_elapsed_seconds or elapsed <= item["seconds"]):
-        raise ValueError("An exact measured attended-preparation overrun with verified cleanup is required.")
-    charge = math.ceil(elapsed - item["seconds"])
-    if charge > args.additional_seconds:
-        raise ValueError("Approved addition does not cover the overrun charge.")
-    addition = {"authorization_id": args.authorization_id, "user_approved": True,
-                "phase": "preparation", "seconds": args.additional_seconds, "reason": args.reason,
-                "overrun_reservation_id": args.id, "approved_elapsed_seconds": elapsed,
-                "receipt_sha256": digest}
-    reconciliation = {"authorization_id": args.authorization_id,
-                      "extra_charged_seconds": charge, "receipt_sha256": digest}
-    existing = next((x for x in state.get("extensions", [])
-                     if x["authorization_id"] == args.authorization_id), None)
-    if existing:
-        if (any(existing.get(k) != v for k, v in addition.items())
-                or item["status"] != "closed" or item.get("overrun_reconciliation") != reconciliation
-                or item.get("observed_elapsed_seconds") != elapsed):
-            raise ValueError("Authorization already used for different reconciliation terms.")
-        return status(state)
-    if current["stopped_by_user"] or current["pending"] != [args.id] or item["status"] != "pending":
-        raise ValueError("STOP or other unresolved work; refusing reconciliation and addition.")
-    now = timestamp()
-    addition["recorded_utc"] = now
-    state.setdefault("extensions", []).append(addition)
-    item.update(status="closed", closed_utc=now, observed_elapsed_seconds=elapsed,
-                overrun_reconciliation=reconciliation)
-    write_state(state)
-    return status(state)
-
-
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
@@ -255,14 +167,6 @@ def main():
     close.add_argument("--id", required=True)
     close.add_argument("--receipt", type=Path, required=True,
                        help="Verified runner receipt; not a claim inferred from an SSH exit.")
-    reconcile = commands.add_parser("reconcile-preparation", help="After explicit human approval only: close one measured attended overrun and charge it within a new addition.")
-    reconcile.add_argument("--id", required=True)
-    reconcile.add_argument("--receipt", type=Path, required=True)
-    reconcile.add_argument("--approved-elapsed-seconds", type=float, required=True)
-    reconcile.add_argument("--additional-seconds", type=int, required=True)
-    reconcile.add_argument("--authorization-id", required=True)
-    reconcile.add_argument("--reason", required=True)
-    reconcile.add_argument("--user-approved", action="store_true", required=True)
     args = parser.parse_args()
     with locked_state() as state:
         current = status(state)
@@ -306,7 +210,7 @@ def main():
             state["reservations"].append(item)
             write_state(state)
             result = item
-        elif args.command == "close":
+        else:
             if args.receipt.is_symlink() or not args.receipt.is_file() or args.receipt.stat().st_size > 65536:
                 raise ValueError("Invalid runner receipt path.")
             receipt = json.loads(args.receipt.read_text(encoding="utf-8"))
@@ -331,8 +235,6 @@ def main():
                             elapsed_seconds_upper_bound=item["seconds"])
             write_state(state)
             result = status(state)
-        else:
-            result = reconcile_preparation(state, current, args)
     print(json.dumps(result, ensure_ascii=False, indent=2))
 
 

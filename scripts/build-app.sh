@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds App/ and ciderctl with SwiftPM, using one bundled compatibility-data copy.
+# Builds App/ with SwiftPM and wraps the executable into out/Cider.app (ad-hoc signed for local use).
 # Usage: scripts/build-app.sh [debug|release]   (default: release)
 set -euo pipefail
 
@@ -16,13 +16,10 @@ ICON="$ROOT/App/Resources/AppIcon.icns"
 cd "$ROOT/App"
 swift build -c "$CONFIG"
 BIN="$(swift build -c "$CONFIG" --show-bin-path)/Cider"
-swift build --package-path "$ROOT/Tools/ciderctl" -c "$CONFIG"
-CLI="$(swift build --package-path "$ROOT/Tools/ciderctl" -c "$CONFIG" --show-bin-path)/ciderctl"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/Cider"
-cp "$CLI" "$APP/Contents/MacOS/ciderctl"
 cp "$ICON" "$APP/Contents/Resources/AppIcon.icns"
 # Bundled compatibility data (docs/plan/06); the signed data channel will update it later.
 rm -rf "$APP/Contents/Resources/data" && cp -R "$ROOT/data" "$APP/Contents/Resources/data"
@@ -52,6 +49,5 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 </plist>
 PLIST
 
-codesign --force --sign - --timestamp=none "$APP/Contents/MacOS/ciderctl"
 codesign --force --sign - --timestamp=none "$APP"
 echo "built $APP"
