@@ -1,0 +1,186 @@
+{
+  "schema": "cider.quarantine-code-review/v1",
+  "client_review_date": "2026-10-14",
+  "baseline": "374980ecab3a6f80b00db950020fad39a8f20e39",
+  "isolated": "eecba4febdfc8dd655eacb0d7d826c001f098c15",
+  "changed_file_count": 27,
+  "changed_files": [
+    "AGENTS.md",
+    "App/Sources/Cider/Model/AppModel.swift",
+    "Packages/CiderKit/Sources/CiderPE/ShellLink.swift",
+    "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift",
+    "README.md",
+    "data/recipes/launcher.mihoyo-cn.json",
+    "docs/PROJECT_MEMORY.md",
+    "docs/plan/13-roadmap.md",
+    "docs/plan/14-windows-test-access.md",
+    "docs/research/52-hy1-real-entry-validation-20261013.md",
+    "docs/research/53-hy1-first-install-and-observation-20261013.md",
+    "docs/research/54-hy2-dependency-review-20261013.md",
+    "docs/research/55-hy1-saved-launcher-20261013.md",
+    "docs/research/56-token-object-candidate-20261013.md",
+    "docs/research/57-primary-token-candidate-20261013.md",
+    "docs/research/58-context-reply-ownership-20261013.md",
+    "docs/research/59-windows-reference-environment-handoff-20261013.md",
+    "docs/research/evidence/hy1-first-install-20261013.json",
+    "docs/research/evidence/hy1-saved-launcher-20261013.json",
+    "docs/research/evidence/hy1-shortcut-packaged-cli-20261012.json",
+    "docs/research/evidence/hy2-primary-token-candidate-20261013.json",
+    "docs/research/evidence/hy2-token-object-candidate-20261013.json",
+    "engine/patches/candidates/0009-token-kernel-object-mapping.patch",
+    "engine/patches/candidates/0010-ntoskrnl-primary-token-reference.patch",
+    "engine/patches/candidates/README.md",
+    "scripts/build-app.sh",
+    "scripts/windows-reference-budget.py"
+  ],
+  "method": "two bounded review agents; parent independent targeted reproduction and source/artifact verification",
+  "findings": [
+    {
+      "id": "Q1",
+      "priority": "P1",
+      "type": "new accounting-format integration defect",
+      "summary": "v1 still accepted by old reader; overrun charge lost",
+      "parent_reproduced": true,
+      "observed_difference_seconds": [
+        31,
+        3600
+      ],
+      "restore_after_resolution": true
+    },
+    {
+      "id": "Q2",
+      "priority": "P2",
+      "type": "new-entry validation defect with old close-parser weakness",
+      "summary": "contradictory unmeasured receipt accepted as measured overrun",
+      "parent_reproduced": true,
+      "restore_after_resolution": true
+    },
+    {
+      "id": "Q3",
+      "priority": "P2",
+      "type": "new compatibility regression from legacy codepage assumption",
+      "summary": "valid non-Unicode CP932/CP936-compatible metadata rejects entire shortcut",
+      "parent_reproduced": true,
+      "restore_after_resolution": true
+    },
+    {
+      "id": "Q4",
+      "priority": "P2",
+      "type": "new packaged-CLI integration defect in legacy locator",
+      "summary": "engine download does not consider own Bundle resource index",
+      "parent_verified_control_flow": true,
+      "native_bundle_probe_verified": true,
+      "actual_download_executed": false,
+      "restore_after_resolution": true
+    },
+    {
+      "id": "Q5",
+      "priority": "P3",
+      "type": "new malformed-input diagnostic failure",
+      "summary": "unhandled TypeError/OverflowError fail closed",
+      "agent_fixture_reproduced": true,
+      "actual_budget_release": false
+    }
+  ],
+  "kernel_conditions": [
+    {
+      "id": "K1",
+      "type": "inherited lifetime issue used by new token path",
+      "evidence": "exact extracted functions with explicit modeled free interleaving; ASan detects both versions; not Wine/native race reproduction"
+    },
+    {
+      "id": "K2",
+      "type": "new primary interface remains incomplete",
+      "evidence": "actual server caller-token access path plus modeled denied token-open; no native comparison"
+    },
+    {
+      "id": "K3",
+      "type": "new broad void-failure behavior unverified",
+      "evidence": "own-lock released before exception in model; caller rollback/native equivalence not established"
+    }
+  ],
+  "verification": {
+    "budget_cases": 123,
+    "recorded_budget_cases": 123,
+    "exact_C_model_cases": 14,
+    "kernel_artifact_source_checks": 16,
+    "kernel_checks_all_match": true,
+    "server_hash_anchors_match": true,
+    "snapshot_integrity": [
+      {
+        "snapshot": "base",
+        "ref": "374980ecab3a6f80b00db950020fad39a8f20e39",
+        "git_blobs_checked": 255,
+        "failures": [
+          "Tools/windows-reference/build.cmd",
+          "Tools/windows-reference/run-user.cmd"
+        ],
+        "matches_git": false,
+        "expected_archive_conversions": [
+          {
+            "path": "Tools/windows-reference/build.cmd",
+            "reason": "tracked .gitattributes text eol=crlf archive conversion",
+            "matches_fresh_git_archive": true
+          },
+          {
+            "path": "Tools/windows-reference/run-user.cmd",
+            "reason": "tracked .gitattributes text eol=crlf archive conversion",
+            "matches_fresh_git_archive": true
+          }
+        ],
+        "matches_git_archive": true
+      },
+      {
+        "snapshot": "isolated",
+        "ref": "eecba4febdfc8dd655eacb0d7d826c001f098c15",
+        "git_blobs_checked": 271,
+        "failures": [
+          "Tools/windows-reference/build.cmd",
+          "Tools/windows-reference/run-user.cmd"
+        ],
+        "matches_git": false,
+        "expected_archive_conversions": [
+          {
+            "path": "Tools/windows-reference/build.cmd",
+            "reason": "tracked .gitattributes text eol=crlf archive conversion",
+            "matches_fresh_git_archive": true
+          },
+          {
+            "path": "Tools/windows-reference/run-user.cmd",
+            "reason": "tracked .gitattributes text eol=crlf archive conversion",
+            "matches_fresh_git_archive": true
+          }
+        ],
+        "matches_git_archive": true
+      }
+    ],
+    "current_real_ledger_matches_original": true,
+    "current_real_reconciliation_records": 0
+  },
+  "direction": {
+    "goals_changed": false,
+    "preflight_or_verdict_or_default_engine_changed": false,
+    "epic_added": false,
+    "wine_identity_hidden": false,
+    "concerns": [
+      "verification debt",
+      "support tooling dominates core native closure",
+      "legacy direct-spawn CLI differs from ADR007"
+    ]
+  },
+  "scope_limits": [
+    "local synthetic/model tests are not native Windows conformance or game sessions",
+    "no conclusion about model-incident causal attribution",
+    "historical child/pixel evidence not entirely independently reproducible today",
+    "not a whole-repository audit"
+  ],
+  "operational_state": {
+    "restored": false,
+    "implementation_fixed": false,
+    "native_windows_accessed": false,
+    "new_budget_authorized": false,
+    "GUI_or_Wine_started": false,
+    "Actions_requested": false,
+    "subagents_completed_and_closed": true
+  }
+}
