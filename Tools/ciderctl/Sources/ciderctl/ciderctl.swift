@@ -125,14 +125,17 @@ struct EngineCommand: ParsableCommand {
     struct Download: ParsableCommand {
         static let configuration = CommandConfiguration(abstract: "Download, verify and install an engine from the engine index (data/engines/index.json).")
         @Argument(help: "Engine id (default: the recommended one).") var id: String?
-        @Option(help: "Index file (default: $CIDER_DATA, the installed Cider.app, or ./data).") var index: String?
+        @Option(help: "Index file (overrides $CIDER_DATA and this app's bundled data; standalone fallback: ./data, then /Applications/Cider.app).") var index: String?
         func run() throws {
-            let candidates = [index, ProcessInfo.processInfo.environment["CIDER_DATA"].map { $0 + "/engines/index.json" },
-                              "/Applications/Cider.app/Contents/Resources/data/engines/index.json", "data/engines/index.json"]
-            guard let file = candidates.compactMap({ $0 }).first(where: { FileManager.default.fileExists(atPath: $0) }),
-                  let idx = EngineIndex.load(from: URL(fileURLWithPath: file)) else { throw ValidationError("no engine index found") }
+            guard index != "" else { throw ValidationError("--index must name an index file") }
+            guard let file = CiderResources().engineIndexURL(explicitIndex: index) else {
+                throw ValidationError("no engine index found")
+            }
+            guard let idx = EngineIndex.load(from: file) else {
+                throw ValidationError("cannot load engine index at \(file.path)")
+            }
             guard let entry = id.map({ i in idx.engines.first { $0.id == i } }) ?? idx.recommended else {
-                throw ValidationError("no such engine in \(file)")
+                throw ValidationError("no such engine in \(file.path)")
             }
             print("downloading \(entry.id) (\(entry.size) bytes)…")
             let engine = try EngineDownloader(store: EngineStore(paths: .standard())).install(entry)
@@ -366,7 +369,7 @@ struct Diag: ParsableCommand {
 
 // MARK: - install (recipes)
 
-/// Compatibility data: $CIDER_DATA, the user's data directory, an installed Cider.app, and ./data in a checkout.
+/// Shared resource roots, with user data-channel updates and explicit CIDER_DATA overlays.
 func loadCompatDB() -> CompatDB {
     CompatDB(directories: BottleStore.compatDirectories(paths: .standard()))
 }

@@ -29,19 +29,9 @@ public struct BottleStore: Sendable {
         self.compat = compat ?? CompatDB(directories: Self.compatDirectories(paths: paths))
     }
 
-    /// Where compatibility data is looked for, in increasing priority: what this binary bundles, an
-    /// installed Cider.app, a checkout's ./data, $CIDER_DATA, then the user's own data directory
-    /// (the signed data channel writes there).
+    /// Bundled data (or standalone fallbacks), user data-channel updates, then explicit CIDER_DATA.
     public static func compatDirectories(paths: CiderPaths) -> [URL] {
-        var dirs: [URL] = []
-        if let resources = Bundle.main.resourceURL { dirs.append(resources.appendingPathComponent("data")) }
-        dirs.append(URL(fileURLWithPath: "/Applications/Cider.app/Contents/Resources/data"))
-        dirs.append(URL(fileURLWithPath: FileManager.default.currentDirectoryPath).appendingPathComponent("data"))
-        if let env = ProcessInfo.processInfo.environment["CIDER_DATA"] {
-            dirs.append(URL(fileURLWithPath: env))
-        }
-        dirs.append(paths.appSupport.appendingPathComponent("Data"))
-        return dirs
+        CiderResources().compatDirectories(paths: paths)
     }
 
     public func list() throws -> [Bottle] {

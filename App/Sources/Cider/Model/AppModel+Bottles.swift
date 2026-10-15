@@ -450,9 +450,9 @@ extension AppModel {
         }
     }
 
-    /// The engine index shipped with the app (data/engines/index.json).
+    /// The shared index location, including an explicit CIDER_DATA override.
     var engineIndex: EngineIndex? {
-        Bundle.main.resourceURL.flatMap { EngineIndex.load(from: $0.appendingPathComponent("data/engines/index.json")) }
+        CiderResources().engineIndexURL().flatMap { EngineIndex.load(from: $0) }
     }
 
     /// Downloads, verifies and installs an engine from the index, reporting progress in `engineDownloadProgress`.
