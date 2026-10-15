@@ -1,0 +1,185 @@
+{
+  "schema": "cider.quarantine-kernel-repairs/v1",
+  "date": "2026-10-15",
+  "branch": "codex/quarantine-fixes-20261014",
+  "result": "partial remediation; not all quarantined work complete",
+  "K1": {
+    "source_repaired": true,
+    "deterministic_pthread_races": 100,
+    "old_ASan_UAF_reproduced": true,
+    "source_sha256": "cc83e07e679642084783288cce6e63e4e76335990251995b8711dd6f234a8ce5",
+    "aligned_header_bytes": {
+      "x86_64": 16,
+      "i386": 16
+    },
+    "header_alignment": {
+      "x86_64": 16,
+      "i386": 8
+    },
+    "backend_failure": "terminal explicit error; no guessed retained ownership or second release"
+  },
+  "K3": {
+    "source_repaired": true,
+    "combined_assertions": 313,
+    "regression_mutations_rejected": 6,
+    "modelled_dependencies": [
+      "backend",
+      "handle table",
+      "SEH control flow"
+    ],
+    "native_parity": false
+  },
+  "K2": {
+    "implemented": false,
+    "old_draft_retired": true,
+    "old_bytes_preserved": true,
+    "replacement_action": "private primary-token access replacement proposal",
+    "automatic_review_result": "rejected",
+    "stated_reason": "possible cybersecurity risk",
+    "rephrased_or_reassigned": false,
+    "replacement_protocol_or_access_path_added": false
+  },
+  "XPC": {
+    "implemented": false,
+    "scope": "preexisting architecture debt, not counted as fixed"
+  },
+  "queue": [
+    "0009-token-kernel-object-mapping.patch",
+    "0012-reference-callers.patch",
+    "0013-object-reference-lifetime.patch"
+  ],
+  "reconstruction": {
+    "files_matching": 6,
+    "fuzz": 0,
+    "offset": 0,
+    "proof": {
+      "scope": "temporary reconstruction only; no Wine or driver execution",
+      "steps": [
+        {
+          "patch": "rejected/0010-ntoskrnl-primary-token-reference.patch.txt",
+          "reverse": true,
+          "sha256": "1b4abec5caf8cc866af922118960af9475bd44c44ddaa829a6b87c805f323f80",
+          "fuzz": 0,
+          "offset": 0
+        },
+        {
+          "patch": "candidates/0009-token-kernel-object-mapping.patch",
+          "reverse": true,
+          "sha256": "0915a074d9af4c8bbaa913cc73c3453c30ece9244bbe835f95460f087efc45cf",
+          "fuzz": 0,
+          "offset": 0
+        },
+        {
+          "patch": "candidates/0009-token-kernel-object-mapping.patch",
+          "reverse": false,
+          "sha256": "0915a074d9af4c8bbaa913cc73c3453c30ece9244bbe835f95460f087efc45cf",
+          "fuzz": 0,
+          "offset": 0
+        },
+        {
+          "patch": "candidates/0012-reference-callers.patch",
+          "reverse": false,
+          "sha256": "35f3650200407d4b5f7bc08905d9788d21d1cf80a75e9e6ce1d68c848970f49f",
+          "fuzz": 0,
+          "offset": 0
+        },
+        {
+          "patch": "candidates/0013-object-reference-lifetime.patch",
+          "reverse": false,
+          "sha256": "c4e807661d52d8e10647396eae21a3dd4b3e02f6d70aa70324bc1e0a6f9b931a",
+          "fuzz": 0,
+          "offset": 0
+        }
+      ],
+      "checks": [
+        {
+          "file": "dlls/ntoskrnl.exe/ntoskrnl.c",
+          "sha256": "cc83e07e679642084783288cce6e63e4e76335990251995b8711dd6f234a8ce5",
+          "matches": true
+        },
+        {
+          "file": "dlls/ntoskrnl.exe/ntoskrnl_private.h",
+          "sha256": "e90b00d2f607c7c4ea14c83da1e641bf942edda23f06db20d32e548414a8ad7c",
+          "matches": true
+        },
+        {
+          "file": "dlls/ntoskrnl.exe/sync.c",
+          "sha256": "f238ac47f0a2a32858306cbfc5e261403e56fb88d81f23ee1d8f0a6d5fb2e11b",
+          "matches": true
+        },
+        {
+          "file": "dlls/ntoskrnl.exe/pnp.c",
+          "sha256": "2a38c98d2ee7fcf37271ac71ce773fee692fbc419005fff90054c3a7770f9d04",
+          "matches": true
+        },
+        {
+          "file": "dlls/ntoskrnl.exe/ntoskrnl.exe.spec",
+          "sha256": "27ab6efe809bd2f8e8f59a8fb82f3fd9b7fa4cd280a8e9c13e1c4a720e3724eb",
+          "matches": true
+        },
+        {
+          "file": "server/token.c",
+          "sha256": "e50dbadfd28a8d01b5cf258912c5162085ee8d7640cc93fb241e5465c662d0a5",
+          "matches": true
+        }
+      ],
+      "retired_primary_body_absent": true
+    }
+  },
+  "module_build": {
+    "kind": "relocated cached incremental; no configure/install/run",
+    "targets": [
+      "dlls/ntoskrnl.exe/all"
+    ],
+    "exit": 0,
+    "sdk": "macOS15.4",
+    "PE_artifacts": [
+      {
+        "arch": "i386",
+        "sha256": "1a32439dece2dfe797c28602643ffb2d9d9941f2112f7930439f07ef4e6b38e8",
+        "bytes": 1647305
+      },
+      {
+        "arch": "x86_64",
+        "sha256": "d0b8ecc936ce5a52e2869f29f96c892be0150be56953a1447cecc8a1d394a4e1",
+        "bytes": 1905688
+      }
+    ]
+  },
+  "adversarial_review": {
+    "source_bound": "cc83e07e679642084783288cce6e63e4e76335990251995b8711dd6f234a8ce5",
+    "findings_resolved": [
+      "recursive lock unwind",
+      "i386 header payload alignment"
+    ],
+    "bounded_remaining_actionable_findings": 0,
+    "scope": "generic memory/cleanup only; did not take over blocked access scheme"
+  },
+  "protected": {
+    "main_implementation_unchanged": true,
+    "main_app_unchanged": true,
+    "active_engines_unchanged": true,
+    "ledger_sha256": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac",
+    "Windows_operations": 0,
+    "Wine_sessions": 0,
+    "drivers_loaded": 0,
+    "game_gate_changes": 0,
+    "Actions_invocations": 0,
+    "automation": "PAUSED"
+  },
+  "local_evidence_root": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation",
+  "remaining": [
+    "K2 implementation blocked by automatic review",
+    "ADR007/XPC",
+    "native kernel/reference environment",
+    "real Wine shutdown/transport/runtime validation",
+    "HY1 residual sessions",
+    "HY3 and three local-game sessions"
+  ],
+  "patch_hashes": {
+    "0009-token-kernel-object-mapping.patch": "0915a074d9af4c8bbaa913cc73c3453c30ece9244bbe835f95460f087efc45cf",
+    "0012-reference-callers.patch": "35f3650200407d4b5f7bc08905d9788d21d1cf80a75e9e6ce1d68c848970f49f",
+    "0013-object-reference-lifetime.patch": "c4e807661d52d8e10647396eae21a3dd4b3e02f6d70aa70324bc1e0a6f9b931a"
+  },
+  "implementation_commit": "1a919a8"
+}
