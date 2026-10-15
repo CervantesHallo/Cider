@@ -1,0 +1,129 @@
+{
+  "schema": "cider.quarantine-fixes/v1",
+  "started_local_date": "2026-10-14",
+  "completed_local_date": "2026-10-15",
+  "base": "eecba4febdfc8dd655eacb0d7d826c001f098c15",
+  "main_implementation_base": "374980ecab3a6f80b00db950020fad39a8f20e39",
+  "branch": "codex/quarantine-fixes-20261014",
+  "scope": "isolated remediation only; main not restored",
+  "source_sha256": {
+    "App/Sources/Cider/Model/AppModel+Bottles.swift": "3ac5e80c5d18f006f837d36cbda9bb8507a14268875b70c591999f0d4bb5d455",
+    "App/Sources/Cider/Model/AppModel.swift": "f36753ba40b23860328249c6fc18d9beeeae58dd1d5a13a08246c80f444313ed",
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore.swift": "0af445ed14fa04a54ee703871b7861e6562abe94b94d395bc7591d485523a909",
+    "Packages/CiderKit/Sources/CiderCore/WinePathMapping.swift": "10734bd49e5ae7c25962aa6fc903fc3497c254d507aa947be329aed5e8a94d4b",
+    "Packages/CiderKit/Sources/CiderIntegration/AppCatalog.swift": "14fda8be25895bbc16514d7b2c36397c17ab3e135e20f1c3a0384e28b76704fb",
+    "Packages/CiderKit/Sources/CiderPE/ShellLink.swift": "a683daed57febe299eb489d0d21005a3160345de07692b4f2e9468333825d25f",
+    "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift": "c911f178e57b7899191357060fcf64f7283f35f8ec8f77f3c4e4fb0559988801",
+    "Tools/ciderctl/Sources/ciderctl/ciderctl.swift": "092bd5277841c1bfb20d80e3389678923c09afa50210faf37875838d760ffcf8",
+    "scripts/build-app.sh": "b8bc6ac0d0d2bc557dd96584963e44258ced1d956e01751ac275d35f062d980d",
+    "scripts/windows-reference-budget.py": "713a4258985c5e0dff3e2ec3a4f4d0eaf98fae11126efb183630dd4318818fcf",
+    "Packages/CiderKit/Sources/CiderCore/CiderResources.swift": "fa5d2e25080838a8baabe6b7ca2fbaa67782d0c4319851a2a93c032eb7711726",
+    "Packages/CiderKit/Tests/CiderKitTests/QuarantinePathTests.swift": "05769079cdc3cd492342c2be2380eb9b28ebcc5600d6707330884f5d9d02b697",
+    "Packages/CiderKit/Tests/CiderKitTests/QuarantineResourcesTests.swift": "2a5a1a08106b9ac9927250a9a9dd804051979d05dbd9451a4a87fe0bfaaf84d7",
+    "Packages/CiderKit/Tests/CiderKitTests/QuarantineShellLinkTests.swift": "43972b5db93f4358516061d5c5993ef0de8f5da158716671763a01fca1a66905",
+    "tests/control/test_windows_reference_budget.py": "a7329554c1e2c0f8a52c4d24e9b1215112026e0567cafc2296baf4cc90f85e83"
+  },
+  "verification": {
+    "budget_regression": {
+      "groups": 18,
+      "passed": true,
+      "log": "out/quarantine-fixes-20261014/budget-regression.log"
+    },
+    "parent_budget_independent": {
+      "checks": 18,
+      "passed": true,
+      "details": "out/quarantine-fixes-20261014/budget-independent.json"
+    },
+    "independent_budget_review": {
+      "probes": 25,
+      "passed": true,
+      "source_hashes_verified": true,
+      "details": "out/quarantine-resource-checks/budget-final-recheck-results.json"
+    },
+    "swift_integration": {
+      "tests": 32,
+      "suites": 6,
+      "passed": true,
+      "filter": "Quarantine|CatalogTests",
+      "log": "out/quarantine-fixes-20261014/swift-regression.log"
+    },
+    "packaging": {
+      "checks": 31,
+      "passed": true,
+      "details": "out/quarantine-resource-checks/packaging-results.json"
+    },
+    "release_build": {
+      "app_seconds": 30.41,
+      "cli_seconds": 21.9,
+      "exit": 0,
+      "strict_signature_exit": 0,
+      "log": "out/quarantine-fixes-20261014/app-package-final.log"
+    },
+    "shelllink_parent": {
+      "records": 18,
+      "expectations": 12,
+      "passed": true,
+      "details": "out/quarantine-fixes-20261014/parent-shelllink.json"
+    },
+    "actual_launcher_shortcut": {
+      "read_only": true,
+      "parsed": true,
+      "origin": {
+        "source": "existing launcher Desktop shortcut; read-only copy",
+        "sha256": "39215774049f5d20c6853e42c5c00b3cfac8be408562c3a48ba657b8e311d412",
+        "bytes": 527,
+        "original_unchanged": true
+      },
+      "details": "out/quarantine-fixes-20261014/actual-shortcut.json"
+    },
+    "events": {
+      "native_events": 16,
+      "agent_exact_predicate_groups": 2,
+      "parent_differential": {
+        "differential_cases": 20022,
+        "exact_source_predicate": true,
+        "explicit_expectations": 22,
+        "new_ms": 155.011375,
+        "old_ms": 199.7095,
+        "passed": true,
+        "synthetic_only": true
+      },
+      "limits": "synthetic timings; no frame-time or general performance claim"
+    }
+  },
+  "review_fixes": [
+    "Q1",
+    "Q2",
+    "Q3",
+    "Q4",
+    "Q5",
+    "truthful uncertain commit/result reporting",
+    "absent-ledger rejection"
+  ],
+  "remaining": [
+    "kernel K1/K2/K3 adoption blockers",
+    "ADR007 XPC/TCC decision",
+    "native watchdog/VM cleanup/reference",
+    "HY1 residual real sessions",
+    "HY3 and three local games"
+  ],
+  "protected": {
+    "original_quarantine_ref_unchanged": true,
+    "main_implementation_unchanged": true,
+    "main_app_unchanged": true,
+    "frozen_audits_unchanged": true,
+    "ledger_sha256": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac",
+    "ledger_upgraded": false,
+    "Windows_operations": 0,
+    "Wine_or_product_GUI_launches": 0,
+    "Actions_runs": 0,
+    "automation": "PAUSED"
+  },
+  "evidence_provenance_note": "Agent raw summary labels the parent integration message as human; it was parent-agent coordination. Integration results here are established by parent command logs, not treated as human approval.",
+  "local_artifact_root": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider",
+  "implementation_commits": {
+    "budget": "1aa7639",
+    "shortcuts_scanning": "02b62e3",
+    "resources_packaging": "bccd03e"
+  }
+}
