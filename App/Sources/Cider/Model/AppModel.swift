@@ -65,6 +65,26 @@ struct EnvironmentStatus: Sendable {
     var ready: Bool { rosetta && !engines.isEmpty }
 }
 
+/// Pure event-path filtering; normal FSEvents paths need no Foundation URL work.
+enum LibraryFileEvents {
+    static func isRelevant(_ path: String, bottleRoot: String) -> Bool {
+        if path.hasSuffix(".acf") || path.hasSuffix(".lnk") || path.hasSuffix("cider-bottle.json") || path.hasSuffix("libraryfolders.vdf")
+            || path.contains("/Data/") || path.hasSuffix("/Data") || path.hasSuffix("/Data/")
+            || path.contains("/librarycache/") || path.hasSuffix("/Bottles") || path.hasSuffix("/Bottles/") { return true }
+        // NSString performs literal path-marker searches without Swift's
+        // grapheme traversal. Only actual dot segments need URL normalization.
+        let raw = path as NSString
+        if !raw.hasPrefix("/") || raw.range(of: "/./").location != NSNotFound || raw.range(of: "/../").location != NSNotFound
+            || raw.hasSuffix("/.") || raw.hasSuffix("/..") || raw.range(of: "//").location != NSNotFound {
+            let entry = URL(fileURLWithPath: path).standardizedFileURL
+            return entry.path == bottleRoot || entry.deletingLastPathComponent().path == bottleRoot
+        }
+        var entry = path
+        while entry.hasSuffix("/"), entry != "/" { entry.removeLast() }
+        return entry == bottleRoot || (entry as NSString).deletingLastPathComponent == bottleRoot
+    }
+}
+
 @MainActor
 @Observable
 final class AppModel {
@@ -338,15 +358,7 @@ final class AppModel {
             let model = Unmanaged<AppModel>.fromOpaque(info).takeUnretainedValue()
             let list = (unsafeBitCast(paths, to: NSArray.self) as? [String]) ?? []
             let bottleRoot = model.paths.bottles.standardizedFileURL.path
-            let relevant = list.prefix(count).contains { p in
-                // A CLI move/delete can report the direct bottle directory, not its config file.
-                // Match only managed top-level entries; game asset writes must not rescan the library.
-                let entry = URL(fileURLWithPath: p).standardizedFileURL
-                let topLevelBottle = entry.path == bottleRoot || entry.deletingLastPathComponent().path == bottleRoot
-                return topLevelBottle || p.hasSuffix(".acf") || p.hasSuffix(".lnk") || p.hasSuffix("cider-bottle.json") || p.hasSuffix("libraryfolders.vdf")
-                    || p.contains("/Data/") || p.hasSuffix("/Data") || p.hasSuffix("/Data/")
-                    || p.contains("/librarycache/") || p.hasSuffix("/Bottles") || p.hasSuffix("/Bottles/")
-            }
+            let relevant = list.prefix(count).contains { LibraryFileEvents.isRelevant($0, bottleRoot: bottleRoot) }
             if relevant { Task { @MainActor in model.scheduleRefresh() } }
         }
         var context = FSEventStreamContext(version: 0, info: Unmanaged.passUnretained(self).toOpaque(),

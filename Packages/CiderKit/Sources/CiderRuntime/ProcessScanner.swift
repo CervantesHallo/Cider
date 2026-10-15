@@ -45,6 +45,7 @@ public enum ProcessScanner {
     public static func scan(includeLoaders: Bool = false) -> [WineProcess] {
         let uid = getuid()
         var result: [WineProcess] = []
+        var hostPaths = HostPathCache()
         for pid in allPIDs() where pid > 0 {
             var info = proc_bsdinfo()
             guard proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, Int32(MemoryLayout<proc_bsdinfo>.size)) > 0,
@@ -58,8 +59,7 @@ public enum ProcessScanner {
             else if rawImage.hasPrefix("/"), rawImage.lowercased().hasSuffix(".exe") {
                 // Wine can preserve the host-path argv[0] used to start an installer.
                 // Map it using this process's prefix, without treating the loader itself as an app.
-                image = WinePathMapping.windowsPath(forHostPath: rawImage,
-                                                    prefix: URL(fileURLWithPath: prefix, isDirectory: true))
+                image = hostPaths.windowsPath(forHostPath: rawImage, prefixPath: prefix)
             } else if includeLoaders { image = rawImage }
             else { continue }
             let identity = auditIdentity(for: pid)
@@ -68,6 +68,22 @@ public enum ProcessScanner {
             if state(of: process) == .running { result.append(process) }
         }
         return result
+    }
+
+    /// Lives only inside scan(); drive changes become visible on the next scan.
+    struct HostPathCache {
+        private var maps: [String: WinePathMapping.DriveMap] = [:]
+
+        mutating func windowsPath(forHostPath path: String, prefixPath: String,
+                                  makeMap: (URL) -> WinePathMapping.DriveMap = { WinePathMapping.DriveMap(prefix: $0) }) -> String {
+            let map: WinePathMapping.DriveMap
+            if let existing = maps[prefixPath] { map = existing }
+            else {
+                map = makeMap(URL(fileURLWithPath: prefixPath, isDirectory: true))
+                maps[prefixPath] = map
+            }
+            return map.windowsPath(forHostPath: path)
+        }
     }
 
     /// Stops captured processes and waits for their exit. Unverifiable identities are never signalled and
