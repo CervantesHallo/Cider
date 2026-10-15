@@ -1,0 +1,44 @@
+{
+  "patch_sha256": "35f3650200407d4b5f7bc08905d9788d21d1cf80a75e9e6ce1d68c848970f49f",
+  "source_sha256": {
+    "ntoskrnl.c": "cc83e07e679642084783288cce6e63e4e76335990251995b8711dd6f234a8ce5",
+    "ntoskrnl_private.h": "e90b00d2f607c7c4ea14c83da1e641bf942edda23f06db20d32e548414a8ad7c",
+    "sync.c": "f238ac47f0a2a32858306cbfc5e261403e56fb88d81f23ee1d8f0a6d5fb2e11b",
+    "pnp.c": "2a38c98d2ee7fcf37271ac71ce773fee692fbc419005fff90054c3a7770f9d04"
+  },
+  "host_only_execution": true,
+  "native_parity": "pending",
+  "extracted_sha256": "fa72a937877b460526671def9ed714925e9f1251154a711ce276bd6ae09d71ec",
+  "functions_exercised": [
+    "close_constructor_handle",
+    "create_file_object",
+    "create_process_object",
+    "create_thread_object",
+    "ObReferenceObjectByHandle",
+    "PsLookupProcessByProcessId",
+    "PsLookupThreadByThreadId",
+    "KeGetCurrentThread",
+    "ObReferenceObjectByName",
+    "ObOpenObjectByName",
+    "dereference_work_item_device",
+    "run_work_item_worker",
+    "IoQueueWorkItem",
+    "ObReferenceObject",
+    "ObfReferenceObject",
+    "IoGetAttachedDeviceReference",
+    "create_event_object",
+    "IoCreateSynchronizationEvent",
+    "IoCreateNotificationEvent",
+    "dereference_function_driver",
+    "load_function_driver"
+  ],
+  "mock_checks": "PASS: 313 assertions across work submission/unwind, named lookup, constructors, handles, void APIs, and PnP cleanup",
+  "regression_mutations_rejected": [
+    "premature named output",
+    "missing submission rollback",
+    "erased constructor status",
+    "missing temporary handle close",
+    "missing AddDevice unwind cleanup",
+    "missing nested-constructor unwind cleanup"
+  ]
+}
