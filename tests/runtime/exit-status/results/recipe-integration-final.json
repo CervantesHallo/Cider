@@ -1,0 +1,489 @@
+{
+  "schema": "cider.product-runtime-acceptance/v1",
+  "startedUTC": "2026-10-16T16:24:09.090136Z",
+  "owner": {
+    "schema": "cider.runtime-acceptance/v1",
+    "root": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f",
+    "source_commit": "c9a1931274dc3f7f827b01a5e2fe2f46fec50250",
+    "source_app": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app",
+    "app": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+    "home": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home",
+    "ownership": "Only this test root is writable by this controller",
+    "protected": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "engine_source": "/Users/cervantes/Library/Application Support/Cider/Engines/cider-cx26.3-r1-wma1-mm1-x86_64",
+    "engine_copy": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64",
+    "engine_id": "cider-cx26.3-r1-wma1-mm2-x86_64",
+    "working_changes": "full installer DWORD capture and diagnostics; uncommitted implementation",
+    "candidateSHA256": "c63444ee03b26e1af1f5124f1472a8a01e909f89ff96e9ee773101e5702d6c8b",
+    "sourceHashes": {
+      "Packages/CiderKit/Sources/CiderRuntime/WineRunner+ExitStatus.swift": "b2b8abe0b110fa3eac22e8b25a9f090cf7e12e2f202002684bfc460b604be9db",
+      "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift": "80f1c597e809f104468732fc46c36756ea8d0a4be3b118139c0354844af978e4",
+      "Packages/CiderKit/Sources/CiderData/Recipe.swift": "e99ff74162c00edb4df843dfb65a863a325979c47cf3040f481c564f36867617",
+      "Packages/CiderKit/Sources/CiderBottle/Diagnostics.swift": "5addf3b6df01fbfa8c3c7bfb0e6acd4d40ff263dafe003459ad4cdf72430b79f",
+      "App/Sources/Cider/Model/AppModel+Bottles.swift": "ceec8945720aac8406e3a6a1e36f4889d1423ed5eb12551dc1ed61c49c405604",
+      "App/Sources/Cider/Model/AppModel.swift": "da7aed23e52c464cd8b1a69c6eb3ece9c6cfcb1de93437ef501baa7d97b1e195",
+      "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "164cba4908c37d1b7eca6f81dd6892f4028bd6bf5e23f0fc01e7fed6cf35b4ac",
+      "Tools/wine-exit-status/capture.c": "e0706c89c9f7f937bb4a431587f525cca2e30b8871d30848e8f6e6772ac4ffcf"
+    },
+    "engine_patch": "0014",
+    "candidateComponentSHA256": {
+      "Cider": "c63444ee03b26e1af1f5124f1472a8a01e909f89ff96e9ee773101e5702d6c8b",
+      "ciderctl": "d1d158c789dea2c263e9a45521c314d6cf14ed3b2495a23ad742424666212f40",
+      "CiderXPCBridge": "487327c29aebff19103e5bf1ccf6bd9381217329d1c01b993d3d4a0d77f7a535"
+    },
+    "windowsToolsManifest": {
+      "collectors": {
+        "i686": {
+          "file": "cider-exit-status-i686.exe",
+          "machine": 332,
+          "sha256": "edf104356f71b4d84fe391cd57fcc00b471042365d37b8674b4fef46ee4ca624"
+        },
+        "x86_64": {
+          "file": "cider-exit-status-x86_64.exe",
+          "machine": 34404,
+          "sha256": "10252dd733cd3255f39b2a5a676b179eb71dc59d08b2e05edf88797ca85e05bd"
+        }
+      },
+      "schema": "cider.windows-tools/v1",
+      "sourceSHA256": "e0706c89c9f7f937bb4a431587f525cca2e30b8871d30848e8f6e6772ac4ffcf"
+    }
+  },
+  "cases": [
+    {
+      "name": "product.cli_launches_real_gui",
+      "passed": true,
+      "seconds": 3.483679833,
+      "evidence": {
+        "stdout": "cider-cx26.3-r1-wma1-mm2-x86_64\twine-11.0\tdevel\n",
+        "gui": [
+          {
+            "bundle": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+            "pid": 41805,
+            "terminated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "product.reuse_empty_prefix",
+      "passed": true,
+      "seconds": 0.0007414169999999665,
+      "evidence": {
+        "reusedOnlyThisOwnedEmptyPrefix": true,
+        "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293"
+      }
+    },
+    {
+      "name": "product.recipe_installer_full_exit_chain",
+      "passed": true,
+      "seconds": 39.966738792,
+      "evidence": {
+        "installCases": [
+          {
+            "recipe": "fixture.ce593b08af26.zero",
+            "kind": "exe",
+            "expectedWindowsDWORD": 0,
+            "cliExitCode": 0,
+            "requiresRestart": false,
+            "detectMarkerExistsEvenOnFailure": true,
+            "report": {
+              "schema": "cider.windows-exit-status/v1",
+              "phase": "captured",
+              "win32_error": 0,
+              "child_pid": 204,
+              "child_created": true,
+              "primary_terminated": true,
+              "windows_exit_code": 0,
+              "elapsed_ms": 48,
+              "cleanup_scope": "primary-process-only"
+            },
+            "attachedToRealSession": true,
+            "stdout": "正在准备 fixture.ce593b08af26.zero 的安装文件…\n正在安装 fixture.ce593b08af26.zero…\ninstalled fixture.ce593b08af26.zero\n",
+            "stderr": ""
+          },
+          {
+            "recipe": "fixture.ce593b08af26.lowbytezero",
+            "kind": "exe",
+            "expectedWindowsDWORD": 256,
+            "cliExitCode": 1,
+            "requiresRestart": false,
+            "detectMarkerExistsEvenOnFailure": true,
+            "report": {
+              "schema": "cider.windows-exit-status/v1",
+              "phase": "captured",
+              "win32_error": 0,
+              "child_pid": 220,
+              "child_created": true,
+              "primary_terminated": true,
+              "windows_exit_code": 256,
+              "elapsed_ms": 57,
+              "cleanup_scope": "primary-process-only"
+            },
+            "attachedToRealSession": true,
+            "stdout": "正在准备 fixture.ce593b08af26.lowbytezero 的安装文件…\n正在安装 fixture.ce593b08af26.lowbytezero…\n",
+            "stderr": "Error: fixture.ce593b08af26.lowbytezero 安装未成功，Windows 退出码 256（0x100）；记录：/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/exit-captures/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/capture-f7d73c1c-3cef-45ca-8a18-9ca0ee9ae7a6/result.json\n"
+          },
+          {
+            "recipe": "fixture.ce593b08af26.exceptionvalue",
+            "kind": "exe",
+            "expectedWindowsDWORD": 3221225472,
+            "cliExitCode": 1,
+            "requiresRestart": false,
+            "detectMarkerExistsEvenOnFailure": true,
+            "report": {
+              "schema": "cider.windows-exit-status/v1",
+              "phase": "captured",
+              "win32_error": 0,
+              "child_pid": 236,
+              "child_created": true,
+              "primary_terminated": true,
+              "windows_exit_code": 3221225472,
+              "elapsed_ms": 63,
+              "cleanup_scope": "primary-process-only"
+            },
+            "attachedToRealSession": true,
+            "stdout": "正在准备 fixture.ce593b08af26.exceptionvalue 的安装文件…\n正在安装 fixture.ce593b08af26.exceptionvalue…\n",
+            "stderr": "Error: fixture.ce593b08af26.exceptionvalue 安装未成功，Windows 退出码 3221225472（0xc0000000）；记录：/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/exit-captures/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/capture-632cae01-bafd-437d-8cb9-49dcb6d13a70/result.json\n"
+          },
+          {
+            "recipe": "fixture.ce593b08af26.reboot",
+            "kind": "exe",
+            "expectedWindowsDWORD": 3010,
+            "cliExitCode": 0,
+            "requiresRestart": true,
+            "detectMarkerExistsEvenOnFailure": true,
+            "report": {
+              "schema": "cider.windows-exit-status/v1",
+              "phase": "captured",
+              "win32_error": 0,
+              "child_pid": 252,
+              "child_created": true,
+              "primary_terminated": true,
+              "windows_exit_code": 3010,
+              "elapsed_ms": 54,
+              "cleanup_scope": "primary-process-only"
+            },
+            "attachedToRealSession": true,
+            "stdout": "正在准备 fixture.ce593b08af26.reboot 的安装文件…\n正在安装 fixture.ce593b08af26.reboot…\ninstalled fixture.ce593b08af26.reboot\n",
+            "stderr": "安装程序要求重启瓶子，请重启后再运行程序。\n"
+          },
+          {
+            "recipe": "fixture.ce593b08af26.not-msi",
+            "kind": "exe",
+            "expectedWindowsDWORD": 3010,
+            "cliExitCode": 1,
+            "requiresRestart": false,
+            "detectMarkerExistsEvenOnFailure": true,
+            "report": {
+              "schema": "cider.windows-exit-status/v1",
+              "phase": "captured",
+              "win32_error": 0,
+              "child_pid": 268,
+              "child_created": true,
+              "primary_terminated": true,
+              "windows_exit_code": 3010,
+              "elapsed_ms": 66,
+              "cleanup_scope": "primary-process-only"
+            },
+            "attachedToRealSession": true,
+            "stdout": "正在准备 fixture.ce593b08af26.not-msi 的安装文件…\n正在安装 fixture.ce593b08af26.not-msi…\n",
+            "stderr": "Error: fixture.ce593b08af26.not-msi 安装未成功，Windows 退出码 3010（0xbc2）；记录：/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/exit-captures/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/capture-b7116f56-7a7d-4ac4-9797-e57692a24698/result.json\n"
+          },
+          {
+            "recipe": "fixture.ce593b08af26.msi-success",
+            "kind": "msi",
+            "expectedWindowsDWORD": 0,
+            "cliExitCode": 0,
+            "requiresRestart": false,
+            "detectMarkerExistsEvenOnFailure": false,
+            "report": {
+              "schema": "cider.windows-exit-status/v1",
+              "phase": "captured",
+              "win32_error": 0,
+              "child_pid": 284,
+              "child_created": true,
+              "primary_terminated": true,
+              "windows_exit_code": 0,
+              "elapsed_ms": 1421,
+              "cleanup_scope": "primary-process-only"
+            },
+            "attachedToRealSession": true,
+            "stdout": "正在准备 fixture.ce593b08af26.msi-success 的安装文件…\n正在安装 fixture.ce593b08af26.msi-success…\ninstalled fixture.ce593b08af26.msi-success\n",
+            "stderr": ""
+          },
+          {
+            "recipe": "fixture.ce593b08af26.msi-reboot",
+            "kind": "msi",
+            "expectedWindowsDWORD": 3010,
+            "cliExitCode": 0,
+            "requiresRestart": true,
+            "detectMarkerExistsEvenOnFailure": false,
+            "report": {
+              "schema": "cider.windows-exit-status/v1",
+              "phase": "captured",
+              "win32_error": 0,
+              "child_pid": 204,
+              "child_created": true,
+              "primary_terminated": true,
+              "windows_exit_code": 3010,
+              "elapsed_ms": 1354,
+              "cleanup_scope": "primary-process-only"
+            },
+            "attachedToRealSession": true,
+            "stdout": "正在准备 fixture.ce593b08af26.msi-reboot 的安装文件…\n正在安装 fixture.ce593b08af26.msi-reboot…\ninstalled fixture.ce593b08af26.msi-reboot\n",
+            "stderr": "安装程序要求重启瓶子，请重启后再运行程序。\n"
+          },
+          {
+            "recipe": "fixture.ce593b08af26.msi-fail",
+            "kind": "msi",
+            "expectedWindowsDWORD": 1603,
+            "cliExitCode": 1,
+            "requiresRestart": false,
+            "detectMarkerExistsEvenOnFailure": false,
+            "report": {
+              "schema": "cider.windows-exit-status/v1",
+              "phase": "captured",
+              "win32_error": 0,
+              "child_pid": 204,
+              "child_created": true,
+              "primary_terminated": true,
+              "windows_exit_code": 1603,
+              "elapsed_ms": 690,
+              "cleanup_scope": "primary-process-only"
+            },
+            "attachedToRealSession": true,
+            "stdout": "正在准备 fixture.ce593b08af26.msi-fail 的安装文件…\n正在安装 fixture.ce593b08af26.msi-fail…\n",
+            "stderr": "Error: fixture.ce593b08af26.msi-fail 安装未成功，Windows 退出码 1603（0x643）；记录：/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/exit-captures/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/capture-b0d977c7-94f4-44ce-b8bf-90dcd7d60b4d/result.json\n"
+          }
+        ],
+        "count": 8,
+        "supportBundleRealSessions": 5,
+        "supportBundleAttachedResults": 5,
+        "legacyScratchDirectoriesIgnored": 6,
+        "nativeWindowsReference": false
+      }
+    }
+  ],
+  "windowsOperations": 0,
+  "clients": [],
+  "guiPID": 41805,
+  "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+  "prefix": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Bottles/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/prefix",
+  "installerExitPartial": [
+    {
+      "recipe": "fixture.ce593b08af26.zero",
+      "kind": "exe",
+      "expectedWindowsDWORD": 0,
+      "cliExitCode": 0,
+      "requiresRestart": false,
+      "detectMarkerExistsEvenOnFailure": true,
+      "report": {
+        "schema": "cider.windows-exit-status/v1",
+        "phase": "captured",
+        "win32_error": 0,
+        "child_pid": 204,
+        "child_created": true,
+        "primary_terminated": true,
+        "windows_exit_code": 0,
+        "elapsed_ms": 48,
+        "cleanup_scope": "primary-process-only"
+      },
+      "attachedToRealSession": true,
+      "stdout": "正在准备 fixture.ce593b08af26.zero 的安装文件…\n正在安装 fixture.ce593b08af26.zero…\ninstalled fixture.ce593b08af26.zero\n",
+      "stderr": ""
+    },
+    {
+      "recipe": "fixture.ce593b08af26.lowbytezero",
+      "kind": "exe",
+      "expectedWindowsDWORD": 256,
+      "cliExitCode": 1,
+      "requiresRestart": false,
+      "detectMarkerExistsEvenOnFailure": true,
+      "report": {
+        "schema": "cider.windows-exit-status/v1",
+        "phase": "captured",
+        "win32_error": 0,
+        "child_pid": 220,
+        "child_created": true,
+        "primary_terminated": true,
+        "windows_exit_code": 256,
+        "elapsed_ms": 57,
+        "cleanup_scope": "primary-process-only"
+      },
+      "attachedToRealSession": true,
+      "stdout": "正在准备 fixture.ce593b08af26.lowbytezero 的安装文件…\n正在安装 fixture.ce593b08af26.lowbytezero…\n",
+      "stderr": "Error: fixture.ce593b08af26.lowbytezero 安装未成功，Windows 退出码 256（0x100）；记录：/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/exit-captures/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/capture-f7d73c1c-3cef-45ca-8a18-9ca0ee9ae7a6/result.json\n"
+    },
+    {
+      "recipe": "fixture.ce593b08af26.exceptionvalue",
+      "kind": "exe",
+      "expectedWindowsDWORD": 3221225472,
+      "cliExitCode": 1,
+      "requiresRestart": false,
+      "detectMarkerExistsEvenOnFailure": true,
+      "report": {
+        "schema": "cider.windows-exit-status/v1",
+        "phase": "captured",
+        "win32_error": 0,
+        "child_pid": 236,
+        "child_created": true,
+        "primary_terminated": true,
+        "windows_exit_code": 3221225472,
+        "elapsed_ms": 63,
+        "cleanup_scope": "primary-process-only"
+      },
+      "attachedToRealSession": true,
+      "stdout": "正在准备 fixture.ce593b08af26.exceptionvalue 的安装文件…\n正在安装 fixture.ce593b08af26.exceptionvalue…\n",
+      "stderr": "Error: fixture.ce593b08af26.exceptionvalue 安装未成功，Windows 退出码 3221225472（0xc0000000）；记录：/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/exit-captures/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/capture-632cae01-bafd-437d-8cb9-49dcb6d13a70/result.json\n"
+    },
+    {
+      "recipe": "fixture.ce593b08af26.reboot",
+      "kind": "exe",
+      "expectedWindowsDWORD": 3010,
+      "cliExitCode": 0,
+      "requiresRestart": true,
+      "detectMarkerExistsEvenOnFailure": true,
+      "report": {
+        "schema": "cider.windows-exit-status/v1",
+        "phase": "captured",
+        "win32_error": 0,
+        "child_pid": 252,
+        "child_created": true,
+        "primary_terminated": true,
+        "windows_exit_code": 3010,
+        "elapsed_ms": 54,
+        "cleanup_scope": "primary-process-only"
+      },
+      "attachedToRealSession": true,
+      "stdout": "正在准备 fixture.ce593b08af26.reboot 的安装文件…\n正在安装 fixture.ce593b08af26.reboot…\ninstalled fixture.ce593b08af26.reboot\n",
+      "stderr": "安装程序要求重启瓶子，请重启后再运行程序。\n"
+    },
+    {
+      "recipe": "fixture.ce593b08af26.not-msi",
+      "kind": "exe",
+      "expectedWindowsDWORD": 3010,
+      "cliExitCode": 1,
+      "requiresRestart": false,
+      "detectMarkerExistsEvenOnFailure": true,
+      "report": {
+        "schema": "cider.windows-exit-status/v1",
+        "phase": "captured",
+        "win32_error": 0,
+        "child_pid": 268,
+        "child_created": true,
+        "primary_terminated": true,
+        "windows_exit_code": 3010,
+        "elapsed_ms": 66,
+        "cleanup_scope": "primary-process-only"
+      },
+      "attachedToRealSession": true,
+      "stdout": "正在准备 fixture.ce593b08af26.not-msi 的安装文件…\n正在安装 fixture.ce593b08af26.not-msi…\n",
+      "stderr": "Error: fixture.ce593b08af26.not-msi 安装未成功，Windows 退出码 3010（0xbc2）；记录：/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/exit-captures/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/capture-b7116f56-7a7d-4ac4-9797-e57692a24698/result.json\n"
+    },
+    {
+      "recipe": "fixture.ce593b08af26.msi-success",
+      "kind": "msi",
+      "expectedWindowsDWORD": 0,
+      "cliExitCode": 0,
+      "requiresRestart": false,
+      "detectMarkerExistsEvenOnFailure": false,
+      "report": {
+        "schema": "cider.windows-exit-status/v1",
+        "phase": "captured",
+        "win32_error": 0,
+        "child_pid": 284,
+        "child_created": true,
+        "primary_terminated": true,
+        "windows_exit_code": 0,
+        "elapsed_ms": 1421,
+        "cleanup_scope": "primary-process-only"
+      },
+      "attachedToRealSession": true,
+      "stdout": "正在准备 fixture.ce593b08af26.msi-success 的安装文件…\n正在安装 fixture.ce593b08af26.msi-success…\ninstalled fixture.ce593b08af26.msi-success\n",
+      "stderr": ""
+    },
+    {
+      "recipe": "fixture.ce593b08af26.msi-reboot",
+      "kind": "msi",
+      "expectedWindowsDWORD": 3010,
+      "cliExitCode": 0,
+      "requiresRestart": true,
+      "detectMarkerExistsEvenOnFailure": false,
+      "report": {
+        "schema": "cider.windows-exit-status/v1",
+        "phase": "captured",
+        "win32_error": 0,
+        "child_pid": 204,
+        "child_created": true,
+        "primary_terminated": true,
+        "windows_exit_code": 3010,
+        "elapsed_ms": 1354,
+        "cleanup_scope": "primary-process-only"
+      },
+      "attachedToRealSession": true,
+      "stdout": "正在准备 fixture.ce593b08af26.msi-reboot 的安装文件…\n正在安装 fixture.ce593b08af26.msi-reboot…\ninstalled fixture.ce593b08af26.msi-reboot\n",
+      "stderr": "安装程序要求重启瓶子，请重启后再运行程序。\n"
+    },
+    {
+      "recipe": "fixture.ce593b08af26.msi-fail",
+      "kind": "msi",
+      "expectedWindowsDWORD": 1603,
+      "cliExitCode": 1,
+      "requiresRestart": false,
+      "detectMarkerExistsEvenOnFailure": false,
+      "report": {
+        "schema": "cider.windows-exit-status/v1",
+        "phase": "captured",
+        "win32_error": 0,
+        "child_pid": 204,
+        "child_created": true,
+        "primary_terminated": true,
+        "windows_exit_code": 1603,
+        "elapsed_ms": 690,
+        "cleanup_scope": "primary-process-only"
+      },
+      "attachedToRealSession": true,
+      "stdout": "正在准备 fixture.ce593b08af26.msi-fail 的安装文件…\n正在安装 fixture.ce593b08af26.msi-fail…\n",
+      "stderr": "Error: fixture.ce593b08af26.msi-fail 安装未成功，Windows 退出码 1603（0x643）；记录：/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/exit-captures/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/capture-b0d977c7-94f4-44ce-b8bf-90dcd7d60b4d/result.json\n"
+    }
+  ],
+  "cleanupKill": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": ""
+  },
+  "cleanupGUI": {
+    "exitCode": 0,
+    "result": "[{\"bundle\":\"\\/Users\\/cervantes\\/Cider\\/out\\/runtime-acceptance-20261016-84kr3z6f\\/Cider.app\",\"pid\":41805,\"terminated\":true}]",
+    "stderr": ""
+  },
+  "launchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "engineLaunchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "cleanup": {
+    "jobs": [
+      {
+        "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+        "bootoutCode": 0,
+        "absent": true
+      }
+    ],
+    "liveProcesses": [],
+    "errors": [],
+    "passed": true,
+    "protectedSHA256": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    }
+  },
+  "passed": true,
+  "finishedUTC": "2026-10-16T16:24:57.898637Z"
+}

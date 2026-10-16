@@ -1,6 +1,7 @@
 import Foundation
 import Testing
 import CiderRuntime
+import CiderStore
 @testable import CiderBottle
 @testable import CiderCore
 @testable import CiderData
@@ -163,6 +164,35 @@ extension BottleManagementTests {
 }
 
 extension BottleManagementTests {
+    @Test func supportBundleKeepsRealSessionsAndAttachedExitRecords() throws {
+        defer { try? FileManager.default.removeItem(at: home) }
+        let store = BottleStore(paths: paths)
+        let bottle = try makeBottle(store)
+        let root = paths.sessions.appendingPathComponent(bottle.config.id)
+        for index in 0..<3 {
+            let session = root.appendingPathComponent("20261017T00000\(index)-owned")
+            try FileManager.default.createDirectory(at: session, withIntermediateDirectories: true)
+            try Data("owned-real-\(index)\n".utf8).write(to: session.appendingPathComponent("wine.log"))
+            try Data("{\"owned\":\(index)}".utf8).write(to: session.appendingPathComponent("session.json"))
+            try Data("{\"request\":true}".utf8).write(to: session.appendingPathComponent("exit-capture-request.json"))
+            try Data("{\"windows_exit_code\":256}".utf8).write(to: session.appendingPathComponent("exit-capture-result.json"))
+        }
+        for index in 0..<6 {
+            let scratch = root.appendingPathComponent("capture-legacy-\(index)")
+            try FileManager.default.createDirectory(at: scratch, withIntermediateDirectories: true)
+            try Data("{\"legacy\":true}".utf8).write(to: scratch.appendingPathComponent("request.json"))
+        }
+        let archive = try Diagnostics.bundle(for: bottle, store: store, recentSessions: 2, to: home.appendingPathComponent("support"))
+        let entries = try Command.run("/usr/bin/unzip", ["-Z1", archive.path]).split(separator: "\n").map(String.init)
+        let logs = entries.filter { $0.hasSuffix("/wine.log") }
+        let results = entries.filter { $0.hasSuffix("/exit-capture-result.json") }
+        #expect(logs.count == 2 && results.count == 2)
+        let latest = try #require(logs.first { $0.contains("session-1/") })
+        #expect(try Command.run("/usr/bin/unzip", ["-p", archive.path, latest]).contains("owned-real-2"))
+        for name in logs { #expect(try Command.run("/usr/bin/unzip", ["-p", archive.path, name]).contains("owned-real-")) }
+        for name in results { #expect(try Command.run("/usr/bin/unzip", ["-p", archive.path, name]).contains("256")) }
+    }
+
     @Test func readsPerProgramWindowsVersion() throws {
         defer { try? FileManager.default.removeItem(at: home) }
         let store = BottleStore(paths: paths)

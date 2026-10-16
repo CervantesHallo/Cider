@@ -181,7 +181,9 @@ private final class BrokerState: @unchecked Sendable {
         lock.lock()
         guard let item = active[id], var response = item.response else { lock.unlock(); return }
         let complete = item.acknowledgedEvents == response.sequenceCount && item.acceptedEvents == response.sequenceCount
-        guard complete || expired else { lock.unlock(); return }
+        // Explicitly ended output cannot acquire more acknowledgements. Preserve
+        // its incomplete marker and release the cancelled command immediately.
+        guard complete || expired || response.outputIncomplete || item.failedOutput else { lock.unlock(); return }
         active.removeValue(forKey: id)
         response.outputIncomplete = response.outputIncomplete || !complete || item.failedOutput
         lock.unlock(); item.reply.finish(encode(response)); checkIdleLater()

@@ -101,7 +101,7 @@ final class AppModel {
     /// Bottles with any live Windows process (including Wine's own services).
     var runningBottles: Set<String> = []
     /// A recipe worker's owner token lets Stop take over its lock without a late defer unlocking another action.
-    var recipeWorkers: [String: (owner: UUID, task: Task<Bottle, Error>, completed: Bool)] = [:]
+    var recipeWorkers: [String: (owner: UUID, task: Task<(Bottle, RecipeInstaller.Result), Error>, completed: Bool)] = [:]
 
     let paths = CiderPaths.standard()
     /// Compatibility data (bundled + user data directory) and the verdict for each library item.
@@ -375,26 +375,31 @@ final class AppModel {
     // MARK: Actions
 
     func launch(_ item: LibraryItem) { perform(item, action: .start) }
+    func launch(_ item: LibraryItem, checking check: @escaping @Sendable () throws -> Void) -> Task<Void, Never>? {
+        perform(item, action: .start, launchCheck: check)
+    }
     func restart(_ item: LibraryItem) { perform(item, action: .restart) }
     func stop(_ item: LibraryItem) { perform(item, action: .stop) }
 
     private enum AppAction: String, Sendable { case start, stop, restart }
 
-    private func perform(_ item: LibraryItem, action: AppAction) {
+    @discardableResult
+    private func perform(_ item: LibraryItem, action: AppAction,
+                         launchCheck: (@Sendable () throws -> Void)? = nil) -> Task<Void, Never>? {
         let paths = self.paths
         let snapshot = compat
         // Catalog aliases can refer to the same executable. Serialize by bottle as well as item.
         let bottleKey = "activity:\(item.bottleID)"
         guard !busy.contains(bottleKey) else {
             message = "这个瓶子的操作正在进行，请稍候。"
-            return
+            return nil
         }
         if action == .start, var pending = pendingLaunches[item.id] {
             let waiting = "\(item.title) 的启动请求仍在处理中，请稍候。"
             message = waiting
             pending.feedback = feedbackGeneration
             pendingLaunches[item.id] = pending
-            return
+            return nil
         }
         pendingLaunches.removeValue(forKey: item.id)
         busy.insert(bottleKey)
@@ -407,13 +412,18 @@ final class AppModel {
         case .restart: message = "正在重启 \(item.title)…"
         }
         let feedback = feedbackGeneration
-        Task {
-            defer { busy.remove(item.id); busy.remove(actionKey); busy.remove(bottleKey) }
+        return Task {
+            defer {
+                busy.remove(item.id); busy.remove(actionKey)
+                if !busy.contains("stop-bottle:\(item.bottleID)") { busy.remove(bottleKey) }
+            }
             do {
+                try launchCheck?()
                 let started = try await Task.detached { () -> (started: Bool, warning: String?) in
                     let store = BottleStore(paths: paths, compat: snapshot)
                     let bottle = try store.bottle(item.bottleID)
-                    let runner = try store.runner(for: bottle)
+                    var runner = try store.runner(for: bottle)
+                    if let launchCheck { runner = runner.checkingLaunches(launchCheck) }
                     let cwd: URL?
                     if action == .stop { cwd = nil }
                     else { cwd = try WindowsPath.workingDirectory(item.workingDirectory, in: bottle) }
@@ -428,6 +438,7 @@ final class AppModel {
                     }
                 }.value
                 let observed = await scanProcesses(after: ProcessInfo.processInfo.systemUptime)
+                try launchCheck?()
                 if action == .stop {
                     _ = updateFeedback("已停止 \(item.title)。", owning: feedback)
                 } else if started.started {
@@ -448,6 +459,10 @@ final class AppModel {
                 } else {
                     _ = updateFeedback("\(item.title) 已在运行；需要重新启动时，请使用“重启”。", owning: feedback)
                 }
+            } catch is CancellationError {
+                pendingLaunches.removeValue(forKey: item.id)
+                await scanProcesses()
+                _ = updateFeedback("操作已取消。", owning: feedback)
             } catch let block as Preflight.Block {
                 if feedbackGeneration == feedback { showRouteCard(block) }
             } catch {
@@ -542,7 +557,8 @@ final class AppModel {
             do {
                 try await Task.detached {
                     let store = BottleStore(paths: paths)
-                    try store.runner(for: try store.bottle(bottleID)).killAll()
+                    let bottle = try store.bottle(bottleID)
+                    try RecipeInstaller.stoppingInstallations(in: bottle) { try store.runner(for: bottle).killAll() }
                 }.value
                 // Await cancellation so a download/installer cannot start another step after Stop reports success.
                 if let interrupted, case .failure(let error) = await interrupted.task.result,

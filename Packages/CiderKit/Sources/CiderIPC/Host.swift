@@ -172,6 +172,8 @@ public final class RPCGUIHost: NSObject, RPCExecutionProtocol, @unchecked Sendab
         guard let c = connection, let operation = active[event.id],
               operation.peer == ObjectIdentifier(c), !operation.observation.isDetached else { lock.unlock(); return false }
         acknowledgements[key] = (ObjectIdentifier(c), event.id, ack); lock.unlock()
+        let detachListener = operation.observation.onDetach { ack.succeed(false) }
+        defer { operation.observation.removeDetachListener(detachListener) }
         defer { lock.lock(); acknowledgements.removeValue(forKey: key); lock.unlock() }
         let proxy = c.remoteObjectProxyWithErrorHandler { ack.fail($0) }
         guard let registrar = proxy as? RPCRegistrationProtocol else { return false }

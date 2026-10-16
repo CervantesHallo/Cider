@@ -86,6 +86,16 @@ public struct WineRunner: Sendable {
     /// Compatibility data, so a profile's `actions.env` reaches the launch it was written for
     /// (docs/plan/00 principle 1: what changes lives in data). Profiles are red-line linted on load.
     public let compat: CompatDB?
+    private var launchCheck: @Sendable () throws -> Void = {}
+
+    /// Add a cooperative check to this operation's runner. It runs again under the
+    /// bottle lock immediately before spawn, so Stop cannot be followed by a late launch.
+    public func checkingLaunches(_ check: @escaping @Sendable () throws -> Void) -> WineRunner {
+        var copy = self
+        let previous = launchCheck
+        copy.launchCheck = { try previous(); try check() }
+        return copy
+    }
 
     public init(paths: CiderPaths, engine: InstalledEngine, prefix: URL, bottleID: String, locale: BottleLocale,
                 sync: SyncMode = .default, bottleEnvironment: [String: String] = [:], compat: CompatDB? = nil) {
@@ -192,7 +202,8 @@ public struct WineRunner: Sendable {
 
     /// Spawns the plan, recording `session.json` and an audit line. Returns immediately.
     public func launch(_ plan: LaunchPlan) throws -> SessionHandle {
-        try withBottleOperation {
+        try launchCheck()
+        return try withBottleOperation {
             try FileOperationLock.withLock(at: EngineStore(paths: paths).operationLock(for: engine.manifest.id)) {
                 try launchLocked(plan)
             }
@@ -263,6 +274,7 @@ public struct WineRunner: Sendable {
         let auditFD = open(auditURL.path, O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC | O_NOFOLLOW, 0o600)
         guard auditFD >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
         defer { close(auditFD) }
+        try launchCheck()
         let pid = try Spawn.launch(
             executable: plan.loader, arguments: plan.argv, environment: plan.env,
             workingDirectory: plan.cwd, logPath: sessionDir.appendingPathComponent("wine.log").path
@@ -288,6 +300,7 @@ public struct WineRunner: Sendable {
         // Cancellation may race with spawn; stop this prefix before handing the cancelled result back.
         if Task.isCancelled { try killAll() }
         let code = try Spawn.wait(session.pid, observation: observation)
+        try launchCheck()
         try Task.checkCancellation()
         return (code, session)
     }

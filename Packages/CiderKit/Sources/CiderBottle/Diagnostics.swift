@@ -20,7 +20,12 @@ public enum Diagnostics {
 
         // Sessions, newest first.
         let sessionsRoot = store.paths.logs.appendingPathComponent("sessions/\(bottle.config.id)", isDirectory: true)
-        let sessions = ((try? fm.contentsOfDirectory(atPath: sessionsRoot.path)) ?? []).sorted(by: >).prefix(max(0, recentSessions))
+        let sessions = ((try? fm.contentsOfDirectory(atPath: sessionsRoot.path)) ?? []).filter { name in
+            guard !name.hasPrefix("capture-"),
+                  let src = try? FileSafety.child(name, in: sessionsRoot, rejectSymlinks: true) else { return false }
+            return fm.fileExists(atPath: src.appendingPathComponent("session.json").path)
+                || fm.fileExists(atPath: src.appendingPathComponent("wine.log").path)
+        }.sorted(by: >).prefix(max(0, recentSessions))
         for (index, session) in sessions.enumerated() {
             try Task.checkCancellation()
             let src = sessionsRoot.appendingPathComponent(session, isDirectory: true)
@@ -32,6 +37,12 @@ public enum Diagnostics {
                 try Task.checkCancellation()
                 let data = try readBounded(from: from, keepBothEnds: file == "wine.log")
                 try redact(data, structuredJSON: file != "wine.log").write(to: dst.appendingPathComponent(file))
+            }
+            for file in ["exit-capture-request.json", "exit-capture-result.json"] {
+                let from = src.appendingPathComponent(file)
+                guard fm.fileExists(atPath: from.path) else { continue }
+                let data = try readBounded(from: from, keepBothEnds: false)
+                try redact(data, structuredJSON: true).write(to: dst.appendingPathComponent(file))
             }
         }
 
@@ -58,7 +69,7 @@ public enum Diagnostics {
         system.append("gstreamer: \(fm.fileExists(atPath: WineRunner.gstreamerFramework) ? "yes" : "no")")
         system.append("")
         system.append("windows processes:")
-        for p in ProcessScanner.scan() where p.bottleID == bottle.config.id {
+        for p in ProcessScanner.scan(prefixes: [bottle.config.id: bottle.prefix]) {
             system.append("  \(p.pid)  \(p.windowsImage)")
         }
         try redact(Data(system.joined(separator: "\n").utf8)).write(to: staging.appendingPathComponent("system.txt"))

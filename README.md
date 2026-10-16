@@ -30,6 +30,8 @@ Cider 是一个从零打造的 Mac 兼容层。它基于 Wine，配有一套原�
 
 ## 构建
 
+应用打包还需 MinGW-w64 交叉编译器，用来从源码生成安装退出状态工具。已有 Cider 引擎工具链会直接复用；只构建应用也可安装 Apple Silicon 的 `mingw-w64`（`brew install mingw-w64`）。运行发布的应用不需要安装编译器。
+
 需要 Apple 芯片的 Mac、macOS 14+、Xcode（单元测试要用 Xcode 自带的 Testing 模块），以及 Rosetta。
 
 ```sh

@@ -357,7 +357,8 @@ struct Kill: ParsableCommand {
     @Option(name: .shortAndLong, help: "Bottle id or name.") var bottle: String
     func run() throws {
         let store = CommandContext.required.bottleStore()
-        try store.runner(for: try store.bottle(bottle)).killAll()
+        let target = try store.bottle(bottle)
+        try RecipeInstaller.stoppingInstallations(in: target) { try store.runner(for: target).killAll() }
         CommandContext.emit("stopped")
     }
 }
@@ -400,8 +401,10 @@ struct InstallRecipe: ParsableCommand {
         let store = CommandContext.required.bottleStore()
         let installer = RecipeInstaller(store: store, db: db)
         let output = CommandContext.required.output
-        try installer.install(recipe, in: try store.bottle(bottle)) { output($0 + "\n", false) }
+        let observation = CommandContext.required.observation
+        let result = try installer.install(recipe, in: try store.bottle(bottle), onStop: { observation?.detach() }) { output($0 + "\n", false) }
         CommandContext.emit("installed \(recipe)")
+        if result.requiresRestart { CommandContext.emit("安装程序要求重启瓶子，请重启后再运行程序。", stderr: true) }
     }
 }
 

@@ -32,7 +32,9 @@ public final class RPCClient: @unchecked Sendable {
         guard response.version == RPCWire.version, response.id == request.id,
               ["completed", "rejected", "unknown"].contains(response.state) else { throw RPCFailure("Cider命令结果无效，未重试。") }
         var actual = response
-        if console.failed { actual.outputIncomplete = true }
+        // A producer explicitly ending its stream may reply while a sink is still
+        // blocked. Its incomplete result must not wait on the sink's output lock.
+        if !actual.outputIncomplete && console.failed { actual.outputIncomplete = true }
         return actual
     }
     private func connection(console: ClientConsole? = nil) -> NSXPCConnection {
@@ -49,9 +51,11 @@ private final class ClientConsole: NSObject, RPCConsoleProtocol, @unchecked Send
     private let id: UUID
     private let sink: @Sendable (Data, Bool) throws -> Void
     private let lock = NSLock()
+    private let writer = DispatchQueue(label: "org.cider.command-output")
     private var expected: UInt64 = 1
     private var pending: [UInt64: (RPCEvent, @Sendable () -> Void)] = [:]
     private var writeFailed = false
+    private var draining = false
     var failed: Bool { lock.lock(); defer { lock.unlock() }; return writeFailed }
     init(id: UUID, output: @escaping @Sendable (Data, Bool) throws -> Void) { self.id = id; sink = output }
     func output(_ data: Data, withReply reply: @escaping @Sendable () -> Void) {
@@ -60,11 +64,26 @@ private final class ClientConsole: NSObject, RPCConsoleProtocol, @unchecked Send
         lock.lock()
         guard event.sequence >= expected, pending.count < 8, pending[event.sequence] == nil else { lock.unlock(); reply(); return }
         pending[event.sequence] = (event, reply)
-        var acknowledgements: [@Sendable () -> Void] = []
-        while let (next, ack) = pending.removeValue(forKey: expected) {
-            do { try sink(next.bytes, next.stderr) } catch { writeFailed = true }
-            acknowledgements.append(ack); expected += 1
+        let schedule = !draining
+        if schedule { draining = true }
+        lock.unlock()
+        // XPC replies share a delivery queue with exported methods. Never block it
+        // on a terminal/pipe write; the ACK still waits for actual consumption.
+        if schedule { writer.async { self.drain() } }
+    }
+    private func drain() {
+        while true {
+            lock.lock()
+            guard let (next, ack) = pending[expected] else { draining = false; lock.unlock(); return }
+            let sequence = expected
+            lock.unlock()
+            var failed = false
+            do { try sink(next.bytes, next.stderr) } catch { failed = true }
+            lock.lock()
+            writeFailed = writeFailed || failed
+            pending.removeValue(forKey: sequence); expected += 1
+            lock.unlock()
+            ack()
         }
-        lock.unlock(); acknowledgements.forEach { $0() }
     }
 }

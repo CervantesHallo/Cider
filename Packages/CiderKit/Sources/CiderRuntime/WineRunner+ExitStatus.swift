@@ -5,21 +5,49 @@ import CryptoKit
 import Darwin
 import Foundation
 
-/// Opt-in preparation for the candidate collector. Preparing or reading this value
-/// doesn't execute Wine. It is not used by the default GUI, CLI or recipe installer.
+/// An explicitly owned collector invocation. Preparing/reading does not execute Wine
+/// or prove that installer descendants have stopped.
 public struct PreparedWindowsExitCapture: Sendable {
     public let plan: LaunchPlan
     public let directory: URL
     public let resultURL: URL
+    fileprivate let sessionRoot: URL
+
+    /// Attach only bounded JSON to the real Wine session; the PE/scratch directory
+    /// is separate and never competes with timestamped sessions in support bundles.
+    public func recordEvidence(in session: SessionHandle) throws {
+        let destination = try Self.evidenceDestination(sessionDirectory: session.directory, root: sessionRoot)
+        for (name, target, limit) in [("request.json", "exit-capture-request.json", 16 << 10),
+                                      ("result.json", "exit-capture-result.json", 4096)] {
+            let from = try FileSafety.child(name, in: directory, rejectSymlinks: true)
+            let to = try FileSafety.child(target, in: destination, rejectSymlinks: true)
+            try CaptureFiles.writeNew(CaptureFiles.read(from, limit: limit), to: to)
+        }
+    }
+
+    static func evidenceDestination(sessionDirectory: URL, root: URL) throws -> URL {
+        let destination = try FileSafety.child(sessionDirectory.lastPathComponent, in: root, rejectSymlinks: true)
+        guard destination.resolvingSymlinksInPath().path == sessionDirectory.standardizedFileURL.resolvingSymlinksInPath().path else {
+            throw CiderError.invalid("退出状态记录与会话目录不属于同一瓶子。")
+        }
+        return destination
+    }
 
     /// A zero Unix status is necessary for the collector, never sufficient for its child.
     public func readStatus(afterCollectorUnixStatus code: Int32) throws -> WindowsExitStatus {
-        guard code == 0 else {
-            throw CiderError.commandFailed(command: "Windows exit-status collector", status: code,
-                                           output: "采集工具未成功结束，不能据此判断目标程序退出码。")
+        let decoded = Result { () throws -> WindowsExitStatus in
+            let file = try FileSafety.child("result.json", in: directory, rejectSymlinks: true)
+            return try WindowsExitStatus(data: CaptureFiles.read(file, limit: 4096))
         }
-        let file = try FileSafety.child("result.json", in: directory, rejectSymlinks: true)
-        let report = try WindowsExitStatus(data: CaptureFiles.read(file, limit: 4096))
+        guard code == 0 else {
+            let detail: String
+            if case .success(let status) = decoded {
+                detail = "\(status.phase.rawValue)，Win32 \(status.win32Error)；记录：\(resultURL.path)"
+            } else { detail = "没有完整状态记录。" }
+            throw CiderError.commandFailed(command: "Windows exit-status collector", status: code,
+                                           output: "采集工具未成功结束，不能据此判断目标程序退出码。\(detail)")
+        }
+        let report = try decoded.get()
         guard report.capturedWindowsExitCode != nil else {
             throw CiderError.invalid("没有取得完整 Windows 退出码（\(report.phase.rawValue)，Win32 \(report.win32Error)）。")
         }
@@ -28,7 +56,7 @@ public struct PreparedWindowsExitCapture: Sendable {
 }
 
 extension WineRunner {
-    /// Candidate-only API. The caller must supply a known collector digest, perform
+    /// The caller supplies a known collector digest, performs
     /// a normal runner.launch(plan), observe completion, and handle installer detection.
     /// Scratch is deliberately retained; descendants' cleanup must not be inferred.
     public func prepareWindowsExitCapture(_ target: LaunchPlan, collector: URL,
@@ -63,7 +91,8 @@ extension WineRunner {
             cwd = URL(fileURLWithPath: path, isDirectory: true)
             windowsCwd = WinePathMapping.windowsPath(forHostPath: path, prefix: prefix)
         } else { cwd = nil; windowsCwd = "-" }
-        let root = try FileSafety.child(try FileSafety.component(bottleID), in: paths.sessions, rejectSymlinks: true)
+        let root = try FileSafety.child(try FileSafety.component(bottleID),
+                                        in: paths.logs.appendingPathComponent("exit-captures"), rejectSymlinks: true)
         let directory = try FileSafety.reserveDirectory(in: root, name: { "capture-" + UUID().uuidString.lowercased() })
         let copiedCollector = try FileSafety.child("collector.exe", in: directory, rejectSymlinks: true)
         try CaptureFiles.writeNew(bytes, to: copiedCollector)
@@ -85,7 +114,8 @@ extension WineRunner {
                                        plannedEnvironmentProfile: plannedTarget.matchingEnvironmentProfile)
         try JSONFile.writeMetadata(metadata, to: directory.appendingPathComponent("request.json"), limit: 16 << 10)
         try Task.checkCancellation()
-        return PreparedWindowsExitCapture(plan: plan, directory: directory, resultURL: result)
+        return PreparedWindowsExitCapture(plan: plan, directory: directory, resultURL: result,
+                                          sessionRoot: paths.sessions.appendingPathComponent(bottleID))
     }
 
     private func captureWindowsProgram(_ program: String) throws -> String {
@@ -103,6 +133,46 @@ extension WineRunner {
         environment.allSatisfy { key, value in
             !key.isEmpty && !key.contains("=") && !key.contains("\0") && !value.contains("\0")
         }
+    }
+}
+
+/// Helpers belong to this App's signed resources, independently of compatibility
+/// data overlays. The runner rechecks the selected digest before making a private copy.
+public struct WindowsExitCollector: Sendable {
+    public let executable: URL
+    public let sha256: String
+    public init(executable: URL, sha256: String) { self.executable = executable; self.sha256 = sha256 }
+
+    public static func bundled(cpuBackend: String = "rosetta-x86_64", resources: URL? = CiderResources.mainBundleResources) throws -> WindowsExitCollector {
+        guard let resources else { throw CiderError.notFound("安装状态采集工具；请使用完整的 Cider 应用包。") }
+        let root = try FileSafety.child("windows-tools", in: resources, rejectSymlinks: true)
+        let file = try FileSafety.child("manifest.json", in: root, rejectSymlinks: true)
+        let manifest = try JSONDecoder().decode(Manifest.self, from: CaptureFiles.read(file, limit: 16 << 10))
+        let architecture: String
+        switch cpuBackend {
+        case "rosetta-x86_64": architecture = "x86_64"
+        case "fex-arm64": architecture = "arm64"
+        default: throw CiderError.invalid("安装状态采集工具不支持当前 CPU 后端。")
+        }
+        let expectedMachine: UInt16 = architecture == "x86_64" ? 0x8664 : 0xaa64
+        guard manifest.schema == "cider.windows-tools/v1", let entry = manifest.collectors[architecture],
+              entry.file == "cider-exit-status-\(architecture).exe", entry.machine == expectedMachine else {
+            throw CiderError.invalid("安装状态采集工具的架构或清单不受支持。")
+        }
+        let executable = try FileSafety.child(entry.file, in: root, rejectSymlinks: true)
+        let bytes = try CaptureFiles.read(executable, limit: 2 << 20)
+        let sha = SHA256.hash(data: bytes).map { String(format: "%02x", $0) }.joined()
+        guard sha == entry.sha256, let header = PEHeader(data: bytes), header.machine == expectedMachine,
+              header.isExecutableImage, !header.isDLL, header.subsystem == 2 || header.subsystem == 3 else {
+            throw CiderError.invalid("应用内的安装状态采集工具已损坏。")
+        }
+        return WindowsExitCollector(executable: executable, sha256: sha)
+    }
+
+    private struct Manifest: Decodable {
+        let schema: String
+        let collectors: [String: Entry]
+        struct Entry: Decodable { let file: String; let machine: UInt16; let sha256: String }
     }
 }
 

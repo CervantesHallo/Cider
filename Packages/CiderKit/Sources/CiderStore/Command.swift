@@ -7,8 +7,10 @@ public enum Command {
     /// A cancellable host tool (recipe downloads). File-backed output avoids blocking on a pipe read
     /// while the task is cancelled; only this process's own child is terminated.
     @discardableResult
-    public static func runCancellable(_ executable: String, _ arguments: [String]) throws -> String {
+    public static func runCancellable(_ executable: String, _ arguments: [String],
+                                       cancellationRequested: @Sendable () -> Bool = { false }) throws -> String {
         try Task.checkCancellation()
+        if cancellationRequested() { throw CancellationError() }
         let log = FileManager.default.temporaryDirectory.appendingPathComponent("cider-command-\(UUID().uuidString)")
         guard FileManager.default.createFile(atPath: log.path, contents: nil, attributes: [.posixPermissions: 0o600]) else {
             throw CiderError.invalid("cannot create command log")
@@ -51,7 +53,7 @@ public enum Command {
                 throw CiderError.invalid("cannot observe command exit: \(String(cString: strerror(errno)))")
             }
             // This child has not been reaped: its PID cannot be reused between this check and signal.
-            if Task.isCancelled {
+            if Task.isCancelled || cancellationRequested() {
                 let now = ProcessInfo.processInfo.systemUptime
                 if cancelTime == nil { cancelTime = now; _ = kill(pid, SIGTERM) }
                 if let start = cancelTime, now - start >= 1, !forced { _ = kill(pid, SIGKILL); forced = true }
@@ -68,6 +70,7 @@ public enum Command {
             Thread.sleep(forTimeInterval: 0.05)
         }
         try Task.checkCancellation()
+        if cancellationRequested() { throw CancellationError() }
         let output = String(decoding: try Data(contentsOf: log), as: UTF8.self)
         let signal = status & 0x7f
         let code = signal == 0 ? (status >> 8) & 0xff : 128 + signal

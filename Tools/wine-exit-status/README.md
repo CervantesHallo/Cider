@@ -1,12 +1,15 @@
-# Windows exit-status collector (candidate)
+# Windows exit-status collector
 
 Mac host process status is only an 8-bit Unix exit value; do not use it to infer
 the complete Windows code, or map its low byte to MSI reboot success codes.
 
-This candidate starts one explicit executable with `CreateProcessW`, waits for its
-process handle, and records its full `GetExitCodeProcess` DWORD. It is not wired
-into Cider's installer or distributed engines. Compile on Mac with `build.sh`
-using the already-installed Cider mingw toolchain; the script does not run it.
+This tool starts one explicit executable with `CreateProcessW`, waits for its
+process handle, and records its full `GetExitCodeProcess` DWORD. The isolated
+installer implementation uses it before separate recipe detection. The App builder
+compiles both PE architectures into its private resource stage, generates a
+machine/digest manifest, then signs the enclosing App. It reuses Cider's existing
+MinGW toolchain or host cross compilers on PATH; it does not download a compiler.
+Executable helpers are never selected through CIDER_DATA or recipe URLs.
 
 ```text
 cider-exit-status.exe RESULT.json TIMEOUT_MS CWD_OR_DASH EXE [ARGUMENT...]
@@ -31,12 +34,18 @@ Failure, timeout, unavailable exit code or partial output is not success.
 The helper doesn't collect descendant exit codes or stop/claim cleanup of child
 handoffs; a primary exit must still be followed by the recipe's detection step.
 `CiderCore.WindowsExitStatus` provides a bounded decoder and a guarded complete
-code accessor. Its MSI-specific disposition is only for an MSI caller, not an
-arbitrary EXE. Neither this decoder nor the helper is wired into the installer.
+code accessor. MSI reboot semantics apply to actual MSI installation or a trusted
+recipe's explicit `exit_code_convention: msi` declaration. Other EXEs require zero;
+nonzero DWORDs are retained in diagnostics and cannot be rescued by detected files.
+Restart requests are returned to the GUI/CLI; the GUI does not auto-launch the
+installed application in that outcome. It does not automatically restart a bottle.
 
-Before integration: verify exact high-value/reboot/exception exits, empty and
-escaped arguments, Unicode paths, failure/timeout/partial output, output ownership,
-Wine handle behavior and native Windows results. These checks have not run.
+Minimal Windows quoting preserves empty/escaped/Unicode arguments while leaving
+ordinary switches unquoted. Wine msiexec's raw command-line parser retains quotes
+on switches; the previous quote-everything helper could open its usage window
+instead of honoring /qn. Real Wine collector and own EXE/MSI integration checks
+are under tests/runtime/exit-status/results. Exception-valued ExitProcess probes
+are not unhandled-fault injection or native Windows/kernel reference results.
 Preserve launcher graphics environment, preflight and bottle-wide sync/locale.
 Never retrofit Windows status by accepting its truncated Unix low byte.
 

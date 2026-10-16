@@ -93,6 +93,10 @@ public enum Spawn {
             usleep(50_000)
         }
     }
+
+    /// Read-only synchronization point for owned-child regression checks. A process
+    /// disappearing from proc_pidinfo alone does not prove waitpid has reaped it.
+    static func isAwaitingDetachedReap(_ pid: pid_t) -> Bool { DetachedChildren.shared.contains(pid) }
 }
 
 /// No blocked thread per abandoned command. The timer exists only while an owned
@@ -102,6 +106,8 @@ private final class DetachedChildren: @unchecked Sendable {
     private let queue = DispatchQueue(label: "org.cider.detached-child-reaper", qos: .utility)
     private var children = Set<pid_t>()
     private var timer: DispatchSourceTimer?
+
+    func contains(_ pid: pid_t) -> Bool { queue.sync { children.contains(pid) } }
 
     func adopt(_ pid: pid_t) {
         queue.async { [self] in

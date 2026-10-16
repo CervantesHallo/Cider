@@ -1,0 +1,154 @@
+{
+  "schema": "cider.product-runtime-acceptance/v1",
+  "startedUTC": "2026-10-16T17:15:07.652751Z",
+  "owner": {
+    "schema": "cider.runtime-acceptance/v1",
+    "root": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f",
+    "source_commit": "c9a1931274dc3f7f827b01a5e2fe2f46fec50250",
+    "source_app": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app",
+    "app": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+    "home": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home",
+    "ownership": "Only this test root is writable by this controller",
+    "protected": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "engine_source": "/Users/cervantes/Library/Application Support/Cider/Engines/cider-cx26.3-r1-wma1-mm1-x86_64",
+    "engine_copy": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64",
+    "engine_id": "cider-cx26.3-r1-wma1-mm2-x86_64",
+    "working_changes": "full installer DWORD, atomic shared cancellation, retained GUI handoff and asynchronous client output; uncommitted",
+    "candidateSHA256": "17ee909be9546ca8be919977278bafbc43b5efa951b763ef517514d6e66f14ee",
+    "sourceHashes": {
+      "App/Sources/Cider/Model/AppModel+Bottles.swift": "8b4af0a30dc8a596f28a3d365e0233b2b0d11cf5241cb74b20cfd32f239adfc9",
+      "App/Sources/Cider/Model/AppModel.swift": "70dbf88f180230818d9c8bd758bef0df368d02913ce924973cf32e2f44be3b08",
+      "Packages/CiderKit/Sources/CiderBottle/Diagnostics.swift": "5addf3b6df01fbfa8c3c7bfb0e6acd4d40ff263dafe003459ad4cdf72430b79f",
+      "Packages/CiderKit/Sources/CiderCore/CommandObservation.swift": "34302124814480b67bd123dc355e56fff429e5de6dd8636d59003ea1b7aff6b0",
+      "Packages/CiderKit/Sources/CiderData/Recipe.swift": "e99ff74162c00edb4df843dfb65a863a325979c47cf3040f481c564f36867617",
+      "Packages/CiderKit/Sources/CiderIPC/Broker.swift": "dfb9012c737e5ea33f4a6335709b1c84e24b63727175b341f37e1c7ad76dc23b",
+      "Packages/CiderKit/Sources/CiderIPC/Client.swift": "59931bfeeefcd9c6b0511771dc548812dd261841aac93bbb8c43446a0518d944",
+      "Packages/CiderKit/Sources/CiderIPC/Host.swift": "c98707f952157c6ccef8d8aad83c30250cb2fac6ace132f20cf96be23438093c",
+      "Packages/CiderKit/Sources/CiderIntegration/InstallationActivity.swift": "85e89d8a3d52310d8898cfe3c6039758ef01e7216c031f71f0d8a8d624ab37ff",
+      "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift": "f21aa03d9685c5b35e02b00f2cf68acce831949c06c3df8cf44bf7e205d65197",
+      "Packages/CiderKit/Sources/CiderRuntime/WineRunner+ExitStatus.swift": "ead3b42c1d7a9edbeba43c982e9f6040b995b9e32841743f91315282946857b6",
+      "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift": "8295aefdf2263c18838d214a0c2f0c8260c4bf5d47f4dbf20bb13ef4762e7aa8",
+      "Packages/CiderKit/Sources/CiderStore/Command.swift": "434148ae5daada11e8289c20ee92fc3a41e393ce89a0cd8684161b5e5e0bad92",
+      "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "cf4a73fe7489a051b1409a94b73213725e90f4346ad945e14977f6962a148f53",
+      "Tools/wine-exit-status/capture.c": "e0706c89c9f7f937bb4a431587f525cca2e30b8871d30848e8f6e6772ac4ffcf"
+    },
+    "engine_patch": "0014",
+    "candidateComponentSHA256": {
+      "Cider": "17ee909be9546ca8be919977278bafbc43b5efa951b763ef517514d6e66f14ee",
+      "ciderctl": "68ce3773b9c03bfad53173cda5447e4f2a9b230ad567670ce0254efa49172821",
+      "CiderXPCBridge": "2a6b0c2008e4dbdc3efdf0f6dc9cde54e1e5333d1d27011f7af71029426d02aa"
+    },
+    "windowsToolsManifest": {
+      "collectors": {
+        "i686": {
+          "file": "cider-exit-status-i686.exe",
+          "machine": 332,
+          "sha256": "edf104356f71b4d84fe391cd57fcc00b471042365d37b8674b4fef46ee4ca624"
+        },
+        "x86_64": {
+          "file": "cider-exit-status-x86_64.exe",
+          "machine": 34404,
+          "sha256": "10252dd733cd3255f39b2a5a676b179eb71dc59d08b2e05edf88797ca85e05bd"
+        }
+      },
+      "schema": "cider.windows-tools/v1",
+      "sourceSHA256": "e0706c89c9f7f937bb4a431587f525cca2e30b8871d30848e8f6e6772ac4ffcf"
+    }
+  },
+  "cases": [
+    {
+      "name": "product.cli_launches_real_gui",
+      "passed": true,
+      "seconds": 2.056767167,
+      "evidence": {
+        "stdout": "cider-cx26.3-r1-wma1-mm2-x86_64\twine-11.0\tdevel\n",
+        "gui": [
+          {
+            "bundle": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+            "pid": 47761,
+            "terminated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "product.reuse_empty_prefix",
+      "passed": true,
+      "seconds": 0.0008656669999997924,
+      "evidence": {
+        "reusedOnlyThisOwnedEmptyPrefix": true,
+        "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293"
+      }
+    },
+    {
+      "name": "product.stop_prevents_installer_resurrection",
+      "passed": true,
+      "seconds": 16.286510834,
+      "evidence": {
+        "killExitCode": 0,
+        "killSeconds": 13.327958875,
+        "workerAliveAfterStop": false,
+        "dependencyCapture": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/sessions/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/20261016T171509-install-fixture.b5f46660aeb6.waiting-exit-status-E71DB3B6-7625-4366-9CC8-2A301343B264/wine.log",
+        "phase": "running Windows installer",
+        "newWindowsSpawnsAfterStop": [],
+        "laterRecipeMarkerExists": false,
+        "installerCLIExitCode": 1
+      }
+    }
+  ],
+  "windowsOperations": 0,
+  "clients": [],
+  "guiPID": 47761,
+  "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+  "prefix": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Bottles/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/prefix",
+  "stopInstallEvidence": {
+    "killExitCode": 0,
+    "killSeconds": 13.327958875,
+    "workerAliveAfterStop": false,
+    "dependencyCapture": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/sessions/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/20261016T171509-install-fixture.b5f46660aeb6.waiting-exit-status-E71DB3B6-7625-4366-9CC8-2A301343B264/wine.log",
+    "phase": "running Windows installer",
+    "newWindowsSpawnsAfterStop": [],
+    "laterRecipeMarkerExists": false,
+    "installerCLIExitCode": 1
+  },
+  "cleanupKill": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": ""
+  },
+  "cleanupGUI": {
+    "exitCode": 0,
+    "result": "[{\"bundle\":\"\\/Users\\/cervantes\\/Cider\\/out\\/runtime-acceptance-20261016-84kr3z6f\\/Cider.app\",\"pid\":47761,\"terminated\":true}]",
+    "stderr": ""
+  },
+  "launchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "engineLaunchServicesUnregister": {
+    "exitCode": 1,
+    "stderr": "failed to scan /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64/CiderWineHost.app: -10814\n from spotlight",
+    "notFoundAndExactPathAbsent": true
+  },
+  "cleanup": {
+    "jobs": [
+      {
+        "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+        "bootoutCode": 0,
+        "absent": true
+      }
+    ],
+    "liveProcesses": [],
+    "errors": [],
+    "passed": true,
+    "protectedSHA256": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    }
+  },
+  "passed": true,
+  "finishedUTC": "2026-10-16T17:15:30.244385Z"
+}

@@ -2,7 +2,7 @@
   "schema": "cider.recipe/v1",
   "id": "runtime.vcrun2022",
   "kind": "component",
-  "revision": 2,
+  "revision": 3,
   "name": {
     "zh-Hans": "VC++ 2015–2022 运行库",
     "en": "Visual C++ 2015–2022 Runtime"
@@ -40,7 +40,8 @@
           "/install",
           "/quiet",
           "/norestart"
-        ]
+        ],
+        "exit_code_convention": "msi"
       }
     },
     {
@@ -51,7 +52,8 @@
           "/install",
           "/quiet",
           "/norestart"
-        ]
+        ],
+        "exit_code_convention": "msi"
       }
     },
     {

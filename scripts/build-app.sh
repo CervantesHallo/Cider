@@ -71,6 +71,9 @@ cp "$BRIDGE" "$STAGED_APP/Contents/MacOS/CiderXPCBridge"
 cp "$ICON" "$STAGED_APP/Contents/Resources/AppIcon.icns"
 # Bundled compatibility data (docs/plan/06); the signed data channel will update it later.
 cp -R "$ROOT/data" "$STAGED_APP/Contents/Resources/data"
+# Private source-built Win32 tools are signed with the enclosing App's resources.
+# Never obtain executable helpers through CIDER_DATA or a recipe download.
+bash "$ROOT/Tools/wine-exit-status/build.sh" "$STAGED_APP/Contents/Resources/windows-tools"
 
 cat > "$STAGED_APP/Contents/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>

@@ -312,32 +312,47 @@ extension AppModel {
                     busy.insert(key)
                     heldActivityKey = key
                 }
-                let worker = Task.detached { () throws -> Bottle in
-                    let store = BottleStore(paths: paths, compat: db)
-                    try RecipeInstaller(store: store, db: db).install(recipe.id, in: target) { step in
-                        guard !Task.isCancelled else { return }
-                        Task { @MainActor in
-                            guard self.recipeWorkers[target.config.id]?.owner == owner else { return }
-                            self.message = step
+                let activity = try RecipeInstaller.beginActivity(in: target)
+                do {
+                    let worker = Task.detached { () throws -> (Bottle, RecipeInstaller.Result) in
+                        let store = BottleStore(paths: paths, compat: db)
+                        let outcome = try activity.performing {
+                            try RecipeInstaller(store: store, db: db).install(recipe.id, in: target) { step in
+                                guard !Task.isCancelled else { return }
+                                Task { @MainActor in
+                                    guard self.recipeWorkers[target.config.id]?.owner == owner else { return }
+                                    self.message = step
+                                }
+                            }
                         }
+                        return (target, outcome)
                     }
-                    return target
-                }
-                workerBottleID = target.config.id
-                recipeWorkers[target.config.id] = (owner, worker, false)
-                let bottle = try await worker.value
-                guard !worker.isCancelled else { throw CancellationError() }
-                message = "\(recipe.title()) 已安装到瓶子“\(bottle.config.name)”。"
-                await refresh()
-                guard !worker.isCancelled, recipeWorkers[target.config.id]?.owner == owner else { throw CancellationError() }
-                recipeWorkers.removeValue(forKey: target.config.id)
-                workerBottleID = nil
-                // Hand ownership to the launch action without its lock being removed by this task's defer.
-                if let held = heldActivityKey { busy.remove(held); heldActivityKey = nil }
-                if let program = recipe.launch, let item = items.first(where: {
-                    $0.bottleID == bottle.config.id && $0.launchProgram.caseInsensitiveCompare(program) == .orderedSame
-                }) {
-                    launch(item)
+                    workerBottleID = target.config.id
+                    recipeWorkers[target.config.id] = (owner, worker, false)
+                    let (bottle, outcome) = try await worker.value
+                    try activity.checkCancellation()
+                    guard !worker.isCancelled else { throw CancellationError() }
+                    message = outcome.requiresRestart
+                        ? "\(recipe.title()) 已安装到瓶子“\(bottle.config.name)”，请重启瓶子后再打开。"
+                        : "\(recipe.title()) 已安装到瓶子“\(bottle.config.name)”。"
+                    await refresh()
+                    try activity.checkCancellation()
+                    guard !worker.isCancelled, recipeWorkers[target.config.id]?.owner == owner else { throw CancellationError() }
+                    // Hand ownership to the launch action without its lock being removed by this task's defer.
+                    if let held = heldActivityKey { busy.remove(held); heldActivityKey = nil }
+                    if !outcome.requiresRestart, let program = recipe.launch, let item = items.first(where: {
+                        $0.bottleID == bottle.config.id && $0.launchProgram.caseInsensitiveCompare(program) == .orderedSame
+                    }) {
+                        if let task = launch(item, checking: { try activity.checkCancellation() }) { await task.value }
+                    }
+                    try activity.checkCancellation()
+                    guard recipeWorkers[target.config.id]?.owner == owner else { throw CancellationError() }
+                    recipeWorkers.removeValue(forKey: target.config.id)
+                    workerBottleID = nil
+                    try activity.finish()
+                } catch {
+                    try? activity.finish(error: error)
+                    throw error
                 }
             } catch {
                 if workerBottleID.map({ recipeWorkers[$0]?.owner == owner }) ?? true {

@@ -1,0 +1,119 @@
+Building for debugging...
+[Provisioning 7 / 13]
+[1 / 6]
+[2 / 5] CiderIPC
+[4 / 7] CiderIPC
+[7 / 8] CiderIPC
+[12 / 26] CiderRuntime
+[14 / 28] CiderRuntime
+[20 / 34] CiderRuntime
+[23 / 36] CiderBottle
+[26 / 39] CiderIntegration
+[28 / 40] CiderRuntime
+[30 / 39] CiderIntegration
+[34 / 39] CiderKitTests-product
+[36 / 41] CiderKitTests-product
+[42 / 46] CiderKitTests-product
+Build complete! (4.74秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite PreflightTests started.
+◇ Suite BottleManagementTests started.
+◇ Suite InstallationActivityTests started.
+◇ Suite EngineIndexTests started.
+◇ Suite RecipeTests started.
+◇ Suite ProfileLookupTests started.
+◇ Suite CompatDBTests started.
+◇ Suite BottleStoreCompatTests started.
+◇ Test completedOwnershipCannotBeReusedForAnotherLaunch() started.
+◇ Test stopBeforeInnerRegistrationIsCancellationRatherThanCleanupFailure() started.
+◇ Suite KernelFidelityTests started.
+◇ Test ownershipSurvivesInnerInstallAndRefreshHandoff() started.
+◇ Suite CommandObservationTests started.
+◇ Test cancellationAndSuccessHaveOneAtomicWinner() started.
+◇ Test stopBarrierAndUnfinishedCancellationRejectNewWork() started.
+◇ Suite InstallerExitStatusTests started.
+◇ Test supportBundleKeepsRealSessionsAndAttachedExitRecords() started.
+◇ Test hostToolChecksCooperativeCancellation() started.
+◇ Test floatingInstallersMustComeFromVendorHosts() started.
+◇ Test selfJoinIsRejectedAndScopeAliasesMatch() started.
+◇ Test theMihoyoLauncherProfileCarriesTheCrossProcessSwapchainOptIn() started.
+◇ Test gatedImagesAreBlockedWhateverThePathForm() started.
+◇ Test cleanupErrorIsNotConvertedIntoStoppedSuccess() started.
+◇ Test profilesMatchAProgramByImageName() started.
+◇ Test repositoryRecipesPassPolicy() started.
+◇ Test repositoryRoutesAreOfficialCloudWebOnly() started.
+◇ Test stopDrainsAllMatchingWorkAndPreservesOtherRoots() started.
+◇ Test redLinesDropInjectingProfilesAndNonLabGatedVerdicts() started.
+◇ Test repositoryDataLoadsCleanly() started.
+◇ Test repositoryIndexHasARecommendedEngine() started.
+◇ Test versionRanges() started.
+◇ Test mostSpecificVerdictWinsAndExpiredOnesDoNot() started.
+◇ Test theStoreLoadsCompatDataForEveryLaunchPath() started.
+◇ Test compatDirectoriesArePriorityOrdered() started.
+◇ Test repositoryMatrixLoadsAndRecordsWhatWineActuallyDoes() started.
+◇ Test aMatrixThatOverstatesWineIsNotLoaded() started.
+◇ Test aStubThatFakesSuccessCannotBeCalledImplemented() started.
+◇ Test unreachableApisMayOnlyFailHonestly() started.
+◇ Test duplicateSymbolsAreRejected() started.
+◇ Test attachedWaitKeepsRealExitCode() started.
+◇ Test fullWordDoesNotAliasUnixSuccess() started.
+◇ Test bundledHelperUsesOwnResourceDigest() started.
+◇ Test evidenceAllowsAncestorAliasesAndRejectsForeignOrLinkedSessions() started.
+◇ Test incompleteCaptureAndUnknownConventionAreNotSuccessful() started.
+◇ Test rebootCodesRequireDeclaredInstallerConvention() started.
+◇ Test helperLinksAndDataOverlayFallbackAreRejected() started.
+✔ Test floatingInstallersMustComeFromVendorHosts() passed after 0.021 seconds.
+✔ Test cancellationAndSuccessHaveOneAtomicWinner() passed after 0.021 seconds.
+✔ Test completedOwnershipCannotBeReusedForAnotherLaunch() passed after 0.021 seconds.
+✔ Test selfJoinIsRejectedAndScopeAliasesMatch() passed after 0.021 seconds.
+✔ Test gatedImagesAreBlockedWhateverThePathForm() passed after 0.021 seconds.
+✔ Test theMihoyoLauncherProfileCarriesTheCrossProcessSwapchainOptIn() passed after 0.029 seconds.
+✔ Test profilesMatchAProgramByImageName() passed after 0.088 seconds.
+✔ Test repositoryRecipesPassPolicy() passed after 0.088 seconds.
+✔ Test repositoryRoutesAreOfficialCloudWebOnly() passed after 0.103 seconds.
+✔ Test redLinesDropInjectingProfilesAndNonLabGatedVerdicts() passed after 0.112 seconds.
+✔ Test repositoryDataLoadsCleanly() passed after 0.112 seconds.
+✔ Test repositoryIndexHasARecommendedEngine() passed after 0.112 seconds.
+✔ Test versionRanges() passed after 0.112 seconds.
+✔ Test mostSpecificVerdictWinsAndExpiredOnesDoNot() passed after 0.112 seconds.
+✔ Test theStoreLoadsCompatDataForEveryLaunchPath() passed after 0.109 seconds.
+✔ Test compatDirectoriesArePriorityOrdered() passed after 0.109 seconds.
+✔ Test repositoryMatrixLoadsAndRecordsWhatWineActuallyDoes() passed after 0.109 seconds.
+✔ Test aMatrixThatOverstatesWineIsNotLoaded() passed after 0.109 seconds.
+✔ Test aStubThatFakesSuccessCannotBeCalledImplemented() passed after 0.109 seconds.
+✔ Test unreachableApisMayOnlyFailHonestly() passed after 0.109 seconds.
+✔ Test duplicateSymbolsAreRejected() passed after 0.109 seconds.
+✔ Test attachedWaitKeepsRealExitCode() passed after 0.101 seconds.
+✔ Test fullWordDoesNotAliasUnixSuccess() passed after 0.099 seconds.
+✔ Test bundledHelperUsesOwnResourceDigest() passed after 0.098 seconds.
+✔ Test evidenceAllowsAncestorAliasesAndRejectsForeignOrLinkedSessions() passed after 0.098 seconds.
+✔ Test incompleteCaptureAndUnknownConventionAreNotSuccessful() passed after 0.098 seconds.
+✔ Test rebootCodesRequireDeclaredInstallerConvention() passed after 0.098 seconds.
+✔ Test helperLinksAndDataOverlayFallbackAreRejected() passed after 0.098 seconds.
+✔ Suite RecipeTests passed after 0.113 seconds.
+✔ Suite PreflightTests passed after 0.113 seconds.
+✔ Suite ProfileLookupTests passed after 0.113 seconds.
+✔ Suite CompatDBTests passed after 0.113 seconds.
+✔ Suite EngineIndexTests passed after 0.113 seconds.
+✔ Suite BottleStoreCompatTests passed after 0.113 seconds.
+✔ Suite KernelFidelityTests passed after 0.113 seconds.
+✔ Suite InstallerExitStatusTests passed after 0.113 seconds.
+◇ Test detachedWaitLeavesChildAliveAndReapsItsLaterExit() started.
+✔ Test supportBundleKeepsRealSessionsAndAttachedExitRecords() passed after 0.661 seconds.
+✔ Suite BottleManagementTests passed after 0.662 seconds.
+✔ Test stopBeforeInnerRegistrationIsCancellationRatherThanCleanupFailure() passed after 0.671 seconds.
+✔ Test cleanupErrorIsNotConvertedIntoStoppedSuccess() passed after 0.686 seconds.
+✔ Test ownershipSurvivesInnerInstallAndRefreshHandoff() passed after 0.686 seconds.
+✔ Test stopDrainsAllMatchingWorkAndPreservesOtherRoots() passed after 0.715 seconds.
+✔ Test stopBarrierAndUnfinishedCancellationRejectNewWork() passed after 0.721 seconds.
+✔ Test hostToolChecksCooperativeCancellation() passed after 0.789 seconds.
+✔ Suite InstallationActivityTests passed after 0.789 seconds.
+✔ Test detachedWaitLeavesChildAliveAndReapsItsLaterExit() passed after 0.865 seconds.
+◇ Test observationIsMonotonic() started.
+✔ Test observationIsMonotonic() passed after 0.001 seconds.
+◇ Test detachListenersWakeOnceAndLateListenersObserveTheEnd() started.
+✔ Test detachListenersWakeOnceAndLateListenersObserveTheEnd() passed after 0.001 seconds.
+✔ Suite CommandObservationTests passed after 0.978 seconds.
+✔ Test run with 38 tests in 11 suites passed after 0.979 seconds.

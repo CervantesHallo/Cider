@@ -86,12 +86,22 @@ public enum FixtureSupport {
                     response = .unknown(request.id)
                     transportFailure = error.localizedDescription
                 }
+                try Data(String(ProcessInfo.processInfo.systemUptime).utf8)
+                    .write(to: root.appendingPathComponent("rpc-returned-\(request.id.uuidString)"))
                 var object = try object(response)
                 object["resultSource"] = transportFailure == nil ? "RPCResponse" : "RPCClientTransportFailure"
                 if let transportFailure { object["transportFailure"] = transportFailure }
-                object["stdoutBase64"] = capture.data(stderr: false).base64EncodedString()
-                object["stderrBase64"] = capture.data(stderr: true).base64EncodedString()
-                object["chunks"] = capture.count
+                if response.outputIncomplete {
+                    let snapshot = capture.partialSnapshot()
+                    object["stdoutBase64"] = (snapshot?.stdout ?? Data()).base64EncodedString()
+                    object["stderrBase64"] = (snapshot?.stderr ?? Data()).base64EncodedString()
+                    object["chunks"] = snapshot?.chunks ?? 0
+                    object["snapshotIncomplete"] = snapshot == nil
+                } else {
+                    object["stdoutBase64"] = capture.data(stderr: false).base64EncodedString()
+                    object["stderrBase64"] = capture.data(stderr: true).base64EncodedString()
+                    object["chunks"] = capture.count
+                }
                 try json(object)
                 exit(response.exitCode)
             case "raw":
@@ -160,6 +170,11 @@ private final class FixtureCapture: @unchecked Sendable {
         if stderr { self.stderr.append(bytes) } else { stdout.append(bytes) }
     }
     func data(stderr: Bool) -> Data { lock.lock(); defer { lock.unlock() }; return stderr ? self.stderr : stdout }
+    func partialSnapshot() -> (stdout: Data, stderr: Data, chunks: Int)? {
+        guard lock.try() else { return nil }
+        defer { lock.unlock() }
+        return (stdout, stderr, chunks)
+    }
 }
 
 private final class FixtureExecutor: RPCCommandExecuting, @unchecked Sendable {
@@ -194,6 +209,11 @@ private final class FixtureExecutor: RPCCommandExecuting, @unchecked Sendable {
             case "fixture-long-output":
                 for index in 0..<384 { output("long-\(index):" + String(repeating: "流🙂", count: 500) + "\n", false) }
                 return 19
+            case "fixture-ended-observer-output":
+                DispatchQueue.global().asyncAfter(deadline: .now() + 0.1) { observation.detach() }
+                output(String(repeating: "owned cancelled output\n", count: 2000), false)
+                try Data("producer-ended".utf8).write(to: paths.appSupport.appendingPathComponent("observer-ended-\(request.id.uuidString)"))
+                return 125
             case "fixture-block", "fixture-block-long", "fixture-observation-block":
                 output("admitted\n", false)
                 try Data().write(to: paths.appSupport.appendingPathComponent("admitted-\(request.id.uuidString)"))

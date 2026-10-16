@@ -32,6 +32,7 @@ CASES = [
     "native.output.reader_paused_six_seconds", "native.startup.missing_broker_then_register",
     "native.observation.disconnected_waiters_release_capacity",
     "native.observation.reconnect_preserves_host_capacity",
+    "native.output.explicit_observer_end_unblocks_reader",
 ]
 
 
@@ -459,6 +460,24 @@ class NativeFixture:
             require(all(len(self.admissions(request["id"])) == 1 for request in requests), "reconnect replayed old work")
             return {"survivingOperations": 8, "hostPID": self.host_pid, "oldBrokerPID": original,
                     "newBrokerPID": self.broker_pids[-1], "capacityRejection": fresh, "rejectionSeconds": elapsed}
+        if name == "native.output.explicit_observer_end_unblocks_reader":
+            request = self.request(["fixture-ended-observer-output"])
+            started = time.monotonic()
+            client = subprocess.Popen([str(x) for x in self.command("execute-slow", self.request_file(request))], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+            self.clients.append(client)
+            marker = self.root / ("observer-ended-" + request["id"])
+            wait_for(marker.exists, timeout=3)
+            producer_seconds = time.monotonic() - started
+            returned = self.root / ("rpc-returned-" + request["id"])
+            wait_for(returned.exists, timeout=3)
+            execute_seconds = time.monotonic() - started
+            response = self.collect(client)
+            require(response["state"] == "completed" and response["exitCode"] == 125 and response["outputIncomplete"], "explicitly ended output was not labelled incomplete")
+            require(producer_seconds < 3, "live paused reader retained cancelled producer capacity")
+            elapsed = time.monotonic() - started
+            require(elapsed < 3, "incomplete response waited on the paused client's sink lock")
+            return {"producerFinishedSeconds": producer_seconds, "rpcExecuteReturnedSeconds": execute_seconds,
+                    "clientReturnedSeconds": elapsed, "readerACKPauseSeconds": 6, "response": response}
         if name == "native.output.reader_paused_six_seconds":
             request = self.request(["fixture-echo", "slow-reader"])
             started = time.monotonic()

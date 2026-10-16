@@ -1,0 +1,334 @@
+{
+  "kind": "native-macos-xpc-fixture",
+  "createdUTC": "20261016T165212Z",
+  "platform": "macOS-26.7-arm64-arm-64bit",
+  "filters": [
+    "native.observation.*",
+    "native.output.explicit_observer_end_unblocks_reader",
+    "native.output.reader_paused_six_seconds",
+    "native.queue.reserved_kill"
+  ],
+  "selected": [
+    "native.queue.reserved_kill",
+    "native.output.reader_paused_six_seconds",
+    "native.observation.disconnected_waiters_release_capacity",
+    "native.observation.reconnect_preserves_host_capacity",
+    "native.output.explicit_observer_end_unblocks_reader"
+  ],
+  "skipped": [
+    "native.handshake.no_host",
+    "native.handshake.host",
+    "native.command.engine_list",
+    "native.command.bottle_list",
+    "native.output.echo_exit",
+    "native.output.stream",
+    "native.output.over_1mib",
+    "native.input.wrong_root",
+    "native.input.schema",
+    "native.input.oversize",
+    "native.input.argument_count",
+    "native.input.malformed",
+    "native.input.nul",
+    "native.duplicate.completed",
+    "native.duplicate.active",
+    "native.peer.client_requirement",
+    "native.peer.host_requirement",
+    "native.disconnect.unknown_no_replay",
+    "native.broker_crash.host_reconnect_no_replay",
+    "native.duplicate.after_256_intervening",
+    "native.startup.missing_broker_then_register"
+  ],
+  "cases": [
+    {
+      "name": "native.queue.reserved_kill",
+      "passed": true,
+      "seconds": 0.363664666,
+      "evidence": {
+        "ordinarySlotsBlocked": 8,
+        "control": {
+          "chunks": 1,
+          "executorPID": 44831,
+          "exitCode": 64,
+          "id": "5070A6D7-337A-4DF1-B607-C1C55FD42AF3",
+          "outputIncomplete": false,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 1,
+          "state": "completed",
+          "stderrBase64": "Zml4dHVyZSBwZXJtaXRzIG9ubHkgcmVhZG9ubHkgbGlzdHMgYW5kIGZpeHR1cmUgY29tbWFuZHMK",
+          "stdoutBase64": "",
+          "version": 2,
+          "clientProcessExit": 64
+        },
+        "controlSeconds": 0.028618542000000247,
+        "ordinaryCompletionsAfterExplicitRelease": [
+          {
+            "id": "99B4C90A-4892-4C89-92A9-C4F49702F6A9",
+            "state": "completed",
+            "exitCode": 0
+          },
+          {
+            "id": "B224AF73-E531-4676-A6DC-E6A09D79AEAA",
+            "state": "completed",
+            "exitCode": 0
+          },
+          {
+            "id": "EB3F52D8-4284-4636-8E0C-B07C15F16A45",
+            "state": "completed",
+            "exitCode": 0
+          },
+          {
+            "id": "25B77B84-1C6C-4039-B15B-426BA037B427",
+            "state": "completed",
+            "exitCode": 0
+          },
+          {
+            "id": "12EB2198-DB4D-4701-844F-32D2F305E9D2",
+            "state": "completed",
+            "exitCode": 0
+          },
+          {
+            "id": "CA372B6F-1C92-48B9-A4C0-98171265E6BE",
+            "state": "completed",
+            "exitCode": 0
+          },
+          {
+            "id": "F3F2F8C3-8FB0-4775-A44C-BC4FC062C7A2",
+            "state": "completed",
+            "exitCode": 0
+          },
+          {
+            "id": "CA23A1A4-0628-424B-AC59-4171196B6E4F",
+            "state": "completed",
+            "exitCode": 0
+          }
+        ],
+        "wineInvocations": 0
+      }
+    },
+    {
+      "name": "native.output.reader_paused_six_seconds",
+      "passed": true,
+      "seconds": 6.055489500000002,
+      "evidence": {
+        "response": {
+          "chunks": 2,
+          "executorPID": 44831,
+          "exitCode": 37,
+          "id": "92065D5D-8EE9-422F-86F2-5E548E1E21E9",
+          "outputIncomplete": false,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 2,
+          "state": "completed",
+          "version": 2,
+          "clientProcessExit": 37
+        },
+        "firstConsoleACKDelaySeconds": 6,
+        "elapsedSeconds": 6.054056292
+      }
+    },
+    {
+      "name": "native.observation.disconnected_waiters_release_capacity",
+      "passed": true,
+      "seconds": 0.491135749999998,
+      "evidence": {
+        "detachedObservers": 8,
+        "capacityWhileAttached": {
+          "chunks": 0,
+          "exitCode": 64,
+          "id": "E6F67BCC-46D3-42EF-9B99-5B65652C16E8",
+          "message": "请求已提交或执行队列已满，未重复执行。",
+          "outputIncomplete": false,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 0,
+          "state": "rejected",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "version": 2,
+          "clientProcessExit": 64
+        },
+        "freshAfterDetach": {
+          "chunks": 1,
+          "executorPID": 44831,
+          "exitCode": 0,
+          "id": "497EFF7F-A023-4D5E-841E-D5D11C7025B3",
+          "outputIncomplete": false,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 1,
+          "state": "completed",
+          "stderrBase64": "",
+          "stdoutBase64": "bm8gZW5naW5lcyBpbnN0YWxsZWQK",
+          "version": 2,
+          "clientProcessExit": 0
+        },
+        "duplicateAfterDetach": {
+          "chunks": 0,
+          "exitCode": 64,
+          "id": "FD28F1B2-5CFE-43AF-9753-6DEE1A75761B",
+          "message": "请求已提交或执行队列已满，未重复执行。",
+          "outputIncomplete": false,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 0,
+          "state": "rejected",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "version": 2,
+          "clientProcessExit": 64
+        },
+        "programTerminationPartOfFixture": false
+      }
+    },
+    {
+      "name": "native.observation.reconnect_preserves_host_capacity",
+      "passed": true,
+      "seconds": 3.8066826250000005,
+      "evidence": {
+        "survivingOperations": 8,
+        "hostPID": 44831,
+        "oldBrokerPID": 44837,
+        "newBrokerPID": 44912,
+        "capacityRejection": {
+          "chunks": 0,
+          "executorPID": 44831,
+          "exitCode": 64,
+          "id": "9A6BDA9F-D9D4-4C8C-AFAB-02DCC79C5E04",
+          "message": "重复请求或GUI执行容量已满，未执行。",
+          "outputIncomplete": false,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 0,
+          "state": "rejected",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "version": 2,
+          "clientProcessExit": 64
+        },
+        "rejectionSeconds": 0.027300417000002852
+      }
+    },
+    {
+      "name": "native.output.explicit_observer_end_unblocks_reader",
+      "passed": true,
+      "seconds": 6.045220707999999,
+      "evidence": {
+        "producerFinishedSeconds": 0.15207729100000122,
+        "readerACKPauseSeconds": 6,
+        "response": {
+          "chunks": 1,
+          "executorPID": 44831,
+          "exitCode": 125,
+          "id": "8ABFDDF8-1B43-4250-8ACF-A9938701BEE8",
+          "outputIncomplete": true,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 1,
+          "state": "completed",
+          "stderrBase64": "",
+          "stdoutBase64": "b3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmVkIGNhbmNlbGxlZCBvdXRwdXQKb3duZWQgY2FuY2VsbGVkIG91dHB1dApvd25lZCBjYW5jZWxsZWQgb3V0cHV0Cm93bmU=",
+          "version": 2,
+          "clientProcessExit": 125
+        }
+      }
+    }
+  ],
+  "unitTestsIncluded": 0,
+  "productGUIOrWineSessions": 0,
+  "signatures": {
+    "host": "# designated => cdhash H\"56020818d95907c79a593866fa2e03b0628f14da\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-7nba53gq/NativeFixture.app/Contents/MacOS/Cider\nIdentifier=org.cider.nativefixture.0676f82a7503420582ef5fee8991048d\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=15929 flags=0x10002(adhoc,runtime) hashes=490+3 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=56020818d95907c79a593866fa2e03b0628f14da\nCandidateCDHashFull sha256=56020818d95907c79a593866fa2e03b0628f14da0b1d6fa237878849681a9568\nHash choices=sha256\nCMSDigest=56020818d95907c79a593866fa2e03b0628f14da0b1d6fa237878849681a9568\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3751936\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=56020818d95907c79a593866fa2e03b0628f14da\nSignature=adhoc\nInfo.plist entries=7\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources version=2 rules=13 files=2",
+    "client": "# designated => cdhash H\"e711a0f9e34a316a7bf39b5e01b0589a25e4cf3e\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-7nba53gq/NativeFixture.app/Contents/MacOS/ciderctl\nIdentifier=org.cider.nativefixture.0676f82a7503420582ef5fee8991048d.ciderctl\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=15906 flags=0x10002(adhoc,runtime) hashes=490+2 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=e711a0f9e34a316a7bf39b5e01b0589a25e4cf3e\nCandidateCDHashFull sha256=e711a0f9e34a316a7bf39b5e01b0589a25e4cf3e04abfe0deb8c9323e003f2c5\nHash choices=sha256\nCMSDigest=e711a0f9e34a316a7bf39b5e01b0589a25e4cf3e04abfe0deb8c9323e003f2c5\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3751936\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=e711a0f9e34a316a7bf39b5e01b0589a25e4cf3e\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources=none",
+    "broker": "# designated => cdhash H\"4a9c46a7b589dd00889f66a30053076afa1ae1fb\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-7nba53gq/NativeFixture.app/Contents/MacOS/CiderXPCBridge\nIdentifier=org.cider.nativefixture.0676f82a7503420582ef5fee8991048d.CiderXPCBridge\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=15912 flags=0x10002(adhoc,runtime) hashes=490+2 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=4a9c46a7b589dd00889f66a30053076afa1ae1fb\nCandidateCDHashFull sha256=4a9c46a7b589dd00889f66a30053076afa1ae1fba71d366dda4b0bb66f2c5194\nHash choices=sha256\nCMSDigest=4a9c46a7b589dd00889f66a30053076afa1ae1fba71d366dda4b0bb66f2c5194\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3751936\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=4a9c46a7b589dd00889f66a30053076afa1ae1fb\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources=none"
+  },
+  "label": "org.cider.ipc.e23130b0069e46e64e6661dd",
+  "sourceHashes": {
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore+Archive.swift": "c31383a7376da1e30fd44890e8cded4c526b6546bbd37483ab30672d780faf6c",
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore+Management.swift": "5774d5a1f71b5681f7d8e7b2ce72b1eb6b4fa1313bcb99a479ecc6a3ca77ce9c",
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore.swift": "0af445ed14fa04a54ee703871b7861e6562abe94b94d395bc7591d485523a909",
+    "Packages/CiderKit/Sources/CiderBottle/CloneStartup.swift": "8a9b2568db48fcda96c085ff7110ba4aaed4134c56666fd814bf38214dc2b4cc",
+    "Packages/CiderKit/Sources/CiderBottle/Diagnostics.swift": "5addf3b6df01fbfa8c3c7bfb0e6acd4d40ff263dafe003459ad4cdf72430b79f",
+    "Packages/CiderKit/Sources/CiderBottle/PrefixSetup.swift": "b1a21a473e12a2a0ca2c795e491e320bf1113f864366504765011ef2037e3805",
+    "Packages/CiderKit/Sources/CiderCore/CiderDiagnostics.swift": "52abc5116a5281acee60203f3e0840fee92cc412610e91d5b80dfab4f494dbb8",
+    "Packages/CiderKit/Sources/CiderCore/CiderError.swift": "ec8511d37248dee66fdc07048b86754780e4db108c0c7bb3263c6372fa22940f",
+    "Packages/CiderKit/Sources/CiderCore/CiderPaths.swift": "8c957a7a4ab83497bd87b564f6f31b92ff2fd6d88773e7be92eb44a3d444adba",
+    "Packages/CiderKit/Sources/CiderCore/CiderResources.swift": "fa5d2e25080838a8baabe6b7ca2fbaa67782d0c4319851a2a93c032eb7711726",
+    "Packages/CiderKit/Sources/CiderCore/CommandObservation.swift": "34302124814480b67bd123dc355e56fff429e5de6dd8636d59003ea1b7aff6b0",
+    "Packages/CiderKit/Sources/CiderCore/FileSafety.swift": "832908c9b93e515d7ab33ac72a48467138eb44ae9f270fc286a1215e48d59fdf",
+    "Packages/CiderKit/Sources/CiderCore/Identifiers.swift": "397e4aa7cf8a8e80b054d6aae2c763ea3415c30f244c86f559c828476647f1fd",
+    "Packages/CiderKit/Sources/CiderCore/JSONFile.swift": "2b48d467aca85ae475b3f969dc39aeb790980b3e23177afdaa902f422820b502",
+    "Packages/CiderKit/Sources/CiderCore/PatchState.swift": "f63100150cf3c0d2b8f334a8833cda7a7bd3ff9ae3c76aac27dc5c71b8ac56f4",
+    "Packages/CiderKit/Sources/CiderCore/PrefixServer.swift": "ba4b95e81aa53cf0dbe1226e194327143a383334b5c08071bf43abccbec1cdb7",
+    "Packages/CiderKit/Sources/CiderCore/WindowsArgumentParser.swift": "85c6d864f0e3ce156a3461faa86c44ad1fdd678f54c3b211bedc360fc67d1907",
+    "Packages/CiderKit/Sources/CiderCore/WindowsExitStatus.swift": "3b9d1e0f311d932b04ed789bb417d34a0a91e87fe83796377d8b96130ca850fb",
+    "Packages/CiderKit/Sources/CiderCore/WinePathMapping.swift": "10734bd49e5ae7c25962aa6fc903fc3497c254d507aa947be329aed5e8a94d4b",
+    "Packages/CiderKit/Sources/CiderData/CompatDB.swift": "a83e47bc0306c38534f6aa60fedd8b90e61fef04b3990b35609d8ea8b68fb9bb",
+    "Packages/CiderKit/Sources/CiderData/KernelFidelity.swift": "54968e725d74d8b0c8c2e2fc7c8859c56035f72edfab8e85d7d421c024348a9c",
+    "Packages/CiderKit/Sources/CiderData/Preflight.swift": "635f7ebcb9d16254d51295cf8903949af117f1e1eefe5399abc05bb6d7ab3e0b",
+    "Packages/CiderKit/Sources/CiderData/Recipe.swift": "e99ff74162c00edb4df843dfb65a863a325979c47cf3040f481c564f36867617",
+    "Packages/CiderKit/Sources/CiderIPC/Broker.swift": "dfb9012c737e5ea33f4a6335709b1c84e24b63727175b341f37e1c7ad76dc23b",
+    "Packages/CiderKit/Sources/CiderIPC/BundleLocation.swift": "ad6530b7e6de3083401fc8cfd759f277be434224329d031ffc723803b2760877",
+    "Packages/CiderKit/Sources/CiderIPC/Client.swift": "32eb89eb6839ced97426ada1ae1991924ab1c5d9434663d6d20c6b183de278cb",
+    "Packages/CiderKit/Sources/CiderIPC/Host.swift": "c98707f952157c6ccef8d8aad83c30250cb2fac6ace132f20cf96be23438093c",
+    "Packages/CiderKit/Sources/CiderIPC/Identity.swift": "ede0f0435f2d57936701a4b6026d718aafe7b89f35b5ce62c6c51cd059ab5811",
+    "Packages/CiderKit/Sources/CiderIPC/Location.swift": "558418dbef775b2443638f7c78e28586efa2c0734218d59d65f44c065baf0134",
+    "Packages/CiderKit/Sources/CiderIPC/Wire.swift": "f409dea94552a5dbbe71450f458c78f53b1203330c3e073a56be0678f4141bc7",
+    "Packages/CiderKit/Sources/CiderIntegration/AppCatalog.swift": "14fda8be25895bbc16514d7b2c36397c17ab3e135e20f1c3a0384e28b76704fb",
+    "Packages/CiderKit/Sources/CiderIntegration/AppLifecycle.swift": "43975bdf671f9bc1e25cc3691864a0b8c6307fd9616f9751f1ae54cc101a955f",
+    "Packages/CiderKit/Sources/CiderIntegration/InstallationActivity.swift": "a98c0e8c97e935b29265e718adda38e9c1757a0ec05cbaa45992c22e58aa973d",
+    "Packages/CiderKit/Sources/CiderIntegration/PatchInstaller.swift": "9ca6d1a1b1faa9d7b3cd17b7b437572bc8c9e6864ff2c6b8d6c8ec40139d58b9",
+    "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift": "f21aa03d9685c5b35e02b00f2cf68acce831949c06c3df8cf44bf7e205d65197",
+    "Packages/CiderKit/Sources/CiderIntegration/SteamLibrary.swift": "d21a9748e3bc655781000f4624e149b17db0ec53a2646776f6356a6028e9b1e1",
+    "Packages/CiderKit/Sources/CiderIntegration/VDF.swift": "18b371767e86d2cefa2ea37ad75e4ac2430cd3bb993947543b5fe410697ccb75",
+    "Packages/CiderKit/Sources/CiderPE/IconCache.swift": "132696a171e03b0b36ef916daf8822cf293a163243c00323a0d73f0177d5209a",
+    "Packages/CiderKit/Sources/CiderPE/PEHeader.swift": "65c01f9239f757337b6089355913bab8ba7060f817c11306ddbcf73b411579e2",
+    "Packages/CiderKit/Sources/CiderPE/PEIcon.swift": "d14e9e27dc7251161d02b36ff7d16e2eaf111fcd56255e613e5596f87baf7a47",
+    "Packages/CiderKit/Sources/CiderPE/PEVersionInfo.swift": "bbcdcd9e85702905a36d375f017c26907fefc8a7d3d991ca61cd950bd987969d",
+    "Packages/CiderKit/Sources/CiderPE/ShellLink.swift": "a683daed57febe299eb489d0d21005a3160345de07692b4f2e9468333825d25f",
+    "Packages/CiderKit/Sources/CiderRuntime/BottleActivity.swift": "0feee95d18796eb1d4a6b8c77b3ed06130b6110080387e51d5631047be36c039",
+    "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift": "52afd0f42af1d179881f78c270fa378e19aaaf0ca38e3f92d2f555e60016d216",
+    "Packages/CiderKit/Sources/CiderRuntime/Spawn.swift": "e1c30403a32256129da56f15e524f650beddf16d8e31ede6c67628b98ef81e3b",
+    "Packages/CiderKit/Sources/CiderRuntime/WineRunner+ExitStatus.swift": "ead3b42c1d7a9edbeba43c982e9f6040b995b9e32841743f91315282946857b6",
+    "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift": "8295aefdf2263c18838d214a0c2f0c8260c4bf5d47f4dbf20bb13ef4762e7aa8",
+    "Packages/CiderKit/Sources/CiderSchema/BottleConfig.swift": "74ab082c5d53a8d345c48b1b6b96cc1200c177246b2bd85f6df8cc2030100f25",
+    "Packages/CiderKit/Sources/CiderSchema/BottleLocale.swift": "0bf6ad0e04604c72cdde5626aa8c6c4ef279928160d654cd6adef3fd886f1183",
+    "Packages/CiderKit/Sources/CiderSchema/EngineManifest.swift": "ff81b644b43daa299b0c17609d4080fad49d5d79dd68ef1c83d7681d573de145",
+    "Packages/CiderKit/Sources/CiderStore/ArchiveExtractor.swift": "bb16f504d30c5dbeef15121d99f5c458797a00e16059547ded6d23135838cd2e",
+    "Packages/CiderKit/Sources/CiderStore/Command.swift": "434148ae5daada11e8289c20ee92fc3a41e393ce89a0cd8684161b5e5e0bad92",
+    "Packages/CiderKit/Sources/CiderStore/D3DMetalImporter.swift": "16ed7857dd3931bfaba7d3d90ac30df4cd2614d7d50b38f86b1022999956229b",
+    "Packages/CiderKit/Sources/CiderStore/EngineHost.swift": "8d8e263cea413eeda345bedda54d11eabccd7b17c19f47c43a60635bd5682df6",
+    "Packages/CiderKit/Sources/CiderStore/EngineIndex.swift": "7ff30f5ba74e064f773f90398d207f4a73359d11f1b8dbdb9e99da4fb8782ff2",
+    "Packages/CiderKit/Sources/CiderStore/EnginePolicy.swift": "529f418f2cb9d80c0cda8d304fdfc5d91bab60b90ca8f5852e8568b6a3726d8d",
+    "Packages/CiderKit/Sources/CiderStore/EngineStore.swift": "c35c0d3f4611a9fa2954bd89a0ebe4ed59971670c5c5f1e5693f794dc54d59b4",
+    "Tools/CiderCommands/Sources/CiderCommands/CiderCommandExecutor.swift": "fe02c91076389e6d88e76840ae088082f7fb4ce57acc82fa22383a3b386b22f2",
+    "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "cf4a73fe7489a051b1409a94b73213725e90f4346ad945e14977f6962a148f53",
+    "tests/xpc/Fixture/Sources/FixtureAppHost/AppHost.swift": "bca76d5248e5c97023c93c0e500bb66721f1bfdb406eb06e68c026673e6b0035",
+    "tests/xpc/Fixture/Sources/FixtureBroker/Broker.swift": "03bfd001195cce297dffc2146240d793005f910fbffcd70bfa5fd320b508321b",
+    "tests/xpc/Fixture/Sources/FixtureClient/Client.swift": "3b89795ef79cbc3ed886e06f55b0448089043714a788f3813c12a1860f52509a",
+    "tests/xpc/Fixture/Sources/FixtureHost/Host.swift": "a24c31889b8f8dfd76e2b842295c9b283e76f31f75a38515d611958a631fcfdd",
+    "tests/xpc/Fixture/Sources/FixtureSupport/FixtureSupport.swift": "905a6378333ba8524b96391df96af2e5e54e0b9aa0cca690480d3f26d6f8e382",
+    "tests/xpc/Fixture/Package.swift": "4c5909e853af38d762b522ed2ae5787667dcbc6e2015e77cf35c7b6a41322cb6",
+    "tests/xpc/run_native.py": "b607016cf8fe07a508ede2683439b5ec26abf95da61aec07645ef897b40d3181",
+    "tests/xpc/run_packaged_cli.py": "8f37e2246630025941129a997991a72bc7f58b4a504dea2a6f14c68a562e2075",
+    "Tools/ciderctl/Sources/ciderctl/ciderctl.swift": "027be447e1971e5115acfe7c61751c1a18ef274e106c637243182089328dc24c",
+    "App/Sources/Cider/CommandHost.swift": "89a0ead9aff43bb410069767b7c33cb364f706974005415af1cd998fa9f3ddcd"
+  },
+  "sourcesStableDuringBuild": true,
+  "cleanup": {
+    "unregistered": true,
+    "hostPIDs": [
+      44831
+    ],
+    "brokerPIDs": [
+      44837,
+      44912
+    ],
+    "livePIDs": [],
+    "errors": [],
+    "passed": true
+  },
+  "sourceChangedDuringRun": false,
+  "hostLogs": [
+    {
+      "name": "host-0EBEC31A-56BE-4EFE-8648-631104AB4A1B.log",
+      "text": ""
+    }
+  ],
+  "nativeCasesExecuted": 5,
+  "nativeCasesPassed": 5,
+  "passed": true
+}

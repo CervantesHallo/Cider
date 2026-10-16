@@ -1,5 +1,5 @@
 import CiderCore
-import CiderRuntime
+@testable import CiderRuntime
 import Darwin
 import Foundation
 import Testing
@@ -25,14 +25,12 @@ import Testing
         #expect(ProcessInfo.processInfo.systemUptime - start < 0.4)
         #expect(kill(pid, 0) == 0)
         let deadline = ProcessInfo.processInfo.systemUptime + 3
-        var info = proc_bsdinfo()
-        while ProcessInfo.processInfo.systemUptime < deadline {
-            if proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, Int32(MemoryLayout<proc_bsdinfo>.size)) == 0,
-               errno == ESRCH { break }
+        while Spawn.isAwaitingDetachedReap(pid), ProcessInfo.processInfo.systemUptime < deadline {
             usleep(50_000)
         }
-        // Only read waitpid after the reaper has removed the child from the process table.
-        #expect(proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, Int32(MemoryLayout<proc_bsdinfo>.size)) == 0)
+        #expect(!Spawn.isAwaitingDetachedReap(pid))
+        // Wait for actual reaper ownership to finish before observing ECHILD;
+        // proc_pidinfo can already hide a zombie that still belongs to waitpid.
         var status: Int32 = 0
         #expect(waitpid(pid, &status, WNOHANG) == -1)
         #expect(errno == ECHILD)
@@ -44,5 +42,17 @@ import Testing
         observation.detach(); observation.detach()
         #expect(observation.isDetached)
         #expect(throws: CommandObserverDetached.self) { try observation.check() }
+    }
+
+    @Test func detachListenersWakeOnceAndLateListenersObserveTheEnd() {
+        let observation = CommandObservation(), notified = DispatchSemaphore(value: 0)
+        let removed = observation.onDetach { Issue.record("removed listener ran") }
+        observation.removeDetachListener(removed)
+        observation.onDetach { notified.signal() }
+        observation.detach(); observation.detach()
+        #expect(notified.wait(timeout: .now()) == .success)
+        #expect(notified.wait(timeout: .now()) == .timedOut)
+        observation.onDetach { notified.signal() }
+        #expect(notified.wait(timeout: .now()) == .success)
     }
 }

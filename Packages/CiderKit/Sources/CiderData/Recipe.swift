@@ -44,6 +44,12 @@ public struct Recipe: Codable, Sendable, Equatable, Identifiable {
             public var source: String
             public var kind: String               // exe | msi
             public var args: [String]?
+            /// Only known bootstrapper recipes opt into MSI's reboot return codes.
+            public var exitCodeConvention: String? = nil
+            enum CodingKeys: String, CodingKey {
+                case source, kind, args
+                case exitCodeConvention = "exit_code_convention"
+            }
         }
 
         enum CodingKeys: String, CodingKey {
@@ -107,6 +113,9 @@ public enum RecipePolicy {
         }
         for step in recipe.steps {
             if let run = step.runInstaller, recipe.sources[run.source] == nil { return "step uses unknown source \(run.source)" }
+            if let convention = step.runInstaller?.exitCodeConvention, convention != "msi" {
+                return "installer exit_code_convention is not supported"
+            }
             if let profile = step.environmentProfile {
                 guard step.runInstaller != nil, profile.hasPrefix("profile."), profile.utf8.count <= 128,
                       profile.unicodeScalars.allSatisfy({ $0.isASCII && (CharacterSet.alphanumerics.contains($0) || "._-".unicodeScalars.contains($0)) }) else {

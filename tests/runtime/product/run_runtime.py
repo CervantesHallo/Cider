@@ -9,6 +9,10 @@ assert not APP.is_symlink() and APP.resolve().is_relative_to(BASE)
 CONTROLLER_LOCK=os.open(BASE/'controller.lock',os.O_CREAT|os.O_RDWR|os.O_NOFOLLOW,0o600)
 fcntl.flock(CONTROLLER_LOCK,fcntl.LOCK_EX|fcntl.LOCK_NB)
 ENV={key:os.environ[key] for key in ['HOME','USER','LOGNAME','TMPDIR','PATH'] if key in os.environ};ENV['CIDER_HOME']=str(TEST_HOME)
+if '--installer-exit' in sys.argv or '--stop-install' in sys.argv or '--stop-running-install' in sys.argv:
+ data=BASE/'exit-status/recipe-data';require_marker=data/'owned-fixture-data'
+ assert data.resolve().is_relative_to(BASE) and require_marker.is_file()
+ ENV['CIDER_DATA']=str(data)
 RESULT={'schema':'cider.product-runtime-acceptance/v1','startedUTC':datetime.datetime.utcnow().isoformat()+'Z','owner':OWNER,'cases':[],'windowsOperations':0,'clients':[]}
 CHILDREN=[];BOTTLE='Runtime Acceptance';DEADLINE=time.monotonic()+240
 LIB=ctypes.CDLL('/usr/lib/libproc.dylib')
@@ -136,6 +140,192 @@ def detach_wait():
  return {'unixWinePID':pid,'nativePPID':ppid,'guiPID':RESULT['guiPID'],'probeReady':ready[2],
          'observerCLIExitCode':handle.returncode,'programStillAliveAfterDetach':True,'freshCommandExitCode':fresh.returncode,
          'freshCommandSeconds':time.monotonic()-start,'stdout':out,'stderr':err,'laterTermination':'explicit normal bottle cleanup only'}
+def exit_status_batch():
+ import shutil,uuid
+ source=BASE/'exit-status';directory=source/('collector-'+uuid.uuid4().hex[:12]);directory.mkdir()
+ packaged=BASE/'Cider.app/Contents/Resources/windows-tools'
+ for arch in ['x86_64','i686']:
+  shutil.copy2(packaged/('cider-exit-status-'+arch+'.exe'),directory/('collector-'+arch+'.exe'))
+  shutil.copy2(source/('exit-probe-'+arch+'.exe'),directory/('exit-probe-'+arch+'.exe'))
+ cwd=directory/'路径 with spaces';cwd.mkdir(exist_ok=True)
+ windows=lambda p:'Z:'+str(p).replace('/','\\')
+ codes=[0,37,259,1603,1641,3010,0x80000100,0xc0000005,0xffffffff]
+ evidence=[]
+ for arch in ['x86_64','i686']:
+  collector=directory/('collector-'+arch+'.exe');probe=directory/('exit-probe-'+arch+'.exe')
+  require(collector.is_file() and probe.is_file(),'owned PE fixture missing')
+  for code in codes:
+   output=directory/(arch+'-'+format(code,'x')+'.json');require(not output.exists(),'result must be fresh')
+   tail=[hex(code),'','中文 space','quote"tail','slash\\','tab\tvalue']
+   result=cli(['run','-b',BOTTLE,'--wait','--cwd',str(cwd),'--env','EXIT_CAPTURE_VALUE=继承正常',str(collector),'--',windows(output),'30000',windows(cwd),windows(probe),*tail],timeout=18)
+   require(result.returncode==0,result.stdout+result.stderr)
+   status=json.loads(output.read_text());require(status['phase']=='captured' and status['windows_exit_code']==code and status['child_created'] and status['primary_terminated'] and not status['win32_error'],'full DWORD capture mismatch')
+   log=Path(result.stdout.strip().split(' · log ',1)[1]);require(log.resolve().is_relative_to(TEST_HOME),'probe log escaped')
+   records=[json.loads(line) for line in log.read_text(errors='replace').splitlines() if line.startswith('{"kind":"owned-exit-probe"')]
+   require(len(records)==1 and records[0]['arguments']==tail and records[0]['environment']=='继承正常' and records[0]['cwd'].casefold()==windows(cwd).casefold(),'argv/cwd/environment mismatch')
+   evidence.append({'arch':arch,'requestedDWORD':code,'collectorCLIExitCode':result.returncode,'report':status,'probe':records[0]})
+  output=directory/(arch+'-timeout.json')
+  result=cli(['run','-b',BOTTLE,'--wait',str(collector),'--',windows(output),'50','-',windows(probe),'0','--sleep'],timeout=18)
+  status=json.loads(output.read_text());require(result.returncode!=0 and status['phase']=='timeout' and status['win32_error'] and status['primary_terminated'],'timeout reported success or left own primary live')
+  evidence.append({'arch':arch,'negative':'timeout','collectorCLIExitCode':result.returncode,'report':status})
+  bad=directory/(arch+'-bad.exe');bad.write_bytes(b'not an executable')
+  output=directory/(arch+'-create-failed.json')
+  result=cli(['run','-b',BOTTLE,'--wait',str(collector),'--',windows(output),'1000','-',windows(bad)],timeout=18)
+  status=json.loads(output.read_text());require(result.returncode!=0 and status['phase']=='create-failed' and not status['child_created'],'bad image accepted as success')
+  evidence.append({'arch':arch,'negative':'invalid-image','collectorCLIExitCode':result.returncode,'report':status})
+  original=directory/(arch+'-old.json');original.write_text('{"old":"must remain"}')
+  result=cli(['run','-b',BOTTLE,'--wait',str(collector),'--',windows(original),'1000','-',windows(probe),'0'],timeout=18)
+  require(result.returncode!=0 and original.read_text()=='{"old":"must remain"}','old result was replaced or accepted')
+  evidence.append({'arch':arch,'negative':'existing-report','collectorCLIExitCode':result.returncode,'oldResultPreserved':True})
+ return {'checks':evidence,'count':len(evidence),'exceptionValuesAreExplicitExitProcessNotFaultInjection':True,'nativeWindowsReference':False}
+def installer_exit_batch():
+ import shutil,uuid,zipfile
+ directory=BASE/'exit-status';data=directory/'recipe-data';nonce=uuid.uuid4().hex[:12]
+ recipes=data/'recipes';profiles=data/'profiles';recipes.mkdir(exist_ok=True);profiles.mkdir(exist_ok=True)
+ windows=lambda p:'Z:'+str(p).replace('/','\\')
+ marker_dir=Path(RESULT['prefix'])/'drive_c/cider-exit-fixture';marker_dir.mkdir(exist_ok=True)
+ def publish(recipe_id,source,kind,args,detect,convention=None):
+  sha=hashlib.sha256(source.read_bytes()).hexdigest();filename='owned 安装.'+kind
+  cache=TEST_HOME/'Caches/downloads/cas'/sha;cache.mkdir(parents=True,exist_ok=True)
+  target=cache/filename
+  if not target.exists():shutil.copy2(source,target)
+  require(hashlib.sha256(target.read_bytes()).hexdigest()==sha,'fixture CAS mismatch')
+  run={'source':'owned','kind':kind,'args':args}
+  if convention:run['exit_code_convention']=convention
+  profile='profile.'+recipe_id
+  value={'schema':'cider.recipe/v1','id':recipe_id,'kind':'app','revision':1,'name':{'en':recipe_id,'zh-Hans':recipe_id},
+   'sources':{'owned':{'urls':['https://example.invalid/owned.'+kind],'sha256':[sha],'filename':filename}},
+   'steps':[{'run_installer':run,'environment_profile':profile}], 'detect':detect}
+  (recipes/(recipe_id+'.json')).write_text(json.dumps(value,ensure_ascii=False))
+  profile_value={'schema':'cider.profile/v1','id':profile,'revision':1,'target':recipe_id,'match':{'exe':'never-auto-match-owned.exe'},'actions':{'env':{'EXIT_CAPTURE_VALUE':recipe_id+' 继承'}}}
+  (profiles/(profile+'.json')).write_text(json.dumps(profile_value,ensure_ascii=False))
+  return recipe_id
+ cases=[]
+ for name,code,convention in [('zero',0,None),('lowbytezero',256,None),('exceptionvalue',0xc0000000,None),('reboot',3010,'msi'),('not-msi',3010,None),('zero32',0,None),('lowbytezero32',256,None)]:
+  marker=marker_dir/(nonce+'-'+name+'.flag');require(not marker.exists(),'fixture marker must be fresh')
+  winmarker='C:\\cider-exit-fixture\\'+marker.name
+  recipe_id='fixture.'+nonce+'.'+name
+  probe_arch='i686' if name.endswith('32') else 'x86_64'
+  publish(recipe_id,directory/('exit-probe-'+probe_arch+'.exe'),'exe',[str(code),'--touch',winmarker],{'files':[winmarker]},convention)
+  cases.append({'id':recipe_id,'kind':'exe','code':code,'succeeds':code==0 or convention=='msi','restart':convention=='msi','marker':marker})
+ for mode,code in [('success',0),('reboot',3010),('fail',1603)]:
+  package=directory/(nonce+'-'+mode+'.msi');key='Software\\CiderExitFixture\\'+nonce+'-'+mode
+  built=cli(['run','-b',BOTTLE,'--wait',str(directory/'make-msi.exe'),'--',windows(package),mode,key],timeout=25)
+  require(built.returncode==0 and package.is_file(),'own MSI construction failed: '+built.stdout+built.stderr)
+  recipe_id='fixture.'+nonce+'.msi-'+mode
+  publish(recipe_id,package,'msi',['/qn','REBOOT=ReallySuppress'],{'files':[],'registry_values':[{'key':'HKCU\\'+key,'name':'Installed','at_least':1}]})
+  cases.append({'id':recipe_id,'kind':'msi','code':code,'succeeds':mode!='fail','restart':mode=='reboot'})
+ records=[];capture_root=TEST_HOME/'Logs/exit-captures'/RESULT['bottleID'];session_root=TEST_HOME/'Logs/sessions'/RESULT['bottleID']
+ for item in cases:
+  before=set(capture_root.glob('capture-*'));sessions_before=set(session_root.iterdir())
+  invoked=cli(['install',item['id'],'-b',BOTTLE],timeout=45)
+  require((invoked.returncode==0)==item['succeeds'],'recipe result mismatch '+item['id']+': '+invoked.stdout+invoked.stderr)
+  captures=set(capture_root.glob('capture-*'))-before;require(len(captures)==1,'expected one new capture outside sessions')
+  capture=captures.pop();status=json.loads((capture/'result.json').read_text())
+  require(status['windows_exit_code']==item['code'] and status['phase']=='captured','recipe lost full Windows code')
+  actual_sessions=[p for p in set(session_root.iterdir())-sessions_before if (p/'session.json').is_file()]
+  require(len(actual_sessions)==1,'capture scratch displaced real session namespace')
+  session=actual_sessions[0]
+  require((session/'exit-capture-request.json').read_bytes()==(capture/'request.json').read_bytes() and (session/'exit-capture-result.json').read_bytes()==(capture/'result.json').read_bytes(),'exit evidence not attached to actual session')
+  if item['kind']=='exe':
+   require(item['marker'].is_file(),'failure-with-file fixture did not create its detection marker')
+   logs=[json.loads(line) for line in (session/'wine.log').read_text(errors='replace').splitlines() if line.startswith('{"kind":"owned-exit-probe"')]
+   require(len(logs)==1 and logs[0]['environment']==item['id']+' 继承','recipe profile environment was not inherited')
+  if item['succeeds']:require(('重启瓶子' in invoked.stderr)==item['restart'],'restart result was dropped or invented')
+  else:require(str(item['code']) in invoked.stderr,'full DWORD absent from failure message')
+  records.append({'recipe':item['id'],'kind':item['kind'],'expectedWindowsDWORD':item['code'],'cliExitCode':invoked.returncode,
+   'requiresRestart':item['restart'],'detectMarkerExistsEvenOnFailure':item.get('marker',Path('/nonexistent-owned-marker')).is_file(),
+   'report':status,'attachedToRealSession':True,'stdout':invoked.stdout,'stderr':invoked.stderr})
+  RESULT['installerExitPartial']=records
+ for i in range(6):
+  legacy=session_root/('capture-legacy-'+str(i));legacy.mkdir(exist_ok=True)
+  (legacy/'request.json').write_text('{"legacy":true}')
+ support=directory/'support';support.mkdir(exist_ok=True)
+ diagnostic=cli(['diag',BOTTLE,'--output',str(support)],timeout=20);require(diagnostic.returncode==0,diagnostic.stderr)
+ archive=Path(diagnostic.stdout.strip())
+ with zipfile.ZipFile(archive) as zipped:
+  files=zipped.namelist()
+  results=[name for name in files if name.endswith('/exit-capture-result.json')]
+  logs=[name for name in files if name.endswith('/wine.log')]
+  require(len(results)==5 and len(logs)==5,'support bundle omitted real sessions or attached exit reports')
+  require(all(b'legacy' not in zipped.read(name) and not zipped.read(name).startswith(b'[missing') for name in logs),'legacy capture scratch displaced real logs')
+ return {'installCases':records,'count':len(records),'supportBundleRealSessions':5,'supportBundleAttachedResults':5,'legacyScratchDirectoriesIgnored':6,'nativeWindowsReference':False}
+def diagnose_msi():
+ import uuid
+ directory=BASE/'exit-status';nonce=uuid.uuid4().hex[:12];windows=lambda p:'Z:'+str(p).replace('/','\\')
+ package=directory/('diagnostic-'+nonce+'.msi');key='Software\\CiderExitFixture\\diagnostic-'+nonce
+ built=cli(['run','-b',BOTTLE,'--wait',str(directory/'make-msi.exe'),'--',windows(package),'success',key],timeout=25)
+ require(built.returncode==0 and package.is_file(),'owned MSI diagnostic build failed')
+ msi_log=directory/('msi-'+nonce+'.log');wrapper_log=directory/('wrapper-'+nonce+'.json')
+ arguments=['/i',windows(package),'/qn','/l*v',windows(msi_log),'REBOOT=ReallySuppress']
+ program='C:\\windows\\system32\\msiexec.exe'
+ if '--wrapped-msi' in sys.argv:
+  program=str(BASE/'Cider.app/Contents/Resources/windows-tools/cider-exit-status-x86_64.exe')
+  arguments=[windows(wrapper_log),'30000','-', 'C:\\windows\\system32\\msiexec.exe',*arguments]
+ handle=subprocess.Popen([str(CLI),'run','-b',BOTTLE,'--wait','--env','WINEDEBUG=+msi,+seh,+tid',program,'--',*arguments],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=ENV,start_new_session=True)
+ CHILDREN.append(handle)
+ try:
+  out,err=handle.communicate(timeout=12)
+  return {'route':'collector' if '--wrapped-msi' in sys.argv else 'direct','completedWithin12Seconds':True,'exitCode':handle.returncode,'stdout':out,'stderr':err,'msiLog':str(msi_log),'functionalMSIExitZero':handle.returncode==0}
+ except subprocess.TimeoutExpired:
+  rows=snapshot();ps=cli(['ps','--all'],timeout=8);targets=[]
+  for line in ps.stdout.splitlines():
+   fields=line.split('\t',2)
+   if len(fields)==3 and 'msiexec' in fields[2].lower():
+    pid=int(fields[0]);require(any(r['pid']==pid and r['path'].startswith(OWNER['engine_copy']+'/') for r in rows),'diagnostic target escaped owned engine')
+    output=directory/('msi-'+nonce+'-sample-'+str(pid)+'.txt')
+    sample=run(['/usr/bin/sample',str(pid),'3','1','-file',output],timeout=8)
+    targets.append({'pid':pid,'image':fields[2],'sampleExitCode':sample.returncode,'sample':str(output)})
+  return {'route':'collector' if '--wrapped-msi' in sys.argv else 'direct','completedWithin12Seconds':False,'functionalMSIExitZero':False,'ownedMSIProcessSamples':targets,'ps':ps.stdout,'msiLog':str(msi_log),'purpose':'diagnostic capture only; not a successful installer acceptance'}
+def stop_installation():
+ import uuid,shutil
+ nonce=uuid.uuid4().hex[:12];base=BASE/'exit-status';data=base/'recipe-data';recipes=data/'recipes';recipes.mkdir(exist_ok=True)
+ marker_dir=Path(RESULT['prefix'])/'drive_c/cider-exit-fixture';marker_dir.mkdir(exist_ok=True)
+ pending=marker_dir/(nonce+'-pending.flag');late=marker_dir/(nonce+'-late.flag')
+ win=lambda p:'C:\\cider-exit-fixture\\'+p.name
+ probe=base/'exit-probe-x86_64.exe';sha=hashlib.sha256(probe.read_bytes()).hexdigest();cache=TEST_HOME/'Caches/downloads/cas'/sha;cache.mkdir(parents=True,exist_ok=True)
+ cached=cache/'owned-stop.exe';shutil.copy2(probe,cached)
+ source={'urls':['https://example.invalid/owned-stop.exe'],'sha256':[sha],'filename':'owned-stop.exe'}
+ dependency='fixture.'+nonce+'.waiting';target='fixture.'+nonce+'.after-stop'
+ running='--stop-running-install' in sys.argv
+ for id,marker,args,deps in [(dependency,pending,['0','--sleep'] if running else ['0'],[]),(target,late,['0','--touch',win(late)],[dependency])]:
+  value={'schema':'cider.recipe/v1','id':id,'kind':'app','revision':1,'name':{'en':id},'dependencies':deps,'sources':{'owned':source},'steps':[{'run_installer':{'source':'owned','kind':'exe','args':args}}],'detect':{'files':[win(marker)]}}
+  (recipes/(id+'.json')).write_text(json.dumps(value))
+ captures=TEST_HOME/'Logs/exit-captures'/RESULT['bottleID'];before=set(captures.glob('capture-*'))
+ outpath=base/(nonce+'-stop.stdout');errpath=base/(nonce+'-stop.stderr')
+ started_ns=time.time_ns()
+ with outpath.open('w') as out,errpath.open('w') as err:
+  handle=subprocess.Popen([str(CLI),'install',target,'-b',BOTTLE],stdout=out,stderr=err,text=True,env=ENV,start_new_session=True);CHILDREN.append(handle)
+  def dependency_finished():
+   for directory in set(captures.glob('capture-*'))-before:
+    try:
+     status=json.loads((directory/'result.json').read_text())
+     if status['phase']=='captured' and status['windows_exit_code']==0:return directory
+    except (OSError,ValueError):pass
+   return None
+  if running:
+   def sleeping_probe_started():
+    for log in (TEST_HOME/'Logs/sessions').glob('*/*/wine.log'):
+     if log.stat().st_mtime_ns<started_ns:continue
+     for line in log.read_text(errors='replace').splitlines():
+      if line.startswith('{"kind":"owned-exit-probe"'):
+       record=json.loads(line)
+       if record['arguments']==['0','--sleep']:return log
+    return None
+   captured=wait_for(sleeping_probe_started,seconds=18)
+  else:captured=wait_for(dependency_finished,seconds=18)
+  require(handle.poll() is None and not pending.exists(),'fixture not in controlled install wait')
+  time.sleep(.3);audit_count=len(audits());start=time.monotonic();stopped=cli(['kill','-b',BOTTLE],timeout=20)
+  evidence={'killExitCode':stopped.returncode,'killSeconds':time.monotonic()-start,'workerAliveAfterStop':handle.poll() is None,'dependencyCapture':str(captured),'phase':'running Windows installer' if running else 'waiting for detect'}
+  require(stopped.returncode==0,stopped.stdout+stopped.stderr)
+  pending.write_text('owned late detection event after Stop returned\n')
+  deadline=time.monotonic()+8
+  while handle.poll() is None and not late.exists() and time.monotonic()<deadline:time.sleep(.05)
+  evidence.update({'newWindowsSpawnsAfterStop':audits()[audit_count:],'laterRecipeMarkerExists':late.exists(),'installerCLIExitCode':handle.poll()})
+  RESULT['stopInstallEvidence']=evidence
+  require(not late.exists() and len(audits())==audit_count,'Stop returned but the old installer launched its next dependency step')
+  handle.wait(timeout=3);require(handle.returncode!=0,'cancelled install reported success')
+ return evidence
 def relaunch():
  p=cli(['run','-b',BOTTLE,'--wait',str(BASE/'probe.exe'),'--','--exit','0'],timeout=35)
  require(p.returncode==0,p.stdout+p.stderr);return {'stdout':p.stdout,'exitCode':p.returncode,'probe':probe_record()[2]}
@@ -171,7 +361,15 @@ try:
  require(not host_info(),'private product GUI already exists')
  case('product.cli_launches_real_gui',engine_list)
  case('product.reuse_empty_prefix' if '--resume' in sys.argv else 'product.bottle_create_from_gui',create_bottle)
- if '--detach' in sys.argv:
+ if '--stop-install' in sys.argv or '--stop-running-install' in sys.argv:
+  case('product.stop_prevents_installer_resurrection',stop_installation)
+ elif '--msi-diagnose' in sys.argv:
+  case('diagnostic.owned_msi_hang_observation',diagnose_msi)
+ elif '--installer-exit' in sys.argv:
+  case('product.recipe_installer_full_exit_chain',installer_exit_batch)
+ elif '--exit-capture' in sys.argv:
+  case('product.full_windows_exit_capture',exit_status_batch)
+ elif '--detach' in sys.argv:
   case('product.cli_detach_keeps_program_and_frees_wait',detach_wait)
  elif '--early-stop' in sys.argv:
   case('product.stop_during_guest_startup',wait_stop)

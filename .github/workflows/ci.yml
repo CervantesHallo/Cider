@@ -13,6 +13,8 @@ jobs:
       - name: ciderctl
         run: cd Tools/ciderctl && swift build
       - name: Cider.app
-        run: ./scripts/build-app.sh
+        run: |
+          brew list --versions mingw-w64 >/dev/null || brew install mingw-w64
+          ./scripts/build-app.sh
       - name: Data lint (schema + red lines run inside the tests above; fail on rejected entries)
         run: cd Packages/CiderKit && swift test --filter CompatDBTests
