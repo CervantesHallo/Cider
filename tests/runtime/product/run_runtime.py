@@ -393,6 +393,30 @@ def manual_installer():
  result=json.loads((BASE/'exit-status/manual-result.json').read_text())
  require(result['passed'] and len(result['cases'])==5,'manual service evidence incomplete')
  return result
+def shortcut_entries():
+ p=run([BASE/'shortcut-acceptance',BASE],timeout=45,env=ENV)
+ require(p.returncode==0,p.stdout+p.stderr)
+ result=json.loads((BASE/'shortcut-result.json').read_text())
+ require(result['passed'] and len(result['cases'])==6,'shortcut execution evidence incomplete')
+ return result
+def completed_creation():
+ import uuid
+ name='Owned Creation Complete '+uuid.uuid4().hex[:12]
+ created=None
+ try:
+  p=cli(['bottle','create',name,'--locale','zh-Hans','--template','win7_64','--engine',OWNER['engine_id']],timeout=90)
+  require(p.returncode==0,p.stdout+p.stderr)
+  files=[f for f in (TEST_HOME/'AppSupport/Bottles').glob('*/cider-bottle.json') if json.loads(f.read_text())['name']==name]
+  require(len(files)==1,'new completed prefix not uniquely identified')
+  created=files[0];config=json.loads(created.read_text())
+  require(config['template']=='win7_64' and config['settings']['prefixRevision']=='2','initialization final settings missing')
+  return {'stdout':p.stdout,'bottleID':config['id'],'template':config['template'],'prefixRevision':config['settings']['prefixRevision'],'completed':True}
+ finally:
+  for file in (TEST_HOME/'AppSupport/Bottles').glob('*/cider-bottle.json'):
+   config=json.loads(file.read_text())
+   if config['name']!=name:continue
+   stopped=cli(['kill','-b',config['id']],timeout=20);require(stopped.returncode==0,'completed creation cleanup failed')
+   archive=BASE/'exit-status/creation-prefix-archive';archive.mkdir(exist_ok=True);file.parent.rename(archive/config['id'])
 def relaunch():
  p=cli(['run','-b',BOTTLE,'--wait',str(BASE/'probe.exe'),'--','--exit','0'],timeout=35)
  require(p.returncode==0,p.stdout+p.stderr);return {'stdout':p.stdout,'exitCode':p.returncode,'probe':probe_record()[2]}
@@ -432,6 +456,9 @@ try:
   case('product.stop_prevents_creation_resurrection',stop_creation)
  elif '--manual-installer' in sys.argv:
   case('kit.manual_installer_full_status_and_stop',manual_installer)
+ elif '--shortcut-entries' in sys.argv:
+  case('kit.catalog_shortcut_and_saved_entry_execution',shortcut_entries)
+  case('product.new_bottle_full_initialization',completed_creation)
  elif '--stop-install' in sys.argv or '--stop-running-install' in sys.argv:
   case('product.stop_prevents_installer_resurrection',stop_installation)
  elif '--msi-diagnose' in sys.argv:
