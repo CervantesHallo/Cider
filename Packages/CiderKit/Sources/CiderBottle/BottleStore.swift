@@ -4,6 +4,7 @@ import CiderRuntime
 import CiderSchema
 import CiderStore
 import Foundation
+import Darwin
 
 public struct Bottle: Sendable {
     public let config: BottleConfig
@@ -85,45 +86,94 @@ public struct BottleStore: Sendable {
     public func create(name: String, template: BottleTemplate = .win10_64, locale: BottleLocale,
                        engineID: String? = nil, createdBy: String,
                        progress: (String) -> Void = { _ in }) throws -> Bottle {
+        try create(name: name, template: template, locale: locale, engineID: engineID, createdBy: createdBy,
+                   onReserved: { _ in { try Task.checkCancellation() } }, progress: progress)
+    }
+
+    public typealias InitializationCheck = @Sendable () throws -> Void
+
+    /// The reservation is owned before its config becomes visible. A product
+    /// coordinator can register cancellation now and retain it through handoff.
+    @discardableResult
+    public func create(name: String, template: BottleTemplate = .win10_64, locale: BottleLocale,
+                       engineID: String? = nil, createdBy: String,
+                       onReserved: (Bottle) throws -> InitializationCheck,
+                       progress: (String) -> Void = { _ in }) throws -> Bottle {
         let fm = FileManager.default
         let engine = try engineID.map { try engines.engine($0) } ?? engines.defaultEngine()
         let dir = try FileSafety.reserveDirectory(in: paths.bottles) { Identifiers.make(from: name) }
         let id = dir.lastPathComponent
+        var identity = stat()
+        guard lstat(dir.path, &identity) == 0, identity.st_mode & mode_t(S_IFMT) == mode_t(S_IFDIR) else {
+            throw CiderError.invalid("无法确认新瓶子目录的所有权，保留目录：\(dir.path)")
+        }
+        let device = identity.st_dev, inode = identity.st_ino
+        let checkOwnership: InitializationCheck = {
+            var current = stat()
+            guard lstat(dir.path, &current) == 0, current.st_mode & mode_t(S_IFMT) == mode_t(S_IFDIR),
+                  current.st_dev == device, current.st_ino == inode else {
+                throw CiderError.invalid("初始化期间瓶子目录已更改，未接管或删除：\(dir.path)")
+            }
+        }
 
         var config = BottleConfig(id: id, name: name, createdBy: createdBy, createdAt: Identifiers.timestamp(),
                                   template: template, engine: .init(id: engine.manifest.id), locale: locale)
         config.integration = .init(shellFolders: "isolated", zDrive: true)
         let bottle = Bottle(config: config, directory: dir)
+        var initializationStarted = false
         do {
+            let callerCheck = try onReserved(bottle)
+            let check: InitializationCheck = { try Task.checkCancellation(); try checkOwnership(); try callerCheck() }
+            try check()
             try JSONFile.write(config, to: bottle.configURL)
-            let runner = WineRunner(paths: paths, engine: engine, prefix: bottle.prefix, bottleID: id, locale: locale)
+            let runner = WineRunner(paths: paths, engine: engine, prefix: bottle.prefix, bottleID: id, locale: locale).checkingLaunches(check)
 
             progress("wineboot")
+            initializationStarted = true
             let boot = try runner.runToCompletion(runner.plan(program: "wineboot", arguments: ["--init"], label: "wineboot"))
+            try check()
             try runner.waitForIdle()
+            try check()
             guard boot.code == 0 else {
                 throw CiderError.commandFailed(command: "wineboot --init", status: boot.code,
                                                output: (try? String(contentsOf: boot.session.log, encoding: .utf8)) ?? "")
             }
 
             progress("shell folders")
+            try check()
             try PrefixSetup.isolateShellFolders(in: bottle.driveC)
 
             progress("fonts")
+            try check()
             try PrefixSetup.upgrade(bottle: bottle, runner: runner, from: 0)
+            try check()
             config.settings[PrefixSetup.revisionKey] = String(PrefixSetup.revision)
             try JSONFile.write(config, to: bottle.configURL)
 
             if template != .win10_64 {
                 progress("windows version")
-                _ = try runner.runToCompletion(runner.plan(program: "winecfg", arguments: ["/v", template.winver], label: "winecfg"))
+                let changed = try runner.runToCompletion(runner.plan(program: "winecfg", arguments: ["/v", template.winver], label: "winecfg"))
+                guard changed.code == 0 else { throw CiderError.commandFailed(command: "winecfg /v", status: changed.code, output: "") }
             }
+            try check()
             try runner.waitForIdle()
+            try check()
             return Bottle(config: config, directory: dir)
         } catch {
-            try runner(for: bottle).killAll()
-            try fm.removeItem(at: dir)
-            throw error
+            let original = error
+            do {
+                // The same lock used by launch must span stop AND removal. It
+                // cannot require a config: reservation may fail before writing it.
+                try FileOperationLock.withLock(at: paths.state.appendingPathComponent("locks/bottles/\(id).lock")) {
+                    try checkOwnership()
+                    if initializationStarted { try runner(for: bottle).killAll() }
+                    try checkOwnership()
+                    try fm.removeItem(at: dir)
+                }
+            } catch {
+                throw CiderError.invalid("创建瓶子未完成：\(original)。停止或目录清理未确认：\(error)。保留目录：\(dir.path)")
+            }
+            throw original
         }
     }
 

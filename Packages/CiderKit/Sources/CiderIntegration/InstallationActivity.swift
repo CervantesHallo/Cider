@@ -42,8 +42,9 @@ enum InstallationActivity {
         }
     }
 
-    static func begin(in bottle: Bottle) throws -> Ticket { try registry.begin(scope: scope(bottle), onStop: {}) }
+    static func begin(in bottle: Bottle, onStop: @escaping @Sendable () -> Void) throws -> Ticket { try registry.begin(scope: scope(bottle), onStop: onStop) }
     static func finish(_ ticket: Ticket, error: Error?) -> Error? { registry.finish(ticket, error: error) }
+    static func hasActivity(in bottle: Bottle) -> Bool { registry.hasActivity(scope: scope(bottle)) }
 
     static func stopping<T>(in bottle: Bottle, timeout: TimeInterval, _ stopWindows: () throws -> T) throws -> T {
         let key = scope(bottle)
@@ -120,6 +121,10 @@ enum InstallationActivity {
         struct Slot { var tickets: [UUID: Ticket] = [:]; var stops = Set<UUID>() }
         private let lock = NSLock()
         private var slots: [String: Slot] = [:]
+        func hasActivity(scope: String) -> Bool {
+            lock.lock(); defer { lock.unlock() }
+            return !(slots[scope]?.tickets.isEmpty ?? true)
+        }
         func begin(scope: String, onStop: @escaping @Sendable () -> Void) throws -> Ticket {
             lock.lock(); defer { lock.unlock() }
             var slot = slots[scope] ?? Slot()
@@ -178,7 +183,11 @@ extension RecipeInstaller {
         deinit { _ = InstallationActivity.finish(ticket, error: CancellationError()) }
     }
 
-    public static func beginActivity(in bottle: Bottle) throws -> Activity { Activity(try InstallationActivity.begin(in: bottle)) }
+    public static func beginActivity(in bottle: Bottle, onStop: @escaping @Sendable () -> Void = {}) throws -> Activity {
+        Activity(try InstallationActivity.begin(in: bottle, onStop: onStop))
+    }
+
+    public static func hasActiveActivity(in bottle: Bottle) -> Bool { InstallationActivity.hasActivity(in: bottle) }
 
     /// Cancel both GUI and CLI installations, stop Windows while new installations
     /// are barred, then confirm the captured workers exited before reporting success.

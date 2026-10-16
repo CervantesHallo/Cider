@@ -17,7 +17,7 @@ let package = Package(
         .target(name: "CiderBottle", dependencies: ["CiderCore", "CiderSchema", "CiderStore", "CiderRuntime"]),
         .target(name: "CiderPE"),
         .target(name: "CiderData"),
-        .target(name: "CiderIntegration", dependencies: ["CiderCore", "CiderBottle", "CiderRuntime", "CiderStore", "CiderPE", "CiderData"]),
+        .target(name: "CiderIntegration", dependencies: ["CiderCore", "CiderSchema", "CiderBottle", "CiderRuntime", "CiderStore", "CiderPE", "CiderData"]),
         .testTarget(
             name: "CiderKitTests",
             dependencies: ["CiderCore", "CiderSchema", "CiderStore", "CiderRuntime", "CiderBottle", "CiderIntegration", "CiderPE", "CiderData"]

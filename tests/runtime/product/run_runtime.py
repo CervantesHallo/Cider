@@ -326,6 +326,73 @@ def stop_installation():
   require(not late.exists() and len(audits())==audit_count,'Stop returned but the old installer launched its next dependency step')
   handle.wait(timeout=3);require(handle.returncode!=0,'cancelled install reported success')
  return evidence
+def stop_creation():
+ import uuid,threading
+ nonce=uuid.uuid4().hex[:12];name='Owned Creation Stop '+nonce;directory=BASE/'exit-status'
+ readfd,writefd=os.pipe();filled=1024*1024;flood=None
+ RESULT['creationStage']='reserving'
+ output=directory/(nonce+'-create.stdout');error=directory/(nonce+'-create.stderr');chunks=[];reader=None;handle=None;new_id=None
+ def drain():
+  try:
+   while True:
+    part=os.read(readfd,8192)
+    if not part:break
+    chunks.append(part)
+    while sum(map(len,chunks))>128*1024:chunks.pop(0)
+  except OSError:pass
+ try:
+  with output.open('w') as out:
+   handle=subprocess.Popen([str(CLI),'bottle','create',name,'--locale','zh-Hans','--template','win7_64','--engine',OWNER['engine_id']],stdout=out,stderr=writefd,text=True,env=ENV,start_new_session=True);CHILDREN.append(handle)
+  def reserved():
+   for file in (TEST_HOME/'AppSupport/Bottles').glob('*/cider-bottle.json'):
+    try:
+     config=json.loads(file.read_text())
+     if config['name']==name:return (config,file.parent)
+    except (OSError,ValueError):pass
+   return None
+  config,bottle_dir=wait_for(reserved,seconds=12);new_id=config['id'];RESULT['creationStage']='waiting wineboot'
+  first=wait_for(lambda:next((r for r in audits() if r['bottle']==new_id and r['program']=='wineboot'),None),seconds=12)
+  boot_pid=int(first['pid']);RESULT['creationStage']='waiting boot exit before blocked progress'
+  def fill_after_boot_started():
+   try:os.write(writefd,b'P'*filled)
+   except OSError:pass
+  flood=threading.Thread(target=fill_after_boot_started,daemon=True);flood.start()
+  def between_stages():
+   if any(row['pid']==boot_pid for row in snapshot()):return False
+   ps=cli(['ps','--all'],timeout=6)
+   return ps.returncode==0 and not any(line.split('\t')[1]==new_id for line in ps.stdout.splitlines() if '\t' in line)
+  wait_for(between_stages,seconds=45);RESULT['creationStage']='blocked between stages'
+  require(handle.poll() is None,'creation did not pause between initialization stages')
+  before=len(audits());stopped=cli(['kill','-b',new_id],timeout=20)
+  require(stopped.returncode==0,stopped.stdout+stopped.stderr)
+  reader=threading.Thread(target=drain,daemon=True);reader.start()
+  handle.wait(timeout=30)
+  if flood:flood.join(timeout=3)
+  os.close(writefd);writefd=-1
+  reader.join(timeout=3);error.write_bytes(b''.join(chunks))
+  late=[r for r in audits()[before:] if r['bottle']==new_id]
+  evidence={'bottleID':new_id,'filledStderrBytes':filled,'killExitCode':stopped.returncode,'creatorCLIExitCode':handle.returncode,'newWindowsSpawnsAfterStop':late,'stdout':output.read_text(),'stderrTail':error.read_text(errors='replace')[-1200:]}
+  RESULT['creationStopEvidence']=evidence
+  require(not late and handle.returncode!=0,'stopped initialization resumed and launched later Windows setup stages')
+  return evidence
+ finally:
+  if reader is None:reader=threading.Thread(target=drain,daemon=True);reader.start()
+  if handle and handle.poll() is None:handle.terminate();handle.wait(timeout=4)
+  if flood:flood.join(timeout=3)
+  if writefd>=0:os.close(writefd)
+  if new_id:
+   file=TEST_HOME/'AppSupport/Bottles'/new_id/'cider-bottle.json'
+   if file.exists():
+    stopped=cli(['kill','-b',new_id],timeout=20);require(stopped.returncode==0,'owned new-prefix cleanup failed')
+    archive=directory/'creation-prefix-archive';archive.mkdir(exist_ok=True)
+    file.parent.rename(archive/new_id)
+  reader.join(timeout=3);os.close(readfd)
+def manual_installer():
+ p=run([BASE/'manual-acceptance',BASE],timeout=75,env=ENV)
+ require(p.returncode==0,p.stdout+p.stderr)
+ result=json.loads((BASE/'exit-status/manual-result.json').read_text())
+ require(result['passed'] and len(result['cases'])==5,'manual service evidence incomplete')
+ return result
 def relaunch():
  p=cli(['run','-b',BOTTLE,'--wait',str(BASE/'probe.exe'),'--','--exit','0'],timeout=35)
  require(p.returncode==0,p.stdout+p.stderr);return {'stdout':p.stdout,'exitCode':p.returncode,'probe':probe_record()[2]}
@@ -361,7 +428,11 @@ try:
  require(not host_info(),'private product GUI already exists')
  case('product.cli_launches_real_gui',engine_list)
  case('product.reuse_empty_prefix' if '--resume' in sys.argv else 'product.bottle_create_from_gui',create_bottle)
- if '--stop-install' in sys.argv or '--stop-running-install' in sys.argv:
+ if '--stop-creation' in sys.argv:
+  case('product.stop_prevents_creation_resurrection',stop_creation)
+ elif '--manual-installer' in sys.argv:
+  case('kit.manual_installer_full_status_and_stop',manual_installer)
+ elif '--stop-install' in sys.argv or '--stop-running-install' in sys.argv:
   case('product.stop_prevents_installer_resurrection',stop_installation)
  elif '--msi-diagnose' in sys.argv:
   case('diagnostic.owned_msi_hang_observation',diagnose_msi)

@@ -181,7 +181,7 @@ private final class CompletionError: @unchecked Sendable {
         }
         #expect(stopEntered.wait(timeout: .now() + 2) == .success)
         do {
-            try activity.performing {
+            _ = try activity.performing {
                 try InstallationActivity.perform(in: target, onStop: {}) { Issue.record("cancelled inner work started") }
             }
             Issue.record("cancelled inner registration succeeded")

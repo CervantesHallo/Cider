@@ -1,0 +1,57 @@
+Building for debugging...
+[Using on-disk description]
+[1 / 2] CiderKit-product
+[2 / 12] CiderBottle
+[4 / 14] CiderBottle
+[7 / 17] CiderBottle
+[9 / 17] CiderBottle
+[11 / 12] CiderKitTests-product
+Build complete! (2.38秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite InstallerExitStatusTests started.
+◇ Suite InstallationActivityTests started.
+◇ Suite BottlePreparationTests started.
+◇ Test fullWordDoesNotAliasUnixSuccess() started.
+◇ Test incompleteCaptureAndUnknownConventionAreNotSuccessful() started.
+◇ Test rebootCodesRequireDeclaredInstallerConvention() started.
+◇ Test hostToolChecksCooperativeCancellation() started.
+◇ Test stopDrainsAllMatchingWorkAndPreservesOtherRoots() started.
+◇ Test cleanupErrorIsNotConvertedIntoStoppedSuccess() started.
+◇ Test selfJoinIsRejectedAndScopeAliasesMatch() started.
+◇ Test stopBeforeInnerRegistrationIsCancellationRatherThanCleanupFailure() started.
+◇ Test evidenceAllowsAncestorAliasesAndRejectsForeignOrLinkedSessions() started.
+◇ Test stopBarrierAndUnfinishedCancellationRejectNewWork() started.
+◇ Test helperLinksAndDataOverlayFallbackAreRejected() started.
+◇ Test ownershipSurvivesInnerInstallAndRefreshHandoff() started.
+◇ Test cancellationAndSuccessHaveOneAtomicWinner() started.
+◇ Test completedOwnershipCannotBeReusedForAnotherLaunch() started.
+◇ Test bundledHelperUsesOwnResourceDigest() started.
+◇ Test rejectingReservationDoesNotNeedWineToCleanEmptyDirectory() started.
+◇ Test reservationIsRegisteredBeforeVisibilityAndPrelaunchFailureRemovesOnlyItsDirectory() started.
+◇ Test activityPresenceIsScopedAndRemovedOnlyAfterFinish() started.
+◇ Test replacedReservationIsPreservedAndNeverCleanedAsOurPrefix() started.
+✔ Test selfJoinIsRejectedAndScopeAliasesMatch() passed after 0.036 seconds.
+✔ Test incompleteCaptureAndUnknownConventionAreNotSuccessful() passed after 0.036 seconds.
+✔ Test evidenceAllowsAncestorAliasesAndRejectsForeignOrLinkedSessions() passed after 0.036 seconds.
+✔ Test rebootCodesRequireDeclaredInstallerConvention() passed after 0.036 seconds.
+✔ Test fullWordDoesNotAliasUnixSuccess() passed after 0.036 seconds.
+✔ Test cancellationAndSuccessHaveOneAtomicWinner() passed after 0.036 seconds.
+✔ Test completedOwnershipCannotBeReusedForAnotherLaunch() passed after 0.036 seconds.
+✔ Test helperLinksAndDataOverlayFallbackAreRejected() passed after 0.036 seconds.
+✔ Test bundledHelperUsesOwnResourceDigest() passed after 0.036 seconds.
+✔ Test rejectingReservationDoesNotNeedWineToCleanEmptyDirectory() passed after 0.036 seconds.
+✔ Test reservationIsRegisteredBeforeVisibilityAndPrelaunchFailureRemovesOnlyItsDirectory() passed after 0.036 seconds.
+✔ Test activityPresenceIsScopedAndRemovedOnlyAfterFinish() passed after 0.036 seconds.
+✔ Suite InstallerExitStatusTests passed after 0.036 seconds.
+✔ Test replacedReservationIsPreservedAndNeverCleanedAsOurPrefix() passed after 0.037 seconds.
+✔ Suite BottlePreparationTests passed after 0.038 seconds.
+✔ Test stopBeforeInnerRegistrationIsCancellationRatherThanCleanupFailure() passed after 0.038 seconds.
+✔ Test cleanupErrorIsNotConvertedIntoStoppedSuccess() passed after 0.051 seconds.
+✔ Test ownershipSurvivesInnerInstallAndRefreshHandoff() passed after 0.052 seconds.
+✔ Test stopDrainsAllMatchingWorkAndPreservesOtherRoots() passed after 0.073 seconds.
+✔ Test stopBarrierAndUnfinishedCancellationRejectNewWork() passed after 0.093 seconds.
+✔ Test hostToolChecksCooperativeCancellation() passed after 0.118 seconds.
+✔ Suite InstallationActivityTests passed after 0.118 seconds.
+✔ Test run with 19 tests in 3 suites passed after 0.118 seconds.

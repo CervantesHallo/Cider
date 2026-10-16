@@ -223,10 +223,12 @@ struct BottleCommand: ParsableCommand {
             guard let tpl = BottleTemplate(rawValue: template) else { throw ValidationError("unknown template \(template)") }
             let store = CommandContext.required.bottleStore()
             let output = CommandContext.required.output
-            let bottle = try store.create(name: name, template: tpl, locale: loc, engineID: engine,
-                                          createdBy: "ciderctl/\(Ciderctl.version)") { step in
+            let prepared = try BottlePreparation.create(store: store, name: name, template: tpl, locale: loc, engineID: engine,
+                                          createdBy: "ciderctl/\(Ciderctl.version)", observation: CommandContext.required.observation) { step in
                 output("… \(step)\n", true)
             }
+            try prepared.activity.finish()
+            let bottle = prepared.bottle
             CommandContext.emit("created \(bottle.config.id) (\(bottle.config.name), \(bottle.config.locale.lcAll), \(bottle.config.engine.id))")
         }
     }

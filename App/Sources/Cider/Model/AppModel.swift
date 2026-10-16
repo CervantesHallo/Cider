@@ -473,35 +473,47 @@ final class AppModel {
     }
 
     func runInstaller(_ url: URL, in bottleID: String) {
+        do {
+            let bottle = try BottleStore(paths: paths).bottle(bottleID)
+            let activity = try RecipeInstaller.beginActivity(in: bottle)
+            do {
+                let task = try runInstallerTask(url, in: bottle, activity: activity)
+                Task { _ = await task.result }
+            } catch { try? activity.finish(error: error); throw error }
+        } catch { message = "安装失败：\(error)" }
+    }
+
+    func runInstallerTask(_ url: URL, in bottle: Bottle, activity: RecipeInstaller.Activity) throws -> Task<Void, Error> {
         let paths = self.paths
+        let bottleID = bottle.config.id
         let key = "activity:\(bottleID)"
-        guard !busy.contains(key), !busy.contains("install") else { message = "这个瓶子的操作正在进行，请稍候。"; return }
+        guard !busy.contains(key), !busy.contains("install") else { throw CiderError.invalid("这个瓶子的操作正在进行，请稍候。") }
+        try activity.checkCancellation()
         busy.insert(key)
         busy.insert("install")
         message = "正在运行 \(url.lastPathComponent)…"
-        Task {
+        return Task {
             var holdsActivity = true
-            defer { busy.remove("install"); if holdsActivity { busy.remove(key) } }
+            defer {
+                busy.remove("install")
+                if holdsActivity, !busy.contains("stop-bottle:\(bottleID)") { busy.remove(key) }
+            }
             do {
-                let session = try await Task.detached { () -> SessionHandle in
+                let running = try await Task.detached {
                     let store = BottleStore(paths: paths)
-                    let runner = try store.runner(for: try store.bottle(bottleID))
-                    let isMSI = url.pathExtension.lowercased() == "msi"
-                    let plan = isMSI
-                        ? runner.plan(program: "msiexec", arguments: ["/i", url.path], label: url.deletingPathExtension().lastPathComponent,
-                                      cwd: url.deletingLastPathComponent())
-                        : runner.plan(program: url.path, label: url.deletingPathExtension().lastPathComponent,
-                                      cwd: url.deletingLastPathComponent())
-                    return try runner.launch(plan)
+                    return try ManualInstaller(store: store).start(url, in: try store.bottle(bottleID), activity: activity)
                 }.value
                 // Installation is now a running program. Keep the install indicator, but allow Stop.
-                busy.remove(key)
+                if !busy.contains("stop-bottle:\(bottleID)") { busy.remove(key) }
                 holdsActivity = false
-                let code = await Task.detached { Spawn.wait(session.pid) }.value
-                message = code == 0 ? "安装程序已结束。" : "安装程序退出，代码 \(code)。"
+                let result = try await Task.detached { try running.wait() }.value
                 await refresh()
+                try activity.finish()
+                message = result.requiresRestart ? "安装程序已结束，请重启瓶子后再打开程序。" : "安装程序已结束。"
             } catch {
-                message = "安装失败：\(error)"
+                try? activity.finish(error: error)
+                if !busy.contains("stop-bottle:\(bottleID)") { message = error is CancellationError ? "安装已取消。" : "安装失败：\(error)" }
+                throw error
             }
         }
     }
@@ -513,11 +525,15 @@ final class AppModel {
         Task {
             defer { busy.remove("create-bottle") }
             do {
-                try await Task.detached {
-                    _ = try BottleStore(paths: paths).create(name: name, template: template, locale: locale, createdBy: "Cider.app")
+                let prepared = try await Task.detached {
+                    try BottlePreparation.create(store: BottleStore(paths: paths), name: name, template: template,
+                        locale: locale, createdBy: "Cider.app")
                 }.value
-                message = "已创建瓶子“\(name)”。"
-                await refresh()
+                do {
+                    await refresh()
+                    try prepared.activity.finish()
+                    message = "已创建瓶子“\(name)”。"
+                } catch { try? prepared.activity.finish(error: error); throw error }
             } catch {
                 message = "创建失败：\(error)"
             }
@@ -532,12 +548,15 @@ final class AppModel {
         let owner = UUID()
         let interrupted = recipeWorkers[bottleID]
         if busy.contains(key) {
-            guard let interrupted else {
+            let registered = bottles.first(where: { $0.config.id == bottleID }).map { RecipeInstaller.hasActiveActivity(in: $0) } ?? false
+            guard interrupted != nil || registered else {
                 message = "这个瓶子的操作正在进行，请稍候。"
                 return
             }
-            interrupted.task.cancel()
-            recipeWorkers[bottleID] = (owner, interrupted.task, interrupted.completed)
+            if let interrupted {
+                interrupted.task.cancel()
+                recipeWorkers[bottleID] = (owner, interrupted.task, interrupted.completed)
+            }
         } else {
             busy.insert(key)
         }
