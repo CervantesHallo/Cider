@@ -281,19 +281,20 @@ public struct WineRunner: Sendable {
     }
 
     /// Runs a plan to completion and returns its exit code.
-    public func runToCompletion(_ plan: LaunchPlan) throws -> (code: Int32, session: SessionHandle) {
+    public func runToCompletion(_ plan: LaunchPlan, observation: CommandObservation? = nil) throws -> (code: Int32, session: SessionHandle) {
         try Task.checkCancellation()
+        try observation?.check()
         let session = try launch(plan)
         // Cancellation may race with spawn; stop this prefix before handing the cancelled result back.
         if Task.isCancelled { try killAll() }
-        let code = Spawn.wait(session.pid)
+        let code = try Spawn.wait(session.pid, observation: observation)
         try Task.checkCancellation()
         return (code, session)
     }
 
     /// `wineserver -w`: waits until every process in the prefix has exited.
-    public func waitForIdle() throws {
-        try wineserver(["-w"])
+    public func waitForIdle(observation: CommandObservation? = nil) throws {
+        try wineserver(["-w"], observation: observation)
     }
 
     /// `wineserver -k`: kills every process in the prefix. Processes whose wineserver already died (orphans,
@@ -366,12 +367,13 @@ public struct WineRunner: Sendable {
         return false
     }
 
-    private func wineserver(_ args: [String], allowNoServer: Bool = false) throws {
+    private func wineserver(_ args: [String], allowNoServer: Bool = false, observation: CommandObservation? = nil) throws {
+        try observation?.check()
         let log = paths.logs.appendingPathComponent("wineserver.log")
         try FileManager.default.ensureDirectory(paths.logs)
         let pid = try Spawn.launch(executable: engine.wineserver.path, arguments: args,
                                    environment: environment(debug: .quiet), workingDirectory: nil, logPath: log.path)
-        let code = Spawn.wait(pid)
+        let code = try Spawn.wait(pid, observation: observation)
         guard code == 0 || (allowNoServer && code == 1) else {
             throw CiderError.commandFailed(command: "wineserver \(args.joined(separator: " "))", status: code,
                                            output: (try? String(contentsOf: log, encoding: .utf8)) ?? "")

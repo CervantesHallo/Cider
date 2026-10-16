@@ -116,6 +116,26 @@ def wait_stop():
  RESULT['stopAttempt']={'exitCode':stopped.returncode,'stdout':stopped.stdout,'stderr':stopped.stderr,'waitingCLIExitCode':handle.returncode,'waitingCLIStdout':out,'waitingCLIStderr':err,'liveOwnedProcessesAfterStop':snapshot()}
  require(stopped.returncode==0,stopped.stdout+stopped.stderr)
  return {'unixWinePID':pid,'nativePPID':ppid,'guiPID':RESULT['guiPID'],'parentObservation':parent.stdout,'stopRequestSeconds':stop_returned-start,'stopAndWaiterCompletionSeconds':time.monotonic()-start,'stopStdout':stopped.stdout,'waitingCLIExitCode':handle.returncode,'waitingCLIStdout':out,'waitingCLIStderr':err}
+def detach_wait():
+ before=len(audits());started_ns=time.time_ns()
+ handle=subprocess.Popen([str(CLI),'run','-b',BOTTLE,'--wait',str(BASE/'probe.exe'),'--','--hold','30000'],stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True,env=ENV,start_new_session=True)
+ CHILDREN.append(handle)
+ rows=wait_for(lambda:audits()[before:] if len(audits())>before else None)
+ pid=int(rows[0]['pid']);parent=run(['/bin/ps','-p',str(pid),'-o','ppid=,comm='])
+ ppid=int(parent.stdout.strip().split(None,1)[0]);require(ppid==RESULT['guiPID'],'Wine was not spawned by product GUI')
+ ready=wait_for(lambda:(probe_record() if probe_record() and probe_record()[2]['arguments']==['--hold','30000'] and probe_record()[0]>=started_ns else None),seconds=15)
+ require(handle.poll() is None,'CLI exited before observer detach')
+ handle.terminate();out,err=handle.communicate(timeout=4)
+ require(handle.returncode==-signal.SIGTERM,'observer CLI was not terminated as requested')
+ live=lambda:any(row['pid']==pid and row['path'].startswith(OWNER['engine_copy']+'/') for row in snapshot())
+ require(live(),'disconnect terminated the launched program')
+ start=time.monotonic();fresh=cli(['engine','list'],timeout=8)
+ require(fresh.returncode==0 and OWNER['engine_id'] in fresh.stdout,fresh.stdout+fresh.stderr)
+ time.sleep(.3);require(live(),'program stopped after detached waiter cleanup')
+ ps=cli(['ps','--all'],timeout=8);require(ps.returncode==0 and any(line.split('\t',1)[0]==str(pid) for line in ps.stdout.splitlines()),'detached program disappeared from product ps')
+ return {'unixWinePID':pid,'nativePPID':ppid,'guiPID':RESULT['guiPID'],'probeReady':ready[2],
+         'observerCLIExitCode':handle.returncode,'programStillAliveAfterDetach':True,'freshCommandExitCode':fresh.returncode,
+         'freshCommandSeconds':time.monotonic()-start,'stdout':out,'stderr':err,'laterTermination':'explicit normal bottle cleanup only'}
 def relaunch():
  p=cli(['run','-b',BOTTLE,'--wait',str(BASE/'probe.exe'),'--','--exit','0'],timeout=35)
  require(p.returncode==0,p.stdout+p.stderr);return {'stdout':p.stdout,'exitCode':p.returncode,'probe':probe_record()[2]}
@@ -151,7 +171,9 @@ try:
  require(not host_info(),'private product GUI already exists')
  case('product.cli_launches_real_gui',engine_list)
  case('product.reuse_empty_prefix' if '--resume' in sys.argv else 'product.bottle_create_from_gui',create_bottle)
- if '--early-stop' in sys.argv:
+ if '--detach' in sys.argv:
+  case('product.cli_detach_keeps_program_and_frees_wait',detach_wait)
+ elif '--early-stop' in sys.argv:
   case('product.stop_during_guest_startup',wait_stop)
   case('product.relaunch_after_early_stop',relaunch)
  elif '--only-ui' in sys.argv:
@@ -187,6 +209,17 @@ finally:
   except Exception as error:errors.append(str(error))
  support=Path('/System/Library/Frameworks/CoreServices.framework/Frameworks/LaunchServices.framework/Support/lsregister')
  p=run([support,'-u',APP],timeout=10);RESULT['launchServicesUnregister']={'exitCode':p.returncode,'stderr':p.stderr}
+ engine_host=Path(OWNER['engine_copy'])/'CiderWineHost.app'
+ if engine_host.is_dir():
+  require(engine_host.resolve().is_relative_to(BASE),'engine host cleanup escaped private root')
+  p=run([support,'-u',engine_host],timeout=10);RESULT['engineLaunchServicesUnregister']={'exitCode':p.returncode,'stderr':p.stderr}
+  if p.returncode:
+   # Console Wine may never register this App. -10814 means not found; verify
+   # the exact private path is absent instead of treating it as a live registration.
+   dump=run([support,'-dump'],timeout=30)
+   absent=dump.returncode==0 and str(engine_host) not in dump.stdout and str(engine_host.resolve()) not in dump.stdout
+   RESULT['engineLaunchServicesUnregister']['notFoundAndExactPathAbsent']='-10814' in p.stderr and absent
+   if not RESULT['engineLaunchServicesUnregister']['notFoundAndExactPathAbsent']:errors.append('private engine LaunchServices cleanup failed')
  time.sleep(.5);live=snapshot()
  if live:errors.append('owned processes remain; preserve root for cleanup')
  protected={str(path):hashlib.sha256(Path(path).read_bytes()).hexdigest() for path in OWNER['protected']}

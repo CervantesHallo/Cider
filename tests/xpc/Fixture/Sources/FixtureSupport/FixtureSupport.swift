@@ -167,6 +167,9 @@ private final class FixtureExecutor: RPCCommandExecuting, @unchecked Sendable {
     private let lock = NSLock()
     init(paths: CiderPaths) { self.paths = paths }
     func execute(_ request: RPCRequest, output: @escaping @Sendable (String, Bool) -> Void) -> Int32 {
+        execute(request, observation: CommandObservation(), output: output)
+    }
+    func execute(_ request: RPCRequest, observation: CommandObservation, output: @escaping @Sendable (String, Bool) -> Void) -> Int32 {
         do {
             // This records admission in the host, independently of client/broker replies.
             lock.lock()
@@ -191,12 +194,16 @@ private final class FixtureExecutor: RPCCommandExecuting, @unchecked Sendable {
             case "fixture-long-output":
                 for index in 0..<384 { output("long-\(index):" + String(repeating: "流🙂", count: 500) + "\n", false) }
                 return 19
-            case "fixture-block", "fixture-block-long":
+            case "fixture-block", "fixture-block-long", "fixture-observation-block":
                 output("admitted\n", false)
                 try Data().write(to: paths.appSupport.appendingPathComponent("admitted-\(request.id.uuidString)"))
                 let release = paths.appSupport.appendingPathComponent("release-\(request.id.uuidString)")
                 let deadline = ProcessInfo.processInfo.systemUptime + (request.arguments.first == "fixture-block-long" ? 30 : 10)
                 while !FileManager.default.fileExists(atPath: release.path), ProcessInfo.processInfo.systemUptime < deadline {
+                    if request.arguments.first == "fixture-observation-block", observation.isDetached {
+                        try Data("75".utf8).write(to: paths.appSupport.appendingPathComponent("completed-\(request.id.uuidString)"))
+                        return 75
+                    }
                     Thread.sleep(forTimeInterval: 0.02)
                 }
                 let code: Int32 = FileManager.default.fileExists(atPath: release.path) ? 0 : 124

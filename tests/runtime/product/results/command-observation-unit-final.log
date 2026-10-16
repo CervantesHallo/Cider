@@ -1,0 +1,24 @@
+Building for debugging...
+[Provisioning 4 / 13]
+[1 / 4]
+[2 / 5] CiderIPC
+[3 / 6] CiderIPC
+[7 / 9] CiderIPC
+[9 / 10] CiderIPC
+[11 / 24] CiderRuntime
+[13 / 26] CiderRuntime
+[18 / 27] CiderRuntime
+[20 / 21] CiderKitTests-product
+Build complete! (3.48秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite CommandObservationTests started.
+◇ Test attachedWaitKeepsRealExitCode() started.
+✔ Test attachedWaitKeepsRealExitCode() passed after 0.055 seconds.
+◇ Test detachedWaitLeavesChildAliveAndReapsItsLaterExit() started.
+✔ Test detachedWaitLeavesChildAliveAndReapsItsLaterExit() passed after 0.838 seconds.
+◇ Test observationIsMonotonic() started.
+✔ Test observationIsMonotonic() passed after 0.001 seconds.
+✔ Suite CommandObservationTests passed after 0.894 seconds.
+✔ Test run with 3 tests in 1 suite passed after 0.894 seconds.

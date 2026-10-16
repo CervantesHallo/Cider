@@ -1,0 +1,21 @@
+{
+  "schema": "cider.observation-build-equivalence/v1",
+  "change": "Explicit outer [self] capture eliminates ImplicitStrongCapture warning; compiler result unchanged",
+  "sourceFile": "Packages/CiderKit/Sources/CiderRuntime/Spawn.swift",
+  "finalSourceSHA256": "e1c30403a32256129da56f15e524f650beddf16d8e31ede6c67628b98ef81e3b",
+  "candidateComponentSHA256": {
+    "Cider": "da2785e45812fd717cb5066ed3773d1c6507987ddd53dc67966beb31f2795d5a",
+    "ciderctl": "b1aadd38085f9518c10b5def753af6bcd1f031d1b236d5b60e27e31cbd832950",
+    "CiderXPCBridge": "487327c29aebff19103e5bf1ccf6bd9381217329d1c01b993d3d4a0d77f7a535"
+  },
+  "allThreeReleaseBinariesByteIdenticalToRealProductDetachRun": true,
+  "focusedTestsFinal": {
+    "count": 3,
+    "passed": true,
+    "file": "tests/runtime/product/results/command-observation-unit-final.log"
+  },
+  "releaseBuildExitCode": 0,
+  "strictSignatureVerifiedByBuild": true,
+  "releaseCompilerWarnings": 0,
+  "releaseBuildLogSHA256": "eef9575a7327435dc871cd5451d7238d2c31baf787ad9ddf91b70f6fd0a6584c"
+}

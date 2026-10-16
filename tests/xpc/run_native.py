@@ -30,6 +30,8 @@ CASES = [
     "native.broker_crash.host_reconnect_no_replay",
     "native.queue.reserved_kill", "native.duplicate.after_256_intervening",
     "native.output.reader_paused_six_seconds", "native.startup.missing_broker_then_register",
+    "native.observation.disconnected_waiters_release_capacity",
+    "native.observation.reconnect_preserves_host_capacity",
 ]
 
 
@@ -49,7 +51,8 @@ def source_hashes():
     files = sorted((REPO / "Packages/CiderKit/Sources").rglob("*.swift"))
     files += sorted((REPO / "Tools/CiderCommands/Sources").rglob("*.swift"))
     files += sorted((HERE / "Fixture/Sources").rglob("*.swift"))
-    files += [HERE / "Fixture/Package.swift", HERE / "run_native.py", HERE / "run_packaged_cli.py"]
+    files += [HERE / "Fixture/Package.swift", HERE / "run_native.py", HERE / "run_packaged_cli.py",
+              REPO / "Tools/ciderctl/Sources/ciderctl/ciderctl.swift", REPO / "App/Sources/Cider/CommandHost.swift"]
     return {str(path.relative_to(REPO)): hashlib.sha256(path.read_bytes()).hexdigest() for path in files}
 
 
@@ -178,7 +181,8 @@ class NativeFixture:
             wait_for(lambda: not alive(pid), timeout=2)
 
     def request(self, arguments, **overrides):
-        value = {"version": 1, "id": str(uuid.uuid4()).upper(), "arguments": arguments,
+        version = int(re.search(r"static let version = (\d+)", (REPO / "Packages/CiderKit/Sources/CiderIPC/Wire.swift").read_text())[1])
+        value = {"version": version, "id": str(uuid.uuid4()).upper(), "arguments": arguments,
                  "workingDirectory": self.canonical_root, "appSupport": self.canonical_root}
         value.update(overrides)
         return value
@@ -413,6 +417,48 @@ class NativeFixture:
             require(len(self.admissions(original["id"])) == 1, "retained UUID executed again after the native burst")
             return {"originalID": original["id"], "interveningNativeAdmissions": len(rows), "duplicate": duplicate,
                     "hostAdmissionsForOriginalID": 1, "burstExecutorPID": self.host_pid}
+        if name == "native.observation.disconnected_waiters_release_capacity":
+            requests = [self.request(["fixture-observation-block"]) for _ in range(8)]
+            clients = [self.start_block(request) for request in requests]
+            full = self.execute(self.request(["engine", "list"]))
+            require(full["state"] == "rejected", "eight attached observations must fill ordinary capacity")
+            for client in clients:
+                self.stop_owned(client.pid, "ciderctl")
+                client.communicate(timeout=3)
+            wait_for(lambda: all((self.root / ("completed-" + request["id"])).exists() for request in requests), timeout=4)
+            require(all((self.root / ("completed-" + request["id"])).read_text() == "75" for request in requests), "lost observers did not detach")
+            fresh = self.execute(self.request(["engine", "list"]))
+            self.completed(fresh, 0)
+            require(all(len(self.admissions(request["id"])) == 1 for request in requests), "abandoned requests were replayed")
+            duplicate = self.execute(requests[0])
+            require(duplicate["state"] == "rejected", "detachment discarded request tombstone")
+            return {"detachedObservers": 8, "capacityWhileAttached": full, "freshAfterDetach": fresh,
+                    "duplicateAfterDetach": duplicate, "programTerminationPartOfFixture": False}
+        if name == "native.observation.reconnect_preserves_host_capacity":
+            requests = [self.request(["fixture-block-long"]) for _ in range(8)]
+            clients = [self.start_block(request) for request in requests]
+            self.record_broker()
+            original = self.broker_pids[-1]
+            self.stop_owned(original, "CiderXPCBridge")
+            lost = [self.collect(client) for client in clients]
+            require(all(value["state"] == "unknown" for value in lost), "broker loss did not return unknown")
+            def reconnected():
+                try: return self.call("hello").get("hostPID") == self.host_pid
+                except (AssertionError, RuntimeError, subprocess.TimeoutExpired): return False
+            wait_for(reconnected, timeout=18)
+            self.record_broker()
+            started = time.monotonic()
+            fresh = self.execute(self.request(["engine", "list"]), timeout=4)
+            require(fresh["state"] == "rejected" and fresh.get("executorPID") == self.host_pid,
+                    "GUI accepted fresh work behind eight surviving noncancellable operations")
+            elapsed = time.monotonic() - started
+            require(elapsed < 3, "full GUI capacity was not rejected promptly")
+            for request in requests: (self.root / ("release-" + request["id"])).touch()
+            wait_for(lambda: all((self.root / ("completed-" + request["id"])).exists() for request in requests), timeout=3)
+            self.completed(self.execute(self.request(["engine", "list"])), 0)
+            require(all(len(self.admissions(request["id"])) == 1 for request in requests), "reconnect replayed old work")
+            return {"survivingOperations": 8, "hostPID": self.host_pid, "oldBrokerPID": original,
+                    "newBrokerPID": self.broker_pids[-1], "capacityRejection": fresh, "rejectionSeconds": elapsed}
         if name == "native.output.reader_paused_six_seconds":
             request = self.request(["fixture-echo", "slow-reader"])
             started = time.monotonic()

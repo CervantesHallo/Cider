@@ -1,0 +1,25 @@
+{
+  "kind": "real-packaged-cli-two-data-roots",
+  "phase": "baseline",
+  "createdUTC": "20261016T144232Z",
+  "cases": [],
+  "productGUIOrWineSessions": 0,
+  "unitTestsIncluded": 0,
+  "bundle": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-rqpbp6_m/ReadonlyDataRoots.app",
+  "bundleIdentifier": "org.cider.datarootsfixture.ffa6e86d2ed643ea926e81bb9ee5f514",
+  "roots": {},
+  "fixtureSourceRevision": "731267a",
+  "productionBuildPerformed": false,
+  "error": "extractall() got an unexpected keyword argument 'filter'",
+  "cleanup": {
+    "passed": true,
+    "jobsAbsent": {},
+    "observedOwnedPIDs": {},
+    "liveOwnedPIDs": {},
+    "errors": []
+  },
+  "nativeCasesExecuted": 0,
+  "nativeCasesPassed": 0,
+  "passed": false,
+  "baselineReproducedAndCleaned": false
+}

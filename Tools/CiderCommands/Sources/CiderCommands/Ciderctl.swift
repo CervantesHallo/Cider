@@ -325,8 +325,9 @@ struct Run: ParsableCommand {
         let args = arguments.first == "--" ? Array(arguments.dropFirst()) : arguments
         let plan = runner.plan(program: target, arguments: args, cwd: cwd, debug: preset, extraEnv: extra)
         if wait {
-            let (code, session) = try runner.runToCompletion(plan)
-            try runner.waitForIdle()
+            let observation = CommandContext.required.observation
+            let (code, session) = try runner.runToCompletion(plan, observation: observation)
+            try runner.waitForIdle(observation: observation)
             CommandContext.emit("exit \(code) · log \(session.log.path)")
             if code != 0 { throw ExitCode(code) }
         } else {

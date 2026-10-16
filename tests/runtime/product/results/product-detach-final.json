@@ -1,0 +1,90 @@
+{
+  "schema": "cider.product-detach-cleanup-handoff/v1",
+  "checkedUTC": "2026-10-16T14:56:08.704755+00:00",
+  "initialRuntimeFile": "tests/runtime/product/results/product-detach-first-cleanup-failure.json",
+  "initialRuntimeSHA256": "00b4fa9ebb699edb49fc1979c929951274993173db014c4b5eeabe8ec198e5b7",
+  "initialOverallPassed": false,
+  "runtimeCases": [
+    {
+      "name": "product.cli_launches_real_gui",
+      "passed": true,
+      "seconds": 6.749554958,
+      "evidence": {
+        "stdout": "cider-cx26.3-r1-wma1-mm2-x86_64\twine-11.0\tdevel\n",
+        "gui": [
+          {
+            "bundle": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+            "pid": 34175,
+            "terminated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "product.reuse_empty_prefix",
+      "passed": true,
+      "seconds": 0.001442458000000535,
+      "evidence": {
+        "reusedOnlyThisOwnedEmptyPrefix": true,
+        "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293"
+      }
+    },
+    {
+      "name": "product.cli_detach_keeps_program_and_frees_wait",
+      "passed": true,
+      "seconds": 4.507404125,
+      "evidence": {
+        "unixWinePID": 34217,
+        "nativePPID": 34175,
+        "guiPID": 34175,
+        "probeReady": {
+          "kind": "cider-owned-win32-probe",
+          "windowsPID": 32,
+          "cwd": "Z:\\Users\\cervantes\\Cider\\out\\runtime-acceptance-20261016-84kr3z6f",
+          "fixtureEnvironment": "",
+          "arguments": [
+            "--hold",
+            "30000"
+          ]
+        },
+        "observerCLIExitCode": -15,
+        "programStillAliveAfterDetach": true,
+        "freshCommandExitCode": 0,
+        "freshCommandSeconds": 0.8117252080000004,
+        "stdout": "",
+        "stderr": "",
+        "laterTermination": "explicit normal bottle cleanup only"
+      }
+    }
+  ],
+  "allRuntimeCasesPassed": true,
+  "initialCleanupProblem": {
+    "exitCode": 1,
+    "stderr": "failed to scan /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64/CiderWineHost.app: -10814\n from spotlight"
+  },
+  "cleanupFollowup": {
+    "exactPrivateEnginePath": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64/CiderWineHost.app",
+    "launchServicesDumpExitCode": 0,
+    "exactPrivateEnginePathAbsent": true,
+    "sharedBundleIdentifierNotUsedForGlobalRemoval": true,
+    "jobsAbsent": {
+      "org.cider.ipc.9909ac4ce959abd387518fd5": true
+    },
+    "liveOwnedProcesses": [],
+    "protectedSHA256": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "passed": true
+  },
+  "productionSourceHashesStillMatchTestedCopy": true,
+  "candidateComponentSHA256": {
+    "Cider": "da2785e45812fd717cb5066ed3773d1c6507987ddd53dc67966beb31f2795d5a",
+    "ciderctl": "b1aadd38085f9518c10b5def753af6bcd1f031d1b236d5b60e27e31cbd832950",
+    "CiderXPCBridge": "487327c29aebff19103e5bf1ccf6bd9381217329d1c01b993d3d4a0d77f7a535"
+  },
+  "actualControllerSHA256": "dc6686d5f7261700287e1fb0c4d285eb84d1a31e8bf1c3018a1d02dd86e5e82c",
+  "controllerCleanupOnlyFixAfterRun": "Accept only -10814 plus independent successful exact-path absence read; no runtime cases repeated",
+  "windowsOperations": false,
+  "passed": true
+}

@@ -2,7 +2,7 @@ import Foundation
 import Darwin
 
 public enum RPCWire {
-    public static let version = 1
+    public static let version = 2
     public static let maxRequestBytes = 131_072
     public static let chunkBytes = 8_192
 
@@ -100,6 +100,7 @@ public struct RPCResponse: Codable, Sendable {
 }
 @objc public protocol RPCExecutionProtocol {
     func execute(_ request: Data, withReply reply: @escaping @Sendable (Data) -> Void)
+    func detach(_ requestID: String)
 }
 
 /// Resolve the existing ancestor with POSIX realpath, then append absent components.

@@ -8,9 +8,12 @@ private struct GUICommandExecutor: RPCCommandExecuting {
     let paths: CiderPaths
     let dataOverride: String?
     func execute(_ request: RPCRequest, output: @escaping @Sendable (String, Bool) -> Void) -> Int32 {
+        execute(request, observation: CommandObservation(), output: output)
+    }
+    func execute(_ request: RPCRequest, observation: CommandObservation, output: @escaping @Sendable (String, Bool) -> Void) -> Int32 {
         CiderCommandExecutor.execute(arguments: request.arguments,
             workingDirectory: URL(fileURLWithPath: request.workingDirectory, isDirectory: true),
-            paths: paths, dataOverride: dataOverride, output: output)
+            paths: paths, dataOverride: dataOverride, observation: observation, output: output)
     }
 }
 

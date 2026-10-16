@@ -67,14 +67,16 @@ public enum CiderCommandExecutor {
     /// The host must serialize conflicting operations just as it does for GUI actions.
     public static func execute(
         arguments: [String], workingDirectory: URL, paths: CiderPaths,
-        dataOverride: String? = nil, output: @escaping @Sendable (String, Bool) -> Void
+        dataOverride: String? = nil, observation: CommandObservation? = nil,
+        output: @escaping @Sendable (String, Bool) -> Void
     ) -> Int32 {
         let context = CommandExecutionContext(
-            workingDirectory: workingDirectory, paths: paths, dataOverride: dataOverride, output: output
+            workingDirectory: workingDirectory, paths: paths, dataOverride: dataOverride, observation: observation, output: output
         )
         return CiderDiagnostics.$warningSink.withValue({ output($0 + "\n", true) }) {
             CommandContext.$current.withValue(context) {
                 do {
+                    try observation?.check()
                     var command = try Ciderctl.parseAsRoot(arguments)
                     try command.run()
                     return 0
@@ -106,13 +108,15 @@ struct CommandExecutionContext: Sendable {
     let workingDirectory: URL
     let paths: CiderPaths
     let resources: CiderResources
+    let observation: CommandObservation?
     let output: @Sendable (String, Bool) -> Void
 
-    init(workingDirectory: URL, paths: CiderPaths, dataOverride: String? = nil,
+    init(workingDirectory: URL, paths: CiderPaths, dataOverride: String? = nil, observation: CommandObservation? = nil,
          output: @escaping @Sendable (String, Bool) -> Void) {
         self.workingDirectory = workingDirectory.standardizedFileURL
         self.paths = paths
         self.output = output
+        self.observation = observation
         self.resources = CiderResources(
             environment: dataOverride.map { ["CIDER_DATA": $0] } ?? [:],
             currentDirectory: workingDirectory.standardizedFileURL

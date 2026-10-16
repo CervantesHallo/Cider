@@ -1,8 +1,18 @@
+import CiderCore
 import Foundation
 
 public protocol RPCCommandExecuting: Sendable {
     /// Called off the main thread, in the GUI process. No process-wide cwd/environment changes.
     func execute(_ request: RPCRequest, output: @escaping @Sendable (String, Bool) -> Void) -> Int32
+    func execute(_ request: RPCRequest, observation: CommandObservation,
+                 output: @escaping @Sendable (String, Bool) -> Void) -> Int32
+}
+
+public extension RPCCommandExecuting {
+    func execute(_ request: RPCRequest, observation: CommandObservation,
+                 output: @escaping @Sendable (String, Bool) -> Void) -> Int32 {
+        execute(request, output: output)
+    }
 }
 
 public final class RPCGUIHost: NSObject, RPCExecutionProtocol, @unchecked Sendable {
@@ -17,8 +27,14 @@ public final class RPCGUIHost: NSObject, RPCExecutionProtocol, @unchecked Sendab
     private var stopped = false
     private var connecting = false
     private var recoveryScheduled = false
-    private var acknowledgements: [UUID: (ObjectIdentifier, RPCWaitBox<Bool>)] = [:]
+    private var acknowledgements: [UUID: (ObjectIdentifier, UUID, RPCWaitBox<Bool>)] = [:]
     private var admitted = Set<UUID>()
+    private struct Active {
+        let peer: ObjectIdentifier
+        let control: Bool
+        let observation: CommandObservation
+    }
+    private var active: [UUID: Active] = [:]
     public init(location: RPCLocation, identity: RPCIdentity, dataOverride: String?, executor: any RPCCommandExecuting) {
         self.location = location; self.identity = identity; self.dataOverride = dataOverride; self.executor = executor
         queue = OperationQueue(); queue.maxConcurrentOperationCount = 8; queue.qualityOfService = .userInitiated
@@ -62,7 +78,9 @@ public final class RPCGUIHost: NSObject, RPCExecutionProtocol, @unchecked Sendab
     }
     public func invalidate() {
         lock.lock(); stopped = true; let c = connection; connection = nil
-        let waiting = acknowledgements.values.map { $0.1 }; acknowledgements.removeAll(); lock.unlock()
+        let waiting = acknowledgements.values.map { $0.2 }; acknowledgements.removeAll()
+        let observing = active.values.map(\.observation); lock.unlock()
+        observing.forEach { $0.detach() }
         waiting.forEach { $0.succeed(false) }; c?.invalidate()
     }
     private func disconnected(_ c: NSXPCConnection) {
@@ -70,9 +88,11 @@ public final class RPCGUIHost: NSObject, RPCExecutionProtocol, @unchecked Sendab
         let owned = connection === c
         if owned { connection = nil }
         let keys = acknowledgements.filter { $0.value.0 == ObjectIdentifier(c) }.map(\.key)
-        let waiting = keys.compactMap { acknowledgements.removeValue(forKey: $0)?.1 }
+        let waiting = keys.compactMap { acknowledgements.removeValue(forKey: $0)?.2 }
+        let observing = active.values.filter { $0.peer == ObjectIdentifier(c) }.map(\.observation)
         let recover = owned && !stopped && !connecting
         lock.unlock()
+        observing.forEach { $0.detach() }
         waiting.forEach { $0.succeed(false) }
         if recover { reconnect(attempt: 0) }
     }
@@ -100,33 +120,58 @@ public final class RPCGUIHost: NSObject, RPCExecutionProtocol, @unchecked Sendab
             }
         } catch { reply(Data()); return }
         lock.lock()
-        guard !stopped, admitted.count < 65_536, admitted.insert(request.id).inserted else {
+        let control = request.arguments.first == "kill"
+        let count = active.values.filter { $0.control == control }.count
+        guard !stopped, let peer = connection, !admitted.contains(request.id), admitted.count < 65_536,
+              count < (control ? 2 : 8) else {
             lock.unlock()
-            var rejected = RPCResponse.rejected(request.id, "重复请求或本次会话的请求记录已满，未执行。")
+            var rejected = RPCResponse.rejected(request.id, "重复请求或GUI执行容量已满，未执行。")
             rejected.executorPID = getpid()
             reply((try? RPCWire.encode(rejected)) ?? Data()); return
         }
+        admitted.insert(request.id)
+        let observation = CommandObservation()
+        active[request.id] = Active(peer: ObjectIdentifier(peer), control: control, observation: observation)
         lock.unlock()
         let once = RPCOnce(reply)
         // Waiting for an entire bottle must not consume the workers needed by `kill`.
         let selectedQueue = request.arguments.first == "kill" ? controlQueue : queue
         selectedQueue.addOperation { [weak self] in
             guard let self else { once.finish(Data()); return }
+            defer { self.lock.lock(); self.active.removeValue(forKey: request.id); self.lock.unlock() }
             let output = HostOutput(id: request.id) { [weak self] event in self?.send(event) ?? false }
-            let code = self.executor.execute(request) { text, stderr in output.append(text, stderr: stderr) }
+            // This is observation cancellation, not Task cancellation: launched programs
+            // continue. Noncancellable mutations retain their live capacity until completion.
+            let code = self.executor.execute(request, observation: observation) { text, stderr in output.append(text, stderr: stderr) }
             let final = output.finish()
             var response = RPCResponse(id: request.id, state: "completed", exitCode: code,
                                        sequenceCount: final.count, executorPID: getpid())
             response.outputIncomplete = final.incomplete
+            // Make capacity available before a completed client can submit its next
+            // command. Keep the tombstone; only live work leaves this dictionary.
+            self.lock.lock(); self.active.removeValue(forKey: request.id); self.lock.unlock()
             once.finish((try? RPCWire.encode(response)) ?? Data())
         }
+    }
+    public func detach(_ requestID: String) {
+        guard let id = UUID(uuidString: requestID) else { return }
+        lock.lock()
+        // A disconnect notification can race ahead of the execute delivery. Keep the
+        // same bounded tombstone then, so delayed delivery cannot start abandoned work.
+        if !admitted.contains(id), admitted.count < 65_536 { admitted.insert(id) }
+        let observation = active[id]?.observation
+        let keys = acknowledgements.filter { $0.value.1 == id }.map(\.key)
+        let waiting = keys.compactMap { acknowledgements.removeValue(forKey: $0)?.2 }
+        lock.unlock()
+        observation?.detach(); waiting.forEach { $0.succeed(false) }
     }
     private func send(_ event: RPCEvent) -> Bool {
         guard let bytes = try? RPCWire.encode(event) else { return false }
         let ack = RPCWaitBox<Bool>(), key = UUID()
         lock.lock()
-        guard let c = connection else { lock.unlock(); return false }
-        acknowledgements[key] = (ObjectIdentifier(c), ack); lock.unlock()
+        guard let c = connection, let operation = active[event.id],
+              operation.peer == ObjectIdentifier(c), !operation.observation.isDetached else { lock.unlock(); return false }
+        acknowledgements[key] = (ObjectIdentifier(c), event.id, ack); lock.unlock()
         defer { lock.lock(); acknowledgements.removeValue(forKey: key); lock.unlock() }
         let proxy = c.remoteObjectProxyWithErrorHandler { ack.fail($0) }
         guard let registrar = proxy as? RPCRegistrationProtocol else { return false }

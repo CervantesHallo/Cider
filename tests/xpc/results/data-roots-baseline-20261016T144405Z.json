@@ -1,0 +1,411 @@
+{
+  "kind": "real-packaged-cli-two-data-roots",
+  "phase": "baseline",
+  "createdUTC": "20261016T144405Z",
+  "cases": [
+    {
+      "name": "root_A.concurrent_cold_4",
+      "seconds": 2.4316021670000003,
+      "cliResults": [
+        {
+          "pid": 32030,
+          "exitCode": 0,
+          "stdout": "no engines installed\n",
+          "stderr": ""
+        },
+        {
+          "pid": 32031,
+          "exitCode": 0,
+          "stdout": "no engines installed\n",
+          "stderr": ""
+        },
+        {
+          "pid": 32032,
+          "exitCode": 0,
+          "stdout": "no engines installed\n",
+          "stderr": ""
+        },
+        {
+          "pid": 32033,
+          "exitCode": 0,
+          "stdout": "no engines installed\n",
+          "stderr": ""
+        }
+      ],
+      "receipts": [
+        {
+          "appSupport": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A/AppSupport",
+          "arguments": [
+            "engine",
+            "list"
+          ],
+          "executorPID": 32055,
+          "requestID": "17246D9D-384E-4CB9-A1DD-C501B672F1A1",
+          "workingDirectory": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk"
+        },
+        {
+          "appSupport": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A/AppSupport",
+          "arguments": [
+            "engine",
+            "list"
+          ],
+          "executorPID": 32055,
+          "requestID": "24F5E8B7-BA1C-4CBC-A658-11EAED22A0C6",
+          "workingDirectory": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk"
+        },
+        {
+          "appSupport": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A/AppSupport",
+          "arguments": [
+            "engine",
+            "list"
+          ],
+          "executorPID": 32055,
+          "requestID": "C27CC4A2-93E3-403E-BEDA-BB2D77E8DDDB",
+          "workingDirectory": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk"
+        },
+        {
+          "appSupport": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A/AppSupport",
+          "arguments": [
+            "engine",
+            "list"
+          ],
+          "executorPID": 32055,
+          "requestID": "4C02E82B-DD89-49A9-9D7F-FB9EBEE90742",
+          "workingDirectory": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk"
+        }
+      ],
+      "hostPIDs": [
+        32055
+      ],
+      "brokerPIDs": [
+        32051
+      ],
+      "passed": true
+    },
+    {
+      "name": "root_B.concurrent_cold_4_while_A_runs",
+      "seconds": 15.944459958000001,
+      "cliResults": [
+        {
+          "pid": 32079,
+          "exitCode": 75,
+          "stdout": "",
+          "stderr": "Cider未连接到当前资料目录。请核对已运行的Cider实例；命令未提交。\n"
+        },
+        {
+          "pid": 32080,
+          "exitCode": 75,
+          "stdout": "",
+          "stderr": "Cider未连接到当前资料目录。请核对已运行的Cider实例；命令未提交。\n"
+        },
+        {
+          "pid": 32081,
+          "exitCode": 75,
+          "stdout": "",
+          "stderr": "Cider未连接到当前资料目录。请核对已运行的Cider实例；命令未提交。\n"
+        },
+        {
+          "pid": 32082,
+          "exitCode": 75,
+          "stdout": "",
+          "stderr": "Cider未连接到当前资料目录。请核对已运行的Cider实例；命令未提交。\n"
+        }
+      ],
+      "receipts": [],
+      "hostPIDs": [],
+      "brokerPIDs": [
+        32100
+      ],
+      "passed": false
+    },
+    {
+      "name": "root_A.warm_after_B",
+      "seconds": 0.32176354099999926,
+      "cliResults": [
+        {
+          "pid": 32453,
+          "exitCode": 0,
+          "stdout": "no engines installed\n",
+          "stderr": ""
+        }
+      ],
+      "receipts": [
+        {
+          "appSupport": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A/AppSupport",
+          "arguments": [
+            "engine",
+            "list"
+          ],
+          "executorPID": 32055,
+          "requestID": "17246D9D-384E-4CB9-A1DD-C501B672F1A1",
+          "workingDirectory": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk"
+        },
+        {
+          "appSupport": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A/AppSupport",
+          "arguments": [
+            "engine",
+            "list"
+          ],
+          "executorPID": 32055,
+          "requestID": "24F5E8B7-BA1C-4CBC-A658-11EAED22A0C6",
+          "workingDirectory": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk"
+        },
+        {
+          "appSupport": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A/AppSupport",
+          "arguments": [
+            "engine",
+            "list"
+          ],
+          "executorPID": 32055,
+          "requestID": "C27CC4A2-93E3-403E-BEDA-BB2D77E8DDDB",
+          "workingDirectory": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk"
+        },
+        {
+          "appSupport": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A/AppSupport",
+          "arguments": [
+            "engine",
+            "list"
+          ],
+          "executorPID": 32055,
+          "requestID": "4C02E82B-DD89-49A9-9D7F-FB9EBEE90742",
+          "workingDirectory": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk"
+        },
+        {
+          "appSupport": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A/AppSupport",
+          "arguments": [
+            "engine",
+            "list"
+          ],
+          "executorPID": 32055,
+          "requestID": "44FAFEC5-2A19-4E36-BD49-DBCBDA3F8432",
+          "workingDirectory": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk"
+        }
+      ],
+      "hostPIDs": [
+        32055
+      ],
+      "brokerPIDs": [
+        32051
+      ],
+      "passed": true
+    }
+  ],
+  "productGUIOrWineSessions": 0,
+  "unitTestsIncluded": 0,
+  "bundle": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app",
+  "bundleIdentifier": "org.cider.datarootsfixture.67a279ef4f514c28b3914c911d54a5fd",
+  "roots": {
+    "A": {
+      "bundle": "/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app",
+      "canonicalBundle": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app",
+      "home": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A",
+      "label": "org.cider.ipc.b2a764acde0ed5a79a7a1705",
+      "root": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-A/AppSupport"
+    },
+    "B": {
+      "bundle": "/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app",
+      "canonicalBundle": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app",
+      "home": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-B",
+      "label": "org.cider.ipc.6de85d61f931c2eabc059e52",
+      "root": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/marked-root-B/AppSupport"
+    }
+  },
+  "fixtureSourceRevision": "731267a",
+  "productionBuildPerformed": false,
+  "sourceHashes": {
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore+Archive.swift": "c31383a7376da1e30fd44890e8cded4c526b6546bbd37483ab30672d780faf6c",
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore+Management.swift": "5774d5a1f71b5681f7d8e7b2ce72b1eb6b4fa1313bcb99a479ecc6a3ca77ce9c",
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore.swift": "0af445ed14fa04a54ee703871b7861e6562abe94b94d395bc7591d485523a909",
+    "Packages/CiderKit/Sources/CiderBottle/CloneStartup.swift": "8a9b2568db48fcda96c085ff7110ba4aaed4134c56666fd814bf38214dc2b4cc",
+    "Packages/CiderKit/Sources/CiderBottle/Diagnostics.swift": "97cfa36470d637f386a3500270891e0715235813ca70f6f6a0720f42c09e2714",
+    "Packages/CiderKit/Sources/CiderBottle/PrefixSetup.swift": "b1a21a473e12a2a0ca2c795e491e320bf1113f864366504765011ef2037e3805",
+    "Packages/CiderKit/Sources/CiderCore/CiderDiagnostics.swift": "52abc5116a5281acee60203f3e0840fee92cc412610e91d5b80dfab4f494dbb8",
+    "Packages/CiderKit/Sources/CiderCore/CiderError.swift": "ec8511d37248dee66fdc07048b86754780e4db108c0c7bb3263c6372fa22940f",
+    "Packages/CiderKit/Sources/CiderCore/CiderPaths.swift": "8c957a7a4ab83497bd87b564f6f31b92ff2fd6d88773e7be92eb44a3d444adba",
+    "Packages/CiderKit/Sources/CiderCore/CiderResources.swift": "fa5d2e25080838a8baabe6b7ca2fbaa67782d0c4319851a2a93c032eb7711726",
+    "Packages/CiderKit/Sources/CiderCore/CommandObservation.swift": "b30c7468408b842b58180d06b51452f6af86a540aebe918bd8d920cfc3fdf853",
+    "Packages/CiderKit/Sources/CiderCore/FileSafety.swift": "832908c9b93e515d7ab33ac72a48467138eb44ae9f270fc286a1215e48d59fdf",
+    "Packages/CiderKit/Sources/CiderCore/Identifiers.swift": "397e4aa7cf8a8e80b054d6aae2c763ea3415c30f244c86f559c828476647f1fd",
+    "Packages/CiderKit/Sources/CiderCore/JSONFile.swift": "2b48d467aca85ae475b3f969dc39aeb790980b3e23177afdaa902f422820b502",
+    "Packages/CiderKit/Sources/CiderCore/PatchState.swift": "f63100150cf3c0d2b8f334a8833cda7a7bd3ff9ae3c76aac27dc5c71b8ac56f4",
+    "Packages/CiderKit/Sources/CiderCore/PrefixServer.swift": "ba4b95e81aa53cf0dbe1226e194327143a383334b5c08071bf43abccbec1cdb7",
+    "Packages/CiderKit/Sources/CiderCore/WindowsArgumentParser.swift": "85c6d864f0e3ce156a3461faa86c44ad1fdd678f54c3b211bedc360fc67d1907",
+    "Packages/CiderKit/Sources/CiderCore/WindowsExitStatus.swift": "3b9d1e0f311d932b04ed789bb417d34a0a91e87fe83796377d8b96130ca850fb",
+    "Packages/CiderKit/Sources/CiderCore/WinePathMapping.swift": "10734bd49e5ae7c25962aa6fc903fc3497c254d507aa947be329aed5e8a94d4b",
+    "Packages/CiderKit/Sources/CiderData/CompatDB.swift": "a83e47bc0306c38534f6aa60fedd8b90e61fef04b3990b35609d8ea8b68fb9bb",
+    "Packages/CiderKit/Sources/CiderData/KernelFidelity.swift": "54968e725d74d8b0c8c2e2fc7c8859c56035f72edfab8e85d7d421c024348a9c",
+    "Packages/CiderKit/Sources/CiderData/Preflight.swift": "635f7ebcb9d16254d51295cf8903949af117f1e1eefe5399abc05bb6d7ab3e0b",
+    "Packages/CiderKit/Sources/CiderData/Recipe.swift": "808d11bc6cbd5fbca7fb0cce2f5f0e164ed381b8068ad0c29b3cb17aae1608c8",
+    "Packages/CiderKit/Sources/CiderIPC/Broker.swift": "84e71bb7bbf1107acf1793bb004d4e9920ae04e37eace5c063e2f476199029b8",
+    "Packages/CiderKit/Sources/CiderIPC/BundleLocation.swift": "ad6530b7e6de3083401fc8cfd759f277be434224329d031ffc723803b2760877",
+    "Packages/CiderKit/Sources/CiderIPC/Client.swift": "32eb89eb6839ced97426ada1ae1991924ab1c5d9434663d6d20c6b183de278cb",
+    "Packages/CiderKit/Sources/CiderIPC/Host.swift": "5ac09d39903537cafbccf69080c8708d5866fd5f883f99e4c90cd424e9bb6987",
+    "Packages/CiderKit/Sources/CiderIPC/Identity.swift": "ede0f0435f2d57936701a4b6026d718aafe7b89f35b5ce62c6c51cd059ab5811",
+    "Packages/CiderKit/Sources/CiderIPC/Location.swift": "558418dbef775b2443638f7c78e28586efa2c0734218d59d65f44c065baf0134",
+    "Packages/CiderKit/Sources/CiderIPC/Wire.swift": "f409dea94552a5dbbe71450f458c78f53b1203330c3e073a56be0678f4141bc7",
+    "Packages/CiderKit/Sources/CiderIntegration/AppCatalog.swift": "14fda8be25895bbc16514d7b2c36397c17ab3e135e20f1c3a0384e28b76704fb",
+    "Packages/CiderKit/Sources/CiderIntegration/AppLifecycle.swift": "43975bdf671f9bc1e25cc3691864a0b8c6307fd9616f9751f1ae54cc101a955f",
+    "Packages/CiderKit/Sources/CiderIntegration/PatchInstaller.swift": "9ca6d1a1b1faa9d7b3cd17b7b437572bc8c9e6864ff2c6b8d6c8ec40139d58b9",
+    "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift": "8b8c1c0e74d4bf9a36e5419c2a82b2dbda002493e9f9b917fd46b571d9907211",
+    "Packages/CiderKit/Sources/CiderIntegration/SteamLibrary.swift": "d21a9748e3bc655781000f4624e149b17db0ec53a2646776f6356a6028e9b1e1",
+    "Packages/CiderKit/Sources/CiderIntegration/VDF.swift": "18b371767e86d2cefa2ea37ad75e4ac2430cd3bb993947543b5fe410697ccb75",
+    "Packages/CiderKit/Sources/CiderPE/IconCache.swift": "132696a171e03b0b36ef916daf8822cf293a163243c00323a0d73f0177d5209a",
+    "Packages/CiderKit/Sources/CiderPE/PEHeader.swift": "65c01f9239f757337b6089355913bab8ba7060f817c11306ddbcf73b411579e2",
+    "Packages/CiderKit/Sources/CiderPE/PEIcon.swift": "d14e9e27dc7251161d02b36ff7d16e2eaf111fcd56255e613e5596f87baf7a47",
+    "Packages/CiderKit/Sources/CiderPE/PEVersionInfo.swift": "bbcdcd9e85702905a36d375f017c26907fefc8a7d3d991ca61cd950bd987969d",
+    "Packages/CiderKit/Sources/CiderPE/ShellLink.swift": "a683daed57febe299eb489d0d21005a3160345de07692b4f2e9468333825d25f",
+    "Packages/CiderKit/Sources/CiderRuntime/BottleActivity.swift": "0feee95d18796eb1d4a6b8c77b3ed06130b6110080387e51d5631047be36c039",
+    "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift": "52afd0f42af1d179881f78c270fa378e19aaaf0ca38e3f92d2f555e60016d216",
+    "Packages/CiderKit/Sources/CiderRuntime/Spawn.swift": "46120636ee3e5054aaf7c1f4bb622c62d78e179c406963b9a5e5dc826b0d2819",
+    "Packages/CiderKit/Sources/CiderRuntime/WineRunner+ExitStatus.swift": "d30edfc59bd517a4a986f3c0ca382a5d9fee9356a1bdeb46a55d6429792d6558",
+    "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift": "fb295a4c9d3357b9cd9deb10060d9716e7f1394b8cb3643e5b5b51e6ba502ec8",
+    "Packages/CiderKit/Sources/CiderSchema/BottleConfig.swift": "74ab082c5d53a8d345c48b1b6b96cc1200c177246b2bd85f6df8cc2030100f25",
+    "Packages/CiderKit/Sources/CiderSchema/BottleLocale.swift": "0bf6ad0e04604c72cdde5626aa8c6c4ef279928160d654cd6adef3fd886f1183",
+    "Packages/CiderKit/Sources/CiderSchema/EngineManifest.swift": "ff81b644b43daa299b0c17609d4080fad49d5d79dd68ef1c83d7681d573de145",
+    "Packages/CiderKit/Sources/CiderStore/ArchiveExtractor.swift": "bb16f504d30c5dbeef15121d99f5c458797a00e16059547ded6d23135838cd2e",
+    "Packages/CiderKit/Sources/CiderStore/Command.swift": "735f1316c0ef34e7401e772c11fb436a1525b93a02b5d316c300db22a4efa980",
+    "Packages/CiderKit/Sources/CiderStore/D3DMetalImporter.swift": "16ed7857dd3931bfaba7d3d90ac30df4cd2614d7d50b38f86b1022999956229b",
+    "Packages/CiderKit/Sources/CiderStore/EngineHost.swift": "8d8e263cea413eeda345bedda54d11eabccd7b17c19f47c43a60635bd5682df6",
+    "Packages/CiderKit/Sources/CiderStore/EngineIndex.swift": "7ff30f5ba74e064f773f90398d207f4a73359d11f1b8dbdb9e99da4fb8782ff2",
+    "Packages/CiderKit/Sources/CiderStore/EnginePolicy.swift": "529f418f2cb9d80c0cda8d304fdfc5d91bab60b90ca8f5852e8568b6a3726d8d",
+    "Packages/CiderKit/Sources/CiderStore/EngineStore.swift": "c35c0d3f4611a9fa2954bd89a0ebe4ed59971670c5c5f1e5693f794dc54d59b4",
+    "Tools/CiderCommands/Sources/CiderCommands/CiderCommandExecutor.swift": "fe02c91076389e6d88e76840ae088082f7fb4ce57acc82fa22383a3b386b22f2",
+    "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "306e4a3b35298b3b2702bf024032d2c98a7fd2279569157b558fb75322d72c03",
+    "tests/xpc/Fixture/Sources/FixtureAppHost/AppHost.swift": "bca76d5248e5c97023c93c0e500bb66721f1bfdb406eb06e68c026673e6b0035",
+    "tests/xpc/Fixture/Sources/FixtureBroker/Broker.swift": "03bfd001195cce297dffc2146240d793005f910fbffcd70bfa5fd320b508321b",
+    "tests/xpc/Fixture/Sources/FixtureClient/Client.swift": "3b89795ef79cbc3ed886e06f55b0448089043714a788f3813c12a1860f52509a",
+    "tests/xpc/Fixture/Sources/FixtureHost/Host.swift": "a24c31889b8f8dfd76e2b842295c9b283e76f31f75a38515d611958a631fcfdd",
+    "tests/xpc/Fixture/Sources/FixtureSupport/FixtureSupport.swift": "8010dcd7d2a03f4884eda75542b0140326adbb3c11aa48a36eae6b8bd4fdb2a9",
+    "Tools/ciderctl/Sources/ciderctl/ciderctl.swift": "3d8ff9208d94c9801d6ff4b3f57b8bacf052f94b7bfffd8add19541ef097eeec",
+    "Tools/ciderctl/Package.swift": "084121005661b78aa0aa82f930f732bb15a0122678432b292ad7e5c180871ed5",
+    "App/Sources/Cider/CommandHost.swift": "89a0ead9aff43bb410069767b7c33cb364f706974005415af1cd998fa9f3ddcd",
+    "tests/xpc/run_data_roots.py": "1987ab81c231c35a364e27ecee9a03d96da948edea923deca108ad0232c1696f"
+  },
+  "fixtureBuild": {
+    "performed": false,
+    "cachedFixtureHost": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-r7p9wpim/fixture-build/out/Products/Debug/FixtureAppHost"
+  },
+  "fixtureHostSHA256BeforeSigning": "936a374698760ce1642530f6e08477b601e37d9bd65b11cd75c30b414a0b57b5",
+  "productionBinaryCopies": {
+    "ciderctl": {
+      "source": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app/Contents/MacOS/ciderctl",
+      "originalSHA256": "5fe482b7a7a6d55a5bea7b8b3292bc949ac737ee1ae210b3836c309e805a122d",
+      "copiedBytesMatchBeforeFixtureSigning": true
+    },
+    "CiderXPCBridge": {
+      "source": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app/Contents/MacOS/CiderXPCBridge",
+      "originalSHA256": "fd7d251320fb76d897396bd5bde2fe5e85019f6010fe72118c2e5556abdc05fc",
+      "copiedBytesMatchBeforeFixtureSigning": true
+    }
+  },
+  "signatures": {
+    "host": "# designated => cdhash H\"14820cb7c63714388143eee88fc28f869e28d07e\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/Cider\nIdentifier=org.cider.datarootsfixture.67a279ef4f514c28b3914c911d54a5fd\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=15324 flags=0x10002(adhoc,runtime) hashes=471+3 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=14820cb7c63714388143eee88fc28f869e28d07e\nCandidateCDHashFull sha256=14820cb7c63714388143eee88fc28f869e28d07e78812c843783fc61994f9037\nHash choices=sha256\nCMSDigest=14820cb7c63714388143eee88fc28f869e28d07e78812c843783fc61994f9037\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3620864\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=14820cb7c63714388143eee88fc28f869e28d07e\nSignature=adhoc\nInfo.plist entries=7\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources version=2 rules=13 files=2\n",
+    "client": "# designated => cdhash H\"df986ac70fc38ee62d876596d6d31d54302eb9c2\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/ciderctl\nIdentifier=org.cider.datarootsfixture.67a279ef4f514c28b3914c911d54a5fd.ciderctl\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=10309 flags=0x10002(adhoc,runtime) hashes=315+2 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=df986ac70fc38ee62d876596d6d31d54302eb9c2\nCandidateCDHashFull sha256=df986ac70fc38ee62d876596d6d31d54302eb9c2bed11ecc7e1ceb8aaea7869a\nHash choices=sha256\nCMSDigest=df986ac70fc38ee62d876596d6d31d54302eb9c2bed11ecc7e1ceb8aaea7869a\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=2113536\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=df986ac70fc38ee62d876596d6d31d54302eb9c2\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources=none\n",
+    "broker": "# designated => cdhash H\"ec4bcced36d1a60ac97d945e6c244c944154e981\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/CiderXPCBridge\nIdentifier=org.cider.datarootsfixture.67a279ef4f514c28b3914c911d54a5fd.CiderXPCBridge\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=1515 flags=0x10002(adhoc,runtime) hashes=40+2 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=ec4bcced36d1a60ac97d945e6c244c944154e981\nCandidateCDHashFull sha256=ec4bcced36d1a60ac97d945e6c244c944154e981fe876fd7a0bdae763d33d178\nHash choices=sha256\nCMSDigest=ec4bcced36d1a60ac97d945e6c244c944154e981fe876fd7a0bdae763d33d178\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=262144\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=ec4bcced36d1a60ac97d945e6c244c944154e981\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources=none\n"
+  },
+  "baselineFailureConfirmed": true,
+  "singleHostPerRootVerified": true,
+  "launchServicesCleanup": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": "",
+    "privateBundleAndIdentifierAbsentFromDump": true
+  },
+  "cleanup": {
+    "passed": true,
+    "jobsAbsent": {
+      "A": true,
+      "B": true
+    },
+    "observedOwnedPIDs": {
+      "32030": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/ciderctl",
+      "32031": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/ciderctl",
+      "32032": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/ciderctl",
+      "32033": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/ciderctl",
+      "32051": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/CiderXPCBridge",
+      "32055": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/Cider",
+      "32079": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/ciderctl",
+      "32080": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/ciderctl",
+      "32081": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/ciderctl",
+      "32082": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/ciderctl",
+      "32100": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/CiderXPCBridge",
+      "32453": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-ts92bztk/ReadonlyDataRoots.app/Contents/MacOS/ciderctl"
+    },
+    "liveOwnedPIDs": {},
+    "errors": []
+  },
+  "nativeCasesExecuted": 3,
+  "sourceHashesAfterRun": {
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore+Archive.swift": "c31383a7376da1e30fd44890e8cded4c526b6546bbd37483ab30672d780faf6c",
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore+Management.swift": "5774d5a1f71b5681f7d8e7b2ce72b1eb6b4fa1313bcb99a479ecc6a3ca77ce9c",
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore.swift": "0af445ed14fa04a54ee703871b7861e6562abe94b94d395bc7591d485523a909",
+    "Packages/CiderKit/Sources/CiderBottle/CloneStartup.swift": "8a9b2568db48fcda96c085ff7110ba4aaed4134c56666fd814bf38214dc2b4cc",
+    "Packages/CiderKit/Sources/CiderBottle/Diagnostics.swift": "97cfa36470d637f386a3500270891e0715235813ca70f6f6a0720f42c09e2714",
+    "Packages/CiderKit/Sources/CiderBottle/PrefixSetup.swift": "b1a21a473e12a2a0ca2c795e491e320bf1113f864366504765011ef2037e3805",
+    "Packages/CiderKit/Sources/CiderCore/CiderDiagnostics.swift": "52abc5116a5281acee60203f3e0840fee92cc412610e91d5b80dfab4f494dbb8",
+    "Packages/CiderKit/Sources/CiderCore/CiderError.swift": "ec8511d37248dee66fdc07048b86754780e4db108c0c7bb3263c6372fa22940f",
+    "Packages/CiderKit/Sources/CiderCore/CiderPaths.swift": "8c957a7a4ab83497bd87b564f6f31b92ff2fd6d88773e7be92eb44a3d444adba",
+    "Packages/CiderKit/Sources/CiderCore/CiderResources.swift": "fa5d2e25080838a8baabe6b7ca2fbaa67782d0c4319851a2a93c032eb7711726",
+    "Packages/CiderKit/Sources/CiderCore/CommandObservation.swift": "b30c7468408b842b58180d06b51452f6af86a540aebe918bd8d920cfc3fdf853",
+    "Packages/CiderKit/Sources/CiderCore/FileSafety.swift": "832908c9b93e515d7ab33ac72a48467138eb44ae9f270fc286a1215e48d59fdf",
+    "Packages/CiderKit/Sources/CiderCore/Identifiers.swift": "397e4aa7cf8a8e80b054d6aae2c763ea3415c30f244c86f559c828476647f1fd",
+    "Packages/CiderKit/Sources/CiderCore/JSONFile.swift": "2b48d467aca85ae475b3f969dc39aeb790980b3e23177afdaa902f422820b502",
+    "Packages/CiderKit/Sources/CiderCore/PatchState.swift": "f63100150cf3c0d2b8f334a8833cda7a7bd3ff9ae3c76aac27dc5c71b8ac56f4",
+    "Packages/CiderKit/Sources/CiderCore/PrefixServer.swift": "ba4b95e81aa53cf0dbe1226e194327143a383334b5c08071bf43abccbec1cdb7",
+    "Packages/CiderKit/Sources/CiderCore/WindowsArgumentParser.swift": "85c6d864f0e3ce156a3461faa86c44ad1fdd678f54c3b211bedc360fc67d1907",
+    "Packages/CiderKit/Sources/CiderCore/WindowsExitStatus.swift": "3b9d1e0f311d932b04ed789bb417d34a0a91e87fe83796377d8b96130ca850fb",
+    "Packages/CiderKit/Sources/CiderCore/WinePathMapping.swift": "10734bd49e5ae7c25962aa6fc903fc3497c254d507aa947be329aed5e8a94d4b",
+    "Packages/CiderKit/Sources/CiderData/CompatDB.swift": "a83e47bc0306c38534f6aa60fedd8b90e61fef04b3990b35609d8ea8b68fb9bb",
+    "Packages/CiderKit/Sources/CiderData/KernelFidelity.swift": "54968e725d74d8b0c8c2e2fc7c8859c56035f72edfab8e85d7d421c024348a9c",
+    "Packages/CiderKit/Sources/CiderData/Preflight.swift": "635f7ebcb9d16254d51295cf8903949af117f1e1eefe5399abc05bb6d7ab3e0b",
+    "Packages/CiderKit/Sources/CiderData/Recipe.swift": "808d11bc6cbd5fbca7fb0cce2f5f0e164ed381b8068ad0c29b3cb17aae1608c8",
+    "Packages/CiderKit/Sources/CiderIPC/Broker.swift": "84e71bb7bbf1107acf1793bb004d4e9920ae04e37eace5c063e2f476199029b8",
+    "Packages/CiderKit/Sources/CiderIPC/BundleLocation.swift": "ad6530b7e6de3083401fc8cfd759f277be434224329d031ffc723803b2760877",
+    "Packages/CiderKit/Sources/CiderIPC/Client.swift": "32eb89eb6839ced97426ada1ae1991924ab1c5d9434663d6d20c6b183de278cb",
+    "Packages/CiderKit/Sources/CiderIPC/Host.swift": "5ac09d39903537cafbccf69080c8708d5866fd5f883f99e4c90cd424e9bb6987",
+    "Packages/CiderKit/Sources/CiderIPC/Identity.swift": "ede0f0435f2d57936701a4b6026d718aafe7b89f35b5ce62c6c51cd059ab5811",
+    "Packages/CiderKit/Sources/CiderIPC/Location.swift": "558418dbef775b2443638f7c78e28586efa2c0734218d59d65f44c065baf0134",
+    "Packages/CiderKit/Sources/CiderIPC/Wire.swift": "f409dea94552a5dbbe71450f458c78f53b1203330c3e073a56be0678f4141bc7",
+    "Packages/CiderKit/Sources/CiderIntegration/AppCatalog.swift": "14fda8be25895bbc16514d7b2c36397c17ab3e135e20f1c3a0384e28b76704fb",
+    "Packages/CiderKit/Sources/CiderIntegration/AppLifecycle.swift": "43975bdf671f9bc1e25cc3691864a0b8c6307fd9616f9751f1ae54cc101a955f",
+    "Packages/CiderKit/Sources/CiderIntegration/PatchInstaller.swift": "9ca6d1a1b1faa9d7b3cd17b7b437572bc8c9e6864ff2c6b8d6c8ec40139d58b9",
+    "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift": "8b8c1c0e74d4bf9a36e5419c2a82b2dbda002493e9f9b917fd46b571d9907211",
+    "Packages/CiderKit/Sources/CiderIntegration/SteamLibrary.swift": "d21a9748e3bc655781000f4624e149b17db0ec53a2646776f6356a6028e9b1e1",
+    "Packages/CiderKit/Sources/CiderIntegration/VDF.swift": "18b371767e86d2cefa2ea37ad75e4ac2430cd3bb993947543b5fe410697ccb75",
+    "Packages/CiderKit/Sources/CiderPE/IconCache.swift": "132696a171e03b0b36ef916daf8822cf293a163243c00323a0d73f0177d5209a",
+    "Packages/CiderKit/Sources/CiderPE/PEHeader.swift": "65c01f9239f757337b6089355913bab8ba7060f817c11306ddbcf73b411579e2",
+    "Packages/CiderKit/Sources/CiderPE/PEIcon.swift": "d14e9e27dc7251161d02b36ff7d16e2eaf111fcd56255e613e5596f87baf7a47",
+    "Packages/CiderKit/Sources/CiderPE/PEVersionInfo.swift": "bbcdcd9e85702905a36d375f017c26907fefc8a7d3d991ca61cd950bd987969d",
+    "Packages/CiderKit/Sources/CiderPE/ShellLink.swift": "a683daed57febe299eb489d0d21005a3160345de07692b4f2e9468333825d25f",
+    "Packages/CiderKit/Sources/CiderRuntime/BottleActivity.swift": "0feee95d18796eb1d4a6b8c77b3ed06130b6110080387e51d5631047be36c039",
+    "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift": "52afd0f42af1d179881f78c270fa378e19aaaf0ca38e3f92d2f555e60016d216",
+    "Packages/CiderKit/Sources/CiderRuntime/Spawn.swift": "46120636ee3e5054aaf7c1f4bb622c62d78e179c406963b9a5e5dc826b0d2819",
+    "Packages/CiderKit/Sources/CiderRuntime/WineRunner+ExitStatus.swift": "d30edfc59bd517a4a986f3c0ca382a5d9fee9356a1bdeb46a55d6429792d6558",
+    "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift": "fb295a4c9d3357b9cd9deb10060d9716e7f1394b8cb3643e5b5b51e6ba502ec8",
+    "Packages/CiderKit/Sources/CiderSchema/BottleConfig.swift": "74ab082c5d53a8d345c48b1b6b96cc1200c177246b2bd85f6df8cc2030100f25",
+    "Packages/CiderKit/Sources/CiderSchema/BottleLocale.swift": "0bf6ad0e04604c72cdde5626aa8c6c4ef279928160d654cd6adef3fd886f1183",
+    "Packages/CiderKit/Sources/CiderSchema/EngineManifest.swift": "ff81b644b43daa299b0c17609d4080fad49d5d79dd68ef1c83d7681d573de145",
+    "Packages/CiderKit/Sources/CiderStore/ArchiveExtractor.swift": "bb16f504d30c5dbeef15121d99f5c458797a00e16059547ded6d23135838cd2e",
+    "Packages/CiderKit/Sources/CiderStore/Command.swift": "735f1316c0ef34e7401e772c11fb436a1525b93a02b5d316c300db22a4efa980",
+    "Packages/CiderKit/Sources/CiderStore/D3DMetalImporter.swift": "16ed7857dd3931bfaba7d3d90ac30df4cd2614d7d50b38f86b1022999956229b",
+    "Packages/CiderKit/Sources/CiderStore/EngineHost.swift": "8d8e263cea413eeda345bedda54d11eabccd7b17c19f47c43a60635bd5682df6",
+    "Packages/CiderKit/Sources/CiderStore/EngineIndex.swift": "7ff30f5ba74e064f773f90398d207f4a73359d11f1b8dbdb9e99da4fb8782ff2",
+    "Packages/CiderKit/Sources/CiderStore/EnginePolicy.swift": "529f418f2cb9d80c0cda8d304fdfc5d91bab60b90ca8f5852e8568b6a3726d8d",
+    "Packages/CiderKit/Sources/CiderStore/EngineStore.swift": "c35c0d3f4611a9fa2954bd89a0ebe4ed59971670c5c5f1e5693f794dc54d59b4",
+    "Tools/CiderCommands/Sources/CiderCommands/CiderCommandExecutor.swift": "fe02c91076389e6d88e76840ae088082f7fb4ce57acc82fa22383a3b386b22f2",
+    "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "306e4a3b35298b3b2702bf024032d2c98a7fd2279569157b558fb75322d72c03",
+    "tests/xpc/Fixture/Sources/FixtureAppHost/AppHost.swift": "bca76d5248e5c97023c93c0e500bb66721f1bfdb406eb06e68c026673e6b0035",
+    "tests/xpc/Fixture/Sources/FixtureBroker/Broker.swift": "03bfd001195cce297dffc2146240d793005f910fbffcd70bfa5fd320b508321b",
+    "tests/xpc/Fixture/Sources/FixtureClient/Client.swift": "3b89795ef79cbc3ed886e06f55b0448089043714a788f3813c12a1860f52509a",
+    "tests/xpc/Fixture/Sources/FixtureHost/Host.swift": "a24c31889b8f8dfd76e2b842295c9b283e76f31f75a38515d611958a631fcfdd",
+    "tests/xpc/Fixture/Sources/FixtureSupport/FixtureSupport.swift": "8010dcd7d2a03f4884eda75542b0140326adbb3c11aa48a36eae6b8bd4fdb2a9",
+    "Tools/ciderctl/Sources/ciderctl/ciderctl.swift": "3d8ff9208d94c9801d6ff4b3f57b8bacf052f94b7bfffd8add19541ef097eeec",
+    "Tools/ciderctl/Package.swift": "084121005661b78aa0aa82f930f732bb15a0122678432b292ad7e5c180871ed5",
+    "App/Sources/Cider/CommandHost.swift": "89a0ead9aff43bb410069767b7c33cb364f706974005415af1cd998fa9f3ddcd",
+    "tests/xpc/run_data_roots.py": "1987ab81c231c35a364e27ecee9a03d96da948edea923deca108ad0232c1696f"
+  },
+  "sourceChangedDuringRun": false,
+  "nativeCasesPassed": 2,
+  "passed": false,
+  "baselineReproducedAndCleaned": true
+}

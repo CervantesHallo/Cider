@@ -117,8 +117,9 @@ private final class BrokerState: @unchecked Sendable {
         }
         let control = request.arguments.first == "kill"
         let ordinaryCount = active.values.filter { !$0.control }.count
+        let controlCount = active.count - ordinaryCount
         guard active[request.id] == nil, !seen.contains(request.id), seen.count < 65_536,
-              control ? active.count < 10 : ordinaryCount < 8 else {
+              control ? controlCount < 2 : ordinaryCount < 8 else {
             lock.unlock(); reply(encode(.rejected(request.id, "请求已提交或执行队列已满，未重复执行。"))); return
         }
         seen.insert(request.id)
@@ -193,9 +194,17 @@ private final class BrokerState: @unchecked Sendable {
         lock.lock(); connections.removeValue(forKey: ObjectIdentifier(c)); roles.removeValue(forKey: ObjectIdentifier(c))
         if host === c { host = nil }
         let failed = active.filter { $0.value.host === c }.map(\.key)
-        // A lost client does not terminate or repeat the GUI's admitted command.
+        let abandoned = active.filter { $0.value.client === c }.map { ($0.key, $0.value.host) }
+        // Detach observation, never terminate or repeat admitted programs. The GUI
+        // independently accounts for work that cannot be cancelled safely yet.
         epoch &+= 1; lock.unlock()
-        failed.forEach { finishUnknown($0) }; checkIdleLater()
+        failed.forEach { finishUnknown($0) }
+        for (id, target) in abandoned {
+            let proxy = target.remoteObjectProxyWithErrorHandler { _ in }
+            (proxy as? RPCExecutionProtocol)?.detach(id.uuidString)
+            finishUnknown(id)
+        }
+        checkIdleLater()
     }
     func checkIdleLater() {
         lock.lock(); let token = epoch; let idle = host == nil && connections.isEmpty && active.isEmpty; lock.unlock()
