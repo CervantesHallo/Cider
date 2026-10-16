@@ -1,0 +1,261 @@
+{
+  "schema": "cider.product-runtime-repair-report/v1",
+  "date": "2026-10-16",
+  "report": "docs/research/64-product-runtime-repairs-20261016.md",
+  "branch": "codex/quarantine-fixes-20261014",
+  "sourceCommit": "731267a93350c9668fb7b1865e8bb96b85a94103",
+  "sourceCommitPublishedAtReport": false,
+  "restoredToMain": false,
+  "productionAppOrEngineUpdated": false,
+  "wholeQuarantineComplete": false,
+  "targetedSwiftTests": {
+    "count": 18,
+    "suites": 3,
+    "passed": true
+  },
+  "releaseBuildAndStrictSignaturePassed": true,
+  "runtime": [
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/product-final.json",
+      "sha256": "8b46e1eef21ef7721f17e5d23d01045dccb8e06262dab6bbd62337d925cf8511",
+      "passed": true,
+      "cases": [
+        {
+          "name": "product.cli_launches_real_gui",
+          "passed": true
+        },
+        {
+          "name": "product.reuse_empty_prefix",
+          "passed": true
+        },
+        {
+          "name": "product.arguments_cwd_environment_and_exit37",
+          "passed": true
+        },
+        {
+          "name": "product.wait_can_be_stopped_and_gui_is_parent",
+          "passed": true
+        },
+        {
+          "name": "product.relaunch_after_stop",
+          "passed": true
+        }
+      ],
+      "cleanupPassed": true,
+      "liveProcessesAfterCleanup": [],
+      "jobsAfterCleanup": [
+        {
+          "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+          "bootoutCode": 0,
+          "absent": true
+        }
+      ],
+      "protectedSHA256": {
+        "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+        "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+      }
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/early-stop-final.json",
+      "sha256": "8f16ec1324db808cd69bcb11c5754620225c0d438a57be832d9d0e615d7108f3",
+      "passed": true,
+      "cases": [
+        {
+          "name": "product.cli_launches_real_gui",
+          "passed": true
+        },
+        {
+          "name": "product.reuse_empty_prefix",
+          "passed": true
+        },
+        {
+          "name": "product.stop_during_guest_startup",
+          "passed": true
+        },
+        {
+          "name": "product.relaunch_after_early_stop",
+          "passed": true
+        }
+      ],
+      "cleanupPassed": true,
+      "liveProcessesAfterCleanup": [],
+      "jobsAfterCleanup": [
+        {
+          "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+          "bootoutCode": 0,
+          "absent": true
+        }
+      ],
+      "protectedSHA256": {
+        "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+        "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+      }
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/winmm32-final.json",
+      "sha256": "fa87a7793b9c53195f0540a21ded28037e9c4a5aff186773b187168fb39453cb",
+      "passed": true,
+      "cases": [
+        {
+          "name": "product.cli_launches_real_gui",
+          "passed": true
+        },
+        {
+          "name": "product.reuse_empty_prefix",
+          "passed": true
+        },
+        {
+          "name": "product.win32_window_and_audio_output",
+          "passed": true
+        }
+      ],
+      "cleanupPassed": true,
+      "liveProcessesAfterCleanup": [],
+      "jobsAfterCleanup": [
+        {
+          "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+          "bootoutCode": 0,
+          "absent": true
+        }
+      ],
+      "protectedSHA256": {
+        "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+        "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+      }
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/winmm64-final.json",
+      "sha256": "312c0d93b312419b50db196501775312d455a52d00a0035e8f8d496c6f08a549",
+      "passed": true,
+      "cases": [
+        {
+          "name": "product.cli_launches_real_gui",
+          "passed": true
+        },
+        {
+          "name": "product.reuse_empty_prefix",
+          "passed": true
+        },
+        {
+          "name": "product.win32_window_and_audio_output",
+          "passed": true
+        }
+      ],
+      "cleanupPassed": true,
+      "liveProcessesAfterCleanup": [],
+      "jobsAfterCleanup": [
+        {
+          "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+          "bootoutCode": 0,
+          "absent": true
+        }
+      ],
+      "protectedSHA256": {
+        "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+        "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+      }
+    }
+  ],
+  "additionalArtifacts": [
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/candidate-install.json",
+      "sha256": "df3ad84e5bafb91fcc55b3071e6ae5bc260fe6881726292c422c9343914a6ac5"
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/patch-check.json",
+      "sha256": "ba9c6aa4a2f66ac07331f191dc6b8160f9f4b545d238cade787a4dba3e0283ac"
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/prefix-module-hashes.json",
+      "sha256": "7d9ef571d45e2632e210b1a20667bf4bdfc5d0cf8bbd695e91366868c6564fab"
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/runtime-process-tests.log",
+      "sha256": "18b8e37cf39912d88ba958552e93ce95b634ccc20f98294e9f40f691a1bf5bb6"
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/first-product-failure.json",
+      "sha256": "8a25321fe370be934b51a65d310fe9361d8a10241c1faa9a4e0f415f9f600c01"
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/first-window-audio-failure.json",
+      "sha256": "86b51de669d2591a17e75b6f0e38235302e908b7907d6c4b981af610667d3b07"
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/first-early-stop-failure.json",
+      "sha256": "b585fefeddff7dce059d778ea05d66fc03caade11cf471782f98c189a8ea2817"
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/drain-deadline-failure.json",
+      "sha256": "9fc8a49dc726ac37f03c8cb7eb43e81afcda4ea502a1cabccbd51ddcb65cee81"
+    },
+    {
+      "file": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/tests/runtime/product/results/cold-audio-lock-observation.json",
+      "sha256": "d05d73b59df3c63427ed968ac0e77e1a5c6c3bf453b35bf249f16911dc4cb9fe"
+    }
+  ],
+  "candidateInstall": {
+    "moduleHashes": {
+      "i386": {
+        "beforeSHA256": "0febed40ba2a816f623b16e741f2ff8990e0a2dd19b657b2b6aaa4fddc7ad214",
+        "afterSHA256": "2468c1236ef0dc31625735c0ddce2cec79699b9052834c08450bc7d566cf951d"
+      },
+      "x86_64": {
+        "beforeSHA256": "e8abbc24143f18a31e53ac1e70363112b4da568e00654607ae2befaa62f07ca9",
+        "afterSHA256": "819dea699e3243e6aa03c2134fbdfd7dcbe4eaac0be991f20460591055c03ed1"
+      }
+    },
+    "changedFiles": [
+      "engine/lib/wine/i386-windows/winmm.dll",
+      "engine/lib/wine/x86_64-windows/winmm.dll",
+      "manifest.json"
+    ],
+    "allOtherFilesUnchanged": true,
+    "beforeFileCount": 4832,
+    "afterFileCount": 4832,
+    "sourceWaveformSHA256": "4c7b2278122b41db02b4d9253bb8f353351e63c1a81283c72973f40f0b434595"
+  },
+  "patchReconstruction": {
+    "exitCode": 0,
+    "stdout": "patching file 'dlls/winmm/waveform.c'\n",
+    "stderr": "",
+    "sameFinalSource": true,
+    "sourceSHA256": "4c7b2278122b41db02b4d9253bb8f353351e63c1a81283c72973f40f0b434595"
+  },
+  "adversarialReview": {
+    "scope": "Mac process ownership, stopping, WinMM cold initialization",
+    "readOnlyAgent": true,
+    "acceptedP2FindingsFixed": 3,
+    "remainingP1P2InReviewedScope": 0,
+    "agentRanRuntimeOrTests": false
+  },
+  "measurements": {
+    "normalStopSeconds": 13.179942041,
+    "startupStopSeconds": 6.755157166,
+    "stopSoftEffortSeconds": 12,
+    "hardStopDeadlineProven": false
+  },
+  "evidenceLimits": [
+    "WindowServer metadata is not human-observed unobscured pixels",
+    "Silent buffer completion is not audible quality or input validation",
+    "Native GUI parent is not TCC authorization attribution",
+    "No Developer ID update validation",
+    "No new game session acceptance",
+    "Raw result source_commit identifies starting baseline; final source/binary hashes identify tested delta"
+  ],
+  "remainingDependencies": [
+    "K2 replacement previously rejected by tool automatic safety review; no retry or delegation",
+    "Independent native Windows kernel reference and explicit budget/cleanup resolution",
+    "Privacy, formal signing and affected real game acceptance",
+    "Explicit restoration scope while cutoff isolation remains in force"
+  ],
+  "windowsOperations": false,
+  "windowsLedgerModified": false,
+  "actionsTriggered": false,
+  "automationResumed": false,
+  "launchServicesPrivateEngineUnregister": {
+    "performedAfterBatches": true,
+    "exitCode": 0,
+    "source": "explicit final cleanup observed before report; not retroactively inserted into batch results"
+  }
+}
