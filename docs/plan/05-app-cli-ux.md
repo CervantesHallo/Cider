@@ -2,6 +2,11 @@
 
 > 版本 v1 · 2026-09-27 · 依赖文档：00-strategy-and-decisions（ADR-001/002/005/006/007/008/009/010/012，阶段 P0–P4，里程碑 M-A…M-E）。估时单位“人周”= 1 人 + AI 代理 ≈ 5 窗。
 
+
+## 2026-10-16 隔离候选的ADR-007实施记录
+
+[research63](../research/63-quarantine-xpc-repairs-20261016.md)保持GUI→WineRunner派生者，将原CLI命令移入共享模块、认证XPC只作转发；保留参数/cwd/输出/退出码/等待，修复重连、重放和停止操作饥饿。当前候选使用用户会话的按需MachService登记（无RunAtLoad/KeepAlive/LoginItem），正式Developer ID/SMAppService部署仍待。源码和原生夹具通过不覆盖真实Wine responsible/TCC、Windows内核或游戏会话；主线尚未恢复。具体取舍、运行回执和回退见63，不把候选方案升级为正式发布完成。
+
 ## 目标与范围（含明确不做的事）
 
 **目标**

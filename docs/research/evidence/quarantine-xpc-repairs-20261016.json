@@ -1,0 +1,167 @@
+{
+  "schema": "cider.quarantine-xpc-repairs/v1",
+  "date": "2026-10-16",
+  "implementation_commit": "bb096da",
+  "implementation_branch": "codex/quarantine-fixes-20261014",
+  "counts": {
+    "commandUnitTests": 15,
+    "helpRoutesWithinCommandTests": 29,
+    "localCanonicalPublicAPITests": 1,
+    "nativeTransportCases": 23,
+    "actualPackagedCLIColdWarmCases": 2
+  },
+  "native_and_command_checks_passed": true,
+  "sourceBinding": {
+    "native": {
+      "sourcesStableDuringBuild": true,
+      "sourceChangedDuringRun": false,
+      "sourceHashesMatchCurrent": true
+    },
+    "packagedCLI": {
+      "sourcesStableDuringBuild": true,
+      "sourceChangedDuringRun": false,
+      "sourceHashesMatchCurrent": true
+    }
+  },
+  "nativeEvidenceHashes": {
+    "tests/xpc/results/native-20261016T105309Z.json": "d76f311e943a01c456654e9c477968e956ea7003cf24326816c7c6c1dc219e45",
+    "tests/xpc/results/packaged-cli-20261016T105254Z.json": "7684e82c79931011430b1bea81aeef5352e65f72c43194758821d4d90e2e041a",
+    "tests/xpc/results/command-unit-final.log": "876c99ee17865e8fc0bdd007f3825441bc3e383476654bb725b71bff5a9bb9d4",
+    "tests/xpc/results/canonical-local-final.log": "af508e1b8ec069af036abac1c06f3efc14d3bf7814eb94e5b73463120a8a3932",
+    "tests/xpc/results/packaged-cli-20261016T104904Z.json": "78c2b262020ccfc8b62deddbdc48988bb1bb6a1108a01a9474cb4e86131e54b4"
+  },
+  "finalCleanup": {
+    "native": {
+      "unregistered": true,
+      "hostPIDs": [
+        17394,
+        17431,
+        17446,
+        17501
+      ],
+      "brokerPIDs": [
+        17390,
+        17466,
+        17510
+      ],
+      "livePIDs": [],
+      "errors": [],
+      "passed": true
+    },
+    "packagedCLI": {
+      "passed": true,
+      "unregistered": true,
+      "hostPIDs": [
+        17225
+      ],
+      "brokerPIDs": [
+        17224
+      ],
+      "livePIDs": [],
+      "errors": []
+    },
+    "verifiedJobAbsence": [
+      {
+        "label": "org.cider.ipc.0fefe222a614b28d6a02f773",
+        "launchctlPrintExitCode": 113,
+        "jobAbsent": true
+      },
+      {
+        "label": "org.cider.ipc.30daf7498ecbfae90ca3501f",
+        "launchctlPrintExitCode": 113,
+        "jobAbsent": true
+      },
+      {
+        "label": "org.cider.ipc.84ac65540da6e85c63fa453a",
+        "launchctlPrintExitCode": 113,
+        "jobAbsent": true
+      }
+    ]
+  },
+  "releasePackageChecks": {
+    "releaseComponents": [
+      {
+        "component": "Cider",
+        "size": 8347680,
+        "sha256": "76ba117d6c1aa3ff8cf81cf145a7f460767ed132661640d096b4424716633caa",
+        "runtime": true
+      },
+      {
+        "component": "ciderctl",
+        "size": 5163424,
+        "sha256": "d55720680bfdf7dbc252193ddf77497c71fe778bfc98fd012e47f48dadfd0438",
+        "runtime": true
+      },
+      {
+        "component": "CiderXPCBridge",
+        "size": 664672,
+        "sha256": "fd7d251320fb76d897396bd5bde2fe5e85019f6010fe72118c2e5556abdc05fc",
+        "runtime": true
+      }
+    ],
+    "strictSignatureValid": true,
+    "localParserChecks": [
+      {
+        "arguments": [
+          "--version"
+        ],
+        "exitCode": 0,
+        "passed": true
+      },
+      {
+        "arguments": [
+          "run",
+          "--help"
+        ],
+        "exitCode": 0,
+        "passed": true
+      },
+      {
+        "arguments": [
+          "bottle",
+          "create",
+          "--help"
+        ],
+        "exitCode": 0,
+        "passed": true
+      },
+      {
+        "arguments": [
+          "unknown-command"
+        ],
+        "exitCode": 64,
+        "passed": true
+      }
+    ],
+    "protectedSHA256": {
+      "Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "productGUIOrWineSessions": 0,
+    "passed": true
+  },
+  "adversarial_review": {
+    "independent_readonly_reviewer": true,
+    "initial_findings_fixed": 7,
+    "followup_findings_fixed": 3,
+    "native_cold_start_defect_fixed": 1,
+    "final_actionable_p1_p2": 0,
+    "parent_reviewed_sources_and_receipts": true
+  },
+  "untested": [
+    "product Wine spawn responsible/TCC and camera/audio permissions",
+    "product game/launcher graphical and audio regression under this GUI",
+    "Windows kernel contract comparison",
+    "Developer ID/SMAppService release deployment"
+  ],
+  "unchanged": {
+    "main_implementation_restored": false,
+    "production_engine_changed": false,
+    "game_gates_relaxed": false,
+    "windows_operations": 0,
+    "windows_budget_mutations": 0,
+    "actions_invocations": 0,
+    "scheduled_automation_resumed": false,
+    "k2_rejected_plan_retried": false
+  }
+}
