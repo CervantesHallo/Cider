@@ -1,0 +1,46 @@
+{
+  "kind": "native-macos-xpc-fixture",
+  "createdUTC": "20261016T090021Z",
+  "platform": "macOS-26.7-arm64-arm-64bit",
+  "filters": [
+    "native.handshake.*"
+  ],
+  "selected": [
+    "native.handshake.no_host",
+    "native.handshake.host"
+  ],
+  "skipped": [
+    "native.command.engine_list",
+    "native.command.bottle_list",
+    "native.output.echo_exit",
+    "native.output.stream",
+    "native.input.wrong_root",
+    "native.input.schema",
+    "native.input.oversize",
+    "native.input.argument_count",
+    "native.input.malformed",
+    "native.input.nul",
+    "native.duplicate.completed",
+    "native.duplicate.active",
+    "native.peer.client_requirement",
+    "native.peer.host_requirement",
+    "native.disconnect.unknown_no_replay"
+  ],
+  "cases": [],
+  "unitTestsIncluded": 0,
+  "productGUIOrWineSessions": 0,
+  "setupError": "service label must derive solely from this fixture bundle and root",
+  "cleanup": {
+    "unregistered": true,
+    "hostPIDs": [],
+    "brokerPIDs": [],
+    "livePIDs": [],
+    "errors": [],
+    "passed": true
+  },
+  "sourceChangedDuringRun": false,
+  "hostLogs": [],
+  "nativeCasesExecuted": 0,
+  "nativeCasesPassed": 0,
+  "passed": false
+}

@@ -1,0 +1,43 @@
+{
+  "kind": "real-packaged-cli-cold-warm-fixture",
+  "createdUTC": "20261016T105219Z",
+  "nativeCasesExecuted": 0,
+  "cases": [],
+  "productGUIOrWineSessions": 0,
+  "fixtureHostLaunch": "production CLI NSWorkspace.openApplication",
+  "unitTestsIncluded": 0,
+  "productionBinaryCopies": {
+    "ciderctl": {
+      "source": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app/Contents/MacOS/ciderctl",
+      "originalSHA256": "d55720680bfdf7dbc252193ddf77497c71fe778bfc98fd012e47f48dadfd0438",
+      "copiedBytesMatchBeforeFixtureSigning": true
+    },
+    "CiderXPCBridge": {
+      "source": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app/Contents/MacOS/CiderXPCBridge",
+      "originalSHA256": "fd7d251320fb76d897396bd5bde2fe5e85019f6010fe72118c2e5556abdc05fc",
+      "copiedBytesMatchBeforeFixtureSigning": true
+    }
+  },
+  "signatures": {
+    "host": "# designated => cdhash H\"3801d0b0299e44a2ddc6bb93fde0fcf2ea4ea318\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-packaged-xpc-7hg_rfcu/ColdLaunchFixture.app/Contents/MacOS/Cider\nIdentifier=org.cider.coldfixture.4b9cb37b11394e1c886c2a6063eacae8\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=15255 flags=0x10002(adhoc,runtime) hashes=469+3 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=3801d0b0299e44a2ddc6bb93fde0fcf2ea4ea318\nCandidateCDHashFull sha256=3801d0b0299e44a2ddc6bb93fde0fcf2ea4ea318a2c07ef4626ff1cf30cc562b\nHash choices=sha256\nCMSDigest=3801d0b0299e44a2ddc6bb93fde0fcf2ea4ea318a2c07ef4626ff1cf30cc562b\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3604480\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=3801d0b0299e44a2ddc6bb93fde0fcf2ea4ea318\nSignature=adhoc\nInfo.plist entries=7\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources version=2 rules=13 files=2\n",
+    "client": "# designated => cdhash H\"3cc6a3037cffc4d187cd466916ea9a1a12be4637\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-packaged-xpc-7hg_rfcu/ColdLaunchFixture.app/Contents/MacOS/ciderctl\nIdentifier=org.cider.coldfixture.4b9cb37b11394e1c886c2a6063eacae8.ciderctl\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=10272 flags=0x10002(adhoc,runtime) hashes=314+2 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=3cc6a3037cffc4d187cd466916ea9a1a12be4637\nCandidateCDHashFull sha256=3cc6a3037cffc4d187cd466916ea9a1a12be4637091ada6ddf7b858521d3e897\nHash choices=sha256\nCMSDigest=3cc6a3037cffc4d187cd466916ea9a1a12be4637091ada6ddf7b858521d3e897\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=2097152\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=3cc6a3037cffc4d187cd466916ea9a1a12be4637\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources=none\n",
+    "broker": "# designated => cdhash H\"e10edc5500ce8d0d2c40cb23e4650f1469058496\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-packaged-xpc-7hg_rfcu/ColdLaunchFixture.app/Contents/MacOS/CiderXPCBridge\nIdentifier=org.cider.coldfixture.4b9cb37b11394e1c886c2a6063eacae8.CiderXPCBridge\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=1510 flags=0x10002(adhoc,runtime) hashes=40+2 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=e10edc5500ce8d0d2c40cb23e4650f1469058496\nCandidateCDHashFull sha256=e10edc5500ce8d0d2c40cb23e4650f14690584965c851d302adf8cc611626ca5\nHash choices=sha256\nCMSDigest=e10edc5500ce8d0d2c40cb23e4650f14690584965c851d302adf8cc611626ca5\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=262144\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=e10edc5500ce8d0d2c40cb23e4650f1469058496\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources=none\n"
+  },
+  "setupError": "cold-launch fixture must start with no registered service",
+  "launchServicesUnregister": {
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "failed to scan /private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-packaged-xpc-7hg_rfcu/ColdLaunchFixture.app: -10814\n from spotlight"
+  },
+  "cleanup": {
+    "passed": true,
+    "unregistered": true,
+    "hostPIDs": [],
+    "brokerPIDs": [],
+    "livePIDs": [],
+    "errors": []
+  },
+  "sourceChangedDuringRun": false,
+  "nativeCasesPassed": 0,
+  "passed": false
+}

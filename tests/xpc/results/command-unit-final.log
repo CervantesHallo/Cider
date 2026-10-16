@@ -1,0 +1,82 @@
+warning: '--skip-update' option is deprecated and will be removed in a future release
+Building for debugging...
+[Computing dependencies]
+[Using on-disk description]
+[1 / 2] CiderCommands-product
+[2 / 11] CiderIPC
+[6 / 15] CiderIPC
+[12 / 21] CiderIPC
+[16 / 25] CiderIPC
+[20 / 21] CiderCommandsTests-product
+Build complete! (2.15秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite CiderCommandsTests started.
+◇ Test parserFailuresReturnUsageOnStderr(_:) started.
+◇ Test rootHelpVersionAndBuiltInHelp() started.
+◇ Test launchLocationsPreserveCallerAndExecutableDirectories() started.
+◇ Test exitCodeAndProgressAreDeliveredWithoutProcessExit() started.
+◇ Test emptyStoresUseOnlySuppliedPaths() started.
+◇ Test taskLocalContextRestoresAfterReentrantInvocation() started.
+◇ Test inspectUsesCallerDirectoryWithoutChangingProcessState() started.
+◇ Test allExistingCommandsHaveHelp(_:) started.
+◇ Test metadataMatchesParserWithoutRunningCommandsOrAccessingStores() started.
+◇ Test executionBindsAndRestoresCoreWarningSink() started.
+◇ Test contextResolvesHostPathsAndPreservesGuestNames() started.
+◇ Test remainingOptionsArePreservedByParser() started.
+◇ Test runRetainsWaitEnvironmentCwdAndPassthrough() started.
+◇ Test engineAndBottleFixturesRetainOutputAndConfigFormatting() started.
+◇ Test concurrentInspectRequestsKeepCwdAndOutputIsolated() started.
+◇ Test case passing 1 argument arguments → ["run"] to parserFailuresReturnUsageOnStderr(_:) started.
+◇ Test case passing 1 argument arguments → ["bottle", "create", "test", "--locale"] to parserFailuresReturnUsageOnStderr(_:) started.
+◇ Test case passing 1 argument arguments → ["inspect"] to parserFailuresReturnUsageOnStderr(_:) started.
+◇ Test case passing 1 argument arguments → ["engine", "list", "--bogus"] to parserFailuresReturnUsageOnStderr(_:) started.
+◇ Test case passing 1 argument arguments → ["no-such-command"] to parserFailuresReturnUsageOnStderr(_:) started.
+◇ Test case passing 1 argument arguments → ["bottle", "show"] to parserFailuresReturnUsageOnStderr(_:) started.
+◇ Test case passing 1 argument command → [] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["engine"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["engine", "install"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["engine", "download"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["engine", "list"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["engine", "host"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["bottle"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["bottle", "create"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["bottle", "list"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["bottle", "delete"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["bottle", "show"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["bottle", "set"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["bottle", "upgrade"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["bottle", "duplicate"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["bottle", "repair"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["run"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["kill"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["steam"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["steam", "list"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["steam", "launch"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["steam", "install"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["ps"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["icon"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["diag"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["install"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["inspect"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["d3dmetal"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["d3dmetal", "import"] to allExistingCommandsHaveHelp(_:) started.
+◇ Test case passing 1 argument command → ["d3dmetal", "list"] to allExistingCommandsHaveHelp(_:) started.
+✔ Test parserFailuresReturnUsageOnStderr(_:) with 6 test cases passed after 0.109 seconds.
+✔ Test exitCodeAndProgressAreDeliveredWithoutProcessExit() passed after 0.109 seconds.
+✔ Test inspectUsesCallerDirectoryWithoutChangingProcessState() passed after 0.110 seconds.
+✔ Test taskLocalContextRestoresAfterReentrantInvocation() passed after 0.110 seconds.
+✔ Test emptyStoresUseOnlySuppliedPaths() passed after 0.110 seconds.
+✔ Test contextResolvesHostPathsAndPreservesGuestNames() passed after 0.110 seconds.
+✔ Test executionBindsAndRestoresCoreWarningSink() passed after 0.110 seconds.
+✔ Test runRetainsWaitEnvironmentCwdAndPassthrough() passed after 0.110 seconds.
+✔ Test engineAndBottleFixturesRetainOutputAndConfigFormatting() passed after 0.124 seconds.
+✔ Test remainingOptionsArePreservedByParser() passed after 0.124 seconds.
+✔ Test launchLocationsPreserveCallerAndExecutableDirectories() passed after 0.124 seconds.
+✔ Test rootHelpVersionAndBuiltInHelp() passed after 0.124 seconds.
+✔ Test concurrentInspectRequestsKeepCwdAndOutputIsolated() passed after 0.125 seconds.
+✔ Test allExistingCommandsHaveHelp(_:) with 29 test cases passed after 0.127 seconds.
+✔ Test metadataMatchesParserWithoutRunningCommandsOrAccessingStores() passed after 0.204 seconds.
+✔ Suite CiderCommandsTests passed after 0.204 seconds.
+✔ Test run with 15 tests in 1 suite passed after 0.204 seconds.

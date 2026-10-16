@@ -6,14 +6,14 @@ let package = Package(
     platforms: [.macOS(.v14)],
     dependencies: [
         .package(path: "../../Packages/CiderKit"),
-        .package(url: "https://github.com/apple/swift-argument-parser", from: "1.5.0"),
+        .package(path: "../CiderCommands"),
     ],
     targets: [
         .executableTarget(
             name: "ciderctl",
             dependencies: [
-                .product(name: "CiderKit", package: "CiderKit"),
-                .product(name: "ArgumentParser", package: "swift-argument-parser"),
+                .product(name: "CiderIPC", package: "CiderKit"),
+                .product(name: "CiderCommands", package: "CiderCommands"),
             ]
         ),
     ]

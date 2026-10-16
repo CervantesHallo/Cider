@@ -1,0 +1,119 @@
+{
+  "kind": "bounded-cider-commands-xpc-handoff",
+  "counts": {
+    "commandUnitTests": 15,
+    "helpRoutesWithinCommandTests": 29,
+    "localCanonicalPublicAPITests": 1,
+    "nativeTransportCases": 23,
+    "actualPackagedCLIColdWarmCases": 2
+  },
+  "allPassed": true,
+  "sourceBinding": {
+    "native": {
+      "sourcesStableDuringBuild": true,
+      "sourceChangedDuringRun": false,
+      "sourceHashesMatchCurrent": true
+    },
+    "packagedCLI": {
+      "sourcesStableDuringBuild": true,
+      "sourceChangedDuringRun": false,
+      "sourceHashesMatchCurrent": true
+    }
+  },
+  "productionBinaryCopiesStillMatchOut": {
+    "ciderctl": true,
+    "CiderXPCBridge": true
+  },
+  "artifactSHA256": {
+    "tests/xpc/results/native-20261016T105309Z.json": "d76f311e943a01c456654e9c477968e956ea7003cf24326816c7c6c1dc219e45",
+    "tests/xpc/results/packaged-cli-20261016T105254Z.json": "7684e82c79931011430b1bea81aeef5352e65f72c43194758821d4d90e2e041a",
+    "tests/xpc/results/command-unit-final.log": "876c99ee17865e8fc0bdd007f3825441bc3e383476654bb725b71bff5a9bb9d4",
+    "tests/xpc/results/canonical-local-final.log": "af508e1b8ec069af036abac1c06f3efc14d3bf7814eb94e5b73463120a8a3932",
+    "tests/xpc/results/packaged-cli-20261016T104904Z.json": "78c2b262020ccfc8b62deddbdc48988bb1bb6a1108a01a9474cb4e86131e54b4"
+  },
+  "keyNativeMetrics": {
+    "native.output.over_1mib": {
+      "stdoutBytes": 1347730,
+      "expectedSHA256": "187ef5dad322a5a32c182b17cc158ac14cb1171a7d6c4b9949f18c3fa651a714",
+      "actualSHA256": "187ef5dad322a5a32c182b17cc158ac14cb1171a7d6c4b9949f18c3fa651a714"
+    },
+    "native.broker_crash.host_reconnect_no_replay": {
+      "hostAdmissionsForOriginalID": 1,
+      "liveOriginalRequestResubmitted": false
+    },
+    "native.queue.reserved_kill": {
+      "ordinarySlotsBlocked": 8,
+      "controlSeconds": 0.04464658300000224
+    },
+    "native.duplicate.after_256_intervening": {
+      "interveningNativeAdmissions": 257,
+      "hostAdmissionsForOriginalID": 1
+    },
+    "native.output.reader_paused_six_seconds": {
+      "firstConsoleACKDelaySeconds": 6,
+      "elapsedSeconds": 6.0591216249999995
+    },
+    "native.startup.missing_broker_then_register": {
+      "sameHostPID": 17501,
+      "initialBrokerAbsent": true
+    }
+  },
+  "finalCleanup": {
+    "native": {
+      "unregistered": true,
+      "hostPIDs": [
+        17394,
+        17431,
+        17446,
+        17501
+      ],
+      "brokerPIDs": [
+        17390,
+        17466,
+        17510
+      ],
+      "livePIDs": [],
+      "errors": [],
+      "passed": true
+    },
+    "packagedCLI": {
+      "passed": true,
+      "unregistered": true,
+      "hostPIDs": [
+        17225
+      ],
+      "brokerPIDs": [
+        17224
+      ],
+      "livePIDs": [],
+      "errors": []
+    },
+    "verifiedJobAbsence": [
+      {
+        "label": "org.cider.ipc.0fefe222a614b28d6a02f773",
+        "launchctlPrintExitCode": 113,
+        "jobAbsent": true
+      },
+      {
+        "label": "org.cider.ipc.30daf7498ecbfae90ca3501f",
+        "launchctlPrintExitCode": 113,
+        "jobAbsent": true
+      },
+      {
+        "label": "org.cider.ipc.84ac65540da6e85c63fa453a",
+        "launchctlPrintExitCode": 113,
+        "jobAbsent": true
+      }
+    ]
+  },
+  "scopeEditsOnly": [
+    "Tools/CiderCommands/**",
+    "tests/xpc/**"
+  ],
+  "commitsCreated": 0,
+  "wineWindowsProductGUISessions": 0,
+  "notes": [
+    "Failed cold-launch evidence and owned cleanup followup retained.",
+    "Packaged executor PID comes from an independent host execution receipt, not CLI stdout."
+  ]
+}

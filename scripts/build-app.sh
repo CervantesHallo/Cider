@@ -1,5 +1,5 @@
 #!/bin/bash
-# Builds App/ and ciderctl with SwiftPM, using one bundled compatibility-data copy.
+# Builds GUI, command client, and forwarding-only XPC broker with SwiftPM.
 # Usage: scripts/build-app.sh [debug|release]   (default: release)
 set -euo pipefail
 
@@ -61,10 +61,13 @@ swift build -c "$CONFIG"
 BIN="$(swift build -c "$CONFIG" --show-bin-path)/Cider"
 swift build --package-path "$ROOT/Tools/ciderctl" -c "$CONFIG"
 CLI="$(swift build --package-path "$ROOT/Tools/ciderctl" -c "$CONFIG" --show-bin-path)/ciderctl"
+swift build --package-path "$ROOT/Tools/CiderBridge" -c "$CONFIG"
+BRIDGE="$(swift build --package-path "$ROOT/Tools/CiderBridge" -c "$CONFIG" --show-bin-path)/CiderXPCBridge"
 
 mkdir -p "$STAGED_APP/Contents/MacOS" "$STAGED_APP/Contents/Resources"
 cp "$BIN" "$STAGED_APP/Contents/MacOS/Cider"
 cp "$CLI" "$STAGED_APP/Contents/MacOS/ciderctl"
+cp "$BRIDGE" "$STAGED_APP/Contents/MacOS/CiderXPCBridge"
 cp "$ICON" "$STAGED_APP/Contents/Resources/AppIcon.icns"
 # Bundled compatibility data (docs/plan/06); the signed data channel will update it later.
 cp -R "$ROOT/data" "$STAGED_APP/Contents/Resources/data"
@@ -96,11 +99,14 @@ PLIST
 
 test -x "$STAGED_APP/Contents/MacOS/Cider"
 test -x "$STAGED_APP/Contents/MacOS/ciderctl"
+test -x "$STAGED_APP/Contents/MacOS/CiderXPCBridge"
 test -s "$STAGED_APP/Contents/Resources/AppIcon.icns"
 test -s "$STAGED_APP/Contents/Resources/data/engines/index.json"
 plutil -lint "$STAGED_APP/Contents/Info.plist"
-codesign --force --sign - --timestamp=none "$STAGED_APP/Contents/MacOS/ciderctl"
-codesign --force --sign - --timestamp=none "$STAGED_APP"
+codesign --force --sign - --timestamp=none --options runtime "$STAGED_APP/Contents/MacOS/CiderXPCBridge"
+codesign --force --sign - --timestamp=none --options runtime "$STAGED_APP/Contents/MacOS/ciderctl"
+codesign --force --sign - --timestamp=none --options runtime --entitlements "$ROOT/App/Resources/Cider.entitlements" "$STAGED_APP"
+codesign --verify --strict "$STAGED_APP/Contents/MacOS/CiderXPCBridge"
 codesign --verify --strict "$STAGED_APP/Contents/MacOS/ciderctl"
 codesign --verify --deep --strict "$STAGED_APP"
 

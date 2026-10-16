@@ -275,7 +275,7 @@ public struct WineRunner: Sendable {
             // Retain the true started state and session ownership, even if the post-spawn disk write fails.
             try? JSONFile.write(["warning": "spawn audit write failed", "pid": String(pid)],
                                 to: sessionDir.appendingPathComponent("audit-warning.json"))
-            FileHandle.standardError.write(Data("Cider: 程序已启动，但审计记录未写入：\(error)\n".utf8))
+            CiderDiagnostics.warning("Cider: 程序已启动，但审计记录未写入：\(error)")
         }
         return SessionHandle(pid: pid, directory: sessionDir, warning: auditWarning)
     }

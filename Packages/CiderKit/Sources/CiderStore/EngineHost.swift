@@ -89,7 +89,7 @@ public enum EngineHost {
             }
         } catch {
             // A fallback image is cosmetic; preserve launch and the engine's required metadata.
-            FileHandle.standardError.write(Data("Cider: 宿主备用图标未更新：\(error)\n".utf8))
+            CiderDiagnostics.warning("Cider: 宿主备用图标未更新：\(error)")
         }
 
         var plist: [String: Any] = [

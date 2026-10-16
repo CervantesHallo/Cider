@@ -8,11 +8,13 @@ let package = Package(
     platforms: [.macOS(.v14)],
     dependencies: [
         .package(path: "../Packages/CiderKit"),
+        .package(path: "../Tools/CiderCommands"),
     ],
     targets: [
         .executableTarget(
             name: "Cider",
-            dependencies: [.product(name: "CiderKit", package: "CiderKit")],
+            dependencies: [.product(name: "CiderKit", package: "CiderKit"),
+                           .product(name: "CiderCommands", package: "CiderCommands")],
             path: "Sources/Cider"
         ),
     ]

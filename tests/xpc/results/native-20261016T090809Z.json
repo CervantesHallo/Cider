@@ -1,0 +1,448 @@
+{
+  "kind": "native-macos-xpc-fixture",
+  "createdUTC": "20261016T090809Z",
+  "platform": "macOS-26.7-arm64-arm-64bit",
+  "filters": [],
+  "selected": [
+    "native.handshake.no_host",
+    "native.handshake.host",
+    "native.command.engine_list",
+    "native.command.bottle_list",
+    "native.output.echo_exit",
+    "native.output.stream",
+    "native.output.over_1mib",
+    "native.input.wrong_root",
+    "native.input.schema",
+    "native.input.oversize",
+    "native.input.argument_count",
+    "native.input.malformed",
+    "native.input.nul",
+    "native.duplicate.completed",
+    "native.duplicate.active",
+    "native.peer.client_requirement",
+    "native.peer.host_requirement",
+    "native.disconnect.unknown_no_replay",
+    "native.broker_crash.host_reconnect_no_replay"
+  ],
+  "skipped": [],
+  "cases": [
+    {
+      "name": "native.handshake.no_host",
+      "passed": true,
+      "seconds": 0.11480445900000014,
+      "evidence": {
+        "root": "/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-ha3nywp8/support",
+        "version": 1
+      }
+    },
+    {
+      "name": "native.handshake.host",
+      "passed": true,
+      "seconds": 0.03709379200000029,
+      "evidence": {
+        "hostPID": 14445,
+        "root": "/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-ha3nywp8/support",
+        "version": 1
+      }
+    },
+    {
+      "name": "native.command.engine_list",
+      "passed": true,
+      "seconds": 0.04552170799999988,
+      "evidence": {
+        "chunks": 1,
+        "executorPID": 14445,
+        "exitCode": 0,
+        "id": "3BA855AF-862E-4847-BF49-9F1F42C2FC60",
+        "outputIncomplete": false,
+        "resultSource": "RPCResponse",
+        "sequenceCount": 1,
+        "state": "completed",
+        "stderrBase64": "",
+        "stdoutBase64": "bm8gZW5naW5lcyBpbnN0YWxsZWQK",
+        "version": 1,
+        "clientProcessExit": 0
+      }
+    },
+    {
+      "name": "native.command.bottle_list",
+      "passed": true,
+      "seconds": 0.036541833000000246,
+      "evidence": {
+        "chunks": 1,
+        "executorPID": 14445,
+        "exitCode": 0,
+        "id": "1253AB0E-B673-478F-A7FE-DA87FCCDE930",
+        "outputIncomplete": false,
+        "resultSource": "RPCResponse",
+        "sequenceCount": 1,
+        "state": "completed",
+        "stderrBase64": "",
+        "stdoutBase64": "bm8gYm90dGxlcwo=",
+        "version": 1,
+        "clientProcessExit": 0
+      }
+    },
+    {
+      "name": "native.output.echo_exit",
+      "passed": true,
+      "seconds": 0.03280029200000012,
+      "evidence": {
+        "chunks": 2,
+        "executorPID": 14445,
+        "exitCode": 37,
+        "id": "7C852A57-8F36-415D-B1C9-6CFA67C7E245",
+        "outputIncomplete": false,
+        "resultSource": "RPCResponse",
+        "sequenceCount": 2,
+        "state": "completed",
+        "version": 1,
+        "clientProcessExit": 37,
+        "stdoutBytes": 14,
+        "stderrBytes": 15
+      }
+    },
+    {
+      "name": "native.output.stream",
+      "passed": true,
+      "seconds": 0.03810366599999959,
+      "evidence": {
+        "chunks": 43,
+        "executorPID": 14445,
+        "exitCode": 23,
+        "id": "DD215706-A681-4BEF-9CC9-4E915E2A0AB5",
+        "outputIncomplete": false,
+        "resultSource": "RPCResponse",
+        "sequenceCount": 43,
+        "state": "completed",
+        "version": 1,
+        "clientProcessExit": 23,
+        "stdoutBytes": 147162,
+        "stderrBytes": 77084
+      }
+    },
+    {
+      "name": "native.output.over_1mib",
+      "passed": true,
+      "seconds": 0.06718654100000032,
+      "evidence": {
+        "chunks": 165,
+        "executorPID": 14445,
+        "exitCode": 19,
+        "id": "C5B1BDC3-7FBB-47B2-8DD0-8EFBD3482488",
+        "outputIncomplete": false,
+        "resultSource": "RPCResponse",
+        "sequenceCount": 165,
+        "state": "completed",
+        "version": 1,
+        "clientProcessExit": 19,
+        "stdoutBytes": 1347730,
+        "expectedSHA256": "187ef5dad322a5a32c182b17cc158ac14cb1171a7d6c4b9949f18c3fa651a714",
+        "actualSHA256": "187ef5dad322a5a32c182b17cc158ac14cb1171a7d6c4b9949f18c3fa651a714"
+      }
+    },
+    {
+      "name": "native.input.wrong_root",
+      "passed": true,
+      "seconds": 0.027178375000000088,
+      "evidence": {
+        "inputBytes": 319,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.input.schema",
+      "passed": true,
+      "seconds": 0.024712500000000137,
+      "evidence": {
+        "inputBytes": 315,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.input.oversize",
+      "passed": true,
+      "seconds": 0.02533333399999993,
+      "evidence": {
+        "inputBytes": 131073,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.input.argument_count",
+      "passed": true,
+      "seconds": 0.027928667000000296,
+      "evidence": {
+        "inputBytes": 5406,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.input.malformed",
+      "passed": true,
+      "seconds": 0.02685700000000013,
+      "evidence": {
+        "inputBytes": 9,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.input.nul",
+      "passed": true,
+      "seconds": 0.027382832999999884,
+      "evidence": {
+        "inputBytes": 318,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.duplicate.completed",
+      "passed": true,
+      "seconds": 0.05934570799999994,
+      "evidence": {
+        "id": "DDA5B8EA-7797-4099-8C1E-68C0EBC8DE7F",
+        "second": {
+          "chunks": 0,
+          "exitCode": 64,
+          "id": "DDA5B8EA-7797-4099-8C1E-68C0EBC8DE7F",
+          "message": "请求已提交或执行队列已满，未重复执行。",
+          "outputIncomplete": false,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 0,
+          "state": "rejected",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "version": 1,
+          "clientProcessExit": 64
+        },
+        "hostAdmissions": 1
+      }
+    },
+    {
+      "name": "native.duplicate.active",
+      "passed": true,
+      "seconds": 0.0754474169999999,
+      "evidence": {
+        "id": "4A75A445-A4CB-471F-89FE-3C40DBC43EBC",
+        "first": {
+          "chunks": 1,
+          "executorPID": 14445,
+          "exitCode": 0,
+          "id": "4A75A445-A4CB-471F-89FE-3C40DBC43EBC",
+          "outputIncomplete": false,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 1,
+          "state": "completed",
+          "stderrBase64": "",
+          "stdoutBase64": "YWRtaXR0ZWQK",
+          "version": 1,
+          "clientProcessExit": 0
+        },
+        "second": {
+          "chunks": 0,
+          "exitCode": 64,
+          "id": "4A75A445-A4CB-471F-89FE-3C40DBC43EBC",
+          "message": "请求已提交或执行队列已满，未重复执行。",
+          "outputIncomplete": false,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 0,
+          "state": "rejected",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "version": 1,
+          "clientProcessExit": 64
+        },
+        "hostAdmissions": 1
+      }
+    },
+    {
+      "name": "native.peer.client_requirement",
+      "passed": true,
+      "seconds": 0.05638062500000007,
+      "evidence": {
+        "processExit": 70,
+        "result": {
+          "error": "Couldn’t communicate with a helper application."
+        },
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.peer.host_requirement",
+      "passed": true,
+      "seconds": 0.3125623329999998,
+      "evidence": {
+        "processExit": 70,
+        "result": {
+          "error": "Couldn’t communicate with a helper application."
+        },
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.disconnect.unknown_no_replay",
+      "passed": true,
+      "seconds": 0.4643662500000003,
+      "evidence": {
+        "response": {
+          "chunks": 0,
+          "exitCode": 75,
+          "id": "D486C325-CD0C-4C8F-969E-9292B621D3F7",
+          "message": "连接已中断，命令结果尚未确认。请在Cider检查运行状态；本次命令不会自动重试。",
+          "outputIncomplete": false,
+          "resultSource": "RPCResponse",
+          "sequenceCount": 0,
+          "state": "unknown",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "version": 1,
+          "clientProcessExit": 75
+        },
+        "previousHostPID": 14481,
+        "replacementHostPID": 14495,
+        "hostAdmissions": 1
+      }
+    },
+    {
+      "name": "native.broker_crash.host_reconnect_no_replay",
+      "passed": true,
+      "seconds": 17.781523417,
+      "evidence": {
+        "response": {
+          "chunks": 0,
+          "exitCode": 75,
+          "id": "834C6E34-ECD8-4646-8C02-3D02EB286177",
+          "message": "连接已中断，命令结果尚未确认。请在Cider检查运行状态；本次命令不会自动重试。",
+          "outputIncomplete": false,
+          "resultSource": "RPCClientTransportFailure",
+          "sequenceCount": 0,
+          "state": "unknown",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "transportFailure": "连接已中断，命令结果尚未确认。请在Cider检查运行状态；本次命令不会自动重试。",
+          "version": 1,
+          "clientProcessExit": 75
+        },
+        "hostPIDBeforeAndAfter": 14495,
+        "crashedBrokerPID": 14441,
+        "replacementBrokerPID": 14520,
+        "hostAdmissionsForOriginalID": 1,
+        "originalRequestResubmitted": false,
+        "freshRequestID": "E8BF5F58-34AC-455D-84C7-0DFA57DFAB2F"
+      }
+    }
+  ],
+  "unitTestsIncluded": 0,
+  "productGUIOrWineSessions": 0,
+  "signatures": {
+    "host": "# designated => cdhash H\"983c61a96ea5b8a9d7d100b6090974475ba90e75\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-ha3nywp8/NativeFixture.app/Contents/MacOS/Cider\nIdentifier=org.cider.nativefixture.3100f303881f4d5385cb35cdc9db542f\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=15289 flags=0x10002(adhoc,runtime) hashes=470+3 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=983c61a96ea5b8a9d7d100b6090974475ba90e75\nCandidateCDHashFull sha256=983c61a96ea5b8a9d7d100b6090974475ba90e751510c8d3386f9359f667255b\nHash choices=sha256\nCMSDigest=983c61a96ea5b8a9d7d100b6090974475ba90e751510c8d3386f9359f667255b\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3604480\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=983c61a96ea5b8a9d7d100b6090974475ba90e75\nSignature=adhoc\nInfo.plist entries=7\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources version=2 rules=13 files=2",
+    "client": "# designated => cdhash H\"8ca6a8a90ee0a7842be8dc8a64f3075fa09ca69a\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-ha3nywp8/NativeFixture.app/Contents/MacOS/ciderctl\nIdentifier=org.cider.nativefixture.3100f303881f4d5385cb35cdc9db542f.ciderctl\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=15266 flags=0x10002(adhoc,runtime) hashes=470+2 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=8ca6a8a90ee0a7842be8dc8a64f3075fa09ca69a\nCandidateCDHashFull sha256=8ca6a8a90ee0a7842be8dc8a64f3075fa09ca69a34c99b0b36a04b8f92969434\nHash choices=sha256\nCMSDigest=8ca6a8a90ee0a7842be8dc8a64f3075fa09ca69a34c99b0b36a04b8f92969434\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3604480\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=8ca6a8a90ee0a7842be8dc8a64f3075fa09ca69a\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources=none",
+    "broker": "# designated => cdhash H\"5a73b64c06a1e1341e03ed376249d4b393b4254e\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-ha3nywp8/NativeFixture.app/Contents/MacOS/CiderXPCBridge\nIdentifier=org.cider.nativefixture.3100f303881f4d5385cb35cdc9db542f.CiderXPCBridge\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=15272 flags=0x10002(adhoc,runtime) hashes=470+2 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=5a73b64c06a1e1341e03ed376249d4b393b4254e\nCandidateCDHashFull sha256=5a73b64c06a1e1341e03ed376249d4b393b4254eb54c4735fcaa1eb57097a073\nHash choices=sha256\nCMSDigest=5a73b64c06a1e1341e03ed376249d4b393b4254eb54c4735fcaa1eb57097a073\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3604480\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=5a73b64c06a1e1341e03ed376249d4b393b4254e\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources=none"
+  },
+  "label": "org.cider.ipc.baa11309e4c273ed78218fe7",
+  "sourceHashes": {
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore+Archive.swift": "c31383a7376da1e30fd44890e8cded4c526b6546bbd37483ab30672d780faf6c",
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore+Management.swift": "5774d5a1f71b5681f7d8e7b2ce72b1eb6b4fa1313bcb99a479ecc6a3ca77ce9c",
+    "Packages/CiderKit/Sources/CiderBottle/BottleStore.swift": "0af445ed14fa04a54ee703871b7861e6562abe94b94d395bc7591d485523a909",
+    "Packages/CiderKit/Sources/CiderBottle/CloneStartup.swift": "8a9b2568db48fcda96c085ff7110ba4aaed4134c56666fd814bf38214dc2b4cc",
+    "Packages/CiderKit/Sources/CiderBottle/Diagnostics.swift": "97cfa36470d637f386a3500270891e0715235813ca70f6f6a0720f42c09e2714",
+    "Packages/CiderKit/Sources/CiderBottle/PrefixSetup.swift": "b1a21a473e12a2a0ca2c795e491e320bf1113f864366504765011ef2037e3805",
+    "Packages/CiderKit/Sources/CiderCore/CiderDiagnostics.swift": "52abc5116a5281acee60203f3e0840fee92cc412610e91d5b80dfab4f494dbb8",
+    "Packages/CiderKit/Sources/CiderCore/CiderError.swift": "ec8511d37248dee66fdc07048b86754780e4db108c0c7bb3263c6372fa22940f",
+    "Packages/CiderKit/Sources/CiderCore/CiderPaths.swift": "8c957a7a4ab83497bd87b564f6f31b92ff2fd6d88773e7be92eb44a3d444adba",
+    "Packages/CiderKit/Sources/CiderCore/CiderResources.swift": "fa5d2e25080838a8baabe6b7ca2fbaa67782d0c4319851a2a93c032eb7711726",
+    "Packages/CiderKit/Sources/CiderCore/FileSafety.swift": "832908c9b93e515d7ab33ac72a48467138eb44ae9f270fc286a1215e48d59fdf",
+    "Packages/CiderKit/Sources/CiderCore/Identifiers.swift": "397e4aa7cf8a8e80b054d6aae2c763ea3415c30f244c86f559c828476647f1fd",
+    "Packages/CiderKit/Sources/CiderCore/JSONFile.swift": "2b48d467aca85ae475b3f969dc39aeb790980b3e23177afdaa902f422820b502",
+    "Packages/CiderKit/Sources/CiderCore/PatchState.swift": "f63100150cf3c0d2b8f334a8833cda7a7bd3ff9ae3c76aac27dc5c71b8ac56f4",
+    "Packages/CiderKit/Sources/CiderCore/PrefixServer.swift": "ba4b95e81aa53cf0dbe1226e194327143a383334b5c08071bf43abccbec1cdb7",
+    "Packages/CiderKit/Sources/CiderCore/WindowsArgumentParser.swift": "85c6d864f0e3ce156a3461faa86c44ad1fdd678f54c3b211bedc360fc67d1907",
+    "Packages/CiderKit/Sources/CiderCore/WindowsExitStatus.swift": "3b9d1e0f311d932b04ed789bb417d34a0a91e87fe83796377d8b96130ca850fb",
+    "Packages/CiderKit/Sources/CiderCore/WinePathMapping.swift": "10734bd49e5ae7c25962aa6fc903fc3497c254d507aa947be329aed5e8a94d4b",
+    "Packages/CiderKit/Sources/CiderData/CompatDB.swift": "a83e47bc0306c38534f6aa60fedd8b90e61fef04b3990b35609d8ea8b68fb9bb",
+    "Packages/CiderKit/Sources/CiderData/KernelFidelity.swift": "54968e725d74d8b0c8c2e2fc7c8859c56035f72edfab8e85d7d421c024348a9c",
+    "Packages/CiderKit/Sources/CiderData/Preflight.swift": "635f7ebcb9d16254d51295cf8903949af117f1e1eefe5399abc05bb6d7ab3e0b",
+    "Packages/CiderKit/Sources/CiderData/Recipe.swift": "808d11bc6cbd5fbca7fb0cce2f5f0e164ed381b8068ad0c29b3cb17aae1608c8",
+    "Packages/CiderKit/Sources/CiderIPC/Broker.swift": "411349f81aaa82328e96178111aeeb5eeba4c04160667f734a7f894107bd4848",
+    "Packages/CiderKit/Sources/CiderIPC/BundleLocation.swift": "ad6530b7e6de3083401fc8cfd759f277be434224329d031ffc723803b2760877",
+    "Packages/CiderKit/Sources/CiderIPC/Client.swift": "32eb89eb6839ced97426ada1ae1991924ab1c5d9434663d6d20c6b183de278cb",
+    "Packages/CiderKit/Sources/CiderIPC/Host.swift": "c3ad89e6895a435ad1fdc853893642d601a91da1bd37b2df5bd95cb643e9855c",
+    "Packages/CiderKit/Sources/CiderIPC/Identity.swift": "ede0f0435f2d57936701a4b6026d718aafe7b89f35b5ce62c6c51cd059ab5811",
+    "Packages/CiderKit/Sources/CiderIPC/Location.swift": "558418dbef775b2443638f7c78e28586efa2c0734218d59d65f44c065baf0134",
+    "Packages/CiderKit/Sources/CiderIPC/Wire.swift": "2f36fdcb6c9467b70087b41d7d467ac37d695cd080892b4d1e26234b05e0607e",
+    "Packages/CiderKit/Sources/CiderIntegration/AppCatalog.swift": "14fda8be25895bbc16514d7b2c36397c17ab3e135e20f1c3a0384e28b76704fb",
+    "Packages/CiderKit/Sources/CiderIntegration/AppLifecycle.swift": "43975bdf671f9bc1e25cc3691864a0b8c6307fd9616f9751f1ae54cc101a955f",
+    "Packages/CiderKit/Sources/CiderIntegration/PatchInstaller.swift": "9ca6d1a1b1faa9d7b3cd17b7b437572bc8c9e6864ff2c6b8d6c8ec40139d58b9",
+    "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift": "8b8c1c0e74d4bf9a36e5419c2a82b2dbda002493e9f9b917fd46b571d9907211",
+    "Packages/CiderKit/Sources/CiderIntegration/SteamLibrary.swift": "d21a9748e3bc655781000f4624e149b17db0ec53a2646776f6356a6028e9b1e1",
+    "Packages/CiderKit/Sources/CiderIntegration/VDF.swift": "18b371767e86d2cefa2ea37ad75e4ac2430cd3bb993947543b5fe410697ccb75",
+    "Packages/CiderKit/Sources/CiderPE/IconCache.swift": "132696a171e03b0b36ef916daf8822cf293a163243c00323a0d73f0177d5209a",
+    "Packages/CiderKit/Sources/CiderPE/PEHeader.swift": "65c01f9239f757337b6089355913bab8ba7060f817c11306ddbcf73b411579e2",
+    "Packages/CiderKit/Sources/CiderPE/PEIcon.swift": "d14e9e27dc7251161d02b36ff7d16e2eaf111fcd56255e613e5596f87baf7a47",
+    "Packages/CiderKit/Sources/CiderPE/PEVersionInfo.swift": "bbcdcd9e85702905a36d375f017c26907fefc8a7d3d991ca61cd950bd987969d",
+    "Packages/CiderKit/Sources/CiderPE/ShellLink.swift": "a683daed57febe299eb489d0d21005a3160345de07692b4f2e9468333825d25f",
+    "Packages/CiderKit/Sources/CiderRuntime/BottleActivity.swift": "0feee95d18796eb1d4a6b8c77b3ed06130b6110080387e51d5631047be36c039",
+    "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift": "c911f178e57b7899191357060fcf64f7283f35f8ec8f77f3c4e4fb0559988801",
+    "Packages/CiderKit/Sources/CiderRuntime/Spawn.swift": "f4d5a316ba282e44fff2e2857db6a0b9e4505bb4cc188555497ef11c281f1c56",
+    "Packages/CiderKit/Sources/CiderRuntime/WineRunner+ExitStatus.swift": "d30edfc59bd517a4a986f3c0ca382a5d9fee9356a1bdeb46a55d6429792d6558",
+    "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift": "386f6c04d4470f2ea7ebe295553629bb491bc35428f1782ffcd9bfeee6e1eed5",
+    "Packages/CiderKit/Sources/CiderSchema/BottleConfig.swift": "74ab082c5d53a8d345c48b1b6b96cc1200c177246b2bd85f6df8cc2030100f25",
+    "Packages/CiderKit/Sources/CiderSchema/BottleLocale.swift": "0bf6ad0e04604c72cdde5626aa8c6c4ef279928160d654cd6adef3fd886f1183",
+    "Packages/CiderKit/Sources/CiderSchema/EngineManifest.swift": "ff81b644b43daa299b0c17609d4080fad49d5d79dd68ef1c83d7681d573de145",
+    "Packages/CiderKit/Sources/CiderStore/ArchiveExtractor.swift": "bb16f504d30c5dbeef15121d99f5c458797a00e16059547ded6d23135838cd2e",
+    "Packages/CiderKit/Sources/CiderStore/Command.swift": "735f1316c0ef34e7401e772c11fb436a1525b93a02b5d316c300db22a4efa980",
+    "Packages/CiderKit/Sources/CiderStore/D3DMetalImporter.swift": "16ed7857dd3931bfaba7d3d90ac30df4cd2614d7d50b38f86b1022999956229b",
+    "Packages/CiderKit/Sources/CiderStore/EngineHost.swift": "8d8e263cea413eeda345bedda54d11eabccd7b17c19f47c43a60635bd5682df6",
+    "Packages/CiderKit/Sources/CiderStore/EngineIndex.swift": "7ff30f5ba74e064f773f90398d207f4a73359d11f1b8dbdb9e99da4fb8782ff2",
+    "Packages/CiderKit/Sources/CiderStore/EnginePolicy.swift": "529f418f2cb9d80c0cda8d304fdfc5d91bab60b90ca8f5852e8568b6a3726d8d",
+    "Packages/CiderKit/Sources/CiderStore/EngineStore.swift": "c35c0d3f4611a9fa2954bd89a0ebe4ed59971670c5c5f1e5693f794dc54d59b4",
+    "Tools/CiderCommands/Sources/CiderCommands/CiderCommandExecutor.swift": "fcaa2481540b77fe4bb467547dcafea924a08a3758c9a47a06bd49ff410a69f7",
+    "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "1a3b7e130d24c53cc001cf29e6f4ba558b36cfd3e36526c8d5304eebbbf47c5e",
+    "tests/xpc/Fixture/Sources/FixtureBroker/Broker.swift": "03bfd001195cce297dffc2146240d793005f910fbffcd70bfa5fd320b508321b",
+    "tests/xpc/Fixture/Sources/FixtureClient/Client.swift": "3b89795ef79cbc3ed886e06f55b0448089043714a788f3813c12a1860f52509a",
+    "tests/xpc/Fixture/Sources/FixtureHost/Host.swift": "a24c31889b8f8dfd76e2b842295c9b283e76f31f75a38515d611958a631fcfdd",
+    "tests/xpc/Fixture/Sources/FixtureSupport/FixtureSupport.swift": "e41861bae030ec6e5bb11b737314f4509dc13bcbb2b75d87dffa5dd5afd3ea43",
+    "tests/xpc/Fixture/Package.swift": "4ae465bebe41123487ecd6abd551eb86e1a7d4dbae0afb3393dc75aa25f204af",
+    "tests/xpc/run_native.py": "f7acab2a2bf3c39786eb12e0eb62f982d306597fe5ee05b137aa4081843ea65a"
+  },
+  "sourcesStableDuringBuild": true,
+  "cleanup": {
+    "unregistered": true,
+    "hostPIDs": [
+      14445,
+      14481,
+      14495
+    ],
+    "brokerPIDs": [
+      14441,
+      14520
+    ],
+    "livePIDs": [],
+    "errors": [],
+    "passed": true
+  },
+  "sourceChangedDuringRun": false,
+  "hostLogs": [
+    {
+      "name": "host-6F96F75D-FE4D-48FC-B9C6-C812C9917500.log",
+      "text": ""
+    },
+    {
+      "name": "host-3982BE8F-2C4D-4D8F-916B-024E065CF140.log",
+      "text": ""
+    },
+    {
+      "name": "host-AD7E01BF-E165-464D-A186-BF6A28B50C4B.log",
+      "text": ""
+    }
+  ],
+  "nativeCasesExecuted": 19,
+  "nativeCasesPassed": 19,
+  "passed": true
+}

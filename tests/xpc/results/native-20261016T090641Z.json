@@ -1,0 +1,103 @@
+{
+  "kind": "native-macos-xpc-fixture",
+  "createdUTC": "20261016T090641Z",
+  "platform": "macOS-26.7-arm64-arm-64bit",
+  "filters": [
+    "native.broker_crash.*"
+  ],
+  "selected": [
+    "native.broker_crash.host_reconnect_no_replay"
+  ],
+  "skipped": [
+    "native.handshake.no_host",
+    "native.handshake.host",
+    "native.command.engine_list",
+    "native.command.bottle_list",
+    "native.output.echo_exit",
+    "native.output.stream",
+    "native.output.over_1mib",
+    "native.input.wrong_root",
+    "native.input.schema",
+    "native.input.oversize",
+    "native.input.argument_count",
+    "native.input.malformed",
+    "native.input.nul",
+    "native.duplicate.completed",
+    "native.duplicate.active",
+    "native.peer.client_requirement",
+    "native.peer.host_requirement",
+    "native.disconnect.unknown_no_replay"
+  ],
+  "cases": [
+    {
+      "name": "native.broker_crash.host_reconnect_no_replay",
+      "passed": true,
+      "seconds": 18.810429791,
+      "evidence": {
+        "response": {
+          "chunks": 0,
+          "exitCode": 75,
+          "id": "FC064824-5920-40EB-8F81-25C8989D0AFD",
+          "message": "连接已中断，命令结果尚未确认。请在Cider检查运行状态；本次命令不会自动重试。",
+          "outputIncomplete": false,
+          "resultSource": "RPCClientTransportFailure",
+          "sequenceCount": 0,
+          "state": "unknown",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "transportFailure": "连接已中断，命令结果尚未确认。请在Cider检查运行状态；本次命令不会自动重试。",
+          "version": 1,
+          "clientProcessExit": 75
+        },
+        "hostPIDBeforeAndAfter": 14165,
+        "crashedBrokerPID": 14172,
+        "replacementBrokerPID": 14193,
+        "hostAdmissionsForOriginalID": 1,
+        "originalRequestResubmitted": false,
+        "freshRequestID": "312AE108-2F30-4BFC-B4D9-D2CB98F99E06"
+      }
+    }
+  ],
+  "unitTestsIncluded": 0,
+  "productGUIOrWineSessions": 0,
+  "signatures": {
+    "host": "# designated => cdhash H\"3c86a451d2d0a302572f624b7f651a65e16b4b9e\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-i89ogl1t/NativeFixture.app/Contents/MacOS/Cider\nIdentifier=org.cider.nativefixture.64cdd5b5e08145e7b28a0d4676e3952d\nFormat=app bundle with Mach-O thin (arm64)\nCodeDirectory v=20500 size=15289 flags=0x10002(adhoc,runtime) hashes=470+3 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=3c86a451d2d0a302572f624b7f651a65e16b4b9e\nCandidateCDHashFull sha256=3c86a451d2d0a302572f624b7f651a65e16b4b9e32ed726c5147eb5810c43c61\nHash choices=sha256\nCMSDigest=3c86a451d2d0a302572f624b7f651a65e16b4b9e32ed726c5147eb5810c43c61\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3604480\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=3c86a451d2d0a302572f624b7f651a65e16b4b9e\nSignature=adhoc\nInfo.plist entries=7\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources version=2 rules=13 files=2",
+    "client": "# designated => cdhash H\"53afa1236cfd97bdead44db1dc7cfd7a39fa3569\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-i89ogl1t/NativeFixture.app/Contents/MacOS/ciderctl\nIdentifier=org.cider.nativefixture.64cdd5b5e08145e7b28a0d4676e3952d.ciderctl\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=15266 flags=0x10002(adhoc,runtime) hashes=470+2 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=53afa1236cfd97bdead44db1dc7cfd7a39fa3569\nCandidateCDHashFull sha256=53afa1236cfd97bdead44db1dc7cfd7a39fa3569360cd822ca92a8b8bda0d91c\nHash choices=sha256\nCMSDigest=53afa1236cfd97bdead44db1dc7cfd7a39fa3569360cd822ca92a8b8bda0d91c\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3604480\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=53afa1236cfd97bdead44db1dc7cfd7a39fa3569\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources=none",
+    "broker": "# designated => cdhash H\"437b83cebd6d8afb9296202ad4b0a468d378ca4b\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-i89ogl1t/NativeFixture.app/Contents/MacOS/CiderXPCBridge\nIdentifier=org.cider.nativefixture.64cdd5b5e08145e7b28a0d4676e3952d.CiderXPCBridge\nFormat=Mach-O thin (arm64)\nCodeDirectory v=20500 size=15272 flags=0x10002(adhoc,runtime) hashes=470+2 location=embedded\nVersionPlatform=1\nVersionMin=917504\nVersionSDK=917504\nHash type=sha256 size=32\nCandidateCDHash sha256=437b83cebd6d8afb9296202ad4b0a468d378ca4b\nCandidateCDHashFull sha256=437b83cebd6d8afb9296202ad4b0a468d378ca4b9f6ce9b920462a70eaf43338\nHash choices=sha256\nCMSDigest=437b83cebd6d8afb9296202ad4b0a468d378ca4b9f6ce9b920462a70eaf43338\nCMSDigestType=2\nExecutable Segment base=0\nExecutable Segment limit=3604480\nExecutable Segment flags=0x1\nPage size=16384\nCDHash=437b83cebd6d8afb9296202ad4b0a468d378ca4b\nSignature=adhoc\nInfo.plist=not bound\nTeamIdentifier=not set\nRuntime Version=14.0.0\nSealed Resources=none"
+  },
+  "label": "org.cider.ipc.434c15b9aed26e3fdc393e48",
+  "sourceHashes": {
+    "Packages/CiderKit/Sources/CiderIPC/Broker.swift": "411349f81aaa82328e96178111aeeb5eeba4c04160667f734a7f894107bd4848",
+    "Packages/CiderKit/Sources/CiderIPC/BundleLocation.swift": "ad6530b7e6de3083401fc8cfd759f277be434224329d031ffc723803b2760877",
+    "Packages/CiderKit/Sources/CiderIPC/Client.swift": "32eb89eb6839ced97426ada1ae1991924ab1c5d9434663d6d20c6b183de278cb",
+    "Packages/CiderKit/Sources/CiderIPC/Host.swift": "c3ad89e6895a435ad1fdc853893642d601a91da1bd37b2df5bd95cb643e9855c",
+    "Packages/CiderKit/Sources/CiderIPC/Identity.swift": "ede0f0435f2d57936701a4b6026d718aafe7b89f35b5ce62c6c51cd059ab5811",
+    "Packages/CiderKit/Sources/CiderIPC/Location.swift": "558418dbef775b2443638f7c78e28586efa2c0734218d59d65f44c065baf0134",
+    "Packages/CiderKit/Sources/CiderIPC/Wire.swift": "2f36fdcb6c9467b70087b41d7d467ac37d695cd080892b4d1e26234b05e0607e",
+    "Tools/CiderCommands/Sources/CiderCommands/CiderCommandExecutor.swift": "fcaa2481540b77fe4bb467547dcafea924a08a3758c9a47a06bd49ff410a69f7",
+    "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "1a3b7e130d24c53cc001cf29e6f4ba558b36cfd3e36526c8d5304eebbbf47c5e"
+  },
+  "cleanup": {
+    "unregistered": true,
+    "hostPIDs": [
+      14165
+    ],
+    "brokerPIDs": [
+      14172,
+      14193
+    ],
+    "livePIDs": [],
+    "errors": [],
+    "passed": true
+  },
+  "sourceChangedDuringRun": false,
+  "hostLogs": [
+    {
+      "name": "host-10732104-93C0-4330-AEE1-204A093BDD48.log",
+      "text": ""
+    }
+  ],
+  "nativeCasesExecuted": 1,
+  "nativeCasesPassed": 1,
+  "passed": true
+}
