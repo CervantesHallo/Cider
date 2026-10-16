@@ -4,6 +4,8 @@
 
 ## 用户目标与协作
 
+- **持续检查点68（2026-10-17）**：继续原HY1后，aab2970同一release产品源码保持；Unicode/CP936快捷方式与宿主EXE保存项分别经过真实Catalog→WindowsPath→AppLifecycle→Wine启动及重开共6次，guest实际argv/cwd/env/退出37一致。产品CLI→XPC→GUI完整创建win7_64新瓶子/前缀revision2也通过，共7项及实际清理，见research68；服务链不冒称SwiftUI点击/Windows Shell。恢复候选已整理为A应用/安装、B音频候选、C预算脚本、D非默认kernel，固定aab2970文件摘要在restore manifest。当前下一交付受用户原“等我指令再恢复”约束，需要明确恢复范围；真实kernel还依赖独立Windows/机时新决定，K2旧工具拒绝保留。不要无变化重复构建/测试或将整批标全完成。常用App/账本/游戏数据保持、无Windows/Actions/定时。
+
 - **持续检查点67（2026-10-17）**：隔离源码aab2970中四个产品新瓶子入口已从预约/config公开前登记并保留停止活动到初始化、刷新、安装/打开；手动EXE/MSI也用完整DWORD。真实旧Stop后两次后续spawn/创建0，最终0后续spawn/创建1且无created；19项Swift、5项手动CiderKit服务实际Wine、release/严格签名及清理通过。复审两项P2均修：同锁停止到删除、install忙标记先检查/取得并正确转移。服务执行不冒称GUI点击/TCC/Windows kernel/游戏。源码仍隔离、常用App/账本未改，无Windows/Actions/定时。接着做原HY1特殊快捷方式参数/guest cwd真实证据，**不要组件完成就发final停止**；原阶段/门禁/K2既有拒绝/Windows旧pending保留。
 
 - **持续检查点66（2026-10-17）**：隔离提交3f55e9c已补完整安装DWORD、最小必要引号/真实MSI阻塞修复、资源打包校验、跨GUI/CLI停止、原子取消完成及刷新/自动打开交接、异步客户端输出。38项Swift/15命令/8原生XPC/24最终PE采集器/10真实配方及2种真实Stop均通过，独立复审范围无P1/P2；异常数值不是故障注入、不是Windows kernel/TCC/游戏验收。失败与修正后回执均保留，常用App/引擎/游戏/真实账本不动，无Windows/Actions/定时。报告66是继续工作检查点，**不结束任务**；现在继续新瓶子初始化与手动安装入口交接，不能因一个组件通过再次发final停下。原HY顺序、隔离及真实Windows预算边界保持。

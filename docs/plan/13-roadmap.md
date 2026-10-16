@@ -2,6 +2,10 @@
 
 > 2026-09-27 起执行。按 00 的阶段 P0→P1 推进，每项完成后在这里改状态。✔ = 已完成并实测；◐ = 部分完成；○ = 未开始。
 
+## 2026-10-17 特殊快捷方式与完整创建（持续检查点68）
+
+[research68](../research/68-shortcut-entry-runtime-20261017.md)：在aab2970相同release源码下，Unicode/CP936链接及保存项各真实启动/重开，6次实际guest参数/cwd/env/退出37一致；产品完整创建win7_64/revision2正例及本批清理通过。没有重建无变化产品，不冒称UI点击/Windows Shell/kernel/游戏。恢复候选的固定文件摘要、组间依赖及真实未完成项见[恢复范围](../QUARANTINE_RESTORE_CANDIDATES.md)；源码仍隔离，下一实际发布需用户明确恢复A范围，不能自动整包合并。原HY顺序、K2既有拒绝、独立Windows及原机时pending保持；已通过不无变化复跑。
+
 ## 2026-10-17 创建与手动安装停止交接（持续检查点67）
 
 隔离源码aab2970与[research67](../research/67-creation-and-manual-installer-20261017.md)补齐四个新瓶子入口的预约前登记/初始化取消/刷新与安装交接，手动EXE/MSI接入完整DWORD和共享停止。真实负例Kill0后regedit/winecfg两次复活且创建CLI0；最终同门控后0次后续spawn、创建CLI1且无成功输出，清理通过。19项Swift/3组、5项手动服务实际Wine、release/严格签名通过；只读复审两项P2（停止至删除锁区间、全局install忙标记）均已修，范围内无新P1/P2。不是GUI点击/TCC/原生kernel/游戏验收。常用App/账本保持、Windows/Actions=0、隔离未恢复、定时关。继续原HY1特殊快捷方式参数与guest cwd的实际证据，不在此检查点结束任务。
