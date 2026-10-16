@@ -1,0 +1,7 @@
+{
+  "rawWineLogsCommitted": false,
+  "lockWarnings": [
+    "010c:err:sync:RtlpWaitForCriticalSection section 00006FFFFD244560 \"/Users/cervantes/Library/Caches/Cider/engine-build/cider-cx26.3-r1-x86_64/src/dlls/winmm/waveform.c: g_devthread_lock\" wait timed out in thread 010c, blocked by 0024, retrying (60 sec)"
+  ],
+  "scope": "owned first-waveOutOpen probe only"
+}

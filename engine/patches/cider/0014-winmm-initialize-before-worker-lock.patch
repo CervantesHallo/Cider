@@ -1,0 +1,39 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [PATCH] winmm: Initialize device metadata before the worker startup lock.
+
+A first-call waveOutOpen holds the startup lock while waiting for the worker.
+The metadata InitOnce publication added by Cider 0008 takes that same lock.
+Initialize metadata before acquiring the startup lock and remove the worker
+retry under that lock. The worker still creates/releases its own COM enumerator;
+format probing, device contents, failure returns and callbacks are preserved.
+
+Base-source-SHA256: d7257e658d85d163467fd51f633ad1edff1c0fa66edb28d83fec4b3523da67c8
+
+--- a/dlls/winmm/waveform.c
++++ b/dlls/winmm/waveform.c
+@@ -2536,12 +2536,6 @@
+         FreeLibraryAndExitThread(g_devthread_module, 1);
+     }
+ 
+-    hr = WINMM_InitMMDevices();
+-    if(FAILED(hr)){
+-        CoUninitialize();
+-        FreeLibraryAndExitThread(g_devthread_module, 1);
+-    }
+-
+     hr = CoCreateInstance(&CLSID_MMDeviceEnumerator, NULL,
+             CLSCTX_INPROC_SERVER, &IID_IMMDeviceEnumerator, (void**)&g_devenum);
+     if(FAILED(hr)){
+@@ -2599,6 +2593,12 @@
+ {
+     HANDLE events[2];
+     DWORD wait;
++
++    /* Device publication takes g_devthread_lock. Finish InitOnce before
++     * taking the startup lock or waiting for a worker which needs that lock.
++     * Keep the worker's own COM enumerator initialization on its MTA thread. */
++    if (FAILED(WINMM_InitMMDevices()))
++        return FALSE;
+ 
+     EnterCriticalSection(&g_devthread_lock);
+ 

@@ -1,0 +1,106 @@
+{
+  "schema": "cider.product-runtime-acceptance/v1",
+  "startedUTC": "2026-10-16T12:52:44.746014Z",
+  "owner": {
+    "schema": "cider.runtime-acceptance/v1",
+    "root": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f",
+    "source_commit": "bb096da",
+    "source_app": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app",
+    "app": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+    "home": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home",
+    "ownership": "Only this test root is writable by this controller",
+    "protected": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "engine_source": "/Users/cervantes/Library/Application Support/Cider/Engines/cider-cx26.3-r1-wma1-mm1-x86_64",
+    "engine_copy": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm1-x86_64",
+    "engine_id": "cider-cx26.3-r1-wma1-mm1-x86_64",
+    "working_changes": "ProcessScanner exact-prefix scope, AppModel scope and ps scope",
+    "candidateSHA256": "65aca7216897e3c3b4d1c5af348ba653e89904d9ca6e1730bc568d983f09f0fb",
+    "sourceHashes": {
+      "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift": "6f3845c35a7f3ef5003dd5c4a9cb92466f89ab44ac58f847c8a404bb5cb7876d",
+      "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift": "5ca349d215148916501d740a2cf6b319834372d94f9499b55f317aa6ccdb6913",
+      "App/Sources/Cider/Model/AppModel.swift": "784c6489db3e8e4311f1b9daea89e37fe7710fb9d8f649a93a861e2f36a01fb4",
+      "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "525c76e59383bdba6a97cb53ead475a55a088b4fdb432768d3b8f874d82a3677"
+    }
+  },
+  "cases": [
+    {
+      "name": "product.cli_launches_real_gui",
+      "passed": true,
+      "seconds": 3.014665417,
+      "evidence": {
+        "stdout": "cider-cx26.3-r1-wma1-mm1-x86_64\twine-11.0\tdevel\n",
+        "gui": [
+          {
+            "bundle": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+            "pid": 22643,
+            "terminated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "product.reuse_empty_prefix",
+      "passed": true,
+      "seconds": 0.0008380830000005446,
+      "evidence": {
+        "reusedOnlyThisOwnedEmptyPrefix": true,
+        "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293"
+      }
+    },
+    {
+      "name": "product.stop_during_guest_startup",
+      "passed": false,
+      "seconds": 14.862493542,
+      "error": "Command '['/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app/Contents/MacOS/ciderctl', 'run', '-b', 'Runtime Acceptance', '--wait', '/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/probe.exe', '--', '--hold', '30000']' timed out after 10 seconds"
+    }
+  ],
+  "windowsOperations": 0,
+  "clients": [],
+  "guiPID": 22643,
+  "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+  "prefix": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Bottles/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/prefix",
+  "spawnParentEvidence": {
+    "unixWinePID": 22654,
+    "nativePPID": 22643,
+    "guiPID": 22643,
+    "parentObservation": "22643 /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm1-x86_64/CiderWineHost.app/Contents/MacOS/wine\n",
+    "probeReady": null,
+    "stopDuringGuestStartup": true
+  },
+  "failure": "Command '['/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app/Contents/MacOS/ciderctl', 'run', '-b', 'Runtime Acceptance', '--wait', '/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/probe.exe', '--', '--hold', '30000']' timed out after 10 seconds",
+  "cleanupKill": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": ""
+  },
+  "cleanupGUI": {
+    "exitCode": 0,
+    "result": "[{\"bundle\":\"\\/Users\\/cervantes\\/Cider\\/out\\/runtime-acceptance-20261016-84kr3z6f\\/Cider.app\",\"pid\":22643,\"terminated\":true}]",
+    "stderr": ""
+  },
+  "launchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "cleanup": {
+    "jobs": [
+      {
+        "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+        "bootoutCode": 0,
+        "absent": true
+      }
+    ],
+    "liveProcesses": [],
+    "errors": [],
+    "passed": true,
+    "protectedSHA256": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    }
+  },
+  "passed": false,
+  "finishedUTC": "2026-10-16T12:53:15.353345Z"
+}

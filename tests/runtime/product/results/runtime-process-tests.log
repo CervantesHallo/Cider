@@ -1,0 +1,55 @@
+Building for debugging...
+[Provisioning 1 / 13]
+[1 / 3] CiderCore
+[2 / 7] CiderKitTests-product
+[7 / 12] CiderKitTests-product
+[11 / 14] CiderKitTests-product
+[13 / 17] CiderKitTests-product
+[15 / 17] CiderKitTests-product
+Build complete! (3.80秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite StopDrainTests started.
+◇ Suite ProcessTerminationTests started.
+◇ Suite ProcessScopeTests started.
+◇ Test lateSuccessfulStopGetsReadOnlyConfirmationPastSoftDeadline() started.
+◇ Test unresolvedCapturedIdentityNeverBecomesSuccessFromEmptyScan() started.
+◇ Test recapturesChildrenWhichStartAfterFirstServerStop() started.
+◇ Test realOwnedChildExitIsConfirmed() started.
+◇ Test unsuccessfulForcedExitIsReturned() started.
+◇ Test activeServerAndLateExitRequireFinalQuiescence() started.
+◇ Test kernelTokenPrecedesOwnershipReadAcrossExec() started.
+◇ Test refreshedKernelIdentityAllowsSameBirthExecButRejectsOwnershipChanges() started.
+◇ Test kernelRejectsStaleAuditIdentity() started.
+◇ Test forcedExitIsObservedBeforeReturning() started.
+◇ Test serverControlClientsAreNotOrphanTargets() started.
+◇ Test currentBottleGateRemainsEffective() started.
+◇ Test unknownIdentityIsNotSignalledAndNotDeclaredStopped() started.
+◇ Test collidingBottleIDsDoNotCrossDataRoots() started.
+◇ Test exactPrefixAndPathAliases() started.
+◇ Test finalExitObservationDoesNotRetainStalePendingButKeepsUnknown() started.
+◇ Test reusedPIDIsNotSignalledAfterGracePeriod() started.
+◇ Test configuredSymlinkCannotAdoptForeignPrefix() started.
+✔ Test unsuccessfulForcedExitIsReturned() passed after 0.001 seconds.
+✔ Test unresolvedCapturedIdentityNeverBecomesSuccessFromEmptyScan() passed after 0.001 seconds.
+✔ Test activeServerAndLateExitRequireFinalQuiescence() passed after 0.001 seconds.
+✔ Test forcedExitIsObservedBeforeReturning() passed after 0.001 seconds.
+✔ Test lateSuccessfulStopGetsReadOnlyConfirmationPastSoftDeadline() passed after 0.001 seconds.
+✔ Test refreshedKernelIdentityAllowsSameBirthExecButRejectsOwnershipChanges() passed after 0.001 seconds.
+✔ Test kernelTokenPrecedesOwnershipReadAcrossExec() passed after 0.001 seconds.
+✔ Test recapturesChildrenWhichStartAfterFirstServerStop() passed after 0.001 seconds.
+✔ Test unknownIdentityIsNotSignalledAndNotDeclaredStopped() passed after 0.001 seconds.
+✔ Test reusedPIDIsNotSignalledAfterGracePeriod() passed after 0.001 seconds.
+✔ Test finalExitObservationDoesNotRetainStalePendingButKeepsUnknown() passed after 0.001 seconds.
+✔ Test serverControlClientsAreNotOrphanTargets() passed after 0.001 seconds.
+✔ Suite StopDrainTests passed after 0.001 seconds.
+✔ Test kernelRejectsStaleAuditIdentity() passed after 0.001 seconds.
+✔ Test collidingBottleIDsDoNotCrossDataRoots() passed after 0.001 seconds.
+✔ Test currentBottleGateRemainsEffective() passed after 0.002 seconds.
+✔ Test configuredSymlinkCannotAdoptForeignPrefix() passed after 0.004 seconds.
+✔ Test exactPrefixAndPathAliases() passed after 0.004 seconds.
+✔ Suite ProcessScopeTests passed after 0.004 seconds.
+✔ Test realOwnedChildExitIsConfirmed() passed after 0.080 seconds.
+✔ Suite ProcessTerminationTests passed after 0.081 seconds.
+✔ Test run with 18 tests in 3 suites passed after 0.081 seconds.

@@ -40,7 +40,9 @@ struct PS: ParsableCommand {
     static let configuration = CommandConfiguration(commandName: "ps", abstract: "List running Windows processes of Cider bottles.")
     @Flag(help: "Include Wine's own service processes.") var all = false
     func run() throws {
-        for p in ProcessScanner.scan().sorted(by: { ($0.bottleID, $0.pid) < ($1.bottleID, $1.pid) }) where all || !p.isWineInfrastructure {
+        let bottles = try CommandContext.required.bottleStore().list()
+        let prefixes = Dictionary(uniqueKeysWithValues: bottles.map { ($0.config.id, $0.prefix) })
+        for p in ProcessScanner.scan(prefixes: prefixes).sorted(by: { ($0.bottleID, $0.pid) < ($1.bottleID, $1.pid) }) where all || !p.isWineInfrastructure {
             CommandContext.emit("\(p.pid)\t\(p.bottleID)\t\(p.windowsImage)")
         }
     }

@@ -1,0 +1,141 @@
+{
+  "schema": "cider.product-runtime-acceptance/v1",
+  "startedUTC": "2026-10-16T13:22:43.201316Z",
+  "owner": {
+    "schema": "cider.runtime-acceptance/v1",
+    "root": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f",
+    "source_commit": "bb096da",
+    "source_app": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app",
+    "app": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+    "home": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home",
+    "ownership": "Only this test root is writable by this controller",
+    "protected": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "engine_source": "/Users/cervantes/Library/Application Support/Cider/Engines/cider-cx26.3-r1-wma1-mm1-x86_64",
+    "engine_copy": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64",
+    "engine_id": "cider-cx26.3-r1-wma1-mm2-x86_64",
+    "working_changes": "ProcessScanner exact-prefix scope, AppModel scope and ps scope",
+    "candidateSHA256": "c1fbfa6e49adce530edef935e8eeef0adf256402d7d50a3b8a684dae83a4cafd",
+    "sourceHashes": {
+      "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift": "c618878a0240562bf2163b787fcbb7efd760e8eb067a358bf189b05cef2032ab",
+      "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift": "2fb305d045af678a8b17d51cfb46816aac47cca64957d7c696545c5466feb9d5",
+      "App/Sources/Cider/Model/AppModel.swift": "784c6489db3e8e4311f1b9daea89e37fe7710fb9d8f649a93a861e2f36a01fb4",
+      "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "525c76e59383bdba6a97cb53ead475a55a088b4fdb432768d3b8f874d82a3677"
+    },
+    "engine_patch": "0014"
+  },
+  "cases": [
+    {
+      "name": "product.cli_launches_real_gui",
+      "passed": true,
+      "seconds": 2.7980964999999998,
+      "evidence": {
+        "stdout": "cider-cx26.3-r1-wma1-mm2-x86_64\twine-11.0\tdevel\n",
+        "gui": [
+          {
+            "bundle": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+            "pid": 25948,
+            "terminated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "product.reuse_empty_prefix",
+      "passed": true,
+      "seconds": 0.0010339169999999953,
+      "evidence": {
+        "reusedOnlyThisOwnedEmptyPrefix": true,
+        "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293"
+      }
+    },
+    {
+      "name": "product.stop_during_guest_startup",
+      "passed": false,
+      "seconds": 13.598819208999998,
+      "error": "Error: invalid: 瓶子仍有进程运行，停止未完成：runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293\n"
+    }
+  ],
+  "windowsOperations": 0,
+  "clients": [],
+  "guiPID": 25948,
+  "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+  "prefix": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Bottles/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/prefix",
+  "spawnParentEvidence": {
+    "unixWinePID": 25962,
+    "nativePPID": 25948,
+    "guiPID": 25948,
+    "parentObservation": "25948 /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64/CiderWineHost.app/Contents/MacOS/wine\n",
+    "probeReady": null,
+    "stopDuringGuestStartup": true
+  },
+  "immediateStopReply": {
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "Error: invalid: 瓶子仍有进程运行，停止未完成：runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293\n",
+    "seconds": 13.318674083000001,
+    "ownProcesses": [
+      {
+        "pid": 25948,
+        "path": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app/Contents/MacOS/Cider"
+      },
+      {
+        "pid": 25946,
+        "path": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app/Contents/MacOS/CiderXPCBridge"
+      }
+    ]
+  },
+  "stopAttempt": {
+    "exitCode": 1,
+    "stdout": "",
+    "stderr": "Error: invalid: 瓶子仍有进程运行，停止未完成：runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293\n",
+    "waitingCLIExitCode": 137,
+    "waitingCLIStdout": "exit 137 · log /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/sessions/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/20261016T132246-probe-5FCBBEE1-FDA0-4669-914F-97DFA4FB6767/wine.log\n",
+    "waitingCLIStderr": "",
+    "liveOwnedProcessesAfterStop": [
+      {
+        "pid": 25948,
+        "path": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app/Contents/MacOS/Cider"
+      },
+      {
+        "pid": 25946,
+        "path": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app/Contents/MacOS/CiderXPCBridge"
+      }
+    ]
+  },
+  "failure": "Error: invalid: 瓶子仍有进程运行，停止未完成：runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293\n",
+  "cleanupKill": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": ""
+  },
+  "cleanupGUI": {
+    "exitCode": 0,
+    "result": "[{\"bundle\":\"\\/Users\\/cervantes\\/Cider\\/out\\/runtime-acceptance-20261016-84kr3z6f\\/Cider.app\",\"pid\":25948,\"terminated\":true}]",
+    "stderr": ""
+  },
+  "launchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "cleanup": {
+    "jobs": [
+      {
+        "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+        "bootoutCode": 0,
+        "absent": true
+      }
+    ],
+    "liveProcesses": [],
+    "errors": [],
+    "passed": true,
+    "protectedSHA256": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    }
+  },
+  "passed": false,
+  "finishedUTC": "2026-10-16T13:23:00.917261Z"
+}

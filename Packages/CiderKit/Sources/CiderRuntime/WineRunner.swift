@@ -303,23 +303,67 @@ public struct WineRunner: Sendable {
     }
 
     private func killAllLocked() throws {
-        // Wine returns 1 when no server owns the lock; still clean up tagged orphan processes.
-        try wineserver(["-k"], allowNoServer: true)
         let matches = { (process: WineProcess) in
             process.bottleID == bottleID && process.prefixPath == prefix.path
         }
-        // Include loaders which have not rewritten argv to a Windows image yet, and tagged host helpers.
-        let leftovers = ProcessScanner.scan(includeLoaders: true).filter(matches)
-        let remaining = ProcessScanner.terminate(leftovers, grace: 2)
-        let deadline = ProcessInfo.processInfo.systemUptime + 2
-        while ProcessInfo.processInfo.systemUptime < deadline,
-              ProcessScanner.scan(includeLoaders: true).contains(where: matches) || BottleActivity.isRunning(prefix: prefix) {
-            usleep(100_000)
-        }
-        guard remaining.isEmpty, !ProcessScanner.scan(includeLoaders: true).contains(where: matches),
-              !BottleActivity.isRunning(prefix: prefix) else {
-            throw CiderError.invalid("瓶子仍有进程运行，停止未完成：\(bottleID)")
-        }
+        let complete = try Self.drainStop(
+            requestStop: { try wineserver(["-k"], allowNoServer: true) },
+            scan: { ProcessScanner.scan(includeLoaders: true).filter(matches) },
+            terminate: { ProcessScanner.terminate($0, grace: $1, forceWait: $2) },
+            unresolved: ProcessScanner.unresolved,
+            serverRunning: { BottleActivity.isRunning(prefix: prefix) },
+            now: { ProcessInfo.processInfo.systemUptime }, pause: { usleep(100_000) },
+            onUnconfirmed: { pending, activeServer in
+                let observations = pending.map { process -> String in
+                    var info = proc_bsdinfo()
+                    errno = 0
+                    let read = proc_pidinfo(process.pid, PROC_PIDTBSDINFO, 0, &info, Int32(MemoryLayout<proc_bsdinfo>.size))
+                    let code = errno
+                    return "pid=\(process.pid),image=\(process.windowsImage),read=\(read),errno=\(code),status=\(info.pbi_status),audit=\(ProcessScanner.refreshedAuditIdentity(process) != nil)"
+                }
+                try? JSONFile.write(["bottle": bottleID, "serverRunning": String(activeServer),
+                                     "unresolved": observations.joined(separator: ";")],
+                    to: paths.logs.appendingPathComponent("stop-\(bottleID)-last-failure.json"))
+            })
+        guard complete else { throw CiderError.invalid("瓶子仍有进程运行，停止未完成：\(bottleID)") }
+    }
+
+    /// A loader may start its server/children after the first -k. Keep observing the
+    /// same prefix, recapture new descendants, and require two clean observations.
+    /// An unreadable captured identity remains pending. Control waiters are excluded
+    /// by ProcessScanner; their --wait result is allowed to finish normally.
+    static func drainStop(budget: TimeInterval = 12, requestStop: () throws -> Void,
+                          scan: () -> [WineProcess],
+                          terminate: ([WineProcess], TimeInterval, TimeInterval) -> [WineProcess],
+                          unresolved: ([WineProcess]) -> [WineProcess], serverRunning: () -> Bool,
+                          now: () -> TimeInterval, pause: () -> Void,
+                          onUnconfirmed: ([WineProcess], Bool) -> Void = { _, _ in }) throws -> Bool {
+        let deadline = now() + budget
+        var pending: [WineProcess] = []
+        var first = true
+        repeat {
+            try requestStop()
+            let current = scan()
+            pending = unresolved(pending)
+            if !current.isEmpty || !pending.isEmpty {
+                pending = terminate(Array(Set(pending + current)), first ? 2 : 0.25, first ? 2 : 0.5)
+            }
+            first = false
+            pending = unresolved(pending)
+            let empty = pending.isEmpty && scan().isEmpty && !serverRunning()
+            pause()
+            if empty {
+                // Finish the delayed read-only confirmation even when the preceding
+                // synchronous stop used the remaining budget; never start another -k
+                // just to confirm an already clean prefix.
+                let late = scan()
+                pending = unresolved(pending)
+                if pending.isEmpty && late.isEmpty && !serverRunning() { return true }
+                pending = Array(Set(pending + late))
+            }
+        } while now() < deadline
+        onUnconfirmed(unresolved(pending), serverRunning())
+        return false
     }
 
     private func wineserver(_ args: [String], allowNoServer: Bool = false) throws {

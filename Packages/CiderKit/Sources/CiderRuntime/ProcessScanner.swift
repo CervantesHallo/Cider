@@ -53,6 +53,9 @@ public enum ProcessScanner {
             guard let args = processArguments(pid), args.executable.contains("/wine"),
                   let bottle = args.environment["CIDER_BOTTLE"],
                   let prefix = args.environment["WINEPREFIX"], let rawImage = args.argv.first else { continue }
+            // A `wineserver -w`/`-k` client observes or controls the server; it is not an
+            // orphaned Windows application. Stopping it can corrupt an active --wait result.
+            if isServerControlClient(args) { continue }
             let isWindowsImage = rawImage.count > 2 && rawImage.dropFirst().first == ":"
             let image: String
             if isWindowsImage { image = rawImage }
@@ -68,6 +71,52 @@ public enum ProcessScanner {
             if state(of: process) == .running { result.append(process) }
         }
         return result
+    }
+
+    /// Restrict a UI/CLI instance to the accepted bottle ids and exact prefix locations.
+    /// Bottle ids alone can collide across CIDER_HOME roots; tags are ownership metadata,
+    /// not a sandbox against hostile same-user processes.
+    public static func scan(prefixes: [String: URL], includeLoaders: Bool = false) -> [WineProcess] {
+        scoped(scan(includeLoaders: includeLoaders), prefixes: prefixes)
+    }
+
+    static func scoped(_ processes: [WineProcess], prefixes: [String: URL]) -> [WineProcess] {
+        let accepted = prefixes.compactMapValues { prefix -> String? in
+            guard prefix.isFileURL else { return nil }
+            // A cached GUI bottle must not adopt a foreign prefix if its directory or
+            // prefix leaf was replaced with a symlink since the last refresh.
+            return try? FileSafety.child(prefix.lastPathComponent, in: prefix.deletingLastPathComponent(),
+                                         rejectSymlinks: true).path
+        }
+        var resolved: [String: String] = [:]
+        return processes.filter { process in
+            guard let expected = accepted[process.bottleID], let raw = process.prefixPath,
+                  raw.hasPrefix("/"), !raw.contains("\0") else { return false }
+            let actual: String
+            if let cached = resolved[raw] { actual = cached }
+            else {
+                actual = URL(fileURLWithPath: raw, isDirectory: true).standardizedFileURL.resolvingSymlinksInPath().path
+                resolved[raw] = actual
+            }
+            return actual == expected
+        }
+    }
+
+    static func isServerControlClient(_ arguments: Arguments) -> Bool {
+        guard arguments.executable.hasSuffix("/wineserver") else { return false }
+        return arguments.argv.dropFirst().contains { option in
+            if ["-w", "--wait", "-k", "--kill"].contains(option) || option.hasPrefix("--kill=") { return true }
+            return option.hasPrefix("-k") && option.count > 2 && option.dropFirst(2).allSatisfy(\.isNumber)
+        }
+    }
+
+    /// Read-only final exit observation. Unknown identities stay unresolved; no signal is sent.
+    public static func unresolved(_ processes: [WineProcess]) -> [WineProcess] {
+        unresolved(processes, state: state(of:))
+    }
+
+    static func unresolved(_ processes: [WineProcess], state: (WineProcess) -> State) -> [WineProcess] {
+        processes.filter { state($0) != .exited }
     }
 
     /// Lives only inside scan(); drive changes become visible on the next scan.
@@ -128,6 +177,22 @@ public enum ProcessScanner {
         return withUnsafeBytes(of: token) { Array($0.bindMemory(to: UInt32.self)) }
     }
 
+    static func refreshedAuditIdentity(_ process: WineProcess) -> [UInt32]? {
+        refreshedAuditIdentity(process, state: state(of:), arguments: processArguments,
+                               audit: auditIdentity(for:))
+    }
+
+    static func refreshedAuditIdentity(_ process: WineProcess, state: (WineProcess) -> State,
+                                       arguments: (pid_t) -> Arguments?, audit: (pid_t) -> [UInt32]?) -> [UInt32]? {
+        guard state(process) == .running, let prefix = process.prefixPath,
+              let token = audit(process.pid), token.count == 8, token[5] == UInt32(process.pid),
+              let current = arguments(process.pid), current.executable.contains("/wine"),
+              current.environment["CIDER_BOTTLE"] == process.bottleID,
+              current.environment["WINEPREFIX"] == prefix,
+              state(process) == .running else { return nil }
+        return token
+    }
+
     /// Newer macOS validates the audit identity while holding a process reference, closing the probe/kill race.
     /// Resolve dynamically: the API is absent from older macOS releases which Cider still supports.
     static func signalCaptured(_ process: WineProcess, _ signal: Int32) -> Int32 {
@@ -135,18 +200,37 @@ public enum ProcessScanner {
         if let handle = dlopen(nil, RTLD_LAZY) {
             defer { dlclose(handle) }
             if let symbol = dlsym(handle, "proc_signal_with_audittoken") {
-                guard let identity = process.auditIdentity, identity.count == 8, identity[5] == UInt32(process.pid) else { return EACCES }
-                var token = audit_token_t()
-                withUnsafeMutableBytes(of: &token) { buffer in
-                    buffer.copyBytes(from: identity.withUnsafeBytes { Data($0) })
-                }
-                typealias Signal = @convention(c) (UnsafeMutablePointer<audit_token_t>, Int32) -> Int32
-                return unsafeBitCast(symbol, to: Signal.self)(&token, signal)
+                // exec can advance the PID version without changing the process's birth time.
+                // Read the real token before current ownership arguments. Any intervening
+                // exec makes that token stale, so the kernel rejects delivery.
+                guard let identity = refreshedAuditIdentity(process), identity.count == 8,
+                      identity[5] == UInt32(process.pid) else { return EACCES }
+                return sendKernelIdentity(identity, signal, symbol: symbol)
             }
         }
         // Older hosts have no public atomic signal-by-identity API. Retain the start-time check there;
         // the remaining probe/kill race is documented rather than claimed as eliminated.
         return kill(process.pid, signal) == 0 ? 0 : errno
+    }
+
+    // Small internal OS primitive: it makes no ownership claim. Production enters only
+    // after signalCaptured's birth/token/ownership checks; native fixtures use real own-child tokens.
+    static func signalKernelIdentity(_ identity: [UInt32], _ signal: Int32) -> Int32 {
+        guard let handle = dlopen(nil, RTLD_LAZY) else { return ENOSYS }
+        defer { dlclose(handle) }
+        guard let symbol = dlsym(handle, "proc_signal_with_audittoken") else { return ENOSYS }
+        return sendKernelIdentity(identity, signal, symbol: symbol)
+    }
+
+    private static func sendKernelIdentity(_ identity: [UInt32], _ signal: Int32,
+                                           symbol: UnsafeMutableRawPointer) -> Int32 {
+        guard identity.count == 8, identity[5] > 1 else { return EINVAL }
+        var token = audit_token_t()
+        withUnsafeMutableBytes(of: &token) { buffer in
+            buffer.copyBytes(from: identity.withUnsafeBytes { Data($0) })
+        }
+        typealias Signal = @convention(c) (UnsafeMutablePointer<audit_token_t>, Int32) -> Int32
+        return unsafeBitCast(symbol, to: Signal.self)(&token, signal)
     }
 
     // Injectable OS boundary for adversarial checks of PID reuse, inaccessible metadata, and delayed exit.

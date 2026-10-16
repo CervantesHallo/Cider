@@ -151,11 +151,9 @@ import CiderStore
         var info = proc_bsdinfo()
         #expect(proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, Int32(MemoryLayout<proc_bsdinfo>.size)) == MemoryLayout<proc_bsdinfo>.size)
         var identity = try #require(ProcessScanner.auditIdentity(for: pid))
-        let actual = WineProcess(pid: pid, bottleID: "test", windowsImage: "owned-host-child", startTime: ProcessScanner.startTime(info), auditIdentity: identity)
-        #expect(ProcessScanner.signalCaptured(actual, SIGCONT) == 0)
+        #expect(ProcessScanner.signalKernelIdentity(identity, SIGCONT) == 0)
         identity[7] &+= 1
-        let stale = WineProcess(pid: pid, bottleID: "test", windowsImage: "owned-host-child", startTime: actual.startTime, auditIdentity: identity)
-        #expect(ProcessScanner.signalCaptured(stale, SIGCONT) == ESRCH)
+        #expect(ProcessScanner.signalKernelIdentity(identity, SIGCONT) == ESRCH)
         #expect(child.isRunning)
     }
 
@@ -170,7 +168,15 @@ import CiderStore
         _ = proc_pidinfo(pid, PROC_PIDTBSDINFO, 0, &info, Int32(MemoryLayout<proc_bsdinfo>.size))
         let target = WineProcess(pid: pid, bottleID: "test", windowsImage: "owned-host-child", startTime: ProcessScanner.startTime(info),
                                  auditIdentity: ProcessScanner.auditIdentity(for: pid))
-        #expect(ProcessScanner.terminate([target], grace: 1).isEmpty)
+        let remaining = ProcessScanner.terminate([target], grace: 1, forceWait: 2,
+            state: ProcessScanner.state(of:), signal: { process, signal in
+                guard ProcessScanner.state(of: process) == .running else { return }
+                if let token = ProcessScanner.auditIdentity(for: process.pid) {
+                    let code = ProcessScanner.signalKernelIdentity(token, signal)
+                    if code == ENOSYS { _ = ProcessScanner.signalCaptured(process, signal) }
+                } else { _ = ProcessScanner.signalCaptured(process, signal) }
+            }, now: { ProcessInfo.processInfo.systemUptime }, pause: { usleep(10_000) })
+        #expect(remaining.isEmpty)
         child.waitUntilExit()
         #expect(!child.isRunning)
     }

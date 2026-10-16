@@ -267,10 +267,11 @@ final class AppModel {
                 scan = activeProcessScan
             } else {
                 let apps = items
+                let prefixes = Dictionary(uniqueKeysWithValues: bottles.map { ($0.config.id, $0.prefix) })
                 let startedAt = ProcessInfo.processInfo.systemUptime
                 let task = Task.detached(priority: .utility) { () -> ProcessSnapshot in
-                    let processes = ProcessScanner.scan()
-                    // Preserve the existing fallback gate for launcher children.
+                    let processes = ProcessScanner.scan(prefixes: prefixes)
+                    // Preserve the fallback gate for launcher children in this instance's bottles.
                     let blocked = processes.filter { Preflight.check(program: $0.windowsImage, db: nil) != nil }
                     if !blocked.isEmpty { ProcessScanner.terminate(blocked, grace: 0) }
                     var map: [String: [pid_t]] = [:]

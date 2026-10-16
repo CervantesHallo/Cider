@@ -1,0 +1,7 @@
+{
+  "exitCode": 0,
+  "stdout": "patching file 'dlls/winmm/waveform.c'\n",
+  "stderr": "",
+  "sameFinalSource": true,
+  "sourceSHA256": "4c7b2278122b41db02b4d9253bb8f353351e63c1a81283c72973f40f0b434595"
+}
