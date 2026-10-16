@@ -1,0 +1,106 @@
+{
+  "schema": "cider.quarantine-observation-closure/v1",
+  "date": "2026-10-16",
+  "implementationCommit": "c9a1931274dc3f7f827b01a5e2fe2f46fec50250",
+  "branch": "codex/quarantine-fixes-20261014",
+  "restoredToMain": false,
+  "wholeQuarantineComplete": false,
+  "fixedP2": [
+    "Abandoned run wait observers retain execution capacity",
+    "Broker reconnect loses GUI live-capacity accounting",
+    "Same App URL reuses another data root host"
+  ],
+  "validation": {
+    "focusedOwnChildTests": 3,
+    "nativeXPC": {
+      "passed": 5,
+      "sourceStable": true,
+      "cleanupPassed": true
+    },
+    "multiRootAppKit": {
+      "passed": 4,
+      "CLICalls": 9,
+      "sourceStable": true,
+      "singleHostPerRoot": true,
+      "cleanupPassed": true
+    },
+    "realProductWineDetachCases": 1,
+    "realProductSetupCases": 2,
+    "realProductCleanupFollowupPassed": true,
+    "finalThreeBinariesEqualActualProductRun": true,
+    "releaseCompilerWarnings": 0
+  },
+  "buildEvidence": {
+    "schema": "cider.observation-build-equivalence/v1",
+    "change": "Explicit outer [self] capture eliminates ImplicitStrongCapture warning; compiler result unchanged",
+    "sourceFile": "Packages/CiderKit/Sources/CiderRuntime/Spawn.swift",
+    "finalSourceSHA256": "e1c30403a32256129da56f15e524f650beddf16d8e31ede6c67628b98ef81e3b",
+    "candidateComponentSHA256": {
+      "Cider": "da2785e45812fd717cb5066ed3773d1c6507987ddd53dc67966beb31f2795d5a",
+      "ciderctl": "b1aadd38085f9518c10b5def753af6bcd1f031d1b236d5b60e27e31cbd832950",
+      "CiderXPCBridge": "487327c29aebff19103e5bf1ccf6bd9381217329d1c01b993d3d4a0d77f7a535"
+    },
+    "allThreeReleaseBinariesByteIdenticalToRealProductDetachRun": true,
+    "focusedTestsFinal": {
+      "count": 3,
+      "passed": true,
+      "file": "tests/runtime/product/results/command-observation-unit-final.log"
+    },
+    "releaseBuildExitCode": 0,
+    "strictSignatureVerifiedByBuild": true,
+    "releaseCompilerWarnings": 0,
+    "releaseBuildLogSHA256": "eef9575a7327435dc871cd5451d7238d2c31baf787ad9ddf91b70f6fd0a6584c"
+  },
+  "artifacts": [
+    {
+      "path": "tests/xpc/results/observation-native-final.json",
+      "sha256": "d7aeeafbbc7546bf543736c3a027a8706ac13f9ad00ae164b72b1ba4e15af43f"
+    },
+    {
+      "path": "tests/xpc/results/data-roots-baseline-20261016T144405Z.json",
+      "sha256": "61e162d0440df1ddc185032dbf86176b2084de26f4fff060cd0c3f8ae20aa1b2"
+    },
+    {
+      "path": "tests/xpc/results/data-roots-final-20261016T145346Z.json",
+      "sha256": "50c4b9e53ced8132e8a46e165db42a9ce64ceef38e5d3634a75cecc5568abefa"
+    },
+    {
+      "path": "tests/runtime/product/results/product-detach-first-cleanup-failure.json",
+      "sha256": "00b4fa9ebb699edb49fc1979c929951274993173db014c4b5eeabe8ec198e5b7"
+    },
+    {
+      "path": "tests/runtime/product/results/product-detach-final.json",
+      "sha256": "98eee59b13088127a014328a6ee39a14f5c24048d59a15a28a22b1fb709498e4"
+    },
+    {
+      "path": "tests/runtime/product/results/observation-build-equivalence-final.json",
+      "sha256": "8eaaaf9e859a2a0be34e304ba02eef8912136c86479d1f188bb32dbfff5f3ff9"
+    },
+    {
+      "path": "tests/runtime/product/results/command-observation-unit.log",
+      "sha256": "c305d416e0ad8094bcd0c65edb29d58467ae446803e9b353f7ee45259afed598"
+    },
+    {
+      "path": "tests/runtime/product/results/command-observation-unit-final.log",
+      "sha256": "2253e9034ceca42ab445f7655d8b5d9be6a0529b37575d94c0bf290d210e948e"
+    }
+  ],
+  "review": {
+    "boundedReadOnlyAdversarialReview": true,
+    "remainingP1P2InReviewedScope": 0,
+    "parentReviewedAgentCLIChanges": true
+  },
+  "remaining": [
+    "K2 prior tool automatic safety-review rejection; replacement still unimplemented, not retried",
+    "Independent Windows kernel reference, explicit preparation budget and original pending cleanup reconciliation",
+    "Privacy/formal-signing/game acceptance",
+    "User must specify restoration scope; keep isolated until then"
+  ],
+  "productionAppEngineOrSavesChanged": false,
+  "windowsOperations": false,
+  "windowsLedgerChanged": false,
+  "actionsTriggered": false,
+  "automationResumed": false,
+  "runtimePermissionProfile": "danger-full-access / never",
+  "permissionEscalationsThisTurn": 0
+}
