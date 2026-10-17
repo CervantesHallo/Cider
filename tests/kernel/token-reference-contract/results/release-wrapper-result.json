@@ -1,0 +1,8 @@
+{
+  "scope": "exact wrapper with modeled generic dereference; not actual token backend or native Windows",
+  "extractedSHA256": "be8e5115479d9dc395018a19c29ae2bb3592d7b9ce520b06104664a6ee502f19",
+  "checks": 3,
+  "exitCode": 0,
+  "output": "PASS: exact pointer and one release, final release, underlying failure propagation",
+  "primaryLookupImplemented": false
+}

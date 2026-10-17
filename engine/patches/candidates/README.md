@@ -9,6 +9,7 @@
 | 3 | 0013-object-reference-lifetime.patch | 同权限稳定句柄、map/ref/FREE同步及对齐，依赖0012 | [62](../../../docs/research/62-quarantine-kernel-repairs-20261015.md) |
 | 4 | 0015-close-borrowed-object-cleanup.patch | CLOSE分配IRP失败不误释放借用文件，依赖0013 | 后续真实Wine验证记录 |
 | 5 | 0016-ioctl-allocation-buffer-ownership.patch | IOCTL分配失败保留context拥有缓冲并回收独立/替换旧缓冲 | 后续真实Wine验证记录 |
+| 6 | 0017-primary-token-release.patch | 仅委托已有对象管理器释放引用；取得接口仍未实现 | [70](../../../docs/research/70-k2-contract-and-refusal-evidence-20261017.md) |
 
 0010已撤出并仅保留在rejected作历史追溯，不能按旧57记录加入队列。当前顺序以[修复队列](QUARANTINE-REPAIR.md)为准。
 

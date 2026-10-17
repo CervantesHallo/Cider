@@ -1,0 +1,36 @@
+Subject: [candidate] implement primary-token reference release through the object manager
+
+Release-only implementation, matching the documented reference balancing operation.
+Reuses the checked generic object dereference; no primary-token lookup, identity
+selection, new access, protocol or rights changes. PsReferencePrimaryToken remains
+a stub and K2 is not complete. Applies after 0016.
+
+--- a/dlls/ntoskrnl.exe/ntoskrnl.c
++++ b/dlls/ntoskrnl.exe/ntoskrnl.c
+@@ -3498,6 +3498,15 @@
+ 
+ 
+ /***********************************************************************
++ *           PsDereferencePrimaryToken  (NTOSKRNL.EXE.@)
++ */
++void WINAPI PsDereferencePrimaryToken( PACCESS_TOKEN token )
++{
++    TRACE( "%p\n", token );
++    ObDereferenceObject( token );
++}
++
++/***********************************************************************
+  *           PsReferenceProcessFilePointer  (NTOSKRNL.EXE.@)
+  */
+ NTSTATUS WINAPI PsReferenceProcessFilePointer(PEPROCESS process, FILE_OBJECT **file)
+--- a/dlls/ntoskrnl.exe/ntoskrnl.exe.spec
++++ b/dlls/ntoskrnl.exe/ntoskrnl.exe.spec
+@@ -902,7 +902,7 @@
+ @ stub PsCreateSystemProcess
+ @ stdcall PsCreateSystemThread(ptr long ptr long ptr ptr ptr)
+ @ stub PsDereferenceImpersonationToken
+-@ stub PsDereferencePrimaryToken
++@ stdcall PsDereferencePrimaryToken(ptr)
+ @ stub PsDisableImpersonation
+ @ stub PsEstablishWin32Callouts
+ @ stub PsGetContextThread

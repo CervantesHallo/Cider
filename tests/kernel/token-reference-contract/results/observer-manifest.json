@@ -1,0 +1,19 @@
+{
+  "schema": "cider.own-token-contract-package/v1",
+  "sourceSHA256": "841f740e30ea600d40cb49870b06ae4d8b25e10444f6a890c0a294f2e2c46783",
+  "executables": [
+    {
+      "architecture": "x86_64",
+      "sha256": "3a2b8f2e775d5d480495e75d82f48734eb11faa78a707ea2fe87c740c73f2be3",
+      "bytes": 149081,
+      "file": "cider-own-token-access-x86_64.exe"
+    },
+    {
+      "architecture": "i686",
+      "sha256": "8d12de254858707b970713a5b8917dd3d75bb4aa3870a5370feeb25325113003",
+      "bytes": 133910,
+      "file": "cider-own-token-access-i686.exe"
+    }
+  ],
+  "scope": "read-only own-process Win32 APIs; no driver, token mutation or private access path"
+}

@@ -438,6 +438,23 @@ def kernel_objects():
  row=observations[0]
  require(row['eventRounds']==256 and row['callbacks']==64 and not row['failures'] and not row['win32Error'] and not row['serviceCleanupError'],'actual object runtime check failed')
  return RESULT['kernelObjectEvidence']
+def token_handle_contract():
+ records=[]
+ for arch in ['x86_64','i686']:
+  program=BASE/('cider-own-token-access-'+arch+'.exe');started_ns=time.time_ns()
+  p=cli(['run','-b',BOTTLE,'--wait',str(program)],timeout=35)
+  found=[]
+  for log in (TEST_HOME/'Logs/sessions').glob('*/*/wine.log'):
+   if log.stat().st_mtime_ns<started_ns:continue
+   with log.open('rb') as stream:
+    stream.seek(max(0,log.stat().st_size-8192));lines=stream.read().decode('utf8','replace').splitlines()
+   for line in lines:
+    if line.startswith('{"schema":"cider.own-token-zero-access-observation/v1"'):found.append(json.loads(line))
+  require(p.returncode==0 and len(found)==1,p.stdout+p.stderr+' missing own-process observation')
+  row=found[0]
+  require(row['wine'] and row['openQuery']['success'] and not row['cleanupError'],'collector did not complete safely')
+  records.append({'architecture':arch,'observation':row,'cliExitCode':p.returncode})
+ return {'scope':'observations only, own-process public APIs; no native Windows contract inferred','records':records}
 def relaunch():
  p=cli(['run','-b',BOTTLE,'--wait',str(BASE/'probe.exe'),'--','--exit','0'],timeout=35)
  require(p.returncode==0,p.stdout+p.stderr);return {'stdout':p.stdout,'exitCode':p.returncode,'probe':probe_record()[2]}
@@ -477,6 +494,8 @@ try:
   case('product.stop_prevents_creation_resurrection',stop_creation)
  elif '--kernel-objects' in sys.argv:
   case('wine.actual_object_reference_and_work_callback',kernel_objects)
+ elif '--token-handle-contract' in sys.argv:
+  case('wine.read_only_own_process_token_handle_contract',token_handle_contract)
  elif '--manual-installer' in sys.argv:
   case('kit.manual_installer_full_status_and_stop',manual_installer)
  elif '--shortcut-entries' in sys.argv:

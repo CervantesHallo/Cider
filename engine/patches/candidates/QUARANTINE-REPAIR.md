@@ -7,6 +7,7 @@
 3. `0013-object-reference-lifetime.patch`
 4. `0015-close-borrowed-object-cleanup.patch`
 5. `0016-ioctl-allocation-buffer-ownership.patch`
+6. `0017-primary-token-release.patch`
 
 `0010-ntoskrnl-primary-token-reference.patch`已从候选目录撤出，历史字节保留在`../rejected/0010-ntoskrnl-primary-token-reference.patch.txt`以及原隔离分支。不得把它加入本队列。重建后的primary接口回到基线未实现stub，没有替代身份/访问通道。
 
@@ -15,5 +16,7 @@
 0015修正CLOSE请求分配IRP失败时对借用FILE_OBJECT的未配对释放，保留真实STATUS_NO_MEMORY和0013零引用检查。实际服务端请求持有文件，无需新增本地引用。
 
 0016修正IOCTL构造IRP失败时的缓冲区所有权：context仍持有的输入/别名输出留给主循环清理，仅释放独立输出和被替换旧输入。避免重复释放及旧输入泄漏，失败状态保持。
+
+0017仅实现PsDereferencePrimaryToken及stdcall导出，委托已修的ObDereferenceObject归还引用。没有新增主令牌取得/访问接口，PsReferencePrimaryToken仍是stub；这是K2释放半边的实施，不代表K2完成，也没有恢复0010。
 
 本队列没有加入任何默认配方或支持矩阵。源码修复/离线验证和原生Windows契约、Wine会话、真实游戏验收分别记载；构建成功不解除门禁。主令牌替换方案的工具调用被自动安全审查拒绝，替换实现未完成，撤出旧稿不等于实现完成。历史见research62，后续真实Wine非令牌对象范围另行记录。
