@@ -4,7 +4,7 @@
 
 ## 2026-10-17 K1/K3 实际运行与失败清理（持续检查点69）
 
-[research69](../research/69-kernel-object-runtime-and-failure-repairs-20261017.md)：两项新确认P2由0015/0016修复（CLOSE借用对象未配对释放；IOCTL OOM别名重复释放/旧输入泄漏），精确函数故障负对照及修后3/12路径通过。最终32/64实际Wine通用对象/回调/关闭竞争各1560项，共3120项0失败；服务及本批进程/job真实清理，模块重编译和队列6文件重建匹配。正常路径/公开ABI不变，未替换原生server、不涉及token或K2运行，不冒称Windows kernel。退休0010旧候选README已纠正。只在隔离分支，主线未恢复/Windows与Actions0；K2既有平台拒绝、独立Windows对照和原预算pending保持。原HY顺序及目标不变，不将源码/本机证据记为整批完成。
+隔离源码4e226f6及[research69](../research/69-kernel-object-runtime-and-failure-repairs-20261017.md)：两项新确认P2由0015/0016修复（CLOSE借用对象未配对释放；IOCTL OOM别名重复释放/旧输入泄漏），精确函数故障负对照及修后3/12路径通过。最终32/64实际Wine通用对象/回调/关闭竞争各1560项，共3120项0失败；服务及本批进程/job真实清理，模块重编译和队列6文件重建匹配。正常路径/公开ABI不变，未替换原生server、不涉及token或K2运行，不冒称Windows kernel。退休0010旧候选README已纠正。只在隔离分支，主线未恢复/Windows与Actions0；K2既有平台拒绝、独立Windows对照和原预算pending保持。原HY顺序及目标不变，不将源码/本机证据记为整批完成。
 
 ## 2026-10-17 特殊快捷方式与完整创建（持续检查点68）
 

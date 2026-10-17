@@ -1,7 +1,7 @@
 {
   "schema": "cider.quarantine-restore-manifest/v1",
   "base": "374980ecab3a6f80b00db950020fad39a8f20e39",
-  "candidate": "aab29700744a53bf249608b14f7151710f914665",
+  "candidate": "4e226f6d8a832b56aa1350ddce1ba225ecf7b066",
   "authorizedToRestore": false,
   "groups": {
     "A": [
@@ -362,17 +362,28 @@
         "bytes": 8221
       },
       {
+        "path": "engine/patches/candidates/0015-close-borrowed-object-cleanup.patch",
+        "sha256": "5a64b7fc2037c00196f300408a54bed0f4f8ff4633471b43e77d93794b8d22d4",
+        "bytes": 852
+      },
+      {
+        "path": "engine/patches/candidates/0016-ioctl-allocation-buffer-ownership.patch",
+        "sha256": "a3efba58956fb5ca4b5bac24641050e78334c2ffb955fe2cae49f3844b54aad5",
+        "bytes": 804
+      },
+      {
         "path": "engine/patches/candidates/QUARANTINE-REPAIR.md",
-        "sha256": "1b4bbcc027e31f74fd834d41dcfec74e2c030f3aa8251ca054b6cb56cdaf57bf",
-        "bytes": 1282
+        "sha256": "78df4f74a628a29d9e678fefb8ce69cc14664fa7c2c3f018cfa8ad71419bde89",
+        "bytes": 1857
       },
       {
         "path": "engine/patches/candidates/README.md",
-        "sha256": "06b690db071709a5e00d4f9ff28209b32bc27312b457937afeaa0d01fbc5fe4f",
-        "bytes": 1045
+        "sha256": "47f506ee35af180b2be38145338053eac137b1e3a7fe45fa224bf21514dc5b22",
+        "bytes": 1670
       }
     ]
   },
   "excludedRejectedPatch": "engine/patches/rejected/0010-ntoskrnl-primary-token-reference.patch.txt",
-  "note": "A includes affected tests and build metadata; B/C/D require separate decisions. No budget or engine switch authorization."
+  "note": "A/B/C unchanged from aab2970; D updated with two generic ownership fixes and actual Wine evidence. No authorization to restore, switch engines, mutate budget or connect Windows.",
+  "previousCandidate": "aab29700744a53bf249608b14f7151710f914665"
 }

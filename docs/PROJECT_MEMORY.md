@@ -4,7 +4,7 @@
 
 ## 用户目标与协作
 
-- **持续检查点69（2026-10-17）**：用户要求继续修完全部隔离问题，未授权恢复或Windows扩额。本轮父代理实做K1/K3的Wine运行，单个只读代理发现两项P2均已修：0015去掉CLOSE OOM对借用ref0文件的未配对释放；0016保留IOCTL context拥有的别名/扩容缓冲，只回收独立输出/替换旧输入。精准CLOSE3路径、IOCTL12路径及旧断言/ASan double-free负对照通过；32/64模块链接及组合7步/6文件重建zero-fuzz匹配。最终两种真实Wine架构各256事件/64callback/22有序pin+21关闭负对照+21关闭引用竞争、各1560项共3120检查0失败，driver加载/卸载、服务STOPPED读回/删除、前缀及job清理均通过。仅复制引擎两ntoskrnl模块，原生server/loader和门禁绑定不改，明确未运行token后端/K2或原生Windows。原16调用者函数体逐项相同，复用既有基线未复跑。退休0010的旧候选README顺序已纠正。源码仍隔离、常用App/游戏/账本不动，无Windows/Actions/定时，HY顺序保持。K2先前平台拒绝仍未实现/未重试，独立Windows kernel/真实失败契约及原pending仍是实际缺口，不得标整批全完成。
+- **持续检查点69（2026-10-17）**：用户要求继续修完全部隔离问题，未授权恢复或Windows扩额。隔离源码4e226f6，本轮父代理实做K1/K3的Wine运行，单个只读代理发现两项P2均已修：0015去掉CLOSE OOM对借用ref0文件的未配对释放；0016保留IOCTL context拥有的别名/扩容缓冲，只回收独立输出/替换旧输入。精准CLOSE3路径、IOCTL12路径及旧断言/ASan double-free负对照通过；32/64模块链接及组合7步/6文件重建zero-fuzz匹配。最终两种真实Wine架构各256事件/64callback/22有序pin+21关闭负对照+21关闭引用竞争、各1560项共3120检查0失败，driver加载/卸载、服务STOPPED读回/删除、前缀及job清理均通过。仅复制引擎两ntoskrnl模块，原生server/loader和门禁绑定不改，明确未运行token后端/K2或原生Windows。原16调用者函数体逐项相同，复用既有基线未复跑。退休0010的旧候选README顺序已纠正。源码仍隔离、常用App/游戏/账本不动，无Windows/Actions/定时，HY顺序保持。K2先前平台拒绝仍未实现/未重试，独立Windows kernel/真实失败契约及原pending仍是实际缺口，不得标整批全完成。
 
 - **持续检查点68（2026-10-17）**：继续原HY1后，aab2970同一release产品源码保持；Unicode/CP936快捷方式与宿主EXE保存项分别经过真实Catalog→WindowsPath→AppLifecycle→Wine启动及重开共6次，guest实际argv/cwd/env/退出37一致。产品CLI→XPC→GUI完整创建win7_64新瓶子/前缀revision2也通过，共7项及实际清理，见research68；服务链不冒称SwiftUI点击/Windows Shell。恢复候选已整理为A应用/安装、B音频候选、C预算脚本、D非默认kernel，固定aab2970文件摘要在restore manifest。当前下一交付受用户原“等我指令再恢复”约束，需要明确恢复范围；真实kernel还依赖独立Windows/机时新决定，K2旧工具拒绝保留。不要无变化重复构建/测试或将整批标全完成。常用App/账本/游戏数据保持、无Windows/Actions/定时。
 
