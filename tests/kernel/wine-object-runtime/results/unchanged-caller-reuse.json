@@ -1,0 +1,28 @@
+{
+  "scope": "reuse earlier unchanged exact reference/caller bodies; no repetition of passed tests",
+  "oldSourceSHA256": "cc83e07e679642084783288cce6e63e4e76335990251995b8711dd6f234a8ce5",
+  "currentSourceSHA256": "0be02e1b1dd785d728b88bd488222f3c37d99a8ec2bbd16243b18538b16990a2",
+  "unchangedFunctionSHA256": {
+    "close_constructor_handle": "b914effc1764b8753873ebdb2792fab42af46a28873030178b2687143fbbef76",
+    "create_file_object": "a49ce46247c1312961d2a452377f1bfd8aad74a31528cf28c4c74d726835ab4b",
+    "create_process_object": "8389e94b8f8181ddb6271243436f2dc6beea052a0a3a185305acc2046ebaffaf",
+    "create_thread_object": "58a38285beab62dbfb33a6c816a2bd12e922444aa970f087ddf2bc2e6f084ee3",
+    "ObReferenceObjectByHandle": "fec29a66e76c70b605f20900644e77f9cda609f9fc30937bc8929f0b550a8621",
+    "PsLookupProcessByProcessId": "58b0bc7ed056bdf5a1ca59f7401dc5205494c80f69253cc36ea9f4c00db0f8f2",
+    "PsLookupThreadByThreadId": "de84034167bd3de5d6fd6f631e554a439103a8a59696a20b1daed62a7bf83a2e",
+    "KeGetCurrentThread": "8b9a0e072836163dff4642068b6f7f6d1e8ba08a156b3287520493c40da85ad9",
+    "ObReferenceObjectByName": "eae9ab0dcc157b760eb9169612ea4d16aa43d3d9964278a780e07fcc4b0bb681",
+    "ObOpenObjectByName": "fe09966557dcd98154c6f351187424d19f6aa1673024663c109566544381c3de",
+    "dereference_work_item_device": "5cafec11f0ceaf6a8001437484e7a40f7fd5f6daf5f6303deb71b8d710eeaadd",
+    "run_work_item_worker": "9b7029534b846391082508a1a6d92da764f981817894f13c5dc94aeafed6e896",
+    "IoQueueWorkItem": "de52ee89a7b3341f43ddd2f4acfb3cceae7200063b9974ec497481c803d9b909",
+    "ObReferenceObject": "3a57566fa9823bd407b45251c30becdfba83a39315db9a6cffa7314578b282d9",
+    "ObfReferenceObject": "97fcf04f8d61ef25d4b9f4a9fc487a8192d9dee9245d3d341bfa3fe2086cc4f4",
+    "IoGetAttachedDeviceReference": "b16feb3793772731ecf65ae6a15553b15185432c4db2b880487c8e2e3bd516dd"
+  },
+  "newChecks": [
+    "dispatch_close allocation failure",
+    "dispatch_ioctl buffer allocation failure",
+    "actual Wine events/work callbacks/close interleavings"
+  ]
+}

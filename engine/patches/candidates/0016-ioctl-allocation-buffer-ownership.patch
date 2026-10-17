@@ -1,0 +1,18 @@
+Subject: [candidate] preserve context-owned IOCTL buffers after IRP allocation failure
+
+Applies after 0015. Buffered output can alias context->in_buff, including
+the replacement buffer installed when output is larger than input. The
+dispatch loop still owns that context buffer until IRP construction succeeds.
+On allocation failure free only separate output and the replaced old input.
+Keep the real STATUS_NO_MEMORY; do not transfer an unconstructed request.
+
+--- a/dlls/ntoskrnl.exe/ntoskrnl.c
++++ b/dlls/ntoskrnl.exe/ntoskrnl.c
+@@ -843,5 +843,6 @@
+     if (!irp)
+     {
+-        HeapFree( GetProcessHeap(), 0, out_buff );
++        if (out_buff != context->in_buff) HeapFree( GetProcessHeap(), 0, out_buff );
++        HeapFree( GetProcessHeap(), 0, to_free );
+         return STATUS_NO_MEMORY;
+     }

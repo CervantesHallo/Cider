@@ -1,0 +1,87 @@
+{
+  "scope": "temporary reconstruction only; no Wine or driver execution",
+  "steps": [
+    {
+      "patch": "rejected/0010-ntoskrnl-primary-token-reference.patch.txt",
+      "reverse": true,
+      "sha256": "1b4abec5caf8cc866af922118960af9475bd44c44ddaa829a6b87c805f323f80",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0009-token-kernel-object-mapping.patch",
+      "reverse": true,
+      "sha256": "0915a074d9af4c8bbaa913cc73c3453c30ece9244bbe835f95460f087efc45cf",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0009-token-kernel-object-mapping.patch",
+      "reverse": false,
+      "sha256": "0915a074d9af4c8bbaa913cc73c3453c30ece9244bbe835f95460f087efc45cf",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0012-reference-callers.patch",
+      "reverse": false,
+      "sha256": "35f3650200407d4b5f7bc08905d9788d21d1cf80a75e9e6ce1d68c848970f49f",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0013-object-reference-lifetime.patch",
+      "reverse": false,
+      "sha256": "c4e807661d52d8e10647396eae21a3dd4b3e02f6d70aa70324bc1e0a6f9b931a",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0015-close-borrowed-object-cleanup.patch",
+      "reverse": false,
+      "sha256": "5a64b7fc2037c00196f300408a54bed0f4f8ff4633471b43e77d93794b8d22d4",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0016-ioctl-allocation-buffer-ownership.patch",
+      "reverse": false,
+      "sha256": "a3efba58956fb5ca4b5bac24641050e78334c2ffb955fe2cae49f3844b54aad5",
+      "fuzz": 0,
+      "offset": 0
+    }
+  ],
+  "checks": [
+    {
+      "file": "dlls/ntoskrnl.exe/ntoskrnl.c",
+      "sha256": "0be02e1b1dd785d728b88bd488222f3c37d99a8ec2bbd16243b18538b16990a2",
+      "matches": true
+    },
+    {
+      "file": "dlls/ntoskrnl.exe/ntoskrnl_private.h",
+      "sha256": "e90b00d2f607c7c4ea14c83da1e641bf942edda23f06db20d32e548414a8ad7c",
+      "matches": true
+    },
+    {
+      "file": "dlls/ntoskrnl.exe/sync.c",
+      "sha256": "f238ac47f0a2a32858306cbfc5e261403e56fb88d81f23ee1d8f0a6d5fb2e11b",
+      "matches": true
+    },
+    {
+      "file": "dlls/ntoskrnl.exe/pnp.c",
+      "sha256": "2a38c98d2ee7fcf37271ac71ce773fee692fbc419005fff90054c3a7770f9d04",
+      "matches": true
+    },
+    {
+      "file": "dlls/ntoskrnl.exe/ntoskrnl.exe.spec",
+      "sha256": "27ab6efe809bd2f8e8f59a8fb82f3fd9b7fa4cd280a8e9c13e1c4a720e3724eb",
+      "matches": true
+    },
+    {
+      "file": "server/token.c",
+      "sha256": "e50dbadfd28a8d01b5cf258912c5162085ee8d7640cc93fb241e5465c662d0a5",
+      "matches": true
+    }
+  ],
+  "retired_primary_body_absent": true
+}

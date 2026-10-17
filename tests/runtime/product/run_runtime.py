@@ -417,6 +417,27 @@ def completed_creation():
    if config['name']!=name:continue
    stopped=cli(['kill','-b',config['id']],timeout=20);require(stopped.returncode==0,'completed creation cleanup failed')
    archive=BASE/'exit-status/creation-prefix-archive';archive.mkdir(exist_ok=True);file.parent.rename(archive/config['id'])
+def kernel_objects():
+ # This fixture refuses native Windows and operates only on its own Wine service,
+ # events and device. No K2/token observation or third-party driver is invoked.
+ started_ns=time.time_ns()
+ suffix='-i386' if '--32' in sys.argv else ''
+ driver='Z:'+str(BASE/('cider-owned-objects'+suffix+'.sys')).replace('/','\\')
+ p=cli(['run','-b',BOTTLE,'--wait','--env','WINEDEBUG=+loaddll',str(BASE/('cider-owned-objects'+suffix+'.exe')),'--',driver],timeout=75)
+ observations=[];loader=[]
+ for log in (TEST_HOME/'Logs/sessions').glob('*/*/wine.log'):
+  if log.stat().st_mtime_ns<started_ns:continue
+  with log.open('rb') as stream:
+   stream.seek(max(0,log.stat().st_size-(2<<20)));lines=stream.read().decode('utf8','replace').splitlines()
+  for line in lines:
+   if line.startswith('{"schema":"cider.wine-owned-object-runtime/v'):observations.append(json.loads(line))
+   elif 'loaddll' in line and ('ntoskrnl.exe' in line or ('cider-owned-objects' in line and '.sys' in line)):loader.append(line)
+ RESULT['kernelObjectEvidence']={'requestedArchitecture':'i386' if suffix else 'x86_64','cliExitCode':p.returncode,'stdout':p.stdout,'stderr':p.stderr,'observations':observations,'loader':loader}
+ require(p.returncode==0,p.stdout+p.stderr)
+ require(len(observations)==1,'missing own driver response')
+ row=observations[0]
+ require(row['eventRounds']==256 and row['callbacks']==64 and not row['failures'] and not row['win32Error'] and not row['serviceCleanupError'],'actual object runtime check failed')
+ return RESULT['kernelObjectEvidence']
 def relaunch():
  p=cli(['run','-b',BOTTLE,'--wait',str(BASE/'probe.exe'),'--','--exit','0'],timeout=35)
  require(p.returncode==0,p.stdout+p.stderr);return {'stdout':p.stdout,'exitCode':p.returncode,'probe':probe_record()[2]}
@@ -454,6 +475,8 @@ try:
  case('product.reuse_empty_prefix' if '--resume' in sys.argv else 'product.bottle_create_from_gui',create_bottle)
  if '--stop-creation' in sys.argv:
   case('product.stop_prevents_creation_resurrection',stop_creation)
+ elif '--kernel-objects' in sys.argv:
+  case('wine.actual_object_reference_and_work_callback',kernel_objects)
  elif '--manual-installer' in sys.argv:
   case('kit.manual_installer_full_status_and_stop',manual_installer)
  elif '--shortcut-entries' in sys.argv:

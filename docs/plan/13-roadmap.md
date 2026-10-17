@@ -2,6 +2,10 @@
 
 > 2026-09-27 起执行。按 00 的阶段 P0→P1 推进，每项完成后在这里改状态。✔ = 已完成并实测；◐ = 部分完成；○ = 未开始。
 
+## 2026-10-17 K1/K3 实际运行与失败清理（持续检查点69）
+
+[research69](../research/69-kernel-object-runtime-and-failure-repairs-20261017.md)：两项新确认P2由0015/0016修复（CLOSE借用对象未配对释放；IOCTL OOM别名重复释放/旧输入泄漏），精确函数故障负对照及修后3/12路径通过。最终32/64实际Wine通用对象/回调/关闭竞争各1560项，共3120项0失败；服务及本批进程/job真实清理，模块重编译和队列6文件重建匹配。正常路径/公开ABI不变，未替换原生server、不涉及token或K2运行，不冒称Windows kernel。退休0010旧候选README已纠正。只在隔离分支，主线未恢复/Windows与Actions0；K2既有平台拒绝、独立Windows对照和原预算pending保持。原HY顺序及目标不变，不将源码/本机证据记为整批完成。
+
 ## 2026-10-17 特殊快捷方式与完整创建（持续检查点68）
 
 [research68](../research/68-shortcut-entry-runtime-20261017.md)：在aab2970相同release源码下，Unicode/CP936链接及保存项各真实启动/重开，6次实际guest参数/cwd/env/退出37一致；产品完整创建win7_64/revision2正例及本批清理通过。没有重建无变化产品，不冒称UI点击/Windows Shell/kernel/游戏。恢复候选的固定文件摘要、组间依赖及真实未完成项见[恢复范围](../QUARANTINE_RESTORE_CANDIDATES.md)；源码仍隔离，下一实际发布需用户明确恢复A范围，不能自动整包合并。原HY顺序、K2既有拒绝、独立Windows及原机时pending保持；已通过不无变化复跑。

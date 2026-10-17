@@ -12,7 +12,7 @@ with tempfile.TemporaryDirectory(prefix='cider-object-queue-') as tmp:
  tmp=pathlib.Path(tmp)
  for name in files:
   d=tmp/name;d.parent.mkdir(parents=True,exist_ok=True);shutil.copyfile(a.reference/name,d)
- for reverse,patch in [(True,'rejected/0010-ntoskrnl-primary-token-reference.patch.txt'),(True,'candidates/0009-token-kernel-object-mapping.patch'),(False,'candidates/0009-token-kernel-object-mapping.patch'),(False,'candidates/0012-reference-callers.patch'),(False,'candidates/0013-object-reference-lifetime.patch')]:
+ for reverse,patch in [(True,'rejected/0010-ntoskrnl-primary-token-reference.patch.txt'),(True,'candidates/0009-token-kernel-object-mapping.patch'),(False,'candidates/0009-token-kernel-object-mapping.patch'),(False,'candidates/0012-reference-callers.patch'),(False,'candidates/0013-object-reference-lifetime.patch'),(False,'candidates/0015-close-borrowed-object-cleanup.patch'),(False,'candidates/0016-ioctl-allocation-buffer-ownership.patch')]:
   source=ROOT/'engine/patches'/patch
   command=['patch','-p1','--fuzz=0','--batch']+(['-R']if reverse else[])+['-i',str(source)]
   x=subprocess.run(command,cwd=tmp,capture_output=True,text=True,timeout=15)
