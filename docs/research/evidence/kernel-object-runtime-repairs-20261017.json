@@ -1,0 +1,94 @@
+{
+  "schema": "cider.kernel-object-runtime-repairs/v1",
+  "sourceBase": "79f7f16e80e71d210ba2a7e935ab26c186d445d0",
+  "patchSHA256": {
+    "0009-token-kernel-object-mapping.patch": "0915a074d9af4c8bbaa913cc73c3453c30ece9244bbe835f95460f087efc45cf",
+    "0012-reference-callers.patch": "35f3650200407d4b5f7bc08905d9788d21d1cf80a75e9e6ce1d68c848970f49f",
+    "0013-object-reference-lifetime.patch": "c4e807661d52d8e10647396eae21a3dd4b3e02f6d70aa70324bc1e0a6f9b931a",
+    "0015-close-borrowed-object-cleanup.patch": "5a64b7fc2037c00196f300408a54bed0f4f8ff4633471b43e77d93794b8d22d4",
+    "0016-ioctl-allocation-buffer-ownership.patch": "a3efba58956fb5ca4b5bac24641050e78334c2ffb955fe2cae49f3844b54aad5"
+  },
+  "actualKernelSourceSHA256": {
+    "dlls/ntoskrnl.exe/ntoskrnl.c": "0be02e1b1dd785d728b88bd488222f3c37d99a8ec2bbd16243b18538b16990a2",
+    "dlls/ntoskrnl.exe/ntoskrnl_private.h": "e90b00d2f607c7c4ea14c83da1e641bf942edda23f06db20d32e548414a8ad7c",
+    "dlls/ntoskrnl.exe/sync.c": "f238ac47f0a2a32858306cbfc5e261403e56fb88d81f23ee1d8f0a6d5fb2e11b",
+    "dlls/ntoskrnl.exe/pnp.c": "2a38c98d2ee7fcf37271ac71ce773fee692fbc419005fff90054c3a7770f9d04",
+    "dlls/ntoskrnl.exe/ntoskrnl.exe.spec": "27ab6efe809bd2f8e8f59a8fb82f3fd9b7fa4cd280a8e9c13e1c4a720e3724eb",
+    "server/token.c": "e50dbadfd28a8d01b5cf258912c5162085ee8d7640cc93fb241e5465c662d0a5"
+  },
+  "runtimeModules": [
+    {
+      "architecture": "x86_64",
+      "sha256": "cc18299d95e875da028950a04776ec21562f65da2e46580e0e1ed800ec909a0b",
+      "bytes": 1905688
+    },
+    {
+      "architecture": "i386",
+      "sha256": "2d957a1515378c82f73d2d8c865608d9b43f90d21101671126429cc3746f2795",
+      "bytes": 1647305
+    }
+  ],
+  "fixtureSHA256": {
+    "cider-owned-objects.exe": "986aef53a7a80ad5a067b454cf194c265cc4be26223a19c1596972252e83967b",
+    "cider-owned-objects.sys": "5e49fae595670af2ca3f96422c72a862ddd8a716139c71199979a1f73541eb65",
+    "cider-owned-objects-i386.exe": "a20db3080ab49ad60edc71323ed48d2f0532af8e569e6824ddcc648d07e5d1c5",
+    "cider-owned-objects-i386.sys": "d99938df07ae1cc36dab11a30bc18b737ba8cfa87f4a809dc0890ad4420a6f2f"
+  },
+  "resultsSHA256": {
+    "close-failure.json": "66d71a8c1099574fbeb3e8fd4243a6656d17073c4bcb0848b70e687c864f8a16",
+    "ioctl-failure.json": "488c1d09a797c41964ad18ca50d24eefbc4a4a5fd871f1c0f1fbbd6d0e7bea81",
+    "queue-reconstruction.json": "dc2ecbbe8f13ae1e0e5636a8f2b4e77f01c2732774f4a151b94f4ed0bfc608f0",
+    "wine-x86_64-final.json": "044d103e3902baa174340e789ec752547e92c8750730302a52f454c489adf509",
+    "wine-i386-final.json": "a8fe6689bcd00051418751679ebdfaa5b9c7f510170f4a0b89b4ec26ca8a8125",
+    "wine-before-additional-fixes.json": "86a98ea9f8e83d13ff816c52a3570153f161c1e5e90e77825beb2203b8116ad1",
+    "unchanged-caller-reuse.json": "7b13e21fc4633ce58cffee25d38d9090d07314d3284054e9218358a5945cf056",
+    "module-build.log": "0f806e82340fb5e21a971841bf8370d2b7c40612b9578a2aecdea364345121a5"
+  },
+  "adversarialReview": {
+    "newP2": 2,
+    "sourceFixed": 2,
+    "reviewedFixesConfirmed": true,
+    "scope": "borrowed close/file/IOCTL buffer allocation and cleanup; no K2"
+  },
+  "actualWine": {
+    "x86_64": {
+      "schema": "cider.wine-owned-object-runtime/v2",
+      "win32Error": 0,
+      "serviceCleanupError": 0,
+      "responseBytes": 44,
+      "checks": 1560,
+      "failures": 0,
+      "firstFailure": 0,
+      "firstStatus": 0,
+      "eventRounds": 256,
+      "callbacks": 64,
+      "unsupportedInfoStatus": -1073741822,
+      "concurrentReferences": 24,
+      "concurrentClosedHandles": 40
+    },
+    "i386": {
+      "schema": "cider.wine-owned-object-runtime/v2",
+      "win32Error": 0,
+      "serviceCleanupError": 0,
+      "responseBytes": 44,
+      "checks": 1560,
+      "failures": 0,
+      "firstFailure": 0,
+      "firstStatus": 0,
+      "eventRounds": 256,
+      "callbacks": 64,
+      "unsupportedInfoStatus": -1073741822,
+      "concurrentReferences": 23,
+      "concurrentClosedHandles": 41
+    }
+  },
+  "checkedAssertionsTotal": 3120,
+  "nativeServerUnchanged": true,
+  "tokenBackendRuntimeVerified": false,
+  "K2Implemented": false,
+  "nativeWindowsKernelVerified": false,
+  "windowsOperations": 0,
+  "mainRestored": false,
+  "cleanupVerified": true,
+  "implementationCommit": "4e226f6d8a832b56aa1350ddce1ba225ecf7b066"
+}
