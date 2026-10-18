@@ -4,6 +4,8 @@
 
 ## 2026-10-18 HY1人工确认与HY2预算接续
 
+Mac侧已推进R v1组件bootstrap：独立同版本GCC两种PE C++前端构建及Wine C++17检测通过，原C保留；server/ntdll/wined3d/winegstreamer及两种PE架构Wine libc++/C++ABI最终构建通过。源码/脚本实质问题经独立复审修正，未运行/安装新引擎、未升级游戏裁定；证据见engine/porting及engine-r-v1-bootstrap-20261018.json。接续为同步/macOS loader/WoW64成组迁移；HY2仍等待用户明确磁盘就绪后再预约独立VM准备。
+
 最新见research73：四批均真实关闭，余准备2999秒/测试3600、无pending；同原pin内网通道和Windows正常Job资源查询成功，尚非kernel/完整watchdog验收。资源不足以按当前方案创建VM：Hyper-V未安装，C/D空闲约27.3/5.0GiB。用户选择清理空间，已置busy保护其使用；就绪前仅推进Mac。R v1现有四项源码迁移及WinMM语义差异记录在engine/porting；旧源码准备结果不作新引擎运行通过。
 
 用户已确认恢复后HYP“已登录，画面和按钮正常”，补本轮实际显示/按钮/登录状态证据；不再请求同一项。新验证码挑战、完整更新与游戏会话仍独立留项，不由已登录推定。HY2下一依赖仍为明确请求主体/模拟附件真实状态→context捕获/锁定/释放→权限检查，K2不能替代整组。

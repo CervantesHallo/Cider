@@ -13,7 +13,7 @@
 - **Engine R v0 已自建并在用**：本机 Steam 的实际进程使用 `cider-cx26.3-r1-wma1-mm1-x86_64`。已安装 manifest 记录 CX26.3/Wine11.0 + Highball0001–0013 + Cider0001/0002/0007/0008 的本地构建来源。工具链、源码哈希、构建脚本和可重复配方均在本仓库；原路线图E0/E1已有构建、冒烟及游戏证据。
 - **引擎层研发已持续进行**：窗口顶部/Dock、同步、媒体、WinMM冷初始化及对象生命周期/主令牌引用分别有源码和证据。mm2音频配方及K1–K3完整修复源码本次全部恢复；K2的Windows原生对照仍待，候选kernel补丁保持非默认，不因源码恢复切换用户瓶子。
 - **R v1尚未宣称完成**：按原计划在v0 Steam跑通后进入主题化迁移。当前开始整理实际配方、补丁依赖与复用证据，再固定新Wine输入与主题逐一迁移；不会把旧CX树重命名当作v1。下表的wine-11.18是原计划基线，实际采用前须核对来源/哈希，后续Wine12目标同样是计划门槛。
-- **v1首步已执行**：`engine/porting/r-v1-inputs.json`固定wine-11.18 tag及实际commit `7b3fff76fa5178f6ce0141b2c776afa2a822f101`、源码SHA256和现有5份CX配方的21补丁主题/依赖。首个preflight源码补丁已迁移，函数体与CX oracle一致，zero fuzz/offset比对通过；其余主题未移植，尚未构建或运行新v1，不替换现有引擎。
+- **v1首步已执行**：`engine/porting/r-v1-inputs.json`固定wine-11.18 tag及实际commit `7b3fff76fa5178f6ce0141b2c776afa2a822f101`、源码SHA256和现有5份CX配方的21补丁主题/依赖。preflight、D3D9 COPY评分、组件覆盖路径及DMO状态清理共四项已迁移，zero fuzz/offset比对通过；其他主题仍按依赖推进。四项受影响组件和两架构Wine C++/C++ABI归档已编译，但未构建完整新v1或执行它，不替换现有引擎。
 - **Engine A 是后续阶段**：00/ADR-003和P3原排期为2027年6–8月，在此前做probe/FEXUnixLib/A-lite，依赖arm64平台支持、entitlement和实际探测结果。当前主线仍为自建R，以柚子社全系及三款官方国服Windows本地兼容为目标。
 - **接续顺序**：完整源码恢复及主线构建 → HY1剩余真实交互/入口收尾 → HY2原生契约与依赖组 → HY3许可闭环 → HY4/HY5游戏会话。独立可做的R主题整理和P-3性能研究随原02推进；Windows机时受既有账本限制，恢复源码不追加额度。
 
@@ -75,6 +75,8 @@ Cider 自己的补丁（主题化，尾注 `Cider-Topic:`）：
 | Wine Mono / Gecko | dl.winehq.org，按 `addons.c` 里的版本号 | 免去首次启动时的下载弹窗 |
 
 **SDK 必须与部署目标匹配**（2026-09-27 实测）：用 Xcode 27 的 macOS 27 SDK 构建时，configure 检测到了 `pipe2`（macOS 27 才有）。它被弱链接，在 macOS 26 上解析为空指针，`wineboot` 一启动就在 pc=0 崩溃。因此依赖和 Wine 一律用 Command Line Tools 里的 MacOSX15.x SDK（`CIDER_SDK` 可覆盖），部署目标 14.0。CI 的 macos-26 runner 同样要显式指定。
+
+2026-10-18：v1配置实测发现两架构PE C++17前端缺失。已准备`engine/pe-cxx-toolchain.sh`，以同一固定GCC15.2归档、新prefix/新对象补C++前端，原C工具链保持；双架构前端已构建、Wine C++17检测通过，已实际构建Wine自带C++/C++ABI；尚未接入默认引擎配方。取舍、来源及核验边界见`engine/porting/README.md`。
 
 构建入口：`engine/build.sh <recipe>`。recipe 是 `engine/recipes/<id>.json`，包含源码 URL + sha256、补丁列表、configure 参数、组件。产物是 `out/engines/<id>/`，外加 `manifest.json`（Ed25519 签名在 CI 做）和 tarball。本机用它做冷构建（8 GB 可行，但慢）和单 DLL 增量构建；等有了 GitHub 仓库，由 CI 接手冷构建。
 

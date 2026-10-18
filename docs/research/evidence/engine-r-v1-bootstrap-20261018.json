@@ -1,0 +1,202 @@
+{
+  "schema": "cider.engine-r-v1-bootstrap/v1",
+  "date": "2026-10-18",
+  "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+  "sourceArchiveSHA256": "be19d188e0bfb7939f8ace82e9450030ae3d78ba872c7b28a3fd56b99bf133bb",
+  "appliedSourcePorts": 4,
+  "protocol": 962,
+  "cppFrontends": [
+    {
+      "target": "i686-w64-mingw32",
+      "schema": "cider.pe-cxx-frontend/v2",
+      "sourceSHA256": "438fd996826b0c82485a29da03a72d71d6e3541a83ec702df4271f6fe025d24e",
+      "sdkSettingsSHA256": "ef439bf972bb4b45310699d2a31cd08466cbb0c30642bc9a48985c22856d42f4",
+      "cxxDriverSHA256": "b8bf758588aabf10a2bc59e788965dd2fe54810e41b73c9f633f044696361c15",
+      "cc1plusSHA256": "2875adb8d8d3bf7a89d596a6b39efaa160bb57c98a93d392c84dad699a78d34c",
+      "coffMachine": 332,
+      "capabilityObjectSHA256": "251cdbf092b8cdd01b78e1fffacfa5f97ab9243a33f667c358f607e2b4926932",
+      "originalCDriverSHA256": "73af77c8f25a18c4073119960e1fa10a36e41bf0f360547c21facabf96ea119b",
+      "originalCDriverUnchanged": true,
+      "targetCppRuntimeInstalled": false
+    },
+    {
+      "target": "x86_64-w64-mingw32",
+      "schema": "cider.pe-cxx-frontend/v2",
+      "sourceSHA256": "438fd996826b0c82485a29da03a72d71d6e3541a83ec702df4271f6fe025d24e",
+      "sdkSettingsSHA256": "ef439bf972bb4b45310699d2a31cd08466cbb0c30642bc9a48985c22856d42f4",
+      "cxxDriverSHA256": "b521a17006ad5f65e8c933836eb9b43c3d8e3796970047ec7a1d7e0fd3859e69",
+      "cc1plusSHA256": "5fa07052be068a044dce09cc7750cdcacc9afa33a69fec188f59c5169a11a413",
+      "coffMachine": 34404,
+      "capabilityObjectSHA256": "dc8837fc67ce0d0fe092179fc0f5021087cf2b8f8aa03d20a20c12d4c554ce89",
+      "originalCDriverSHA256": "da6a5d2abb55c16100147d2761e0f001e2ba32789f868a78798001e47d907d67",
+      "originalCDriverUnchanged": true,
+      "targetCppRuntimeInstalled": false
+    }
+  ],
+  "toolchainBuilderSHA256": "d77bea9aa3f8872324bb882d45cff555180c799e8946ee9dc71c159ad40ed1da",
+  "componentBuilds": {
+    "server": {
+      "artifact": "server/wineserver",
+      "file": "Mach-O 64-bit executable x86_64",
+      "sha256": "79b72c2a6dcaede84edc6382e98c16d68b3ccf20419c815467aa0cadfd0a9aec",
+      "buildVersion": [
+        "      cmd LC_BUILD_VERSION",
+        "  cmdsize 32",
+        " platform 1",
+        "    minos 14.0",
+        "      sdk 15.4",
+        "   ntools 1"
+      ],
+      "compilerBuildExit": 0,
+      "scope": "bootstrap native server only; no msync backend port or PE C++17 completion inferred; not executed"
+    },
+    "ntdll": [
+      {
+        "artifact": "dlls/ntdll/ntdll.so",
+        "sha256": "061ca030234aa606fcdd9a7d440b2b3308621be41e117cf5ad55404610560533",
+        "bytes": 666992,
+        "kind": "Mach-O 64-bit dynamically linked shared library x86_64",
+        "executed": false
+      },
+      {
+        "artifact": "dlls/ntdll/i386-windows/ntdll.dll",
+        "sha256": "b45283671ed4a08bead4d7d18f4358d1764f6cceb11c6f6ab20cd5aa2825438d",
+        "bytes": 3805705,
+        "kind": "PE32 executable (DLL) (console) Intel 80386, for MS Windows",
+        "executed": false
+      },
+      {
+        "artifact": "dlls/ntdll/x86_64-windows/ntdll.dll",
+        "sha256": "f47900c2897339eebe8a5ef91168d94b152bdafdc2ae9d2dc64afe345fb3dead",
+        "bytes": 4867558,
+        "kind": "PE32+ executable (DLL) (console) x86-64, for MS Windows",
+        "executed": false
+      }
+    ],
+    "graphicsMedia": [
+      {
+        "artifact": "dlls/wined3d/wined3d.so",
+        "sha256": "bd643b7c7e533db50d6aad612f149bbb76a0d0d52c69020f840e27563912abdd",
+        "bytes": 4168,
+        "kind": "Mach-O 64-bit dynamically linked shared library x86_64",
+        "executed": false
+      },
+      {
+        "artifact": "dlls/wined3d/i386-windows/wined3d.dll",
+        "sha256": "1c24739177618178204322d222a837164c3fb00ff18f3b0eb434ce54ad2585f9",
+        "bytes": 27141842,
+        "kind": "PE32 executable (DLL) (console) Intel 80386, for MS Windows",
+        "executed": false
+      },
+      {
+        "artifact": "dlls/wined3d/x86_64-windows/wined3d.dll",
+        "sha256": "d7f8820faff6bf78d9e5e27c955c21749d388cb81b0a60013cddc05f420f3e82",
+        "bytes": 31670374,
+        "kind": "PE32+ executable (DLL) (console) x86-64, for MS Windows",
+        "executed": false
+      },
+      {
+        "artifact": "dlls/winegstreamer/winegstreamer.so",
+        "sha256": "7162f54bbe51ce8248c4390762e6e8b13f41d82036fdf5bf2e2f881a0c15cf6b",
+        "bytes": 257320,
+        "kind": "Mach-O 64-bit dynamically linked shared library x86_64",
+        "executed": false
+      },
+      {
+        "artifact": "dlls/winegstreamer/i386-windows/winegstreamer.dll",
+        "sha256": "cc2ba775b08eedc3193c017f5498870ba71027d85b3051af8695139abef02353",
+        "bytes": 2425144,
+        "kind": "PE32 executable (DLL) (console) Intel 80386, for MS Windows",
+        "executed": false
+      },
+      {
+        "artifact": "dlls/winegstreamer/x86_64-windows/winegstreamer.dll",
+        "sha256": "fee682a88dadb8f7396cc3e73a24309e2aa108a3da841fe08c123541035451bf",
+        "bytes": 2995073,
+        "kind": "PE32+ executable (DLL) (console) x86-64, for MS Windows",
+        "executed": false
+      }
+    ],
+    "wineCppRuntime": [
+      {
+        "artifact": "libs/c++/i386-windows/libc++.a",
+        "sha256": "b27b877b53656a99ed6cbbb3248a5b823bdbc4441e60a5d22950732e60d97764",
+        "bytes": 11877440,
+        "members": 35,
+        "executed": false,
+        "firstMemberCoffMachine": 332
+      },
+      {
+        "artifact": "libs/c++abi/i386-windows/libc++abi.a",
+        "sha256": "a8345b87fbfadf25c2347286da3c2c841b663050b881c78bed94db5eaf67e42d",
+        "bytes": 2135584,
+        "members": 18,
+        "executed": false,
+        "firstMemberCoffMachine": 332
+      },
+      {
+        "artifact": "libs/c++/x86_64-windows/libc++.a",
+        "sha256": "d738902016fc56cf28b93f74fb5ce3ba773d31fd16659e33830fad1e00e1c945",
+        "bytes": 14662132,
+        "members": 35,
+        "executed": false,
+        "firstMemberCoffMachine": 34404
+      },
+      {
+        "artifact": "libs/c++abi/x86_64-windows/libc++abi.a",
+        "sha256": "60a2295ec5a8828a3aec8c0d7ec007a5898b6e0d5400e343f6169e43272ecc59",
+        "bytes": 3162028,
+        "members": 18,
+        "executed": false,
+        "firstMemberCoffMachine": 34404
+      }
+    ]
+  },
+  "finalConfigurationWithCppComplete": true,
+  "finalComponentBuildAfterConfigurationComplete": true,
+  "adversarialReview": {
+    "scope": "PE C++ builder and four source ports; read-only static review",
+    "firstReviewFindingsFixed": true,
+    "remainingP1P2Reported": 0,
+    "notRuntimeEvidence": true
+  },
+  "preservedFailures": [
+    "inherited GCC build/configuration cache attempt stopped before installation; not adopted",
+    "pinned build stopped before installation to harden actual binutils/source attestation",
+    "APFS NFC/NFD source path comparison rejected equivalent names; fixed with per-side collision rejection",
+    "initial NTDLL PE compiler missing from make PATH; retried successfully with original C paths",
+    "Final make initially used /all for static libraries; actual architecture archive targets selected on retry"
+  ],
+  "fullEngineBuilt": false,
+  "engineExecuted": false,
+  "runtimeAccepted": false,
+  "userEngineOrBottleChanged": false,
+  "windowsOperationsSinceUserDiskCleanup": 0,
+  "actionsTriggered": false,
+  "scheduledAutomationEnabled": false,
+  "compilerSelection": {
+    "i386_CC": {
+      "role": "original-C",
+      "configured": true
+    },
+    "i386_CXX": {
+      "role": "independent-CXX",
+      "configured": true
+    },
+    "x86_64_CC": {
+      "role": "original-C",
+      "configured": true
+    },
+    "x86_64_CXX": {
+      "role": "independent-CXX",
+      "configured": true
+    }
+  },
+  "optionalConfigurationNotices": [
+    "EGL 64-bit development files not found",
+    "libva-drm 64-bit development files not found; VA acceleration unavailable",
+    "FFmpeg 64-bit development files not found"
+  ],
+  "guestExecutablesRun": 0,
+  "scope": "four selected components and Wine C++/C++ABI archives compiled; CX msync/macOS loader/WoW64 integration and full-engine runtime acceptance still pending"
+}

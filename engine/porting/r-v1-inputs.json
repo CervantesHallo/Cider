@@ -1,6 +1,6 @@
 {
   "schema": "cider.engine-r-porting-inputs/v1",
-  "status": "source-preparation-only",
+  "status": "component-bootstrap-compiled",
   "plan": "docs/plan/02-engine-r-wine.md",
   "upstream": {
     "repository": "https://gitlab.winehq.org/wine/wine",
@@ -405,5 +405,57 @@
         "Highball0005 yield requires the actual msync backend and matching server fallback; the yield-only patch is not an implementation of macOS inproc synchronization."
       ]
     }
-  ]
+  ],
+  "bootstrapBuild": {
+    "date": "2026-10-18",
+    "scope": "individual component compilation only; not a complete Engine R v1",
+    "sdk": "macOS15.4",
+    "deploymentTarget": "14.0",
+    "nativeServer": {
+      "compiled": true,
+      "machine": "x86_64",
+      "sha256": "79b72c2a6dcaede84edc6382e98c16d68b3ccf20419c815467aa0cadfd0a9aec",
+      "executed": false
+    },
+    "peCpp17": {
+      "required": true,
+      "status": "both independent GCC15.2 frontends built and accepted by Wine configure",
+      "originalCCompilerReplaced": false,
+      "architectures": {
+        "i686": "built and C++17 detected",
+        "x86_64": "built and C++17 detected"
+      }
+    },
+    "remainingComponentsAccepted": false,
+    "runtimeAccepted": false,
+    "ntdll": {
+      "compiled": true,
+      "architectures": [
+        "x86_64-unix",
+        "i386-windows",
+        "x86_64-windows"
+      ],
+      "executed": false
+    },
+    "graphicsMedia": {
+      "compiled": true,
+      "architectures": [
+        "x86_64-unix",
+        "i386-windows",
+        "x86_64-windows"
+      ],
+      "executed": false
+    },
+    "wineCppRuntimeArchives": {
+      "compiled": true,
+      "architectures": [
+        "i386-windows",
+        "x86_64-windows"
+      ],
+      "gccLibstdcxxInstalled": false,
+      "executed": false
+    },
+    "finalComponentBuildAfterConfigurationComplete": true,
+    "evidence": "docs/research/evidence/engine-r-v1-bootstrap-20261018.json"
+  }
 }
