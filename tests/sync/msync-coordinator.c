@@ -58,6 +58,10 @@ struct shared_state
     uint64_t probe_owner_token, probe_waiter_token;
     unsigned int probe_acquired, probe_owner_released;
     unsigned int close_errors, worker_error, stop;
+#ifdef CIDER_TEST_MSYNC_DEFER_NOTIFY
+    uint64_t notify_scope_calls;
+    unsigned int notify_under_owner;
+#endif
 };
 _Static_assert(sizeof(struct shared_state) <= SHARED_SIZE, "shared state bounds");
 static struct shared_state *shared;
@@ -368,6 +372,11 @@ static void *slot(unsigned int idx,int map)
 static int notify(unsigned int idx,void *shm,int blocking)
 {
     if (idx < 1 || idx >= SLOT_COUNT || shm != &slots[idx]) _exit(96);
+#ifdef CIDER_TEST_MSYNC_DEFER_NOTIFY
+    __atomic_add_fetch(&shared->notify_scope_calls,1,__ATOMIC_RELAXED);
+    if (!work_token || __atomic_load_n(&coord.header->owner,__ATOMIC_SEQ_CST)==work_token)
+        __atomic_store_n(&shared->notify_under_owner,1,__ATOMIC_RELAXED);
+#endif
     if (injection == 2 && !blocking) return 0;
     if (injection == 3 && coord.header->state == MSYNC_COORD_APPLIED) _exit(38);
     if (blocking && notify_ready_fd >= 0)
@@ -869,6 +878,54 @@ static void stop_watchdog(void)
     }
     close_fd(&watchdog_pipe[0]); close_fd(&watchdog_pipe[1]);
 }
+#ifdef CIDER_TEST_MSYNC_SNAPSHOT
+static void snapshot_contract_case(void)
+{
+    struct msync_coord_guard guard;
+    struct msync_coord_snapshot view = {0};
+    struct msync_coord_entry entry = {6,0,UINT64_C(1)<<32};
+    unsigned int state;
+    const unsigned int tid = 77;
+    uint64_t *epochs = msync_coord_epochs(&coord);
+    test_name="snapshot-contract";
+    __atomic_store_n(&epochs[tid],2,__ATOMIC_RELEASE);
+    enter(&guard); msync_coord_commit(&coord,&entry,1); finish(&guard);
+    CHECK(msync_coord_snapshot_begin(&coord,tid,2,&view),"clean matching epoch begins");
+    CHECK((uint32_t)__atomic_load_n(&slots[6],__ATOMIC_ACQUIRE)==0,"low 32 bits retain zero with nonzero semaphore maximum");
+    CHECK(msync_coord_snapshot_end(&coord,&view),"unchanged clean view completes");
+    enter(&guard);
+    CHECK(!msync_coord_snapshot_end(&coord,&view),"held owner rejects previously clean view");
+    CHECK(!msync_coord_snapshot_begin(&coord,tid,2,&view),"held owner rejects begin");
+    finish(&guard);
+    /* Single-threaded fixture: only the independent timeout watchdog is live.
+     * No worker reads state while these guard rejection cases are staged. */
+    for (state=MSYNC_COORD_PREPARING;state<=MSYNC_COORD_APPLIED;++state)
+    {
+        CHECK(msync_coord_snapshot_begin(&coord,tid,2,&view),"state test starts clean");
+        __atomic_store_n(&coord.header->state,state,__ATOMIC_RELEASE);
+        CHECK(!msync_coord_snapshot_end(&coord,&view),"pending state rejects end");
+        CHECK(!msync_coord_snapshot_begin(&coord,tid,2,&view),"pending state rejects begin");
+        __atomic_store_n(&coord.header->state,MSYNC_COORD_CLEAN,__ATOMIC_RELEASE);
+    }
+    CHECK(msync_coord_snapshot_begin(&coord,tid,2,&view),"sequence test starts clean");
+    entry.value|=1;
+    enter(&guard); msync_coord_commit(&coord,&entry,1); finish(&guard);
+    CHECK(!msync_coord_snapshot_end(&coord,&view),"completed transaction rejects old view even after owner and state clean");
+    CHECK(!msync_coord_snapshot_begin(&coord,tid,0,&view),"zero epoch rejects begin");
+    CHECK(!msync_coord_snapshot_begin(&coord,tid,3,&view),"retired odd epoch rejects begin");
+    CHECK(!msync_coord_snapshot_begin(&coord,MSYNC_COORD_TIDS,2,&view),"out of bounds tid rejects begin");
+    CHECK(msync_coord_snapshot_begin(&coord,tid,2,&view),"epoch test starts matching");
+    __atomic_store_n(&epochs[tid],4,__ATOMIC_RELEASE);
+    CHECK(!msync_coord_snapshot_end(&coord,&view),"reused tid rejects old view");
+    CHECK(!msync_coord_snapshot_begin(&coord,tid,2,&view),"reused tid rejects old begin");
+    CHECK(msync_coord_snapshot_begin(&coord,tid,4,&view),"new matching incarnation begins");
+    CHECK(msync_coord_snapshot_end(&coord,&view),"new matching incarnation completes");
+    __atomic_store_n(&epochs[tid],0,__ATOMIC_RELEASE);
+    emit("{\"kind\":\"snapshot-contract\",\"scope\":\"production header view validation only; not Windows equivalence\",\"failures\":%d}\n",failures);
+}
+
+#endif
+
 int main(int argc,char **argv)
 {
     char path[PATH_MAX] = "";
@@ -903,9 +960,19 @@ int main(int argc,char **argv)
     flush_output();
     if (output_error) goto cleanup;
     (void)fd();
+#ifdef CIDER_TEST_MSYNC_SNAPSHOT
+    snapshot_contract_case();
+#endif
     simple_recovery(0); simple_recovery(1); killed_owner_case(); simple_recovery(2); stale_helper_case();
     stopped_live_owner_case(); killed_contending_waiter_case();
     stress_case(4,10000); stress_case(8,10000); process_stress_case(); bench();
+#ifdef CIDER_TEST_MSYNC_DEFER_NOTIFY
+    CHECK(__atomic_load_n(&shared->notify_scope_calls,__ATOMIC_RELAXED)>0,"notification scope was exercised");
+    CHECK(!__atomic_load_n(&shared->notify_under_owner,__ATOMIC_RELAXED),"notification callback ran under its own transaction gate");
+    emit("{\"kind\":\"coordinator-notify-scope\",\"calls\":%" PRIu64 ",\"underOwnGate\":%s}\n",
+         __atomic_load_n(&shared->notify_scope_calls,__ATOMIC_RELAXED),
+         __atomic_load_n(&shared->notify_under_owner,__ATOMIC_RELAXED) ? "true" : "false");
+#endif
 cleanup:
     test_name="teardown";
     teardown_children();

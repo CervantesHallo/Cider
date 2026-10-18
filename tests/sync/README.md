@@ -38,6 +38,19 @@ can kill only that verified private session/group. The outer runner must retain
 a bounded deadline, kill/reap that same owned group on failure, and reject a
 missing completion marker. All normal/failure teardown precedes its final JSON.
 
+When validating optional candidate0106, add `-DCIDER_TEST_MSYNC_SNAPSHOT` when
+building `msync-coordinator.c` against its exact paired header. This enables
+snapshot owner/state/sequence/epoch rejection cases alongside the recovery and
+concurrency cases. Omit the define for older headers. Separately mutated header
+copies must be rejected; never mutate the installed candidate to test a negative.
+
+For optional candidate0108, use `-DCIDER_TEST_MSYNC_DEFER_NOTIFY` instead. It
+records whether any notification callback ran under its executor's owner and
+requires actual notifications. The original under-owner header is a negative
+control for this **new scheduling invariant**, not evidence that its Windows
+semantics were incorrect. Also reject isolated headers omitting recovered wakes
+or the stale-helper sequence guard; retain native teardown evidence.
+
 Compile `owned-processes.swift` against the same laboratory app's CiderKit
 modules. Do not replace it with process-name matching or a global `wineserver -k`.
 

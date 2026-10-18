@@ -8,7 +8,13 @@
 
 已实际完成、各有独立原始回执的电池比较：F8/0104 v3：server10100ns/候选2200ns，4.5909倍未达5，CS+2.1019%通过控制；F9/TLS机械合并v3：10100/2200ns，4.5909倍未达5，CS−5.0895%控制失败；F8新v4夹具（仅bench stop标志从共享CAS改为acquire读）：10300/2200ns，4.6818倍未达5，CS+10.4962%控制失败。不能用控制失败数据把RTT变化归因于引擎。三个cohort在admission、tls-prototype、benchmark-v4目录各自paired-perf-battery*.json，旧AC和旧电池数据不改。F9两位宽基础/生命周期/八线程/四进程及20秒短压、无害子程序1260共11阶段已过，但没有自己的小时验收；F7/F8两小时结果保留不借给F9。F8最后电池功能已在8c563dc归档。
 
-继续保留原子WaitAll/恢复/原槽/Mach/ulock/inproc，不改用户引擎。当前私有out/waitall-snapshot-prototype只读未就绪探测草案：仅一个非alertable自动事件/信号量状态0时省一次空事务，所有成功获取仍走原协调器；matching native frame/线程epoch、原子sequence、owner/CLEAN双检及真实线程fence，magic4须client/server成对构建。尚未执行/采用；正做生产header负对照及独立只读并发审查，疑点不通过则回退原门。TLS静态减少调用不等于性能改善；采样大部分是Rosetta未知帧，仅诊断。
+继续保留原子WaitAll/恢复/原槽/Mach/ulock/inproc，不改用户引擎。只读未就绪快路F10/0106已在out/waitall-snapshot-prototype完成成对magic4构建、独立静态审查、生产header测试/四个负对照及11阶段Wine功能（9个运行阶段均独立核正确native pair）。正式三对电池v3为10100/2200ns，4.5909倍仍失败，CS+1.6209%通过控制。没有主要性能收益，保留非默认、未跑自己的小时，不借F7/F8小时。根下stats-snapshot helper已明确兼容3/4相同统计布局，原3版另存，不把不可用读作0。
+
+当前关键实现转为更小的F8分支out/waitall-local-state-prototype：只在函数调用内复用当前native thread_data，避免重复pthread_getspecific；msync_control_depth只有本执行线程写、信号handler仅读/延迟，使用原子load/store和原signal fence/replay替代多余RELAXED RMW。共享协调头、fork SC准入、pending signals exchange、租约/提交/线程退出语义保留，无F9/10快路。两替换组件构建0警告，独立信号/重入/生命周期审查无具体P1/P2；11阶段实际短功能通过，9个driver阶段正确native d31f2a16…/ce78d67c…已逐一核对。固定三对电池性能也完成：10100/2200ns=4.5909倍，CS−14.4611%控制失败；没有主要收益，不采用/未有自己的小时。继续停止堆叠快路，先用独立非验收二进制做原F8的分段wall-time诊断；有observer effect，不计性能验收，不能当精确CPU归因。TLS静态调用数和Rosetta采样不当性能结论。d05ca5d已按用户身份skip ci推送，旧AC/电池各队列不改。
+
+分段诊断已实际完成：out/waitall-phase-profile，私有非验收native4d34919d…，复用ping-only EXE eebfd4b5…运行1m次/worker、2线程，实际client68076，35检查/0失败，26条两线程报告、50ns桶/每64次采样。Set commit p50桶600–650ns、wait gate950–1000ns，含observer effects/墙钟等待，不当CPU或性能门槛。wrapper最初把complete.ok误读成passed，原失败回执保留；profile-reanalysis.json按原logSHA离线验证ok/failures/output_error及全部桶计数，无重跑/改旧回执。
+
+当前更有针对性的F8分支out/waitall-deferred-notify-prototype：通知提交保持APPLIED，复用既有coord_finish恢复路径在本执行者不持owner时同步完成通知，不提前CLEAN。所有10个生产commit调用点均finish；独立审查无P1/P2，同时指出旧helper要4次owner往返。revision1仅native已过；revision2在匹配sequence/APPLIED并标CLEAN后保留已重新取得的guard返回，省第4次重取，其他情形仍原leave/continue。revision1冻结*.revision1。revision2的生产头死亡/旧helper/通知scope与3个负对照、配对构建及追加审查均已过；Wine11阶段短功能通过，9个运行阶段正确efd16cac…/f7e15666…逐一核对。固定三对电池也完成：server10100ns/候选3900ns，2.5897倍失败，CS−0.1002%通过控制，说明该版本实际更慢，不采用/无自己的小时。共享magic3/原子提交/租约/epoch/信号/取消保持；额外gate往返和重复建议唤醒是明确代价，本次实测未换来改善。下一步从F8原子协调器继续，先审查“提交者在仍持有门时取得自己日志快照，门外通知后以版本/phase原子tag确认完成”的直接finish方案，避免现版本重复取门；目前仅设计，未修改/运行/采用，不借旧结果。
 
 Windows仍busy、不能重启，未连接/改预算/重跑Win32。生产EnginePolicy、用户App/两瓶/Windows账本保持；原HY1→HY2→HY3→HY4/HY5与最终游戏目标不变。源码/构建、Mac运行、Windows kernel和游戏会话分别标状态，所有候选非默认、完整M1未通过。仅一个范围明确只读审查代理，父代理做关键实现；Git作者/提交者仅用户、skip ci、无Actions。
 

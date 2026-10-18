@@ -1,0 +1,50 @@
+macOS: complete notifying commits through the existing outside-owner helper.
+
+Cider-Topic: sync/msync
+Cider-Requires: 0104-msync-thread-local-fork-admission.patch
+Cider-Status: nondefault alternative branch, excluding0105-0107
+Cider-Review-By: independent scoped journal/death/cancellation/fork review and parent
+Cider-Test: production-header death/stale-helper/concurrency and notification scope;
+ original under-owner path and omitted recovered-wake/sequence-guard negatives rejected
+
+Preserve COMMITTED as the state decision and APPLIED until wake obligations are
+actually delivered. All ten production commit callers synchronously finish.
+Notifications use the existing helper after dropping this executor's owner;
+other executors may hold it concurrently. Keep native frames, shared references,
+leases, epoch validation, cancellation, registration and compare-before-park.
+Return a matched completed helper with its refreshed CLEAN guard still held,
+just as normal entry; newer journals retain leave/retry. No CLEAN-before-notify.
+This adds common-path gate round trips and may duplicate advisory wakes. Three
+uncontended acquisitions replace one, so a shorter hold is not proof of speed.
+Paired native builds and new runtime/performance/hour results are required.
+
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -352,7 +352,12 @@
+             guard->token = coord->get_token ? coord->get_token() : token;
+             msync_coord_take( guard );
+             if (header->sequence == sequence && header->state == MSYNC_COORD_APPLIED)
++            {
+                 __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
++                /* Already own a clean gate with refreshed admission/lease.
++                 * Return under that guard, just like the normal CLEAN entry. */
++                return;
++            }
+             msync_coord_leave( guard );
+             continue;
+         }
+@@ -394,10 +399,11 @@
+         __atomic_store_n( (uint64_t *)slot, entries[i].value, __ATOMIC_RELEASE );
+     }
+     __atomic_store_n( &header->state, MSYNC_COORD_APPLIED, __ATOMIC_RELEASE );
+-    /* Usual path: no extra lock round trips. The pump never takes this gate,
+-     * and a zero-timeout send cannot wait for its queue to drain. */
++    /* Preserve APPLIED until the existing helper path delivers every wake
++     * outside this gate. Callers synchronously finish before returning; a dead
++     * helper leaves the journal recoverable, never CLEAN-before-notify. */
+     for (i = 0; i < count; ++i)
+-        if (entries[i].notify && !coord->notify( entries[i].idx, coord->slot( entries[i].idx, 0 ), 0 )) return;
++        if (entries[i].notify) return;
+     __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
+ }
+ 

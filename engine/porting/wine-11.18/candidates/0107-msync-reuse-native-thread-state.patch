@@ -1,0 +1,145 @@
+macOS: reuse native thread data within protected operations.
+
+Cider-Topic: sync/msync
+Cider-Requires: 0104-msync-thread-local-fork-admission.patch
+Cider-Status: nondefault alternative to0105/0106; runtime/performance gates separate
+Cider-Review-By: independent scoped signal/reentrancy/lifetime review and parent
+
+Keep the original coordinator, SC fork admission, pending-signal exchange,
+leases, transaction/recovery and native frame/cancellation lifetime. Reuse only
+function-local pointers to the current native record. There is no new persistent
+TLS cache. The per-executor control depth has no independent active writer;
+signal handlers only read/defer while it is nonzero. Atomic relaxed load/store
+and the original signal fences preserve publication/replay, avoiding an
+unneeded shared RMW. This is NOT cross-thread publication; if ownership changes,
+this single-writer proof must be revisited. No success acquisition bypasses gate.
+
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -225,11 +225,10 @@
+ static int *shm_tid_map;
+ static const mach_msg_bits_t msgh_bits_send = MACH_MSGH_BITS_REMOTE(MACH_MSG_TYPE_COPY_SEND);
+ 
+-static void msync_replay_controls(void)
+-{
+-    struct thread_data *data = get_thread_data();
++static void msync_replay_controls_data( struct thread_data *data )
++{
+     unsigned int pending;
+-    if (coord_exiting || data->msync_in_transaction || data->msync_control_depth ||
++    if (data->msync_exiting || data->msync_in_transaction || data->msync_control_depth ||
+         !__atomic_load_n( &data->msync_pending_signals, __ATOMIC_RELAXED )) return;
+     pending = __atomic_exchange_n( &data->msync_pending_signals, 0, __ATOMIC_SEQ_CST );
+     if (pending & (1u << SIGQUIT)) pthread_kill( pthread_self(), SIGQUIT );
+@@ -244,18 +243,22 @@
+ void msync_control_begin(void)
+ {
+     struct thread_data *data = get_thread_data();
+-    __atomic_add_fetch( &data->msync_control_depth, 1, __ATOMIC_RELAXED );
++    /* Only this executor writes depth; signal handlers read/defer. A signal
++     * before publication sees the old safe region; after it sees the new one.
++     * Keep atomic stores and the compiler fence, without a shared RMW. */
++    unsigned int depth = __atomic_load_n( &data->msync_control_depth, __ATOMIC_RELAXED );
++    __atomic_store_n( &data->msync_control_depth, (sig_atomic_t)(depth + 1), __ATOMIC_RELAXED );
+     __atomic_signal_fence( __ATOMIC_SEQ_CST );
+ }
+ 
+ void msync_control_end(void)
+ {
+     struct thread_data *data = get_thread_data();
++    unsigned int depth;
+     __atomic_signal_fence( __ATOMIC_SEQ_CST );
+-    if (!__atomic_sub_fetch( &data->msync_control_depth, 1, __ATOMIC_RELAXED ))
+-    {
+-        msync_replay_controls();
+-    }
++    depth = (unsigned int)__atomic_load_n( &data->msync_control_depth, __ATOMIC_RELAXED ) - 1;
++    __atomic_store_n( &data->msync_control_depth, (sig_atomic_t)depth, __ATOMIC_RELAXED );
++    if (!depth) msync_replay_controls_data( data );
+ }
+ 
+ void msync_begin_thread_exit(void)
+@@ -586,9 +589,8 @@
+ /* SC publication/recheck: a fork sees every admitted existing descriptor, or
+  * its owner sees the closed gate before using it. A cold thread blocked on the
+  * registry has not opened an inheritable work description yet. */
+-static void coord_depart(void)
+-{
+-    struct thread_data *data = get_thread_data();
++static void coord_depart( struct thread_data *data )
++{
+     __atomic_store_n( &data->msync_in_transaction, 0, __ATOMIC_SEQ_CST );
+     if (__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST ))
+         __ulock_wake( 1 | ULF_WAKE_ALL, (void *)&data->msync_in_transaction, 0 );
+@@ -602,8 +604,8 @@
+     {
+         __atomic_store_n( &data->msync_in_transaction, 1, __ATOMIC_SEQ_CST );
+         if (!__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST )) return;
+-        coord_depart();
+-        msync_replay_controls();
++        coord_depart( data );
++        msync_replay_controls_data( data );
+         if (!__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST )) continue;
+         ret = __ulock_wait( 1 | ULF_NO_ERRNO, &coord_forking, 1, 1000 );
+         if (ret < 0 && ret != -EINTR && ret != -ETIMEDOUT && ret != -EFAULT)
+@@ -769,8 +771,9 @@
+     if (active) coord_admit();
+     else
+     {
+-        coord_depart();
+-        msync_replay_controls();
++        struct thread_data *data = get_thread_data();
++        coord_depart( data );
++        msync_replay_controls_data( data );
+     }
+ }
+ 
+@@ -778,12 +781,13 @@
+ 
+ static void coord_enter( struct msync_coord_guard *guard )
+ {
++    struct thread_data *data = get_thread_data();
+     unsigned int tid = GetCurrentThreadId();
+-    if (coord_retired || !get_thread_data()->msync_private_frames)
++    if (coord_retired || !data->msync_private_frames)
+         msync_coord_fatal( "transaction outside pinned frame" );
+     msync_coord_enter( &coord, -1, 0, guard );
+-    if (!coord_thread_epoch || (coord_thread_epoch & 1) || tid >= MSYNC_COORD_TIDS ||
+-        __atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) != coord_thread_epoch)
++    if (!data->msync_epoch || (data->msync_epoch & 1) || tid >= MSYNC_COORD_TIDS ||
++        __atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) != data->msync_epoch)
+     {
+         msync_coord_leave( guard );
+         abort_thread( STATUS_THREAD_IS_TERMINATING );
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -847,21 +847,23 @@
+ 
+ static void inproc_frame_enter( struct inproc_frame *frame )
+ {
++    struct thread_data *data = get_thread_data();
+     msync_control_begin();
+     if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &frame->cancel_state )) _exit(1);
+-    frame->prev = inproc_frames;
++    frame->prev = data->msync_frames;
+     frame->count = 0;
+-    inproc_frames = frame;
+-    get_thread_data()->msync_private_frames++;
++    data->msync_frames = frame;
++    data->msync_private_frames++;
+ }
+ 
+ /* The caller has deferred controls since acquiring its first unrecorded pin. */
+ static void inproc_frame_leave( struct inproc_frame *frame )
+ {
+-    assert( inproc_frames == frame );
++    struct thread_data *data = get_thread_data();
++    assert( data->msync_frames == frame );
+     while (frame->count) release_inproc_sync( frame->pins[--frame->count] );
+-    inproc_frames = frame->prev;
+-    get_thread_data()->msync_private_frames--;
++    data->msync_frames = frame->prev;
++    data->msync_private_frames--;
+     if (pthread_setcancelstate( frame->cancel_state, NULL )) _exit(1);
+     msync_control_end();
+ }

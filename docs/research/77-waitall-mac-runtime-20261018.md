@@ -149,3 +149,20 @@ v4只把bench worker的stop检测从共享InterlockedCompareExchange换成acquir
 额外ping-only采样只用于定位，实际client/server采样各3秒并清理。大部分栈在Rosetta未知叶帧，不能据此给出精确CPU归因。未在任何正式比较期间并行采样/构建/压力。
 
 继续的只读未就绪快路目前是私有草案：单对象、非alertable、自动事件或semaphore的原子64位状态低32位为0时，检查matching native frame/线程epoch、SC sequence/owner/CLEAN及线程fence后省空事务；成功获取/所有修改仍走原事务。magic4须client/server成对加载，不能混版。独立只读审查限定无P1/P2；生产header原生用例通过，分别删除sequence、epoch、owner、CLEAN检查的四个负对照均被拒绝并完成清理。构建已过，Wine运行/性能/小时尚待。该草案不影响用户引擎/门禁，不扩张为完整M1或Windows/游戏结论。
+
+
+### 0106 后续实际结果
+
+F10只读未就绪候选实际完成11阶段功能，9个driver运行结果均独立核native ntdll b1f3447c…、server8938d7ea…正确；20秒短压不是连续小时。公开native夹具以`CIDER_TEST_MSYNC_SNAPSHOT`编译后，生产头通过，分别删sequence/epoch/owner/CLEAN的四个负对照均退出1并清理。新队列六轮三对完成，server/候选10100/2200ns（4.5909倍），RTT20600/4800ns，CS0.802/0.815ns/op（+1.6209%通过控制）。主要性能仍失败，未选择/未跑自己的一小时，不用F7/F8小时替代。补丁0106保留为非默认实验，收益未证实，增加版本探测/维护成本；回退为0104原路径，不能把复杂度增加称为改善。
+
+接下来更小的F8分支只复用函数内native数据指针，并优化只有本线程写的控制深度计数；不包含F9/F10快路，共享协调头/SC fork准入及恢复不变。两组件构建、独立信号/重入/生命周期审查和11阶段实际短功能都通过，9个driver阶段逐一核ntdll d31f2a16…/server ce78d67c…。固定三对电池队列也完成：server/候选10100/2200ns=4.5909倍未达5，CS1.466/1.254ns/op=−14.4611%控制失败。没有主要改善，不采用/未跑自己的小时；不把RTT变为4300ns归因为后端收益。该分支0107直接依赖0104，不包含0105/0106的代码。原子协调器保持，单写者计数的审查边界写入补丁。下一步用单独原F8诊断二进制记录分段inclusive wall time（每64次采样、50ns桶），保留observer effect、不当正式验收或CPU归因；避免继续凭假设堆叠快路。
+
+
+### 分段诊断与新的通知候选
+
+独立诊断binary基于F8，仅每64次记录inclusive wall-time、50ns桶，不参与任何门槛。实际1000000次/worker、两线程，35检查0失败；两nativeTid共26条报告，所有桶和计数逐一核对。SetEvent commit p50落600–650ns，Wait gate950–1000ns，frame enter/leave各200–250ns，Set yield200–250ns。存在定时/记录开销和调度等待，不能相加为CPU比例或与正式数据混用。包装器原本读取不存在的complete.passed造成采集判错；原回执与logSHA保留，另建离线reanalysis按complete.ok/0failures/无output_error及实际PID/全部桶核验，没有为修包装器重复程序。
+
+据此正在验证F8通知分支：保持APPLIED，让既有helper在门外同步交付通知；不提前CLEAN、不跳过成功获取，所有生产调用点仍同步finish。审查指出该路径正常要4次门往返，不能仅凭缩短持门宣布收益；revision2在同sequence/APPLIED完成后以已经持有的clean guard返回，省最后重取，异代仍原循环。线程/进程死亡、通知/旧helper对照和真实两位宽运行/性能仍分别验。当前仅native阶段，不选择配方；原F7/F8小时和失败性能原样保留。
+
+
+通知分支0108 revision2最终实际完成两位宽/生命周期/竞争/跨进程/20秒短压及child1260共11阶段，9个driver阶段均核正确efd16cac…/f7e15666…native pair。正式预声明六轮三对也完成，server10100ns/候选3900ns（2.5897倍），RTT20600/7800ns，CS0.998/0.997ns/op（−0.1002%通过控制）。因此该版更慢，拒绝性能采用；未跑自己的小时、不借F7/F8结果。原生通知scope的旧header负对照仅针对新调度不变量，不宣称旧API语义错误。继续从原F8改进直接finish/版本确认的设计，不能把源码路径计数当测得速度。

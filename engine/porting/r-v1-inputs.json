@@ -526,6 +526,43 @@
       "status": "PE32/64 short functionality passed; battery v3 formal speed/control failed; own hour not run",
       "selectedByRecipe": false,
       "productionPolicyBound": false
+    },
+    "optionalSnapshotCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0106-msync-validated-unready-snapshot.patch",
+      "sha256": "e7ef2a7b166cb9b926ab1deb25c4d07a00e92225da2a88541181d8d4a3218f6d",
+      "requires": "0105-msync-co-locate-thread-local-state.patch",
+      "sharedCoordMagicVersion": 4,
+      "status": "PE32/64 short functionality/native guard negatives passed; complete battery speed4.5909x failed5x, control+1.6209% passed; no measured primary gain; own hour not run",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalLocalStateCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0107-msync-reuse-native-thread-state.patch",
+      "sha256": "be0324dbd4a2ab17c539bd7bd79063c61ccefae8597d1c09a3f9aa296c8e0644",
+      "requires": "0104-msync-thread-local-fork-admission.patch",
+      "excludes": [
+        "0105",
+        "0106"
+      ],
+      "sharedCoordMagicVersion": 3,
+      "status": "two native components/scoped review/PE32 and PE64 short runtime passed; fixed battery speed4.5909x and control-14.4611percent failed; no primary speed gain; no own hour",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalDeferredNotifyCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0108-msync-complete-notifications-outside-owner.patch",
+      "sha256": "80ed49306a436ec40572be3166690a8cb1aed211056330ee8db2cbce7cdde990",
+      "requires": "0104-msync-thread-local-fork-admission.patch",
+      "excludes": [
+        "0105",
+        "0106",
+        "0107"
+      ],
+      "sharedCoordMagicVersion": 3,
+      "revision": 2,
+      "status": "paired native/review/recovery-death-stale-helper-scope guards and PE32/PE64 short runtime passed; fixed battery2.5897x failed5x, control-0.1002percent passed; slower/not adopted; no own hour",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
     }
   }
 }

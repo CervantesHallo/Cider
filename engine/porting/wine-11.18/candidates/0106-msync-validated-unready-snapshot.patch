@@ -1,0 +1,150 @@
+macOS: reject provably unavailable single waits through a pinned snapshot.
+
+Cider-Topic: sync/msync
+Cider-Requires: 0105-msync-co-locate-thread-local-state.patch
+Cider-Status: nondefault candidate; performance/continuous gates separate
+Cider-Test: production-header snapshot guards and four rejected negative controls;
+ PE32/64 functionality, lifecycle and actual cross-process runtime in owned lab
+Cider-Review-By: independent scoped read-only concurrency review and parent
+
+Successful acquisitions and every mutation still use the original transaction.
+The read-only probe admits only one nonalertable auto-event or semaphore with
+zero availability, a live pinned native frame and matching even TID epoch.
+SC owner/version observations, atomic64 payload and a real thread fence reject
+interference; pending journals take normal recovery. The existing compare-before-
+park path and timeout semantics remain. Advance shared magic to4 and load only
+matching client/server components. Allocation/reuse is excluded by the existing
+exported shared reference held by the native frame.
+
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -794,6 +794,22 @@
+     }
+ }
+ 
++/* This is only a no-state-change rejection. A ready object, an APC/mutex,
++ * an uncertain incarnation, or any in-flight journal uses the existing gate. */
++static int coord_snapshot_unready( void *shm, unsigned int tid )
++{
++    struct thread_data *data = get_thread_data();
++    struct event *event = shm;
++    struct msync_coord_snapshot view;
++    uint64_t value;
++    if (coord_thread.retired || !data->msync_private_frames) return 0;
++    if (event->msync_type != MSYNC_AUTO_EVENT && event->msync_type != MSYNC_SEMAPHORE) return 0;
++    if ((uint32_t)__atomic_load_n( (uint64_t *)shm, __ATOMIC_ACQUIRE )) return 0; /* hint only */
++    if (!msync_coord_snapshot_begin( &coord, tid, data->msync_epoch, &view )) return 0;
++    value = __atomic_load_n( (uint64_t *)shm, __ATOMIC_ACQUIRE );
++    return !(uint32_t)value && msync_coord_snapshot_end( &coord, &view );
++}
++
+ static void coord_finish( struct msync_coord_guard *guard )
+ {
+     int pending = coord.header->state != MSYNC_COORD_CLEAN;
+@@ -1170,6 +1186,11 @@
+     {
+         abandoned = 0;
+         blocked = count;
++        if (count == 1 && !alert_obj && coord_snapshot_unready( objs_shm[0], tid ))
++        {
++            blocked = 0;
++            goto wait_unready;
++        }
+         coord_enter( &guard );
+         /* APC priority is decided with the same state view as acquisition. */
+         if (alert_obj && *(int *)alert_obj_shm)
+@@ -1197,6 +1218,7 @@
+         }
+         msync_coord_leave( &guard );
+ 
++wait_unready:
+         /* The gate is NEVER held while waiting for an object, sending a Mach
+          * message, running an APC or performing a server request. */
+         if (timeout && (!timeout->QuadPart || !update_timeout( end ))) return STATUS_TIMEOUT;
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -24,7 +24,7 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ 
+-#define MSYNC_COORD_MAGIC UINT64_C(0x43494445524d5303)
++#define MSYNC_COORD_MAGIC UINT64_C(0x43494445524d5304)
+ #define MSYNC_COORD_TIDS (1u << 24)
+ #define MSYNC_COORD_HEADER_SIZE 65536u
+ #define MSYNC_COORD_SIZE (MSYNC_COORD_HEADER_SIZE + (uint64_t)MSYNC_COORD_TIDS * sizeof(uint64_t))
+@@ -278,6 +278,39 @@
+     return (uint64_t *)((char *)coord->header + MSYNC_COORD_HEADER_SIZE);
+ }
+ 
++/* A pinned read-only availability probe. Any uncertain view takes the normal
++ * transaction path, including recovery of pending writes/notifications. */
++struct msync_coord_snapshot
++{
++    uint64_t sequence;
++    uint64_t epoch;
++    unsigned int tid;
++};
++
++static inline int msync_coord_snapshot_begin( struct msync_coord *coord, unsigned int tid,
++                                               uint64_t epoch, struct msync_coord_snapshot *view )
++{
++    if (!epoch || (epoch & 1) || tid >= MSYNC_COORD_TIDS) return 0;
++    view->sequence = __atomic_load_n( &coord->header->sequence, __ATOMIC_SEQ_CST );
++    view->epoch = epoch;
++    view->tid = tid;
++    return !__atomic_load_n( &coord->header->owner, __ATOMIC_SEQ_CST ) &&
++           __atomic_load_n( &coord->header->state, __ATOMIC_ACQUIRE ) == MSYNC_COORD_CLEAN &&
++           __atomic_load_n( &msync_coord_epochs( coord )[tid], __ATOMIC_ACQUIRE ) == epoch;
++}
++
++static inline int msync_coord_snapshot_end( struct msync_coord *coord,
++                                             const struct msync_coord_snapshot *view )
++{
++    /* Pair the payload load with BOTH version observations, rather than merely
++     * an atomic_signal_fence which supplies no inter-thread ordering. */
++    __atomic_thread_fence( __ATOMIC_SEQ_CST );
++    return __atomic_load_n( &msync_coord_epochs( coord )[view->tid], __ATOMIC_ACQUIRE ) == view->epoch &&
++           !__atomic_load_n( &coord->header->owner, __ATOMIC_SEQ_CST ) &&
++           __atomic_load_n( &coord->header->state, __ATOMIC_ACQUIRE ) == MSYNC_COORD_CLEAN &&
++           __atomic_load_n( &coord->header->sequence, __ATOMIC_SEQ_CST ) == view->sequence;
++}
++
+ static inline void msync_coord_leave( struct msync_coord_guard *guard )
+ {
+     msync_coord_give( guard );
+@@ -317,7 +350,7 @@
+             if ((state != MSYNC_COORD_COMMITTED && state != MSYNC_COORD_APPLIED) ||
+                 !(count = header->count) || count > MSYNC_COORD_ENTRIES)
+                 msync_coord_fatal( "journal state" );
+-            sequence = header->sequence;
++            sequence = __atomic_load_n( &header->sequence, __ATOMIC_SEQ_CST );
+             memcpy( pending, header->entries, count * sizeof(*pending) );
+             missing = 0;
+             for (i = 0; i < count; ++i)
+@@ -351,7 +384,7 @@
+             guard->fd = coord->get_fd ? coord->get_fd() : fd;
+             guard->token = coord->get_token ? coord->get_token() : token;
+             msync_coord_take( guard );
+-            if (header->sequence == sequence && header->state == MSYNC_COORD_APPLIED)
++            if (__atomic_load_n( &header->sequence, __ATOMIC_SEQ_CST ) == sequence && header->state == MSYNC_COORD_APPLIED)
+                 __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
+             msync_coord_leave( guard );
+             continue;
+@@ -369,7 +402,7 @@
+     unsigned int i, actual = 0;
+     struct msync_coord_entry changes[MSYNC_COORD_ENTRIES];
+     if (!count) return;
+-    if (count > MSYNC_COORD_ENTRIES || header->state != MSYNC_COORD_CLEAN || header->sequence == UINT64_MAX)
++    if (count > MSYNC_COORD_ENTRIES || header->state != MSYNC_COORD_CLEAN || __atomic_load_n( &header->sequence, __ATOMIC_SEQ_CST ) == UINT64_MAX)
+         msync_coord_fatal( "commit bounds" );
+     for (i = 0; i < count; ++i)
+     {
+@@ -382,7 +415,7 @@
+     entries = changes;
+     count = actual;
+     __atomic_store_n( &header->state, MSYNC_COORD_PREPARING, __ATOMIC_RELEASE );
+-    ++header->sequence;
++    __atomic_add_fetch( &header->sequence, 1, __ATOMIC_SEQ_CST );
+     header->count = count;
+     memcpy( header->entries, entries, count * sizeof(*entries) );
+     /* No state word changes until this one recoverable decision is published. */
