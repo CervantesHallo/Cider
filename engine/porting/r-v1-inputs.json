@@ -497,6 +497,13 @@
     "selectedByRecipe": false,
     "enginePolicyRegistered": false,
     "previousEvidence": "docs/research/evidence/engine-r-v1-msync-candidate-20261018.json",
-    "coordinationCost": "2 fcntl calls plus local admission per normal state operation; global state serialization and 128MiB+64KiB sparse epoch/journal mapping, actual RSS/latency unmeasured"
+    "coordinationCost": "2 fcntl calls plus local admission per normal state operation; global state serialization and 128MiB+64KiB sparse epoch/journal mapping, actual RSS/latency unmeasured",
+    "platformComponentsCompiled": [
+      "wine",
+      "wow64/x86_64",
+      "wow64cpu/x86_64",
+      "win32u/native+i386+x86_64",
+      "winemac/native+i386+x86_64"
+    ]
   }
 }

@@ -10,6 +10,8 @@ Windows暂不能重启，只推进Mac原02。0102叠加0100/0101，保留共享�
 
 经验：每线程open才是独立OFD；child关闭继承FD仍不足，parent未来锁也会共享旧OFD，须准入隔离后换新描述，并在持门后刷新FD。故障退出不先写可能满的stderr或进入Wine异常RPC；逻辑TERMINATED不等于已停止写状态。
 
+070ab56交付后继续本机平台组件构建：Wine启动器、wow64/wow64cpu、win32u和winemac.drv共9产物链接退出0。30条警告来自7个与固定基线字节相同的winemac文件（27弃用/3nonnull），作为待核对项保留，未消音或宣称全范围零警告；WaitAll四组件零警告仅指其最终构建。没有执行新模块或产品会话，完整迁移/采用仍待，见research76补充和同一evidence。Windows及用户环境未动。
+
 ## 用户目标与协作
 
 - **R v1同步候选及真实剩余缺口（2026-10-18，检查点75）**：R v1独立候选0100/0101已接macOS msync及same-binary host loader，协议由962生成963（非CX1810），16文件精确重建；server/native ntdll/两PE模块已编译链接，未执行/安装。源修包括真实初始化/映射/分配失败、稳定原子页表、共享ref与alert索引、WaitAll abandoned/owner回滚/期限和登记清理。独立审查仍确认旧WaitAll暂取与并发Release会使semaphore count>max的P2，**未修、阻止默认采用**；不能钳位/丢许可/禁用WaitAll冒充修复。需统一状态协调及线程死亡恢复，原M3为候选机制，不计M1/M3完成。稳定表2/8MiB每原生进程代价、验收及回退见research75/evidence；无Windows/新测试或游戏门禁提升。用户暂不能重启，Windows busy/余准备2309测试3600无pending保持。

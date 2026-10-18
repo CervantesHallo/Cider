@@ -277,5 +277,122 @@
     "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-releasesemaphore",
     "https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_descrip.c",
     "https://github.com/torvalds/linux/blob/master/drivers/misc/ntsync.c"
-  ]
+  ],
+  "platformComponentBuild": {
+    "targets": [
+      "wine",
+      "dlls/wow64/all",
+      "dlls/wow64cpu/all",
+      "dlls/win32u/all",
+      "dlls/winemac.drv/all"
+    ],
+    "exitCode": 0,
+    "compilerErrors": 0,
+    "compilerWarnings": 30,
+    "warningClasses": {
+      "deprecatedDeclarations": 27,
+      "nonnull": 3
+    },
+    "warningSources": {
+      "dlls/winemac.drv/cocoa_app.m": {
+        "sha256": "8c92a8c3bb8c71e3b86299f021a30cfbdd10af7507cc9c1f5da85bce67a24c1e",
+        "sameAsPinnedFourPortBase": true
+      },
+      "dlls/winemac.drv/cocoa_clipboard.m": {
+        "sha256": "57c37a11ee093616ffdac3cbb448038df46289cc3fe86b92f7051c18bea2f00f",
+        "sameAsPinnedFourPortBase": true
+      },
+      "dlls/winemac.drv/cocoa_display.m": {
+        "sha256": "4d7fe2a12f724174db6bdf7c32dc4b6a593a6c75c5463f72981452eded4e7e50",
+        "sameAsPinnedFourPortBase": true
+      },
+      "dlls/winemac.drv/cocoa_status_item.m": {
+        "sha256": "59b2fa8dc47f01b2eca3b540fb4d2de158a1c66e8553dfa7d73e62cde57ba96e",
+        "sameAsPinnedFourPortBase": true
+      },
+      "dlls/winemac.drv/cocoa_window.m": {
+        "sha256": "8b731d3d22181a78d2f0202414eaaafe9b887c2e1acbe39a63ecaeaa49b67ea1",
+        "sameAsPinnedFourPortBase": true
+      },
+      "dlls/winemac.drv/display.c": {
+        "sha256": "4274ba9b7d6ddd8a7c4680cb62f4221b68f06b2be5cf410904ed29322c7f2a76",
+        "sameAsPinnedFourPortBase": true
+      },
+      "dlls/winemac.drv/opengl.c": {
+        "sha256": "6a79323926bd62d24beb28c2465d62a525c52f87591e8163b7f871621f947478",
+        "sameAsPinnedFourPortBase": true
+      }
+    },
+    "log": "out/engine-r-v1/msync-platform-integration-build.log",
+    "logSHA256": "6c98a321bb9d8a816108c00c41e0ab36955d2e74aaed9ab0cc09fda1ec7f442c",
+    "artifacts": [
+      {
+        "path": "wine",
+        "sha256": "2b4cf054a5179baca48128bebe62680b5167528c180d3615ab70e19b72c196f9",
+        "bytes": 10184,
+        "kind": "Mach-O 64-bit executable x86_64",
+        "executed": false
+      },
+      {
+        "path": "dlls/wow64/x86_64-windows/wow64.dll",
+        "sha256": "ecfdb3f59dda5d570b066c53a04420de603689dfd4ea7047fafcd0ef51d117ea",
+        "bytes": 1594953,
+        "kind": "PE32+ executable (DLL) (console) x86-64, for MS Windows",
+        "executed": false
+      },
+      {
+        "path": "dlls/wow64cpu/x86_64-windows/wow64cpu.dll",
+        "sha256": "1b980fdb9e734c0a002ba14db8fef22b653c886c03210999227405e77e03c557",
+        "bytes": 108586,
+        "kind": "PE32+ executable (DLL) (console) x86-64, for MS Windows",
+        "executed": false
+      },
+      {
+        "path": "dlls/win32u/win32u.so",
+        "sha256": "d6dd53124535d69227b94836401d67fb0b44316e192c0e5d396e37768d434eb4",
+        "bytes": 2487040,
+        "kind": "Mach-O 64-bit dynamically linked shared library x86_64",
+        "executed": false
+      },
+      {
+        "path": "dlls/win32u/i386-windows/win32u.dll",
+        "sha256": "841cdb32273b63ac014679bdece6b28e0c4c3d23d39eb4bba7b26f01349ef4d0",
+        "bytes": 468772,
+        "kind": "PE32 executable (DLL) (console) Intel 80386, for MS Windows",
+        "executed": false
+      },
+      {
+        "path": "dlls/win32u/x86_64-windows/win32u.dll",
+        "sha256": "c9862183337d0930c8245efde5da923b4617e01dd4179c6f7ad11f926f4eeb42",
+        "bytes": 501914,
+        "kind": "PE32+ executable (DLL) (console) x86-64, for MS Windows",
+        "executed": false
+      },
+      {
+        "path": "dlls/winemac.drv/winemac.so",
+        "sha256": "b78ef0171dc3b23bb8547d0dc919ba4981cdafff0da11a61d7417df520c1e9d1",
+        "bytes": 532736,
+        "kind": "Mach-O 64-bit dynamically linked shared library x86_64",
+        "executed": false
+      },
+      {
+        "path": "dlls/winemac.drv/i386-windows/winemac.drv",
+        "sha256": "3e9e8883e2b19d16a68caf53ca97a63b7f1ea0c2b9740f6812f456eb4ac37f76",
+        "bytes": 164145,
+        "kind": "PE32 executable (DLL) (console) Intel 80386, for MS Windows",
+        "executed": false
+      },
+      {
+        "path": "dlls/winemac.drv/x86_64-windows/winemac.drv",
+        "sha256": "7dbe2b10e38043d7d6be7d238db0e63825d22388f84ad1aa1236fe3923107ae5",
+        "bytes": 192986,
+        "kind": "PE32+ executable (DLL) (console) x86-64, for MS Windows",
+        "executed": false
+      }
+    ],
+    "sourceChangedForThisBuild": false,
+    "fullEngineBuilt": false,
+    "runtimeAccepted": false,
+    "scope": "additional native and WoW64 component link evidence; not complete porting or launch verification"
+  }
 }

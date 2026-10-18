@@ -34,11 +34,11 @@
 
 ## 同步依赖核对
 
-CX与固定上游已经共享get_sync/inproc缓存模型；迁移需要保留该所有权/权限路径。上游object_ops已改为指定字段初始化，CX的macOS分支不能连旧位置表整体复制。共享内存索引与Unix fd的收发、关闭及协议生成必须成组处理；WaitAny/WaitAll与APC返回也须明确映射。单独移植Highball0005的yield不足以得到msync。当前只完成具体依赖核对，尚未修改同步后端，逐文件摘要在输入JSON。
+CX与固定上游共享get_sync/inproc缓存模型；迁移保留其所有权/权限路径。上游object_ops已改为指定字段初始化，不能连旧位置表整体复制。共享索引与Unix fd的收发、关闭及协议生成必须成组处理；WaitAny/WaitAll和APC返回也须明确映射。单独移植Highball0005的yield不足以得到msync。迁移前的依赖核对已由下方0100–0102非默认源码实施接续，逐文件摘要在输入JSON。
 
-## PE C++工具链
+## PE C++工具链（已补齐）
 
-Wine11.18的configure已实际通过，但明确报告两架构缺少C++17前端。现有GCC15.2工具链是C-only；不能以configure返回0当作所有模块均启用，也不能因缺依赖更换为曾导致Steam登录故障的LLVM后端。
+首次Wine11.18 configure通过时明确报告两架构缺C++17前端，原GCC15.2为C-only；随后按下述独立前端方案补齐。不能以configure返回0当作所有模块启用，也不因缺依赖更换为曾导致Steam登录故障的LLVM后端。
 
 `engine/pe-cxx-toolchain.sh`从同一固定GCC15.2归档构建两个独立C/C++前端prefix，保留原C工具链及其CRT/libgcc。源码逐文件/路径集合校验，处理APFS的Unicode等价名称并拒绝碰撞；编译对象使用独立、固定SDK的目录，实际as/ld与原工具一致。完成标记绑定SDK、目标、输入、g++和cc1plus以及C++17 COFF对象；不构建/注入新的目标libstdc++，Wine使用自己的C++运行库。首次继承缓存方案在安装前停止，旧as/ld路径与未知SDK对象不采用。
 
@@ -60,3 +60,5 @@ Wine11.18的configure已实际通过，但明确报告两架构缺少C++17前端
 顺序为 `0100-macos-inproc-msync.patch` → `0101-ntdll-retain-host-loader.patch` → `0102-msync-atomic-waitall.patch`。前两项原字节保留；0102修复旧WaitAll暂取/回滚与并发Release的原子性缺口，加入状态协调、可恢复提交、代际及退出/fork处理，保留共享槽/Mach/ulock/inproc。当前协议由962→963→964生成，完整链20文件精确重建；server、原生和双PE ntdll编译通过，限定源码复审无剩余P1/P2。
 
 它们均未被配方选择或运行验收。正常状态操作新增2次fcntl和本地准入，暂时串行，稀疏协调映射128MiB+64KiB的RSS/延迟未测；不能以构建和静态审查代替并发、Windows和性能验证。取舍、已修问题、待验收与回退见[research76](../../docs/research/76-r-v1-waitall-coordination-20261018.md)及证据；旧移植来源/固定页表成本见[research75](../../docs/research/75-r-v1-msync-source-candidate-20261018.md)。
+
+接续构建Wine启动器、wow64/wow64cpu、win32u和winemac.drv，9个产物已链接。新增构建有30条来自未修改基线winemac文件的SDK弃用/nonnull警告，未宣称整个范围零警告；原WaitAll四组件最终构建零警告的范围不扩大。平台组件尚未运行，窗口/WoW64主题迁移及完整引擎采用仍待。
