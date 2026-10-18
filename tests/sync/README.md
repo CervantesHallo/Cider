@@ -10,6 +10,7 @@ user bottle. See research77 for the measured build, source hashes and results.
 | --- | --- |
 | `waitall.c` | Actual Win32 calls in PE32/PE32+: not-ready/ready mixed objects, 8/64-object waits, APC priority, abandoned mutexes, named and duplicated handles, concurrent permit accounting, fixed-duration random pressure, and benchmarks. |
 | `waitall-lifecycle.c` | Actual suspend/context/resume/terminate, owned child creation/reaping, and repeated killed WaitAny waiters. |
+| `waitall-processes.c` | Four actual self child Wine processes with four role threads each, named shared objects, atomic counters and final permit accounting; bounded owned Job cleanup. |
 | `msync-coordinator.c` | Includes the **production** Darwin coordinator header. Tests interrupted commits, notification recovery, stale helpers, stopped live owners, killed contenders and thread/process concurrency. This is not Wine API or Windows equivalence evidence. |
 | `stats-snapshot.c` | Reads the actual pump's seqlock counters and kernel process resource observations. A missing/disabled snapshot is unavailable, not zero occupancy. |
 | `owned-processes.swift` | Uses production process identity and prefix checks to observe/stop only the owned laboratory. Never spawns Wine. |
@@ -22,6 +23,11 @@ Use the project's existing GCC mingw-w64 frontends, separately for `i686` and
 `x86_64`, with `-O2 -g -Wall -Wextra -Werror`. Output names expected by the driver
 are `waitall-{arch}.exe` and `waitall-lifecycle-{arch}.exe`. No new compiler is
 required. `policy-probe.c` is an independent PE executable.
+
+Build `waitall-processes.c` with the same per-architecture C flags into
+`waitall-processes-{arch}.exe`. Invoke it through the driver with
+`--suite processes --mode correctness --iterations 100000`. This checks actual
+Wine client/server sharing; it is separate from native-header process tests.
 
 Build the native helpers with the pinned macOS 15.4 SDK and the candidate source
 include directory. `msync-coordinator.c` and `stats-snapshot.c` use
@@ -81,8 +87,8 @@ Run serially. Do not compile, profile or run pressure workloads alongside a
 performance comparison. Freeze repetition count/order before measurement and
 retain all results. Benchmark records distinguish:
 
-- actual sampled **one-way event wake latency**, including timestamp handoff
-  overhead, with no overhead subtraction;
+- actual sampled **event signal-to-peer-return latency**, including timestamp
+  handoff overhead, with no subtraction; the peer is not guaranteed blocked;
 - actual sampled **four-API round-trip latency**;
 - per-batch timing distributions, which are **not** individual latency tails;
 - aggregate operation counts, including the longer private-CS attribution loop.
@@ -92,3 +98,9 @@ allocation/free balance and baseline across termination rounds, long-run current
 occupancy, fallback use, producer identity/resources, and final owned-process
 cleanup. Neither these fixtures nor a performance threshold passing establishes
 full M1, Windows kernel equivalence, or a Steam/game compatibility verdict.
+
+The v3 benchmark uses a fixed 16,000,000 private-CS warmup iterations per worker
+and 1024 times the requested measurement iterations for this attribution control.
+Other workloads retain 1024 warmup iterations (or fewer for a smaller workload).
+These actual counts are emitted in the benchmark metadata. Retain earlier v2
+control/latency results separately; a longer control is not a threshold change.

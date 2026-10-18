@@ -508,6 +508,16 @@
       "winemac/native+i386+x86_64"
     ],
     "macRuntimeEvidence": "docs/research/evidence/engine-r-v1-waitall-mac-20261018.json",
-    "sharedCoordMagicVersion": 3
+    "sharedCoordMagicVersion": 3,
+    "optionalPerformanceCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0104-msync-thread-local-fork-admission.patch",
+      "sha256": "7aff6ded9550836d8d435f76f9ca115247fe9b7fbe74e5ea07157246e9223bb0",
+      "requires": "engine/porting/wine-11.18/candidates/0103-msync-lease-admission-and-exit-cleanup.patch",
+      "status": "isolated component built and PE32/64 basic/lifecycle/stress passed; continuous hour and fixed performance still pending",
+      "nativePair": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a:ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+      "changes": "process-local fork admission only; shared transaction/death-proof/journal/notifications unchanged",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    }
   }
 }

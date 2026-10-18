@@ -8,11 +8,21 @@
 
 实际暂停/终止用例发现fd_cache_mutex遗留、inproc调用引用和泵等待节点退出清理问题，已修；补线程代际Mach登记/退休、native映射请求清理、APC在释放引用后分发。两位范围明确代理已完成独立源码/测试审查，发现问题由父代理实际修复；最终fast7限定复审无剩余P1/P2。POSIX取消在完整调用帧统一保护，正常Windows暂停/终止仍单独处理，未禁用功能/钳位许可/放行游戏。候选0103已导出并zero-fuzz/offset重建9文件，最终native pair见私有fast7-native-pair.json。
 
-fast7实际PE32/PE32+基础825项各通过；两位宽生命周期各64轮通过（各5780检查、64暂停/恢复/终止、64子进程、64被终止WaitAny）；8线程100000次/worker并发通过。45秒预检约928万次sem获取/归还、峰值1、实际泵约150万次分配回收保持有界。首轮`fast7-duration-one-hour.log`在18:34:46合盖睡眠、18:48:28唤醒，822秒不能计压力；明确停止实验进程，退出137/未通过及清理观察已保留，session43233结束。驱动补host活动/墙钟间隙拒绝判据后，新`fast7-duration-one-hour-awake.log`**正在连续运行，未判通过**（session78290）。约17分钟时实际节点分配3470万次/current32/peak36/fallback0/FD289，活动与guest计时一致。不要把旧断续轮算成一小时。
+fast7实际PE32/PE32+基础825项各通过；两位宽生命周期各64轮通过（各5780检查、64暂停/恢复/终止、64子进程、64被终止WaitAny）；8线程100000次/worker并发通过。45秒预检约928万次sem获取/归还、峰值1、实际泵约150万次分配回收保持有界。前两次小时尝试分别被822秒和249.961秒合盖睡眠中断，均退出137并真实清理，不拼接算连续通过；驱动已比较宿主活动/墙钟并拒绝睡眠。用户明确“已开盖接电，可保持65分钟”后，第三次`fast7-duration-one-hour-attended.log`已通过（session9912退出0，guest3600019ms/宿主活动3607.786s，78检查零失败，无检测到暂停），约6.54亿次许可获取/归还相等。3530资源采样中起始一次67不可用，3529有效样本allocation-free=current；节点峰36/回退0，FD启动/退出23–295而非全程恒定，边界见77。用户随后再次报告插电，11:55与11:59 UTC的pmset已实际确认AC/充电；锁屏可继续，合盖仍可能睡眠。
 
-`after-hour-perf.py`已作为一次性串行后续命令运行（session57346），只在当前小时实际通过后执行固定v2三轮比较，每次先清理私有实验进程，拒绝睡眠/样本数/EXE摘要不一致。它不是heartbeat/定时任务；不要另起重复压力或同时跑基准。所有子代理已完成并关闭，native最终头的两个故障负对照也已重跑且被正确拒绝。最终研究77、结构化证据和02/13已写进行中状态，结束后回填真实结果。`collect-evidence.py`在实验根可汇总；其status字段和旧负对照路径需按最终实测更新。Windows busy/原预算保持，本轮不连接、不重启；不启动heartbeat或新Goal。现有caffeinate只防idle，不能阻止合盖睡眠；不绕过锁屏。
+`after-hour-perf.py`只绑定第二次失败尝试，已退出1，没有启动后续；不要误认为仍在监控第三次。独立固定v2三轮短比较已完成：同EXE250k/4线程，单事件signal→peer-return p50候选2.2µs/server10.4µs/旧原版1.3µs，4API RTT4.4/20.8/2.3µs，两者4.727倍均未达5；私有CS控制中位1.113/0.897ns/op，+24.08%也未达±3归因要求。保留全部原始轮次，不将噪声直接定为后端回归，也不剔除或放宽门槛。v1的RTT4.79倍失败独立保留。单事件包含arming/disarm/QPC开销，接收者可能已就绪，不是隔离kernel wake测量。
 
-固定3轮同EXE250k/4线程往返比较：fast7 p50中位4.3µs、同native pair server20.6µs、旧非原子原版2.2µs；RTT代理4.79倍未达5倍，不能改门槛。私有CS归因控制中位差约-0.95%，单轮离群保留。原17要求单对象传递，已增加单向signal→peer-return实际样本（含arming/disarm/QPC开销，不保证peer已睡眠），保留RTT独立输出；v2固定方案在任何新指标结果前落盘perf-protocol-v2.json，**尚未执行v2比较**，勿把新旧指标混用。源码review仅限定义的范围，节点池稳定不是所有共享引用、所有进程死亡或M1/应用/游戏已完成。所有人类环境初始hash在protected.json，结束需再核对并清理私有进程。
+继续性能工作：单文件process-local准入原型在`out/waitall-admission-prototype`，SC每线程发布/重查取代共享计数，fork仍扫描并等待注册线程、父进程刷新全部FD/token、子进程退休；全局事务/租约/提交/通知不改。原型source685defe8426d、native ntdlle6054a73212a，已零警告编译链接及单代理只读对抗性复审，未采用。它的独立`out/waitall-mac-20261018-admission`/bundle id org.cider.waitall-lab.admission已构建，正在实际功能验收；原F7 GUI/产物/小时运行保持。没有在压力期间测性能。
+
+控制环v2约0.1秒，对同一PE路径易出现离群；v3计划在保留v2失败前提下固定延长CS warmup16m、测量倍率64→1024，wake/RTT采样不变。复审指出旧warmup元数据未同步，父代理已改为单一bench_warmup函数后重建，尚无v3性能结果。新增实际跨Wine进程竞争夹具由同一范围受限代理实现独立文件，父代理审查/集成，不能把代理报告或native coordinator4进程结果当真实Wine跨进程通过。第三次F7小时EXE保持v2原字节，不受源码v3编译影响。
+
+研究77与结构化证据结束后回填；0103非默认、所有M1/应用/游戏/Windows证据独立。现有caffeinate只防idle，不绕过锁屏/合盖限制。Windows busy/原预算保持，不连接、不重启、不加heartbeat或Goal；所有人类环境初始hash在protected.json，结束再核对及清理。CIDER_HOME不隔离NSUserDefaults，今后私有GUI首次启动前使用独立bundle id；早期副本改id前无完整偏好快照，不声称所有用户偏好逐字节未变。
+
+补充：跨Wine进程夹具已完成393行、两架构编译0警告；父代理独立审查与集成，独立复审新增metadata一致性P2已修，抽取函数11正/负输入通过（仅离线检查）。F7小时完成后单次后续批次session40928运行两架构新夹具及原版观察负对照；不假设原版必失败。两版小时均通过后session57639按预先声明v3固定15轮测量，尚未执行；这些是本回合一次性命令，不是定时/heartbeat。Carson已关闭，当前无子代理。两小时实际guest父进程分别核对为各自独立GUI，证据current-hour-parent-proof.json。
+
+F7后的session40928已退出0：四自有子进程×四role×100000，PE32/64分别37176/37177、40714/40715归还/获取，初始1/最终0平衡；原版同夹具也通过，不能声称动态复现旧竞态。父代理归档时发现metadata重构漏写嵌入rows；已补且四个最终serializer AST正/负输入通过。四原receipt不改，从完整原始日志另建recovered-rows sidecar并核SHA/全部断言，公开证据明确标注重建；未因归档重跑。v3未来运行已用修正writer，F8小时旧加载脚本不受此改动影响。F8小时session42042仍跑，预计13:05 UTC；之后session57639固定15轮v3，最终须核同pair/所有行。
+
+另有`out/waitall-tls-prototype`仅静态准备：机械合并原retired/record到一个TLS对象，两个热getter各由2次间接TLS调用降为1次，编译链接0警告；未执行、未私有绑定或公开采用，不能当性能改善。原F7/F8模块与九源摘要再次确认未变，当前无子代理。
 
 下方为上一源码阶段记录；本轮结束须用实际结果更新research77、02/13和本检查点，再按用户身份[skip ci]提交推送。
 
@@ -23,6 +33,8 @@ Windows暂不能重启，只推进Mac原02。0102叠加0100/0101，保留共享�
 源码不是运行/原生/性能验收：正常操作2次fcntl+本地准入，独立状态更新暂时串行，128MiB+64KiB稀疏映射RSS/延迟未测。仍非默认，未执行新后端/测试、切引擎/瓶子、改门禁/裁定、连接Windows或使用Actions。Windows busy/准备2309测试3600无pending、定时关闭保持。接续从research76和evidence继续验收及引擎整合，75旧缺口为历史来源；原HY顺序和最终目标保留。
 
 经验：每线程open才是独立OFD；child关闭继承FD仍不足，parent未来锁也会共享旧OFD，须准入隔离后换新描述，并在持门后刷新FD。故障退出不先写可能满的stderr或进入Wine异常RPC；逻辑TERMINATED不等于已停止写状态。
+
+实验隔离经验：CIDER_HOME只重定向业务目录，不自动隔离NSUserDefaults。今后的私有GUI实验必须在首次启动前就使用独立bundle id；本轮早期副本改id前没有全部GUI偏好快照，不将受保护二进制/配置摘要未变扩成所有用户偏好逐字节未变。
 
 070ab56交付后继续本机平台组件构建：Wine启动器、wow64/wow64cpu、win32u和winemac.drv共9产物链接退出0。30条警告来自7个与固定基线字节相同的winemac文件（27弃用/3nonnull），作为待核对项保留，未消音或宣称全范围零警告；WaitAll四组件零警告仅指其最终构建。没有执行新模块或产品会话，完整迁移/采用仍待，见research76补充和同一evidence。Windows及用户环境未动。
 

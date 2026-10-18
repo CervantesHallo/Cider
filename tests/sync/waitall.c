@@ -1040,11 +1040,17 @@ static int bench_iteration(worker *w)
     return 1;
 }
 
+static uint64_t bench_warmup(const group *g)
+{
+    if (g->workload == BENCH_CS) return UINT64_C(16000000);
+    return g->iterations < 1024 ? g->iterations : UINT64_C(1024);
+}
+
 static DWORD WINAPI bench_worker(void *argument)
 {
     worker *w = (worker *)argument;
     group *g = w->group;
-    uint64_t i, warmup = g->iterations < 1024 ? g->iterations : 1024;
+    uint64_t i, warmup = bench_warmup(g);
     unsigned b, batches = g->iterations < BATCHES ? (unsigned)g->iterations : BATCHES;
     ULONGLONG deadline = GetTickCount64() + RUN_MS;
     for (i = 0; i < warmup && !InterlockedCompareExchange(&g->stop, 0, 0); ++i) {
@@ -1239,7 +1245,7 @@ static void benchmark(int workload, const char *name, uint64_t iterations, unsig
                "\"timing_scope\":\"gate_to_join\",\"batch_count\":%u,"
                "\"batch_iterations_min\":%" PRIu64 ",\"batch_iterations_max\":%" PRIu64 ","
                "\"batch_median_ns\":%.3f,\"batch_p95_ns\":%.3f,\"batch_p99_ns\":%.3f,\"batch_max_ns\":%.3f}\n",
-               name, count, iterations, iterations < 1024 ? iterations : UINT64_C(1024),
+               name, count, iterations, bench_warmup(&g),
                operations, per_iteration, (int64_t)frequency.QuadPart,
                (int64_t)(end.QuadPart - begin.QuadPart), (int64_t)work_ticks,
                ticks_ns(end.QuadPart - begin.QuadPart), ticks_ns(end.QuadPart - begin.QuadPart) / (double)operations,
@@ -1320,7 +1326,10 @@ int main(int argc, char **argv)
         /* The syscall benchmarks need short iteration counts; the attribution
          * control needs a longer interval to avoid thread-start/join noise.
          * Its JSON row records this actual, distinct iteration count. */
-        benchmark(BENCH_CS, "uncontended_private_critical_section", iterations * 64, (unsigned)count);
+        /* The v2 control lasted roughly 0.1s and varied between identical PE
+         * paths. Use a fixed longer warmup and measurement; retain v2 results
+         * separately rather than discard noisy trials or relax the threshold. */
+        benchmark(BENCH_CS, "uncontended_private_critical_section", iterations * 1024, (unsigned)count);
         benchmark(BENCH_PING, "two_thread_event_pingpong", iterations, 2);
     }
     return finish(0);

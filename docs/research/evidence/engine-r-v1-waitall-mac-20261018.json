@@ -82,12 +82,13 @@
   "fixtures": {
     "msync-coordinator.c": "bc5f87682d1c746ccdc900eafa3b7c6116c47acfbde337ff18f6758d798bda58",
     "waitall-lifecycle.c": "6dbe7002ce6a9afbe589bd9dd63b8900669c29d024080baab0ae17c2d12ebb2f",
-    "waitall.c": "909cdf17ba2ef73f68b325246773f6660b3b3b8b09343b850782ffa5ba0f1943",
+    "waitall-processes.c": "653075f530a1467c1c0d4198e1b71b07be2a09a444d73c28c580c9b9a7ca9c62",
+    "waitall.c": "7c00c38c602793d31d5504fd25cb611d6889f0bda124582142468aa0b6a14f29",
     "stats-snapshot.c": "c214a60d84c48966d29a01cdc71775c458e9cfd03ebd5ddd6e6693b2d7461245",
     "policy-probe.c": "d92f25d528e8422829c3750d040050d7b44f93f6c12f6c1bc72daa2ed8f5384c",
     "owned-processes.swift": "0ddd1a60ca0a3e8d8427695be6630ee7809162ed4260a344c99068a3e640855b",
-    "run-mac.py": "44a5a14e1fded0ccb8d7cca04806c43ce78bec63be7cfa261e9e8672efbe87cb",
-    "README.md": "a9d9bab302a73bb6be258bac36b3ae31216d4ceffa630992f25d22d33fd2dd03"
+    "run-mac.py": "c036e912483a42760217ff31caa4e6341544062073e2e61b0470369da30b292e",
+    "README.md": "99f22902783e093a8707695583d0bda94b0d42cffc918c46b4cdde3c7c6a1897"
   },
   "protectedBefore": {
     "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "3febfbf37dd04e8bdc261e7494d4f4cf208afa86386f265894f352404c66064d",
@@ -739,7 +740,129 @@
     }
   },
   "hourPressure": {
-    "status": "pending"
+    "rawResult": "out/waitall-mac-20261018/runs/1792323949228260000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-duration.json",
+    "rawResultSHA256": "cdd665f833cbaac8f4dddb53c33d4ba430892a973b2966e57459e28845dbd6b1",
+    "state": "complete",
+    "passed": true,
+    "cliExitCode": 0,
+    "arguments": [
+      "--duration",
+      "3600",
+      "8"
+    ],
+    "suite": "waitall",
+    "arch": "x86_64",
+    "nativeSHA256": {
+      "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+      "lib/wine/x86_64-unix/ntdll.so": "8fa01bd094b8f07809ec709f04205bd217bcb0298134ec38a169a9ccfc638188",
+      "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+      "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+    },
+    "exeSHA256": "748c44afb8fc54560033aa3140d0b4535db0801fcb4f1bb027a8188186b39892",
+    "activeSeconds": 3607.7857842500002,
+    "wallSeconds": 3607.8526508808136,
+    "systemPauses": [],
+    "complete": [
+      {
+        "type": "complete",
+        "mode": "duration",
+        "ok": true,
+        "checks": 78,
+        "failures": 0,
+        "output_error": false
+      }
+    ],
+    "cases": [
+      {
+        "type": "stress",
+        "scenario": "mixed_waitall_waitany_events",
+        "threads": 8,
+        "iterations_per_worker": 0,
+        "duration_seconds": 3600,
+        "elapsed_ms": 3600019,
+        "seed": 3365638445,
+        "initial_count": 1,
+        "final_count": 1,
+        "maximum": 1,
+        "sampled_peak": 1,
+        "sem_acquisitions": 654225499,
+        "successful_releases": 654225499,
+        "release_too_many_posts": 270269625,
+        "release_attempts": 924495124,
+        "waitall_successes": 42672353,
+        "waitany_auto_successes": 62960138,
+        "wait_timeouts": 1627696401,
+        "count_samples": 1991640539,
+        "waitany_0ms_calls": 378628420,
+        "waitany_1ms_calls": 378594863,
+        "waitany_1ms_timeouts": 1209,
+        "waitany_policy": "role1_random_half_1ms_otherwise_0ms",
+        "waitany_1ms_timeout_observed": true,
+        "mach_pool_occupancy_observed": false
+      }
+    ],
+    "failedChecks": [],
+    "pumpProducers": [
+      {
+        "producerPID": 42040,
+        "startAbstime": 18554110568739,
+        "samples": 3529,
+        "first": {
+          "type": "msync-pump-statistics",
+          "pid": 42040,
+          "sequence": 0,
+          "allocations": 0,
+          "frees": 0,
+          "current": 0,
+          "peak": 0,
+          "fallbackTotal": 0,
+          "fallbackCurrent": 0,
+          "poolFree": 524288,
+          "capacity": 524288,
+          "producerResourcesAvailable": true,
+          "producerRSSBytes": 6021120,
+          "producerPhysicalFootprintBytes": 5772296,
+          "producerUserTimeNs": 19858,
+          "producerSystemTimeNs": 56050,
+          "producerStartAbstime": 18554110568739,
+          "producerFDCount": 23
+        },
+        "last": {
+          "type": "msync-pump-statistics",
+          "pid": 42040,
+          "sequence": 435646592,
+          "allocations": 108911664,
+          "frees": 108911632,
+          "current": 32,
+          "peak": 36,
+          "fallbackTotal": 0,
+          "fallbackCurrent": 0,
+          "poolFree": 524256,
+          "capacity": 524288,
+          "producerResourcesAvailable": true,
+          "producerRSSBytes": 1028096,
+          "producerPhysicalFootprintBytes": 19051792,
+          "producerUserTimeNs": 1908034451,
+          "producerSystemTimeNs": 6816328206,
+          "producerStartAbstime": 18554110568739,
+          "producerFDCount": 253
+        },
+        "maxCurrent": 36,
+        "minCurrent": 0,
+        "fallbackMaximum": 0,
+        "allocationBalanceValid": true,
+        "FDRange": [
+          23,
+          295
+        ],
+        "RSSRangeBytes": [
+          147456,
+          13615104
+        ]
+      }
+    ],
+    "rawLog": "out/waitall-mac-20261018/private-home/Logs/sessions/waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665/20261018T114549-waitall-x86_64-4774ABAF-F322-4C3E-9337-49F060483610/wine.log",
+    "rawLogSHA256": "d32333727bc8aba0c8dec6e47aeb1405f46d6fbbd5f9be478c75c1db723891ed"
   },
   "performanceV1": {
     "plan": "three fixed reps; balanced order;250k;4threads; same EXE per variant; no stats or profiling",
@@ -856,7 +979,547 @@
     "exeSHA256": "748c44afb8fc54560033aa3140d0b4535db0801fcb4f1bb027a8188186b39892"
   },
   "performanceV2": {
-    "status": "not yet run"
+    "protocol": {
+      "schema": "cider.waitall-perf-protocol/v2",
+      "declaredBeforeV2Runs": true,
+      "primary": "one-way auto-event single-wake p50; research17 testing section",
+      "threshold": "median of 3 fixed per-run p50 latencies: same native pair server / msync >=5",
+      "attribution": "median uncontended private critical-section ns/op difference within3%; outlier runs retained, not discarded",
+      "alsoReport": "fourAPIroundtrip actualsamplesandp99; priorv1proxy4.79xfailretained; oldnon-atomicoriginalrelativecostretained",
+      "iterations": 250000,
+      "threads": 4,
+      "orders": [
+        [
+          "WaitAll Fast7 Server",
+          "WaitAll Fast7",
+          "WaitAll Original"
+        ],
+        [
+          "WaitAll Original",
+          "WaitAll Fast7",
+          "WaitAll Fast7 Server"
+        ],
+        [
+          "WaitAll Fast7",
+          "WaitAll Fast7 Server",
+          "WaitAll Original"
+        ]
+      ],
+      "exeSHA256": "748c44afb8fc54560033aa3140d0b4535db0801fcb4f1bb027a8188186b39892"
+    },
+    "rows": [
+      {
+        "rep": 0,
+        "bottle": "WaitAll Fast7 Server",
+        "result": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792323577050731000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+        "wakeup": {
+          "type": "wakeup",
+          "name": "auto_event_single_wake",
+          "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+          "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 10400.0,
+          "p95_ns": 14000.0,
+          "p99_ns": 19200.0,
+          "p99_9_ns": 48700.0,
+          "max_ns": 74800.0
+        },
+        "roundtrip": {
+          "type": "roundtrip",
+          "name": "two_thread_event_pingpong",
+          "scope": "roundtrip4APIcalls",
+          "roundtrip_api_calls": 4,
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "sampling": "prefix_capped",
+          "measured_outgoing": 250000,
+          "unfinished_sample_discarded": false,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 20800.0,
+          "p95_ns": 25400.0,
+          "p99_ns": 30100.0,
+          "p99_9_ns": 73800.0,
+          "max_ns": 109900.0
+        },
+        "controlNsPerOp": 0.896,
+        "seconds": 30.382580584,
+        "cleanupReceipt": {
+          "captured": [],
+          "mode": "stop",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+        },
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "8fa01bd094b8f07809ec709f04205bd217bcb0298134ec38a169a9ccfc638188",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        }
+      },
+      {
+        "rep": 0,
+        "bottle": "WaitAll Fast7",
+        "result": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792323607598258000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+        "wakeup": {
+          "type": "wakeup",
+          "name": "auto_event_single_wake",
+          "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+          "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 2200.0,
+          "p95_ns": 4200.0,
+          "p99_ns": 6400.0,
+          "p99_9_ns": 9900.0,
+          "max_ns": 122100.0
+        },
+        "roundtrip": {
+          "type": "roundtrip",
+          "name": "two_thread_event_pingpong",
+          "scope": "roundtrip4APIcalls",
+          "roundtrip_api_calls": 4,
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "sampling": "prefix_capped",
+          "measured_outgoing": 250000,
+          "unfinished_sample_discarded": false,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 4400.0,
+          "p95_ns": 8300.0,
+          "p99_ns": 11000.0,
+          "p99_9_ns": 33800.0,
+          "max_ns": 1038600.0
+        },
+        "controlNsPerOp": 1.113,
+        "seconds": 8.89979475,
+        "cleanupReceipt": {
+          "captured": [],
+          "mode": "stop",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+        },
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "8fa01bd094b8f07809ec709f04205bd217bcb0298134ec38a169a9ccfc638188",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        }
+      },
+      {
+        "rep": 0,
+        "bottle": "WaitAll Original",
+        "result": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792323616588786000-cider-lab-wine11.18-msync-original-x86_64-x86_64-bench.json",
+        "wakeup": {
+          "type": "wakeup",
+          "name": "auto_event_single_wake",
+          "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+          "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 1300.0,
+          "p95_ns": 1800.0,
+          "p99_ns": 3700.0,
+          "p99_9_ns": 15200.0,
+          "max_ns": 241500.0
+        },
+        "roundtrip": {
+          "type": "roundtrip",
+          "name": "two_thread_event_pingpong",
+          "scope": "roundtrip4APIcalls",
+          "roundtrip_api_calls": 4,
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "sampling": "prefix_capped",
+          "measured_outgoing": 250000,
+          "unfinished_sample_discarded": false,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 2300.0,
+          "p95_ns": 3200.0,
+          "p99_ns": 7300.0,
+          "p99_9_ns": 28400.0,
+          "max_ns": 258200.0
+        },
+        "controlNsPerOp": 0.928,
+        "seconds": 6.635855709,
+        "cleanupReceipt": {
+          "captured": [],
+          "mode": "stop",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+        },
+        "nativeSHA256": {
+          "bin/wineserver": "e4cb89d9cc6a817433eed373c6640cb0d53408b23de7f56059263e46795fc010",
+          "lib/wine/x86_64-unix/ntdll.so": "4d75cc7ec68a5de6cf0c2e87533eb0f97d12336aa62cfb228e3783b085e0a1fb",
+          "lib/wine/i386-windows/ntdll.dll": "1a15a8e50fde1fd1dfb7e71549dd0c4f57ab75c39a3e912ac3d5f778962cc569",
+          "lib/wine/x86_64-windows/ntdll.dll": "cadba449cd9bdd22a0fbb834328a99bf24fe40323a8304dd7a6db1253d7f7644"
+        }
+      },
+      {
+        "rep": 1,
+        "bottle": "WaitAll Original",
+        "result": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792323623320240000-cider-lab-wine11.18-msync-original-x86_64-x86_64-bench.json",
+        "wakeup": {
+          "type": "wakeup",
+          "name": "auto_event_single_wake",
+          "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+          "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 1300.0,
+          "p95_ns": 3700.0,
+          "p99_ns": 9200.0,
+          "p99_9_ns": 86800.0,
+          "max_ns": 457900.0
+        },
+        "roundtrip": {
+          "type": "roundtrip",
+          "name": "two_thread_event_pingpong",
+          "scope": "roundtrip4APIcalls",
+          "roundtrip_api_calls": 4,
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "sampling": "prefix_capped",
+          "measured_outgoing": 250000,
+          "unfinished_sample_discarded": false,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 2400.0,
+          "p95_ns": 7300.0,
+          "p99_ns": 17900.0,
+          "p99_9_ns": 184000.0,
+          "max_ns": 462400.0
+        },
+        "controlNsPerOp": 1.122,
+        "seconds": 7.371326333,
+        "cleanupReceipt": {
+          "captured": [],
+          "mode": "stop",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+        },
+        "nativeSHA256": {
+          "bin/wineserver": "e4cb89d9cc6a817433eed373c6640cb0d53408b23de7f56059263e46795fc010",
+          "lib/wine/x86_64-unix/ntdll.so": "4d75cc7ec68a5de6cf0c2e87533eb0f97d12336aa62cfb228e3783b085e0a1fb",
+          "lib/wine/i386-windows/ntdll.dll": "1a15a8e50fde1fd1dfb7e71549dd0c4f57ab75c39a3e912ac3d5f778962cc569",
+          "lib/wine/x86_64-windows/ntdll.dll": "cadba449cd9bdd22a0fbb834328a99bf24fe40323a8304dd7a6db1253d7f7644"
+        }
+      },
+      {
+        "rep": 1,
+        "bottle": "WaitAll Fast7",
+        "result": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792323630784859000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+        "wakeup": {
+          "type": "wakeup",
+          "name": "auto_event_single_wake",
+          "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+          "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 2200.0,
+          "p95_ns": 4000.0,
+          "p99_ns": 5800.0,
+          "p99_9_ns": 9700.0,
+          "max_ns": 118300.0
+        },
+        "roundtrip": {
+          "type": "roundtrip",
+          "name": "two_thread_event_pingpong",
+          "scope": "roundtrip4APIcalls",
+          "roundtrip_api_calls": 4,
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "sampling": "prefix_capped",
+          "measured_outgoing": 250000,
+          "unfinished_sample_discarded": false,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 4300.0,
+          "p95_ns": 7900.0,
+          "p99_ns": 10700.0,
+          "p99_9_ns": 21900.0,
+          "max_ns": 122900.0
+        },
+        "controlNsPerOp": 1.249,
+        "seconds": 9.046874959,
+        "cleanupReceipt": {
+          "captured": [],
+          "mode": "stop",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+        },
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "8fa01bd094b8f07809ec709f04205bd217bcb0298134ec38a169a9ccfc638188",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        }
+      },
+      {
+        "rep": 1,
+        "bottle": "WaitAll Fast7 Server",
+        "result": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792323639908842000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+        "wakeup": {
+          "type": "wakeup",
+          "name": "auto_event_single_wake",
+          "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+          "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 10200.0,
+          "p95_ns": 13800.0,
+          "p99_ns": 18600.0,
+          "p99_9_ns": 34100.0,
+          "max_ns": 176200.0
+        },
+        "roundtrip": {
+          "type": "roundtrip",
+          "name": "two_thread_event_pingpong",
+          "scope": "roundtrip4APIcalls",
+          "roundtrip_api_calls": 4,
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "sampling": "prefix_capped",
+          "measured_outgoing": 250000,
+          "unfinished_sample_discarded": false,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 20700.0,
+          "p95_ns": 25200.0,
+          "p99_ns": 30200.0,
+          "p99_9_ns": 56800.0,
+          "max_ns": 556400.0
+        },
+        "controlNsPerOp": 0.929,
+        "seconds": 26.290915208,
+        "cleanupReceipt": {
+          "captured": [],
+          "mode": "stop",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+        },
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "8fa01bd094b8f07809ec709f04205bd217bcb0298134ec38a169a9ccfc638188",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        }
+      },
+      {
+        "rep": 2,
+        "bottle": "WaitAll Fast7",
+        "result": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792323666310921000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+        "wakeup": {
+          "type": "wakeup",
+          "name": "auto_event_single_wake",
+          "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+          "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 2300.0,
+          "p95_ns": 4400.0,
+          "p99_ns": 7300.0,
+          "p99_9_ns": 39200.0,
+          "max_ns": 205000.0
+        },
+        "roundtrip": {
+          "type": "roundtrip",
+          "name": "two_thread_event_pingpong",
+          "scope": "roundtrip4APIcalls",
+          "roundtrip_api_calls": 4,
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "sampling": "prefix_capped",
+          "measured_outgoing": 250000,
+          "unfinished_sample_discarded": false,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 4500.0,
+          "p95_ns": 9100.0,
+          "p99_ns": 13400.0,
+          "p99_9_ns": 106100.0,
+          "max_ns": 2464200.0
+        },
+        "controlNsPerOp": 0.897,
+        "seconds": 9.197201583,
+        "cleanupReceipt": {
+          "captured": [],
+          "mode": "stop",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+        },
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "8fa01bd094b8f07809ec709f04205bd217bcb0298134ec38a169a9ccfc638188",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        }
+      },
+      {
+        "rep": 2,
+        "bottle": "WaitAll Fast7 Server",
+        "result": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792323675617669000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+        "wakeup": {
+          "type": "wakeup",
+          "name": "auto_event_single_wake",
+          "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+          "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 10400.0,
+          "p95_ns": 13900.0,
+          "p99_ns": 17700.0,
+          "p99_9_ns": 56700.0,
+          "max_ns": 109100.0
+        },
+        "roundtrip": {
+          "type": "roundtrip",
+          "name": "two_thread_event_pingpong",
+          "scope": "roundtrip4APIcalls",
+          "roundtrip_api_calls": 4,
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "sampling": "prefix_capped",
+          "measured_outgoing": 250000,
+          "unfinished_sample_discarded": false,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 20800.0,
+          "p95_ns": 24900.0,
+          "p99_ns": 29300.0,
+          "p99_9_ns": 72900.0,
+          "max_ns": 159200.0
+        },
+        "controlNsPerOp": 0.897,
+        "seconds": 26.327331125,
+        "cleanupReceipt": {
+          "captured": [],
+          "mode": "stop",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+        },
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "8fa01bd094b8f07809ec709f04205bd217bcb0298134ec38a169a9ccfc638188",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        }
+      },
+      {
+        "rep": 2,
+        "bottle": "WaitAll Original",
+        "result": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792323702060347000-cider-lab-wine11.18-msync-original-x86_64-x86_64-bench.json",
+        "wakeup": {
+          "type": "wakeup",
+          "name": "auto_event_single_wake",
+          "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+          "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 1200.0,
+          "p95_ns": 1800.0,
+          "p99_ns": 4000.0,
+          "p99_9_ns": 7100.0,
+          "max_ns": 8600.0
+        },
+        "roundtrip": {
+          "type": "roundtrip",
+          "name": "two_thread_event_pingpong",
+          "scope": "roundtrip4APIcalls",
+          "roundtrip_api_calls": 4,
+          "sampleCount": 3906,
+          "sample_every_outgoing": 64,
+          "sample_limit": 4096,
+          "sampling": "prefix_capped",
+          "measured_outgoing": 250000,
+          "unfinished_sample_discarded": false,
+          "percentile_method": "nearest_rank",
+          "qpc_frequency": 10000000,
+          "p50_ns": 2300.0,
+          "p95_ns": 3200.0,
+          "p99_ns": 7300.0,
+          "p99_9_ns": 10200.0,
+          "max_ns": 12200.0
+        },
+        "controlNsPerOp": 1.064,
+        "seconds": 7.181828083,
+        "cleanupReceipt": {
+          "captured": [],
+          "mode": "stop",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+        },
+        "nativeSHA256": {
+          "bin/wineserver": "e4cb89d9cc6a817433eed373c6640cb0d53408b23de7f56059263e46795fc010",
+          "lib/wine/x86_64-unix/ntdll.so": "4d75cc7ec68a5de6cf0c2e87533eb0f97d12336aa62cfb228e3783b085e0a1fb",
+          "lib/wine/i386-windows/ntdll.dll": "1a15a8e50fde1fd1dfb7e71549dd0c4f57ab75c39a3e912ac3d5f778962cc569",
+          "lib/wine/x86_64-windows/ntdll.dll": "cadba449cd9bdd22a0fbb834328a99bf24fe40323a8304dd7a6db1253d7f7644"
+        }
+      }
+    ],
+    "state": "complete",
+    "medians": {
+      "WaitAll Fast7 Server": {
+        "wakeupP50Ns": 10400.0,
+        "roundtripP50Ns": 20800.0,
+        "controlNsPerOp": 0.897
+      },
+      "WaitAll Fast7": {
+        "wakeupP50Ns": 2200.0,
+        "roundtripP50Ns": 4400.0,
+        "controlNsPerOp": 1.113
+      },
+      "WaitAll Original": {
+        "wakeupP50Ns": 1300.0,
+        "roundtripP50Ns": 2300.0,
+        "controlNsPerOp": 1.064
+      }
+    },
+    "singleEventSpeedup": 4.7272727272727275,
+    "fourAPIRoundtripSpeedup": 4.7272727272727275,
+    "controlRelativeChange": 0.24080267558528434,
+    "singleEvent5xMet": false,
+    "roundtrip5xMet": false,
+    "controlWithin3Percent": false,
+    "fullM1Accepted": false
   },
   "nativeCoordinator": {
     "result": {
@@ -1618,13 +2281,111 @@
   },
   "boundaries": [
     "Full M1 and all N/U/S groups not accepted",
-    "User app, bottles and Windows unchanged; private GUI only",
+    "Protected app/bottle/budget hashes checked; early private app preferences not fully snapshotted",
     "Native coordinator is not Wine API/Windows equivalence",
     "Pump node stability is not proof of every shared-reference or process-death resource path",
     "Actual signal-to-peer-return metric does not guarantee receiver was blocked",
     "Prior four-API RTT proxy below5x remains retained",
     "Old non-atomic msync faster; no default rollout"
   ],
+  "interruptedHourSecond": {
+    "rawResult": "out/waitall-mac-20261018/runs/1792320749778765000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-duration.json",
+    "rawResultSHA256": "7d29ff6a4d8f9853f83d883f5a98a9bf82837d20dc9109770db489f4d2493493",
+    "state": "complete",
+    "passed": false,
+    "cliExitCode": 137,
+    "arguments": [
+      "--duration",
+      "3600",
+      "8"
+    ],
+    "suite": "waitall",
+    "arch": "x86_64",
+    "nativeSHA256": {
+      "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+      "lib/wine/x86_64-unix/ntdll.so": "8fa01bd094b8f07809ec709f04205bd217bcb0298134ec38a169a9ccfc638188",
+      "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+      "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+    },
+    "exeSHA256": "748c44afb8fc54560033aa3140d0b4535db0801fcb4f1bb027a8188186b39892",
+    "activeSeconds": 2227.876869625,
+    "wallSeconds": 2477.711693048477,
+    "systemPauses": [
+      {
+        "wallGapSeconds": 249.96138453077674,
+        "elapsedActiveSeconds": 2224.686213542,
+        "cleanup": {
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n    {\n      \"bottle\" : \"waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665\",\n      \"image\" : \"C:\\\\windows\\\\system32\\\\winedevice.exe\",\n      \"pid\" : 37798\n    },\n    {\n      \"bottle\" : \"waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665\",\n      \"image\" : \"C:\\\\windows\\\\system32\\\\svchost.exe\",\n      \"pid\" : 37796\n    },\n    {\n      \"bottle\" : \"waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665\",\n      \"image\" : \"C:\\\\windows\\\\system32\\\\plugplay.exe\",\n      \"pid\" : 37793\n    },\n    {\n      \"bottle\" : \"waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665\",\n      \"image\" : \"C:\\\\windows\\\\system32\\\\winedevice.exe\",\n      \"pid\" : 37791\n    },\n    {\n      \"bottle\" : \"waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665\",\n      \"image\" : \"C:\\\\windows\\\\system32\\\\services.exe\",\n      \"pid\" : 37789\n    },\n    {\n      \"bottle\" : \"waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665\",\n      \"image\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018\\/private-home\\/AppSupport\\/Engines\\/cider-lab-wine11.18-waitall-fast7-x86_64\\/engine\\/lib\\/wine\\/..\\/..\\/bin\\/wineserver\",\n      \"pid\" : 37762\n    },\n    {\n      \"bottle\" : \"waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665\",\n      \"image\" : \"C:\\\\CiderTests\\\\waitall-x86_64.exe\",\n      \"pid\" : 37760\n    }\n  ],\n  \"mode\" : \"stop\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018\"\n}",
+          "stderr": ""
+        }
+      }
+    ],
+    "complete": [],
+    "cases": [],
+    "failedChecks": [],
+    "pumpProducers": [
+      {
+        "producerPID": 37762,
+        "startAbstime": 18483332118250,
+        "samples": 2177,
+        "first": {
+          "type": "msync-pump-statistics",
+          "pid": 37762,
+          "sequence": 0,
+          "allocations": 0,
+          "frees": 0,
+          "current": 0,
+          "peak": 0,
+          "fallbackTotal": 0,
+          "fallbackCurrent": 0,
+          "poolFree": 524288,
+          "capacity": 524288,
+          "producerResourcesAvailable": true,
+          "producerRSSBytes": 6033408,
+          "producerPhysicalFootprintBytes": 5735360,
+          "producerUserTimeNs": 24676,
+          "producerSystemTimeNs": 114765,
+          "producerStartAbstime": 18483332118250,
+          "producerFDCount": 23
+        },
+        "last": {
+          "type": "msync-pump-statistics",
+          "pid": 37762,
+          "sequence": 290172792,
+          "allocations": 72543214,
+          "frees": 72543182,
+          "current": 32,
+          "peak": 36,
+          "fallbackTotal": 0,
+          "fallbackCurrent": 0,
+          "poolFree": 524256,
+          "capacity": 524288,
+          "producerResourcesAvailable": true,
+          "producerRSSBytes": 745472,
+          "producerPhysicalFootprintBytes": 19133736,
+          "producerUserTimeNs": 1253116955,
+          "producerSystemTimeNs": 4863083279,
+          "producerStartAbstime": 18483332118250,
+          "producerFDCount": 289
+        },
+        "maxCurrent": 36,
+        "minCurrent": 0,
+        "fallbackMaximum": 0,
+        "allocationBalanceValid": true,
+        "FDRange": [
+          23,
+          295
+        ],
+        "RSSRangeBytes": [
+          581632,
+          13647872
+        ]
+      }
+    ],
+    "rawLog": "out/waitall-mac-20261018/private-home/Logs/sessions/waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665/20261018T105230-waitall-x86_64-A6CDB107-FBAD-4AA4-9383-4B3A147121E1/wine.log",
+    "rawLogSHA256": "d1233122a57128148660684b48af74a66e5ffae814cef8681360fbaa67a61b06"
+  },
   "native/negative-controls-v7-result.json": [
     {
       "variant": "omit-recovery-wakes",
@@ -1664,6 +2425,3378 @@
     "changedFiles": 9,
     "exactHashes": true,
     "zeroFuzzAndOffset": true
+  },
+  "optionalAdmissionCandidate": {
+    "patch": {
+      "patch": "engine/porting/wine-11.18/candidates/0104-msync-thread-local-fork-admission.patch",
+      "patchSHA256": "7aff6ded9550836d8d435f76f9ca115247fe9b7fbe74e5ea07157246e9223bb0",
+      "exitCode": 0,
+      "stdout": "patching file 'dlls/ntdll/unix/msync.c'\n",
+      "stderr": "",
+      "exact": true,
+      "sourceSHA256": "685defe8426d8cb0c84c5ae2721f8efb6cd0e9213b06c1dece93e8e92764bc01",
+      "runtimeAcceptance": "in progress, not adopted",
+      "nativeNTDLLSHA256": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a"
+    },
+    "preparationBinding": {
+      "pair": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a:ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+      "bundleID": "org.cider.waitall-lab.admission",
+      "source": {
+        "baseSHA256": "6f35f4a4633e7e5d3f660826d7f7a40b9dcc91916a54354478ce895954b00101",
+        "candidateSHA256": "685defe8426d8cb0c84c5ae2721f8efb6cd0e9213b06c1dece93e8e92764bc01",
+        "scope": "process local fork admission only; global transaction/lease/journal unchanged",
+        "status": "prototype component compiled; not executed/adopted",
+        "runningF7ArtifactsUnchanged": true,
+        "nativeNTDLLSHA256": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a"
+      },
+      "productionPolicySHA256": "4494ed938617cc28c5c8bff923ee20a5b270bc4b6f38abf14a0eaf4a17a20ad5",
+      "labPolicySHA256": "226b37eadc06792e1bbae672704fc8735078dbbbee2f99987a15756c30f3a92c",
+      "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+      "bottlesFromInactiveEmptyLabPrefix": "waitall-candidate-2ba3e47e-f2e1-471f-8dda-98b61a0a6bc4",
+      "fixtureSHA256": "748c44afb8fc54560033aa3140d0b4535db0801fcb4f1bb027a8188186b39892"
+    },
+    "functional": {
+      "state": "complete",
+      "passed": true,
+      "phases": [
+        {
+          "args": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app/Contents/MacOS/ciderctl",
+            "engine",
+            "install",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/staging/admission"
+          ],
+          "exitCode": 0,
+          "stdout": "installed cider-lab-wine11.18-waitall-admission-x86_64 (wine-11.18) → /Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-waitall-admission-x86_64\n",
+          "stderr": "",
+          "seconds": 3.122182709
+        },
+        {
+          "args": [
+            "python3",
+            "/Users/cervantes/Cider/tests/sync/run-mac.py",
+            "--root",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+            "--bottle",
+            "WaitAll Admission",
+            "--arch",
+            "x86_64",
+            "--suite",
+            "waitall",
+            "--mode",
+            "correctness",
+            "--iterations",
+            "10000",
+            "--threads",
+            "4",
+            "--stats",
+            "--timeout",
+            "150"
+          ],
+          "exitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792324927379628000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 14.054503, \"failedChecks\": [], \"measurements\": []}\n",
+          "stderr": "",
+          "seconds": 14.158153165999998
+        },
+        {
+          "args": [
+            "python3",
+            "/Users/cervantes/Cider/tests/sync/run-mac.py",
+            "--root",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+            "--bottle",
+            "WaitAll Admission",
+            "--arch",
+            "i686",
+            "--suite",
+            "waitall",
+            "--mode",
+            "correctness",
+            "--iterations",
+            "10000",
+            "--threads",
+            "4",
+            "--stats",
+            "--timeout",
+            "150"
+          ],
+          "exitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792324941592425000-cider-lab-wine11.18-waitall-admission-x86_64-i686-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 5.732089833, \"failedChecks\": [], \"measurements\": []}\n",
+          "stderr": "",
+          "seconds": 5.892477708000001
+        },
+        {
+          "args": [
+            "python3",
+            "/Users/cervantes/Cider/tests/sync/run-mac.py",
+            "--root",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+            "--bottle",
+            "WaitAll Admission",
+            "--arch",
+            "x86_64",
+            "--suite",
+            "lifecycle",
+            "--mode",
+            "correctness",
+            "--iterations",
+            "64",
+            "--threads",
+            "4",
+            "--stats",
+            "--timeout",
+            "150"
+          ],
+          "exitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792324947407807000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 11.122641125, \"failedChecks\": [], \"measurements\": []}\n",
+          "stderr": "",
+          "seconds": 11.240468708000002
+        },
+        {
+          "args": [
+            "python3",
+            "/Users/cervantes/Cider/tests/sync/run-mac.py",
+            "--root",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+            "--bottle",
+            "WaitAll Admission",
+            "--arch",
+            "i686",
+            "--suite",
+            "lifecycle",
+            "--mode",
+            "correctness",
+            "--iterations",
+            "64",
+            "--threads",
+            "4",
+            "--stats",
+            "--timeout",
+            "150"
+          ],
+          "exitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792324958650242000-cider-lab-wine11.18-waitall-admission-x86_64-i686-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 14.71616925, \"failedChecks\": [], \"measurements\": []}\n",
+          "stderr": "",
+          "seconds": 14.833466666999996
+        },
+        {
+          "args": [
+            "python3",
+            "/Users/cervantes/Cider/tests/sync/run-mac.py",
+            "--root",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+            "--bottle",
+            "WaitAll Admission",
+            "--arch",
+            "x86_64",
+            "--suite",
+            "waitall",
+            "--mode",
+            "stress",
+            "--iterations",
+            "100000",
+            "--threads",
+            "8",
+            "--stats",
+            "--timeout",
+            "150"
+          ],
+          "exitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792324973484328000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-stress.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 8.870027292, \"failedChecks\": [], \"measurements\": [{\"type\": \"stress\", \"scenario\": \"blocked_waitall_release_race\", \"threads\": 8, \"iterations_per_worker\": 100000, \"duration_seconds\": 0, \"elapsed_ms\": 1287, \"seed\": 3364611677, \"initial_count\": 1, \"final_count\": 1, \"maximum\": 1, \"sampled_peak\": 1, \"sem_acquisitions\": 0, \"successful_releases\": 0, \"release_too_many_posts\": 200000, \"release_attempts\": 200000, \"waitall_successes\": 0, \"waitany_auto_successes\": 0, \"wait_timeouts\": 400000, \"count_samples\": 218750, \"waitany_0ms_calls\": 0, \"waitany_1ms_calls\": 0, \"waitany_1ms_timeouts\": 0, \"waitany_policy\": \"zero_timeout_only\", \"waitany_1ms_timeout_observed\": false, \"mach_pool_occupancy_observed\": false}, {\"type\": \"resources\", \"scenario\": \"blocked_waitall_release_race\", \"scope\": \"test_process_handles\", \"before\": 0, \"after\": 0, \"delta\": 0, \"observation_only\": true}, {\"type\": \"stress\", \"scenario\": \"mixed_waitall_waitany_events\", \"threads\": 8, \"iterations_per_worker\": 100000, \"duration_seconds\": 0, \"elapsed_ms\": 2187, \"seed\": 3364617546, \"initial_count\": 1, \"final_count\": 1, \"maximum\": 1, \"sampled_peak\": 1, \"sem_acquisitions\": 162804, \"successful_releases\": 162804, \"release_too_many_posts\": 200000, \"release_attempts\": 362804, \"waitall_successes\": 1199, \"waitany_auto_successes\": 4278, \"wait_timeouts\": 232918, \"count_samples\": 218750, \"waitany_0ms_calls\": 200000, \"waitany_1ms_calls\": 0, \"waitany_1ms_timeouts\": 0, \"waitany_policy\": \"zero_timeout_only\", \"waitany_1ms_timeout_observed\": false, \"mach_pool_occupancy_observed\": false}, {\"type\": \"resources\", \"scenario\": \"mixed_waitall_waitany_events\", \"scope\": \"test_process_handles\", \"before\": 0, \"after\": 0, \"delta\": 0, \"observation_only\": true}]}\n",
+          "stderr": "",
+          "seconds": 8.944378332999996
+        },
+        {
+          "args": [
+            "python3",
+            "/Users/cervantes/Cider/tests/sync/run-mac.py",
+            "--root",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+            "--bottle",
+            "WaitAll Admission",
+            "--arch",
+            "x86_64",
+            "--suite",
+            "waitall",
+            "--mode",
+            "duration",
+            "--iterations",
+            "45",
+            "--threads",
+            "8",
+            "--stats",
+            "--timeout",
+            "150"
+          ],
+          "exitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792324982440146000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-duration.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 50.013846834000006, \"failedChecks\": [], \"measurements\": [{\"type\": \"stress\", \"scenario\": \"mixed_waitall_waitany_events\", \"threads\": 8, \"iterations_per_worker\": 0, \"duration_seconds\": 45, \"elapsed_ms\": 45017, \"seed\": 3364608025, \"initial_count\": 1, \"final_count\": 1, \"maximum\": 1, \"sampled_peak\": 1, \"sem_acquisitions\": 7512191, \"successful_releases\": 7512191, \"release_too_many_posts\": 563785, \"release_attempts\": 8075976, \"waitall_successes\": 71284, \"waitany_auto_successes\": 145565, \"wait_timeouts\": 12207878, \"count_samples\": 13004249, \"waitany_0ms_calls\": 4087512, \"waitany_1ms_calls\": 4090121, \"waitany_1ms_timeouts\": 4, \"waitany_policy\": \"role1_random_half_1ms_otherwise_0ms\", \"waitany_1ms_timeout_observed\": true, \"mach_pool_occupancy_observed\": false}, {\"type\": \"resources\", \"scenario\": \"mixed_waitall_waitany_events\", \"scope\": \"test_process_handles\", \"before\": 0, \"after\": 0, \"delta\": 0, \"observation_only\": true}]}\n",
+          "stderr": "",
+          "seconds": 50.103206875
+        }
+      ]
+    },
+    "metadataNegativeControls": {
+      "scope": "pure extracted metadata function; not Wine runtime",
+      "rows": [
+        {
+          "name": "matching",
+          "accepted": true,
+          "expected": true
+        },
+        {
+          "name": "begin_pointer_bits",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "name": "begin_iterations_per_role",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "name": "begin_children",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "name": "begin_roles_per_child",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "name": "complete_pointer_bits_32",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "name": "complete_iterations_per_role_99999",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "name": "complete_cleanup_checked_False",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "name": "complete_cleanup_checked_1",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "name": "missing_begin",
+          "accepted": false,
+          "expected": false
+        },
+        {
+          "name": "duplicate_complete",
+          "accepted": false,
+          "expected": false
+        }
+      ],
+      "passed": true
+    },
+    "hourPressure": {
+      "status": "pending"
+    },
+    "performanceV3Protocol": {
+      "schema": "cider.waitall-perf-protocol/v3",
+      "declaredUTC": "2026-10-18T12:03:54.169399+00:00",
+      "declaredBeforeV3Runs": true,
+      "reason": "v2 control lasted ~0.1s and did not meet attribution; retain v2 failure, extend fixed CS duration without changing event/RTT sampling or thresholds",
+      "iterations": 250000,
+      "threads": 4,
+      "csWarmupPerWorker": 16000000,
+      "csIterationMultiplier": 1024,
+      "primary": "actual signal-to-peer-return p50 includes atomic arming/disarm and QPC; peer not guaranteed blocked",
+      "threshold": "same exact native pair server median of3 per-run p50 / candidate median >=5",
+      "attribution": "median private uncontended critical-section ns/op within3percent; retain every fixed repetition including outliers",
+      "alsoReport": "4APIroundtrip p50 and actual latency tails, throughput, original non-atomic relative overhead; v1/v2 failures remain",
+      "orders": [
+        [
+          "WaitAll Admission Server",
+          "WaitAll Admission",
+          "WaitAll Fast7 Server",
+          "WaitAll Fast7",
+          "WaitAll Original"
+        ],
+        [
+          "WaitAll Original",
+          "WaitAll Fast7",
+          "WaitAll Fast7 Server",
+          "WaitAll Admission",
+          "WaitAll Admission Server"
+        ],
+        [
+          "WaitAll Admission",
+          "WaitAll Fast7 Server",
+          "WaitAll Original",
+          "WaitAll Admission Server",
+          "WaitAll Fast7"
+        ]
+      ],
+      "roots": {
+        "WaitAll Admission Server": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+        "WaitAll Admission": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+        "WaitAll Fast7 Server": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+        "WaitAll Fast7": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+        "WaitAll Original": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+      },
+      "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+      "sourceSHA256": "7c00c38c602793d31d5504fd25cb611d6889f0bda124582142468aa0b6a14f29",
+      "preconditions": [
+        "F7 continuous hour completed and all pressure stopped",
+        "new candidate functional checks completed",
+        "no parallel compile/profiling/pressure",
+        "AC checked for every run",
+        "fresh owned server each run and statistics disabled"
+      ],
+      "allResultsKept": true,
+      "fullM1Accepted": false
+    },
+    "performanceV3": {
+      "status": "pending"
+    },
+    "runtimeAccepted": false,
+    "defaultSelected": false,
+    "current-hour-parent-proof.json": {
+      "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+      "guestPID": 45768,
+      "parentPID": 44737,
+      "parentExecutable": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app/Contents/MacOS/Cider",
+      "expectedPrivateGUI": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app/Contents/MacOS/Cider",
+      "matched": true,
+      "binarySHA256": "9c25144c288739aa7fef3bb013b42ffed293012134aeead1d251c42d0a1a522b",
+      "capturedUnix": 1792325714.52588
+    },
+    "processes-build.json": {
+      "sourceSHA256": "653075f530a1467c1c0d4198e1b71b07be2a09a444d73c28c580c9b9a7ca9c62",
+      "rows": [
+        {
+          "arch": "i686",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/waitall-processes.c",
+            "-o",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/waitall-processes-i686.exe"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": "",
+          "exeSHA256": "f96e6e0f59f7a1bc66adeb9f66d7f8b96f1c9c5038fa6c9838352359fe0a9559"
+        },
+        {
+          "arch": "x86_64",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/waitall-processes.c",
+            "-o",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/waitall-processes-x86_64.exe"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": "",
+          "exeSHA256": "79456ac3881f73ea7b32a5efa3b842fc79aa8eba759a956bdc6c276b1cafa0c9"
+        }
+      ]
+    },
+    "serialization-negative-controls.json": {
+      "scope": "exact final serializer AST, no Wine execution",
+      "results": [
+        {
+          "name": "valid",
+          "passed": true,
+          "accepted": true
+        },
+        {
+          "name": "reported_error",
+          "passed": true,
+          "accepted": false
+        },
+        {
+          "name": "missing_complete",
+          "passed": true,
+          "accepted": false
+        },
+        {
+          "name": "failed_check",
+          "passed": true,
+          "accepted": false
+        }
+      ],
+      "passed": true
+    },
+    "metadata-existing-receipts-replay.json": {
+      "scope": "existing successful current-suite receipts only; no Wine rerun",
+      "rows": [
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318269287399000-cider-lab-wine11.18-waitall-fast4-x86_64-x86_64-stress.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318870240808000-cider-lab-wine11.18-waitall-fast7-x86_64-i686-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318993360970000-cider-lab-wine11.18-msync-original-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318850898347000-cider-lab-wine11.18-waitall-fast7-x86_64-i686-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318976919913000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318327996729000-cider-lab-wine11.18-waitall-fast4-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792319036514129000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792319285303663000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792323639908842000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792319000443271000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318264085613000-cider-lab-wine11.18-waitall-fast4-x86_64-i686-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318572267541000-cider-lab-wine11.18-waitall-fast5-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318014720306000-cider-lab-wine11.18-waitall-fast3-x86_64-x86_64-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792323616588786000-cider-lab-wine11.18-msync-original-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792323630784859000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792319073013914000-cider-lab-wine11.18-msync-original-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318986079175000-cider-lab-wine11.18-msync-original-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318947381370000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792323702060347000-cider-lab-wine11.18-msync-original-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792323577050731000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318276069529000-cider-lab-wine11.18-waitall-fast4-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318247706813000-cider-lab-wine11.18-waitall-fast4-x86_64-i686-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318223697893000-cider-lab-wine11.18-waitall-fast4-x86_64-x86_64-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792323607598258000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792314876187046000-cider-lab-wine11.18-waitall-fast-x86_64-x86_64-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792319009934853000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792323666310921000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792319338599918000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-duration.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318258767144000-cider-lab-wine11.18-waitall-fast4-x86_64-x86_64-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792323623320240000-cider-lab-wine11.18-msync-original-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318875086902000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-stress.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792319045768169000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318880707980000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792323675617669000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792318865388857000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018-admission/runs/1792324941592425000-cider-lab-wine11.18-waitall-admission-x86_64-i686-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018-admission/runs/1792324982440146000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-duration.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018-admission/runs/1792324947407807000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018-admission/runs/1792324973484328000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-stress.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018-admission/runs/1792324927379628000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-correctness.json",
+          "metadataAccepted": true
+        },
+        {
+          "result": "out/waitall-mac-20261018-admission/runs/1792324958650242000-cider-lab-wine11.18-waitall-admission-x86_64-i686-correctness.json",
+          "metadataAccepted": true
+        }
+      ],
+      "olderReceiptsOutsideFormat": [
+        {
+          "result": "out/waitall-mac-20261018/runs/1792312944150048000-cider-lab-wine11.18-waitall-ofd-x86_64-x86_64-bench.json",
+          "reason": "older fixture receipt without suite metadata"
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792312938171425000-cider-lab-wine11.18-msync-original-x86_64-x86_64-bench.json",
+          "reason": "older fixture receipt without suite metadata"
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792312713991227000-cider-lab-wine11.18-msync-original-x86_64-x86_64-stress.json",
+          "reason": "older fixture receipt without suite metadata"
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792312701511199000-cider-lab-wine11.18-waitall-ofd-x86_64-x86_64-stress.json",
+          "reason": "older fixture receipt without suite metadata"
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792314129901921000-cider-lab-wine11.18-waitall-fast-x86_64-i686-correctness.json",
+          "reason": "older fixture receipt without suite metadata"
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792314119679682000-cider-lab-wine11.18-waitall-fast-x86_64-x86_64-correctness.json",
+          "reason": "older fixture receipt without suite metadata"
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792312924853702000-cider-lab-wine11.18-waitall-ofd-x86_64-x86_64-bench.json",
+          "reason": "older fixture receipt without suite metadata"
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792312622214125000-cider-lab-wine11.18-waitall-ofd-x86_64-x86_64-correctness.json",
+          "reason": "older fixture receipt without suite metadata"
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792314135994957000-cider-lab-wine11.18-waitall-fast-x86_64-x86_64-bench.json",
+          "reason": "older fixture receipt without suite metadata"
+        },
+        {
+          "result": "out/waitall-mac-20261018/runs/1792312691061250000-cider-lab-wine11.18-waitall-ofd-x86_64-i686-correctness.json",
+          "reason": "older fixture receipt without suite metadata"
+        }
+      ],
+      "passed": true
+    }
+  },
+  "crossWineProcessesF7AndOriginal": [
+    {
+      "bottle": "WaitAll Fast7",
+      "arch": "i686",
+      "passed": true,
+      "recoveredSidecar": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/1792327561894158000-cider-lab-wine11.18-waitall-fast7-x86_64-i686-correctness-recovered-rows.json",
+      "summary": {
+        "type": "result",
+        "initial_count": 1,
+        "final_count": 0,
+        "maximum": 1,
+        "successful_releases": 37176,
+        "sem_acquisitions": 37177,
+        "release_too_many_posts": 362824,
+        "waitall_successes": 0,
+        "queries": 400000
+      },
+      "complete": {
+        "type": "complete",
+        "ok": true,
+        "errors": 0,
+        "output_error": false,
+        "pointer_bits": 32,
+        "iterations_per_role": 100000,
+        "cleanup_checked": true
+      },
+      "provenance": {
+        "scope": "post-run reconstruction from preserved original JSONL; original receipt not modified",
+        "reason": "parent metadata refactor omitted embedded rows serialization; fixed before v3",
+        "originalReceipt": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792327561894158000-cider-lab-wine11.18-waitall-fast7-x86_64-i686-correctness.json",
+        "originalReceiptSHA256": "f64f66083bcdd79588da77786db8918b9b52c07cb3504b4f6a3d7c3a74d5b851",
+        "rawLog": "/Users/cervantes/Cider/out/waitall-mac-20261018/private-home/Logs/sessions/waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665/20261018T124602-waitall-processes-i686-61DC27FA-AF9E-4A24-80A1-B77772CBAFC3/wine.log",
+        "rawLogSHA256": "54563e3cccafd5544b56aef3e9a998f8cc1f9838aa0b444730c81d8ec85f04db"
+      },
+      "rows": [
+        {
+          "type": "begin",
+          "children": 4,
+          "roles_per_child": 4,
+          "pointer_bits": 32,
+          "iterations_per_role": 100000,
+          "run_timeout_ms": 300000,
+          "roles": [
+            "waitall_never",
+            "release",
+            "waitany_set_auto",
+            "query"
+          ],
+          "scope": "Win32 named objects across four self child processes"
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "all_workers_ready",
+          "ok": true,
+          "actual": 16,
+          "expected": 16
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 8323,
+          "too_many_posts": 91677,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 8807,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 0,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 9263,
+          "too_many_posts": 90737,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 9849,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 1,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 9134,
+          "too_many_posts": 90866,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 9228,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 0,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 10456,
+          "too_many_posts": 89544,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 9293,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 0,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.maximum",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.bounds",
+          "ok": true,
+          "actual": 0,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.exact_ledger",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "release.accounting",
+          "ok": true,
+          "actual": 400000,
+          "expected": 400000
+        },
+        {
+          "type": "check",
+          "name": "handoff.acquisitions_observed",
+          "ok": true,
+          "actual": 37177,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "handoff.successful_releases_observed",
+          "ok": true,
+          "actual": 37176,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "WaitAll.never_succeeds",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "queries.complete",
+          "ok": true,
+          "actual": 400000,
+          "expected": 400000
+        },
+        {
+          "type": "check",
+          "name": "iterations.complete",
+          "ok": true,
+          "actual": 1600000,
+          "expected": 1600000
+        },
+        {
+          "type": "result",
+          "initial_count": 1,
+          "final_count": 0,
+          "maximum": 1,
+          "successful_releases": 37176,
+          "sem_acquisitions": 37177,
+          "release_too_many_posts": 362824,
+          "waitall_successes": 0,
+          "queries": 400000
+        },
+        {
+          "type": "complete",
+          "ok": true,
+          "errors": 0,
+          "output_error": false,
+          "pointer_bits": 32,
+          "iterations_per_role": 100000,
+          "cleanup_checked": true
+        }
+      ]
+    },
+    {
+      "bottle": "WaitAll Fast7",
+      "arch": "x86_64",
+      "passed": true,
+      "recoveredSidecar": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/1792327574505518000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-correctness-recovered-rows.json",
+      "summary": {
+        "type": "result",
+        "initial_count": 1,
+        "final_count": 0,
+        "maximum": 1,
+        "successful_releases": 40714,
+        "sem_acquisitions": 40715,
+        "release_too_many_posts": 359286,
+        "waitall_successes": 0,
+        "queries": 400000
+      },
+      "complete": {
+        "type": "complete",
+        "ok": true,
+        "errors": 0,
+        "output_error": false,
+        "pointer_bits": 64,
+        "iterations_per_role": 100000,
+        "cleanup_checked": true
+      },
+      "provenance": {
+        "scope": "post-run reconstruction from preserved original JSONL; original receipt not modified",
+        "reason": "parent metadata refactor omitted embedded rows serialization; fixed before v3",
+        "originalReceipt": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792327574505518000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-correctness.json",
+        "originalReceiptSHA256": "2d6c22a75a7dbf5b41daf595bde2ca2d3737bef1dccbea33cf3eb97b9eb236f2",
+        "rawLog": "/Users/cervantes/Cider/out/waitall-mac-20261018/private-home/Logs/sessions/waitall-fast7-e02aa79f-f865-4c5d-bb42-9220a69f4665/20261018T124614-waitall-processes-x86_64-BF941068-BF04-4542-9BFE-5F274FB254FE/wine.log",
+        "rawLogSHA256": "a2d90aa8470b1410b14bfd3f6ad681118bdd5015b3089e719de85380a0005dbe"
+      },
+      "rows": [
+        {
+          "type": "begin",
+          "children": 4,
+          "roles_per_child": 4,
+          "pointer_bits": 64,
+          "iterations_per_role": 100000,
+          "run_timeout_ms": 300000,
+          "roles": [
+            "waitall_never",
+            "release",
+            "waitany_set_auto",
+            "query"
+          ],
+          "scope": "Win32 named objects across four self child processes"
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "all_workers_ready",
+          "ok": true,
+          "actual": 16,
+          "expected": 16
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 9382,
+          "too_many_posts": 90618,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 9268,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 1,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 12454,
+          "too_many_posts": 87546,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 9553,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 0,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 9437,
+          "too_many_posts": 90563,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 9370,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 1,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 9441,
+          "too_many_posts": 90559,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 12524,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 0,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.maximum",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.bounds",
+          "ok": true,
+          "actual": 0,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.exact_ledger",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "release.accounting",
+          "ok": true,
+          "actual": 400000,
+          "expected": 400000
+        },
+        {
+          "type": "check",
+          "name": "handoff.acquisitions_observed",
+          "ok": true,
+          "actual": 40715,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "handoff.successful_releases_observed",
+          "ok": true,
+          "actual": 40714,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "WaitAll.never_succeeds",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "queries.complete",
+          "ok": true,
+          "actual": 400000,
+          "expected": 400000
+        },
+        {
+          "type": "check",
+          "name": "iterations.complete",
+          "ok": true,
+          "actual": 1600000,
+          "expected": 1600000
+        },
+        {
+          "type": "result",
+          "initial_count": 1,
+          "final_count": 0,
+          "maximum": 1,
+          "successful_releases": 40714,
+          "sem_acquisitions": 40715,
+          "release_too_many_posts": 359286,
+          "waitall_successes": 0,
+          "queries": 400000
+        },
+        {
+          "type": "complete",
+          "ok": true,
+          "errors": 0,
+          "output_error": false,
+          "pointer_bits": 64,
+          "iterations_per_role": 100000,
+          "cleanup_checked": true
+        }
+      ]
+    },
+    {
+      "bottle": "WaitAll Original",
+      "arch": "i686",
+      "passed": true,
+      "recoveredSidecar": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/1792327582613367000-cider-lab-wine11.18-msync-original-x86_64-i686-correctness-recovered-rows.json",
+      "summary": {
+        "type": "result",
+        "initial_count": 1,
+        "final_count": 0,
+        "maximum": 1,
+        "successful_releases": 31218,
+        "sem_acquisitions": 31219,
+        "release_too_many_posts": 368782,
+        "waitall_successes": 0,
+        "queries": 400000
+      },
+      "complete": {
+        "type": "complete",
+        "ok": true,
+        "errors": 0,
+        "output_error": false,
+        "pointer_bits": 32,
+        "iterations_per_role": 100000,
+        "cleanup_checked": true
+      },
+      "provenance": {
+        "scope": "post-run reconstruction from preserved original JSONL; original receipt not modified",
+        "reason": "parent metadata refactor omitted embedded rows serialization; fixed before v3",
+        "originalReceipt": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792327582613367000-cider-lab-wine11.18-msync-original-x86_64-i686-correctness.json",
+        "originalReceiptSHA256": "fdf7eae582f993ffcd894e8608152a607038521ca6fa64abacfe9772db2737fe",
+        "rawLog": "/Users/cervantes/Cider/out/waitall-mac-20261018/private-home/Logs/sessions/waitall-original-88b9b916-a094-4836-9234-79403bfafcb1/20261018T124622-waitall-processes-i686-A414F8BE-70C4-4E3E-AA6B-6770937CFB79/wine.log",
+        "rawLogSHA256": "320b5620c3133d959c1187bdd7beaa1b8bf3ae594e9f7f787d1a3507149be266"
+      },
+      "rows": [
+        {
+          "type": "begin",
+          "children": 4,
+          "roles_per_child": 4,
+          "pointer_bits": 32,
+          "iterations_per_role": 100000,
+          "run_timeout_ms": 300000,
+          "roles": [
+            "waitall_never",
+            "release",
+            "waitany_set_auto",
+            "query"
+          ],
+          "scope": "Win32 named objects across four self child processes"
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "all_workers_ready",
+          "ok": true,
+          "actual": 16,
+          "expected": 16
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 8101,
+          "too_many_posts": 91899,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 7333,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 0,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 7752,
+          "too_many_posts": 92248,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 8231,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 1,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 7339,
+          "too_many_posts": 92661,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 8483,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 1,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 8026,
+          "too_many_posts": 91974,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 7172,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 0,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.maximum",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.bounds",
+          "ok": true,
+          "actual": 0,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.exact_ledger",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "release.accounting",
+          "ok": true,
+          "actual": 400000,
+          "expected": 400000
+        },
+        {
+          "type": "check",
+          "name": "handoff.acquisitions_observed",
+          "ok": true,
+          "actual": 31219,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "handoff.successful_releases_observed",
+          "ok": true,
+          "actual": 31218,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "WaitAll.never_succeeds",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "queries.complete",
+          "ok": true,
+          "actual": 400000,
+          "expected": 400000
+        },
+        {
+          "type": "check",
+          "name": "iterations.complete",
+          "ok": true,
+          "actual": 1600000,
+          "expected": 1600000
+        },
+        {
+          "type": "result",
+          "initial_count": 1,
+          "final_count": 0,
+          "maximum": 1,
+          "successful_releases": 31218,
+          "sem_acquisitions": 31219,
+          "release_too_many_posts": 368782,
+          "waitall_successes": 0,
+          "queries": 400000
+        },
+        {
+          "type": "complete",
+          "ok": true,
+          "errors": 0,
+          "output_error": false,
+          "pointer_bits": 32,
+          "iterations_per_role": 100000,
+          "cleanup_checked": true
+        }
+      ]
+    },
+    {
+      "bottle": "WaitAll Original",
+      "arch": "x86_64",
+      "passed": true,
+      "recoveredSidecar": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/1792327590594234000-cider-lab-wine11.18-msync-original-x86_64-x86_64-correctness-recovered-rows.json",
+      "summary": {
+        "type": "result",
+        "initial_count": 1,
+        "final_count": 0,
+        "maximum": 1,
+        "successful_releases": 22574,
+        "sem_acquisitions": 22575,
+        "release_too_many_posts": 377426,
+        "waitall_successes": 0,
+        "queries": 400000
+      },
+      "complete": {
+        "type": "complete",
+        "ok": true,
+        "errors": 0,
+        "output_error": false,
+        "pointer_bits": 64,
+        "iterations_per_role": 100000,
+        "cleanup_checked": true
+      },
+      "provenance": {
+        "scope": "post-run reconstruction from preserved original JSONL; original receipt not modified",
+        "reason": "parent metadata refactor omitted embedded rows serialization; fixed before v3",
+        "originalReceipt": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792327590594234000-cider-lab-wine11.18-msync-original-x86_64-x86_64-correctness.json",
+        "originalReceiptSHA256": "e33e0523a3c7a966bfa718208213ecff89b7136e291cc83504117db4ce9a3fca",
+        "rawLog": "/Users/cervantes/Cider/out/waitall-mac-20261018/private-home/Logs/sessions/waitall-original-88b9b916-a094-4836-9234-79403bfafcb1/20261018T124630-waitall-processes-x86_64-1B7D6BBC-3F29-4981-B563-F4AD09DD37A6/wine.log",
+        "rawLogSHA256": "910202de64d7bbac88eca5f690dd9d65c6479672f797be8a8e6689df9f978e44"
+      },
+      "rows": [
+        {
+          "type": "begin",
+          "children": 4,
+          "roles_per_child": 4,
+          "pointer_bits": 64,
+          "iterations_per_role": 100000,
+          "run_timeout_ms": 300000,
+          "roles": [
+            "waitall_never",
+            "release",
+            "waitany_set_auto",
+            "query"
+          ],
+          "scope": "Win32 named objects across four self child processes"
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "child.suspended_once",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "all_workers_ready",
+          "ok": true,
+          "actual": 16,
+          "expected": 16
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 5836,
+          "too_many_posts": 94164,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 5881,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 0,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 1,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 5754,
+          "too_many_posts": 94246,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 5598,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 1,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 0,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 5497,
+          "too_many_posts": 94503,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 5920,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 2,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 0,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "child.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "child.claimed",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 0,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 1,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 5487,
+          "too_many_posts": 94513,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 2,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 5176,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 0,
+          "last_count": 0,
+          "last_maximum": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.stage",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "worker.iterations",
+          "ok": true,
+          "actual": 100000,
+          "expected": 100000
+        },
+        {
+          "type": "worker",
+          "child": 3,
+          "role": 3,
+          "stage": 0,
+          "error": 0,
+          "completed": 100000,
+          "sem_acquisitions": 0,
+          "successful_releases": 0,
+          "too_many_posts": 0,
+          "queries": 100000,
+          "last_count": 0,
+          "last_maximum": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.maximum",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.bounds",
+          "ok": true,
+          "actual": 0,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "semaphore.exact_ledger",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "release.accounting",
+          "ok": true,
+          "actual": 400000,
+          "expected": 400000
+        },
+        {
+          "type": "check",
+          "name": "handoff.acquisitions_observed",
+          "ok": true,
+          "actual": 22575,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "handoff.successful_releases_observed",
+          "ok": true,
+          "actual": 22574,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "name": "WaitAll.never_succeeds",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "name": "queries.complete",
+          "ok": true,
+          "actual": 400000,
+          "expected": 400000
+        },
+        {
+          "type": "check",
+          "name": "iterations.complete",
+          "ok": true,
+          "actual": 1600000,
+          "expected": 1600000
+        },
+        {
+          "type": "result",
+          "initial_count": 1,
+          "final_count": 0,
+          "maximum": 1,
+          "successful_releases": 22574,
+          "sem_acquisitions": 22575,
+          "release_too_many_posts": 377426,
+          "waitall_successes": 0,
+          "queries": 400000
+        },
+        {
+          "type": "complete",
+          "ok": true,
+          "errors": 0,
+          "output_error": false,
+          "pointer_bits": 64,
+          "iterations_per_role": 100000,
+          "cleanup_checked": true
+        }
+      ]
+    }
+  ],
+  "one-hour-attended-summary.json": {
+    "passed": true,
+    "activeSeconds": 3607.7857842500002,
+    "wallSeconds": 3607.8526508808136,
+    "systemPauses": [],
+    "checks": [
+      {
+        "type": "complete",
+        "mode": "duration",
+        "ok": true,
+        "checks": 78,
+        "failures": 0,
+        "output_error": false
+      }
+    ],
+    "totalSnapshots": 3530,
+    "snapshotErrors": 1,
+    "groups": [
+      {
+        "pid": 42040,
+        "birth": 18554110568739,
+        "samples": 3529,
+        "allocationBalanceAlwaysValid": true,
+        "allocationDelta": 108911664,
+        "freeDelta": 108911632,
+        "firstCurrent": 0,
+        "lastCurrent": 32,
+        "maxCurrent": 36,
+        "peak": 36,
+        "fallbackMax": 0,
+        "FDRange": [
+          23,
+          295
+        ],
+        "RSSRange": [
+          147456,
+          13615104
+        ],
+        "footprintRange": [
+          5772296,
+          19051792
+        ]
+      }
+    ]
+  },
+  "currentHourParentProof": {
+    "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+    "guestPID": 42038,
+    "parentPID": 35102,
+    "parentExecutable": "/Users/cervantes/Cider/out/waitall-mac-20261018/source/out/Cider.app/Contents/MacOS/Cider",
+    "expectedPrivateGUI": "/Users/cervantes/Cider/out/waitall-mac-20261018/source/out/Cider.app/Contents/MacOS/Cider",
+    "matched": true,
+    "binarySHA256": "7a3fbda8810bddb2c057f686632cc6865192e30f260927322a0ec27842bd5ade",
+    "capturedUnix": 1792325714.2385468
   },
   "protectedUnchangedNow": true
 }

@@ -1,0 +1,158 @@
+macOS: use per-thread SC fork admission while retaining the atomic coordinator.
+
+Cider-Topic: sync/msync
+Cider-Requires: 0103-msync-lease-admission-and-exit-cleanup.patch
+Cider-Status: nondefault performance candidate; complete continuous/performance acceptance pending
+Cider-Validation: single-file scoped adversarial review, linked native module, PE32/PE32+ lifecycle
+
+Normal operations publish/recheck their native thread activity instead of
+modifying a shared process counter. Fork closes admission and scans registered
+threads under the descriptor registry lock, which pins their thread_data. Cold
+registration cannot open an inheritable description while that lock is held.
+The parent still replaces all descriptor/lease pairs before reopening; the
+child still retires the old instance. Shared owner, death proof, commit journal
+and notification obligations are unchanged. The cold fork scan is O(threads).
+
+diff --git a/dlls/ntdll/unix/msync.c b/dlls/ntdll/unix/msync.c
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -571,11 +571,11 @@
+     struct coord_fd_record *next;
+     int fd;
+     uint64_t token;
++    struct thread_data *thread_data; /* protected by coord_fd_mutex until unlink */
+ };
+ /* Also quiesce this process before fork: a child paused before its atfork
+  * callback must never inherit an actively held OFD transaction gate. */
+-#define COORD_ADMISSION_CLOSED 0x80000000u
+-static unsigned int coord_admission;
++static unsigned int coord_forking;
+ static pthread_mutex_t coord_fork_mutex = PTHREAD_MUTEX_INITIALIZER;
+ static pthread_mutex_t coord_fd_mutex = PTHREAD_MUTEX_INITIALIZER;
+ static struct coord_fd_record *coord_fds;
+@@ -583,52 +583,56 @@
+ static __thread sigset_t coord_fork_signals;
+ static __thread int coord_fork_cancel_state;
+ 
+-/* Readers only protect this process against fork. They do not serialize
+- * independent native threads or send a contended pthread mutex to the kernel. */
++/* SC publication/recheck: a fork sees every admitted existing descriptor, or
++ * its owner sees the closed gate before using it. A cold thread blocked on the
++ * registry has not opened an inheritable work description yet. */
++static void coord_depart(void)
++{
++    struct thread_data *data = get_thread_data();
++    __atomic_store_n( &data->msync_in_transaction, 0, __ATOMIC_SEQ_CST );
++    if (__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST ))
++        __ulock_wake( 1 | ULF_WAKE_ALL, (void *)&data->msync_in_transaction, 0 );
++}
++
+ static void coord_admit(void)
+ {
+-    unsigned int value = __atomic_load_n( &coord_admission, __ATOMIC_SEQ_CST );
++    struct thread_data *data = get_thread_data();
++    int ret;
+     for (;;)
+     {
+-        if (value & COORD_ADMISSION_CLOSED)
+-        {
+-            int ret = ulock_wait( 1 | ULF_NO_ERRNO, &coord_admission, value, 1000000 );
+-            if (ret < 0 && ret != -EINTR && ret != -ETIMEDOUT && ret != -EFAULT)
+-                msync_coord_fatal( "fork admission wait" );
+-            value = __atomic_load_n( &coord_admission, __ATOMIC_SEQ_CST );
+-        }
+-        else
+-        {
+-            if (value == COORD_ADMISSION_CLOSED - 1) msync_coord_fatal( "admission overflow" );
+-            if (__atomic_compare_exchange_n( &coord_admission, &value, value + 1, 0,
+-                                              __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST )) return;
+-        }
+-    }
+-}
+-
+-static void coord_depart(void)
+-{
+-    unsigned int value = __atomic_sub_fetch( &coord_admission, 1, __ATOMIC_SEQ_CST );
+-    if (value == COORD_ADMISSION_CLOSED)
+-        __ulock_wake( 1 | ULF_WAKE_ALL, &coord_admission, 0 );
++        __atomic_store_n( &data->msync_in_transaction, 1, __ATOMIC_SEQ_CST );
++        if (!__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST )) return;
++        coord_depart();
++        msync_replay_controls();
++        if (!__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST )) continue;
++        ret = __ulock_wait( 1 | ULF_NO_ERRNO, &coord_forking, 1, 1000 );
++        if (ret < 0 && ret != -EINTR && ret != -ETIMEDOUT && ret != -EFAULT)
++            msync_coord_fatal( "fork admission wait" );
++    }
+ }
+ 
+ static void coord_fork_prepare(void)
+ {
++    struct coord_fd_record *record;
+     sigset_t mask;
++    int ret;
+     msync_coord_signal_mask( &mask, &server_block_set );
+     if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &coord_fork_cancel_state ) ||
+         pthread_sigmask( SIG_BLOCK, &mask, &coord_fork_signals ) ||
+         pthread_mutex_lock( &coord_fork_mutex )) msync_coord_fatal( "fork prepare" );
+-    if (__atomic_fetch_or( &coord_admission, COORD_ADMISSION_CLOSED, __ATOMIC_SEQ_CST ) & COORD_ADMISSION_CLOSED)
++    if (__atomic_exchange_n( &coord_forking, 1, __ATOMIC_SEQ_CST ))
+         msync_coord_fatal( "recursive fork admission" );
+-    for (;;)
+-    {
+-        unsigned int value = __atomic_load_n( &coord_admission, __ATOMIC_SEQ_CST );
+-        if (value == COORD_ADMISSION_CLOSED) break;
+-        ulock_wait( 1 | ULF_NO_ERRNO, &coord_admission, value, 1000000 );
+-    }
+     if (pthread_mutex_lock( &coord_fd_mutex )) msync_coord_fatal( "fork fd registry" );
++    /* The registry pins each thread_data until the record is unlinked. Active
++     * registered operations never need this mutex; cold opens wait outside it. */
++    for (record = coord_fds; record; record = record->next)
++        while (__atomic_load_n( &record->thread_data->msync_in_transaction, __ATOMIC_SEQ_CST ))
++        {
++            ret = __ulock_wait( 1 | ULF_NO_ERRNO,
++                       (void *)&record->thread_data->msync_in_transaction, 1, 1000 );
++            if (ret < 0 && ret != -EINTR && ret != -ETIMEDOUT && ret != -EFAULT)
++                msync_coord_fatal( "fork active thread wait" );
++        }
+ }
+ 
+ static void coord_fork_parent(void)
+@@ -644,8 +648,8 @@
+         record->token = msync_coord_new_lease( &coord, record->fd );
+     }
+     pthread_mutex_unlock( &coord_fd_mutex );
+-    __atomic_store_n( &coord_admission, 0, __ATOMIC_SEQ_CST );
+-    __ulock_wake( 1 | ULF_WAKE_ALL, &coord_admission, 0 );
++    __atomic_store_n( &coord_forking, 0, __ATOMIC_SEQ_CST );
++    __ulock_wake( 1 | ULF_WAKE_ALL, &coord_forking, 0 );
+     pthread_mutex_unlock( &coord_fork_mutex );
+     pthread_sigmask( SIG_SETMASK, &coord_fork_signals, NULL );
+     pthread_setcancelstate( coord_fork_cancel_state, NULL );
+@@ -731,6 +735,7 @@
+         if (pthread_once( &coord_key_once, coord_make_key )) msync_coord_fatal( "TLS init" );
+         if (!(coord_record = malloc( sizeof(*coord_record) ))) msync_coord_fatal( "fd record allocation" );
+         if (pthread_mutex_lock( &coord_fd_mutex )) msync_coord_fatal( "fd registry lock" );
++        coord_record->thread_data = get_thread_data();
+         coord_record->fd = msync_coord_open( inproc_device_fd );
+         coord_record->token = msync_coord_new_lease( &coord, coord_record->fd );
+         coord_record->next = coord_fds;
+@@ -761,17 +766,10 @@
+ 
+ static void coord_set_active( int active )
+ {
+-    if (active)
+-    {
+-        __atomic_store_n( &get_thread_data()->msync_in_transaction, 1, __ATOMIC_RELAXED );
+-        __atomic_signal_fence( __ATOMIC_SEQ_CST );
+-        coord_admit();
+-    }
++    if (active) coord_admit();
+     else
+     {
+         coord_depart();
+-        __atomic_signal_fence( __ATOMIC_SEQ_CST );
+-        __atomic_store_n( &get_thread_data()->msync_in_transaction, 0, __ATOMIC_RELAXED );
+         msync_replay_controls();
+     }
+ }

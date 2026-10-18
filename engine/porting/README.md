@@ -1,6 +1,6 @@
 # Engine R v1 主题迁移
 
-2026-10-18，按计划02在v0 Steam通过后开始。此目录记录新基线的源码迁移及组件构建，当前不作为可运行配方，不切换用户引擎。
+2026-10-18，按计划02在v0 Steam通过后开始。此目录记录新基线的源码迁移、构建及私有运行验收，当前不作为发布配方，不切换用户引擎。最新同步运行状态见[research77](../../docs/research/77-waitall-mac-runtime-20261018.md)，下方原组件阶段结论保留为历史。
 
 `r-v1-inputs.json`固定Wine11.18 tag object及实际commit、只读官方mirror来源、首个源码文件摘要，并列出当前5份CX配方的21个唯一补丁、主题、实际采用关系和迁移状态。GitHub返回的tag签名验证结果原样记录，不能把固定commit或TLS下载说成已独立验证签名。现有CX源包哈希和各补丁SHA256作为oracle保留。
 
@@ -48,17 +48,23 @@ CX与固定上游共享get_sync/inproc缓存模型；迁移保留其所有权/�
 
 先核对CX相对上游的macOS同步/loader/WoW64依赖，再逐主题迁移和构建；保留v0作oracle。v1完整native链构建及受影响验证完成后，才能新增精确EnginePolicy配对和非默认引擎配方。原HY1→HY2→HY3→HY4/HY5顺序不改变，Windows预算与人类交互缺口单独保留。
 
-## 组件构建结果与边界（2026-10-18）
+## 组件构建结果与边界（2026-10-18，运行前历史）
 
 - 固定源码上的`wineserver`、`ntdll`、`wined3d`、`winegstreamer`构建通过；后三项均有native x86_64及两种PE产物。
 - Wine自己的两架构libc++/C++ABI也实际由新GCC前端构建；未使用或安装GCC目标libstdc++。显式CC/CXX选择和最终产物摘要见[构建证据](../../docs/research/evidence/engine-r-v1-bootstrap-20261018.json)。
 - 新引擎未执行、未安装/发布、未切换用户瓶子；msync/macOS loader/WoW64完整整合仍未完成，不能据此采用新配方或提升游戏裁定。
 - 首轮继承缓存、APFS等价路径检查、漏设PE编译器PATH及静态库目标名的失败记录已保留，后续成功未覆盖这些记录。最终配置仍报告可选EGL/libva/FFmpeg缺失；当前组件范围不代表完整引擎依赖验收。
 
-## 下一主题的非默认候选
+## 非默认候选的源码阶段（历史，接续见下）
 
 顺序为 `0100-macos-inproc-msync.patch` → `0101-ntdll-retain-host-loader.patch` → `0102-msync-atomic-waitall.patch`。前两项原字节保留；0102修复旧WaitAll暂取/回滚与并发Release的原子性缺口，加入状态协调、可恢复提交、代际及退出/fork处理，保留共享槽/Mach/ulock/inproc。当前协议由962→963→964生成，完整链20文件精确重建；server、原生和双PE ntdll编译通过，限定源码复审无剩余P1/P2。
 
 它们均未被配方选择或运行验收。正常状态操作新增2次fcntl和本地准入，暂时串行，稀疏协调映射128MiB+64KiB的RSS/延迟未测；不能以构建和静态审查代替并发、Windows和性能验证。取舍、已修问题、待验收与回退见[research76](../../docs/research/76-r-v1-waitall-coordination-20261018.md)及证据；旧移植来源/固定页表成本见[research75](../../docs/research/75-r-v1-msync-source-candidate-20261018.md)。
 
 接续构建Wine启动器、wow64/wow64cpu、win32u和winemac.drv，9个产物已链接。新增构建有30条来自未修改基线winemac文件的SDK弃用/nonnull警告，未宣称整个范围零警告；原WaitAll四组件最终构建零警告的范围不扩大。平台组件尚未运行，窗口/WoW64主题迁移及完整引擎采用仍待。
+
+## 私有运行与性能接续（2026-10-18，进行中）
+
+0103叠加0102，保留整体原子提交/可恢复通知，用原子owner及独立OFD死亡租约替代正常路径fcntl，并修复实测线程退出的缓存锁、引用和等待节点清理。完整Wine已由独立签名GUI/XPC在空实验瓶实际执行；PE32/64基础、64轮生命周期、八线程短压和45秒预检通过。两轮小时因合盖中断，第三轮连续小时已通过，78检查零失败、约6.54亿次许可获取/归还平衡；两位宽四子进程竞争也通过。原版同新夹具也通过，不能声称复现旧竞态；完整M1仍未整体验收。
+
+v2固定三轮的单事件及RTT均仅比同pair server快4.727倍，未达5；控制归因也未过±3%。独立可选0104只改process-local准入，以每线程SC活动发布/门重查及fork注册表扫描减少共享计数开销；保留父FD/token刷新、子进程退休和原全局事务。它已在另一个独立app/空实验瓶完成两位宽基础/生命周期/短压，连续小时及固定v3性能仍待。代价是注册记录多一个指针和fork扫描；共享ABI不变。0103与0104均非默认，生产策略未登记，不提升游戏或Windows原生状态。

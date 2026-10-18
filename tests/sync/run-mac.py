@@ -17,12 +17,33 @@ import sys
 import threading
 import time
 
+def valid_metadata(suite, arch, iterations, mode, begins, completes):
+    if len(begins) != 1 or len(completes) != 1:
+        return False
+    begin, complete = begins[0], completes[0]
+    bits = 32 if arch == 'i686' else 64
+    if begin.get('pointer_bits') != bits:
+        return False
+    if suite == 'lifecycle':
+        return complete.get('requested_per_case') == iterations
+    if suite == 'processes':
+        # Reject partial or contradictory receipts, even if their CLI exited 0.
+        return (type(begin.get('iterations_per_role')) is int
+                and begin['iterations_per_role'] == iterations
+                and type(complete.get('iterations_per_role')) is int
+                and complete['iterations_per_role'] == iterations
+                and complete.get('pointer_bits') == bits
+                and begin.get('children') == 4 and begin.get('roles_per_child') == 4
+                and complete.get('cleanup_checked') is True)
+    return complete.get('mode') == mode
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--root', type=Path, required=True)
 parser.add_argument('--bottle', required=True)
 parser.add_argument('--arch', choices=['i686', 'x86_64'], required=True)
 parser.add_argument('--mode', choices=['correctness', 'stress', 'duration', 'bench'], required=True)
-parser.add_argument('--suite', choices=['waitall', 'lifecycle'], default='waitall')
+parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes'], default='waitall')
 parser.add_argument('--stats', action='store_true')
 parser.add_argument('--iterations', type=int, default=10000)
 parser.add_argument('--threads', type=int, default=4)
@@ -49,7 +70,8 @@ if not prefix.is_relative_to(root) or not config['engine']['id'].startswith('cid
     raise SystemExit('Non-laboratory prefix or engine')
 lock = os.open(root / 'wine-runtime.lock', os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
-source = root / (('waitall-' if args.suite == 'waitall' else 'waitall-lifecycle-') + args.arch + '.exe')
+source = root / ({'waitall': 'waitall-', 'lifecycle': 'waitall-lifecycle-',
+                  'processes': 'waitall-processes-'}[args.suite] + args.arch + '.exe')
 destination = prefix / 'drive_c/CiderTests' / source.name
 destination.parent.mkdir(exist_ok=True)
 shutil.copy2(source, destination)
@@ -58,6 +80,10 @@ if args.suite == 'lifecycle':
     if args.mode != 'correctness' or args.iterations > 4096:
         raise SystemExit('Lifecycle requires a bounded correctness run')
     arguments = ['--iterations', str(args.iterations)]
+elif args.suite == 'processes':
+    if args.mode != 'correctness' or args.iterations > 1000000:
+        raise SystemExit('Cross-process suite requires bounded correctness iterations')
+    arguments = [str(args.iterations)]
 elif args.mode != 'correctness':
     arguments += [str(args.iterations), str(args.threads)]
 environment = {k: os.environ[k] for k in ['HOME', 'USER', 'LOGNAME', 'TMPDIR', 'PATH'] if k in os.environ}
@@ -168,25 +194,23 @@ if match:
             if line.startswith('{'):
                 try:
                     row = json.loads(line)
-                    if row.get('type') in ['begin', 'check', 'complete', 'stress', 'worker', 'resources', 'bench', 'roundtrip', 'wakeup', 'progress', 'layout', 'limits', 'case']:
+                    if row.get('type') in ['begin', 'check', 'complete', 'stress', 'worker', 'resources', 'bench', 'roundtrip', 'wakeup', 'progress', 'layout', 'limits', 'case', 'result', 'error']:
                         rows.append(row)
                 except json.JSONDecodeError:
                     record['invalidJSONLine'] = True
     else:
         record['logTooLargeForAcceptance'] = True
+record['rows'] = rows
+reported_errors = [r for r in rows if r.get('type') == 'error']
+record['reportedErrors'] = reported_errors
 begins = [r for r in rows if r.get('type') == 'begin']
 completes = [r for r in rows if r.get('type') == 'complete']
 failed = [r for r in rows if r.get('type') == 'check' and not r.get('ok')]
-expected_bits = 32 if args.arch == 'i686' else 64
-record['rows'] = rows
 if args.suite == 'lifecycle':
     begins = [r for r in rows if r.get('type') == 'limits']
-metadata_ok = len(begins) == len(completes) == 1 and begins[0].get('pointer_bits') == expected_bits
-if metadata_ok:
-    metadata_ok = (completes[0].get('requested_per_case') == args.iterations if args.suite == 'lifecycle'
-                   else completes[0].get('mode') == args.mode)
+metadata_ok = valid_metadata(args.suite, args.arch, args.iterations, args.mode, begins, completes)
 record['passed'] = (record['cliExitCode'] == 0 and metadata_ok and completes[0].get('ok') is True
-                    and not failed and not record.get('invalidJSONLine') and not record.get('logTooLargeForAcceptance')
+                    and not failed and not reported_errors and not record.get('invalidJSONLine') and not record.get('logTooLargeForAcceptance')
                     and not record.get('statisticsSamplerDidNotStop')
                     and not record.get('continuousDurationNotEstablished') and not system_pauses)
 record['state'] = 'complete'
