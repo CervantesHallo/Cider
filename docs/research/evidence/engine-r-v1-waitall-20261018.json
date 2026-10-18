@@ -1,0 +1,281 @@
+{
+  "schema": "cider.engine-r-v1-waitall-coordination/v1",
+  "date": "2026-10-18",
+  "parentSourceCommit": "deb7882",
+  "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+  "status": "source repair compiled and statically reviewed; runtime and performance acceptance pending; nondefault",
+  "patches": [
+    {
+      "path": "engine/porting/wine-11.18/candidates/0100-macos-inproc-msync.patch",
+      "sha256": "708af3db653384c810f7b0bdeefa27b2076a75e701bbdf369642cd213debde4e"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0101-ntdll-retain-host-loader.patch",
+      "sha256": "94f2c350ae6c1325f97f86522d6f6965510f4493b048256bd9e0232b0b7014b5"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0102-msync-atomic-waitall.patch",
+      "sha256": "6209faf6001add44481c48595d7e8a0db894bf60a944e528b2f99a856fbe1beb"
+    }
+  ],
+  "changedFiles": {
+    "dlls/ntdll/unix/msync.c": {
+      "beforeSHA256": "ddc18bfa04647ad755980b87f79b8eb6102654095db43e6ac259751467b233a6",
+      "afterSHA256": "6c65ad798d532d575ed304716d3ef6c416a1acc224e1e4e456797efe82af4a77"
+    },
+    "dlls/ntdll/unix/msync.h": {
+      "beforeSHA256": "085da652b62886955a35adb8d95a8a4a642c2e22e9624e7d648157f888b746a4",
+      "afterSHA256": "f53615d9781f85218568ab252b6df806db6cabdada2b2fd840bb2c9d438a3266"
+    },
+    "dlls/ntdll/unix/server.c": {
+      "beforeSHA256": "5b9a9e2973b014c0438a4c9b8f9cc301a4c6ac5b29007a7070d33a23fc902cad",
+      "afterSHA256": "2d6dd192b7f2cff9668ae8a32f41e06594cbe0dfa055774d894e4860e74ac9f9"
+    },
+    "dlls/ntdll/unix/signal_x86_64.c": {
+      "beforeSHA256": "33d020f5e01f3e489c80fa18da766b6624990a168c253ed69be71b8f5c97f263",
+      "afterSHA256": "3f6ab0f3dd05bc6619c65ca531250942ef5581d5ae232bc9a3bfd6c2845f6071"
+    },
+    "dlls/ntdll/unix/thread.c": {
+      "beforeSHA256": "72c2dd86a84e7212cc224e055301c5c9ab6f695b4bd6d1bf34462d45c6e97c4e",
+      "afterSHA256": "994abba7564f5c7d0e1e2730d437a2b18382faf854ed3baabb9493a64e65e727"
+    },
+    "dlls/ntdll/unix/unix_private.h": {
+      "beforeSHA256": "071bdf954fd19234b17ab84f50a13b32b4940b49f2699f20a571d1fdf8538a28",
+      "afterSHA256": "793cec4525ab22298acd21c977113d382e98a709e8662786c6b742abbfee1e74"
+    },
+    "include/wine/msync_coord.h": {
+      "beforeSHA256": null,
+      "afterSHA256": "df834d6b4568b56411fe3814eb5a233e6bb3e9157b9ac811ffa7596aa31ea413"
+    },
+    "include/wine/server_protocol.h": {
+      "beforeSHA256": "4c3eec49bd40396302b34b6599e5457ceedac29c6834e989f1f5ae6a26d5ba59",
+      "afterSHA256": "3dfec6db3eac8a8b3f666baa97a5dd69f57e43ad034bf590f45c3518a03359fe"
+    },
+    "server/inproc_sync.c": {
+      "beforeSHA256": "ddb320adaab0c010dbcd44afe5adc04dfc7f3eab9631100392ff5267b82c9a95",
+      "afterSHA256": "eb5f5c514802ddb40de980826619cfaed90bf81baa7056f2814dcc1ea6249e5c"
+    },
+    "server/msync.c": {
+      "beforeSHA256": "6b5dde561cd72e0334cfc22eef7c30c8c447c83008bcf1fce51fa4fe6e99a2fd",
+      "afterSHA256": "c12800deee6c9ef634ca887a1c2534d07a390f2da63e624c824e716098c9d26d"
+    },
+    "server/msync.h": {
+      "beforeSHA256": "beda201dd5335e98f9a43f1159da49c1c8e84f504c0752dd8e34014c990b234d",
+      "afterSHA256": "915341bd163219366193f6abdea399265a22ad3d394cee77b6e055141c4bcb00"
+    },
+    "server/protocol.def": {
+      "beforeSHA256": "846cbab764227b76913d6cb86ee16a2b7bac2e338073a8c198b27bd00203b583",
+      "afterSHA256": "9d45f4f9630d0a99a550cc7cef439db5171b32532836594316b8477f5927e043"
+    },
+    "server/request_handlers.h": {
+      "beforeSHA256": "56bb62a44065da5b474e257f670a7648adad7c3230babc99caef44e779fd9132",
+      "afterSHA256": "9c4fa79520a543de364faf07974b4d1db8fd4e4a87c7719450db8dde9bf1d279"
+    },
+    "server/request_trace.h": {
+      "beforeSHA256": "a62877d8caba5636a5df6f26f0e7ccff194dd86652ded92022c387b5cfc5d46e",
+      "afterSHA256": "a64133d154240be85dc8682966abfd3f7121d3dcef092539f6647010bccc4bc7"
+    },
+    "server/thread.c": {
+      "beforeSHA256": "e955b801aa4d471a57283b77db59ea9d3ecc9bfad3f182fee2b8500a510fcce1",
+      "afterSHA256": "790bf3f4c25bf473a1ddbefa6d57767dc01bcd20ddeb3bf606cd7586a6a3a903"
+    }
+  },
+  "protocol": {
+    "before": 963,
+    "after": 964,
+    "upstreamBase": 962,
+    "regeneration": {
+      "exitCode": 0,
+      "output": "",
+      "before": {
+        "include/wine/server_protocol.h": "3dfec6db3eac8a8b3f666baa97a5dd69f57e43ad034bf590f45c3518a03359fe",
+        "server/request_handlers.h": "9c4fa79520a543de364faf07974b4d1db8fd4e4a87c7719450db8dde9bf1d279",
+        "server/request_trace.h": "a64133d154240be85dc8682966abfd3f7121d3dcef092539f6647010bccc4bc7"
+      },
+      "after": {
+        "include/wine/server_protocol.h": "3dfec6db3eac8a8b3f666baa97a5dd69f57e43ad034bf590f45c3518a03359fe",
+        "server/request_handlers.h": "9c4fa79520a543de364faf07974b4d1db8fd4e4a87c7719450db8dde9bf1d279",
+        "server/request_trace.h": "a64133d154240be85dc8682966abfd3f7121d3dcef092539f6647010bccc4bc7"
+      },
+      "unchanged": true
+    }
+  },
+  "reconstruction": {
+    "incrementalChangedFiles": 15,
+    "completeCandidateChainFiles": 20,
+    "zeroFuzzAndOffset": true,
+    "sourceBytesMatch": true,
+    "logSHA256": "1e40f3e01fe3123193759b737fbb47d8e9c2274a4d00d8ded81a960e1929a3e2",
+    "scope": "source integrity inspection, no backend execution"
+  },
+  "build": {
+    "targets": [
+      "server/wineserver",
+      "dlls/ntdll/all"
+    ],
+    "finalExitCode": 0,
+    "sdk": "macOS15.4",
+    "deploymentTarget": "14.0",
+    "architecture": "native x86_64 plus i386/x86_64 PE",
+    "originalCCompilerRetained": true,
+    "fullEngineBuilt": false,
+    "logs": [
+      {
+        "path": "out/engine-r-v1/msync-waitall-build.log",
+        "sha256": "c1d41d521c2620684833fb1af07c058eaf605ea7cd9e4531fc2d5b7904c99699",
+        "compilerErrors": 1,
+        "compilerWarnings": 1
+      },
+      {
+        "path": "out/engine-r-v1/msync-waitall-build-after-init-fix.log",
+        "sha256": "1e7bf00020aafd8d1fbfb62b67bf712ba119e91e81c3263696633b6af87c9f43",
+        "compilerErrors": 0,
+        "compilerWarnings": 0
+      },
+      {
+        "path": "out/engine-r-v1/msync-waitall-build-after-fork-fix.log",
+        "sha256": "b8fc16ae99349e76833d8be83416eb58ebcfe80ebd87720390d6d9d4cb52e5f4",
+        "compilerErrors": 0,
+        "compilerWarnings": 0
+      },
+      {
+        "path": "out/engine-r-v1/msync-waitall-build-after-review.log",
+        "sha256": "f950e1175f1b37429fecb92fddbcc596bafb008c735f9aea4b75fe10f29048ed",
+        "compilerErrors": 0,
+        "compilerWarnings": 0
+      },
+      {
+        "path": "out/engine-r-v1/msync-waitall-build-final.log",
+        "sha256": "7c0be745b63332ad5151db61435380298d65d71fa4ff7ab2f4e490fd9ad7e363",
+        "compilerErrors": 0,
+        "compilerWarnings": 0
+      },
+      {
+        "path": "out/engine-r-v1/msync-waitall-build-reviewed-final.log",
+        "sha256": "e92853d714c10051d25a01cb9ba43912e2aa2ac24900be0525fe64bf004ef77f",
+        "compilerErrors": 0,
+        "compilerWarnings": 0
+      },
+      {
+        "path": "out/engine-r-v1/msync-waitall-build-final-retirement.log",
+        "sha256": "b8fc16ae99349e76833d8be83416eb58ebcfe80ebd87720390d6d9d4cb52e5f4",
+        "compilerErrors": 0,
+        "compilerWarnings": 0
+      }
+    ]
+  },
+  "artifacts": [
+    {
+      "path": "server/wineserver",
+      "sha256": "64d77d15548d3001f7d73544d46f1322750a886a4d924b99ad2440b3b58c67e1",
+      "bytes": 847192,
+      "kind": "Mach-O 64-bit executable x86_64",
+      "executed": false
+    },
+    {
+      "path": "dlls/ntdll/ntdll.so",
+      "sha256": "af43728d7ced464b4046753788d9443102a981159bdb46cdb524289b2ce75c9d",
+      "bytes": 689920,
+      "kind": "Mach-O 64-bit dynamically linked shared library x86_64",
+      "executed": false
+    },
+    {
+      "path": "dlls/ntdll/i386-windows/ntdll.dll",
+      "sha256": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+      "bytes": 3797513,
+      "kind": "PE32 executable (DLL) (console) Intel 80386, for MS Windows",
+      "executed": false
+    },
+    {
+      "path": "dlls/ntdll/x86_64-windows/ntdll.dll",
+      "sha256": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0",
+      "bytes": 4851174,
+      "kind": "PE32+ executable (DLL) (console) x86-64, for MS Windows",
+      "executed": false
+    }
+  ],
+  "repair": {
+    "originalCounterexample": "WaitAll consumes S; another release succeeds and consumes E; failed WaitAll rollback overflows S.max",
+    "algorithm": "one EX state view, prepare without mutation, publish one journal decision then apply all; no tentative rollback",
+    "statePaths": [
+      "WaitAny/WaitAll",
+      "Release/QuerySemaphore",
+      "Set/Reset/Pulse/QueryEvent",
+      "Acquire/Release/QueryMutant",
+      "server Set/Reset/abandon",
+      "allocator recovers before slot reuse"
+    ],
+    "journal": [
+      "CLEAN",
+      "PREPARING",
+      "COMMITTED",
+      "APPLIED",
+      "CLEAN"
+    ],
+    "maxEntries": 65,
+    "sharedSlotBytes": 16,
+    "blockingWaitOrRpcUnderStateGate": false,
+    "normalNotify": "ulock wake plus zero-timeout Mach send; queue-full retains APPLIED and drains unlocked; sequence checked before clearing",
+    "death": "independent OFD ownership, signal/cancel exclusion and exit cleanup, generation fenced after recovery; unexpected native transaction fault directly exits process without blocking diagnostics",
+    "fork": "local quiescence; parent rotates all idle work descriptions before reopening admission; child closes inherited old descriptions; FD read refreshed after admission",
+    "mapping": "no local unfair lock across Mach RPC; CAS publication and duplicate unmap; stack reply buffers",
+    "retired": "9 public NTSTATUS entries reject before map/RPC; no recursive abort_thread from an internally held local gate",
+    "mutantCounter": "u32 saturation and ready hints aligned to current upstream ntsync; PreviousCount 1-oldCount; native extremes unverified"
+  },
+  "review": {
+    "kind": "one independent read-only adversarial review plus parent source integration and exact hash readback",
+    "reviewedFinalHashes": {
+      "include/wine/msync_coord.h": "df834d6b4568b56411fe3814eb5a233e6bb3e9157b9ac811ffa7596aa31ea413",
+      "dlls/ntdll/unix/msync.c": "6c65ad798d532d575ed304716d3ef6c416a1acc224e1e4e456797efe82af4a77",
+      "server/msync.c": "c12800deee6c9ef634ca887a1c2534d07a390f2da63e624c824e716098c9d26d",
+      "dlls/ntdll/unix/signal_x86_64.c": "3f6ab0f3dd05bc6619c65ca531250942ef5581d5ae232bc9a3bfd6c2845f6071",
+      "dlls/ntdll/unix/unix_private.h": "793cec4525ab22298acd21c977113d382e98a709e8662786c6b742abbfee1e74"
+    },
+    "remainingP1P2FoundInReviewedScope": 0,
+    "notProofOfAbsenceOfDefects": true,
+    "fixedFindings": [
+      "mapping unfair lock survives thread exit",
+      "SIGABRT/debugger RPC under gate",
+      "fork inherited future OFD locks and stale fd integer",
+      "saturated self mutex hint spin",
+      "no-TEB transaction fault path",
+      "fatal stderr pipe can block",
+      "retired get_fd recursively exits while local gate held"
+    ],
+    "runtimeReview": false
+  },
+  "tradeoff": {
+    "warmStateOperationFcntlCalls": 2,
+    "localAdmissionMutex": true,
+    "unrelatedStateMutationsTemporarilySerialized": true,
+    "coordinatorSparseFileAndMappingLogicalBytes": 134283264,
+    "headerBytes": 65536,
+    "threadEpochTableBytes": 134217728,
+    "rssMeasured": false,
+    "coldStartMeasured": false,
+    "throughputOrLatencyMeasured": false,
+    "rollback": "keep candidate unselected; preserve user engine and bottle bindings; optimize without dropping Windows waiting capabilities"
+  },
+  "acceptancePending": [
+    "matched Windows and Wine WaitAll concurrency observations",
+    "zero timeout/APC/mixed object/abandon/TID reuse and u32 extremes",
+    "executor termination during each commit stage and fork scheduling",
+    "queue saturation/Mach RPC deadline/server loss/cleanup",
+    "RSS/disk/cold-start/wait latency and real Steam CEF/game performance gates",
+    "complete new engine integration"
+  ],
+  "runtimeExecuted": false,
+  "testsAddedOrRun": false,
+  "windowsAccessed": false,
+  "windowsBudgetOrAvailabilityChanged": false,
+  "defaultRecipeOrEnginePolicyChanged": false,
+  "userEngineOrBottleChanged": false,
+  "gameVerdictPromoted": false,
+  "antiCheatOrIdentityChanged": false,
+  "sources": [
+    "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitformultipleobjects",
+    "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-releasesemaphore",
+    "https://github.com/apple-oss-distributions/xnu/blob/main/bsd/kern/kern_descrip.c",
+    "https://github.com/torvalds/linux/blob/master/drivers/misc/ntsync.c"
+  ]
+}

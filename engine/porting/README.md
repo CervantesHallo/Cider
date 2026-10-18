@@ -57,4 +57,6 @@ Wine11.18的configure已实际通过，但明确报告两架构缺少C++17前端
 
 ## 下一主题的非默认候选
 
-`wine-11.18/candidates/0100-macos-inproc-msync.patch`及0101接同步与host loader，新协议由962生成963；16文件精确重建及server/原生和双PE ntdll编译通过。它们没有被任何配方选择。独立复审仍确认旧WaitAll暂取回滚与并发Release导致信号量超过max的P2，尚未修复，阻止默认采用；不能以构建成功算整体同步正确。固定页表2/8MiB成本、已修源路径、原生/运行/性能缺项、协调方案及回退见[research75](../../docs/research/75-r-v1-msync-source-candidate-20261018.md)。
+顺序为 `0100-macos-inproc-msync.patch` → `0101-ntdll-retain-host-loader.patch` → `0102-msync-atomic-waitall.patch`。前两项原字节保留；0102修复旧WaitAll暂取/回滚与并发Release的原子性缺口，加入状态协调、可恢复提交、代际及退出/fork处理，保留共享槽/Mach/ulock/inproc。当前协议由962→963→964生成，完整链20文件精确重建；server、原生和双PE ntdll编译通过，限定源码复审无剩余P1/P2。
+
+它们均未被配方选择或运行验收。正常状态操作新增2次fcntl和本地准入，暂时串行，稀疏协调映射128MiB+64KiB的RSS/延迟未测；不能以构建和静态审查代替并发、Windows和性能验证。取舍、已修问题、待验收与回退见[research76](../../docs/research/76-r-v1-waitall-coordination-20261018.md)及证据；旧移植来源/固定页表成本见[research75](../../docs/research/75-r-v1-msync-source-candidate-20261018.md)。

@@ -1,6 +1,10 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
-## 2026-10-18 同步源候选（最新）
+## 2026-10-18 WaitAll协调源码修复（最新）
+
+按用户“Windows暂不能重启，先修WaitAll”推进原02。非默认0102移除逐对象暂取/回滚，保留16字节共享槽/Mach/ulock/inproc接口，统一等待、释放/查询、事件、server信号/abandon和槽复用；加入可恢复提交、线程代际、退出及fork隔离。协议963→964由当前工具生成，15个变更文件/完整候选链20文件精确重建；server/native及双PE ntdll最终构建0错误0警告，限定源码复审未再发现P1/P2。**源码修复完成，不等于运行、Windows和性能验收完成。**正常状态操作新增2次fcntl及局部准入，状态更新暂时串行，另有128MiB+64KiB稀疏映射，实际RSS/延迟未测。候选保持未选中，不切用户引擎/瓶子或提升游戏裁定。收益、代价、验收及回退见[research76](../research/76-r-v1-waitall-coordination-20261018.md)。原HY顺序/目标保留；Windows busy、准备2309/测试3600/无pending未变，未新增或运行测试、未触发Actions。
+
+## 2026-10-18 同步源候选（历史，续修见76）
 
 R v1独立候选0100/0101已接macOS msync及same-binary host loader，协议由962生成963（非CX1810），16文件精确重建；server/native ntdll/两PE模块已编译链接，未执行/安装。源修包括真实初始化/映射/分配失败、稳定原子页表、共享ref与alert索引、WaitAll abandoned/owner回滚/期限和登记清理。独立审查仍确认旧WaitAll暂取与并发Release会使semaphore count>max的P2，**未修、阻止默认采用**；不能钳位/丢许可/禁用WaitAll冒充修复。需统一状态协调及线程死亡恢复，原M3为候选机制，不计M1/M3完成。稳定表2/8MiB每原生进程代价、验收及回退见research75/evidence；无Windows/新测试或游戏门禁提升。用户暂不能重启，Windows busy/余准备2309测试3600无pending保持。
 

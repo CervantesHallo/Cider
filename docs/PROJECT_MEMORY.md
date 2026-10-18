@@ -2,6 +2,14 @@
 
 更新：2026-10-18。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
 
+## 当前续修检查点（2026-10-18）
+
+Windows暂不能重启，只推进Mac原02。0102叠加0100/0101，保留共享槽/Mach/ulock/inproc，删除WaitAll暂取/回滚，统一状态提交、恢复日志和线程代际。源码复审发现的持本地锁映射、SIGABRT/RPC、fork继承未来OFD锁、旧FD整数、无TEB故障、stderr阻塞、饱和提示和retired递归退出均修；父代理按最终摘要读回，限定静态复审无剩余P1/P2。协议964生成幂等，15变更/完整链20文件精确重建，四种组件产物链接0错误0警告。
+
+源码不是运行/原生/性能验收：正常操作2次fcntl+本地准入，独立状态更新暂时串行，128MiB+64KiB稀疏映射RSS/延迟未测。仍非默认，未执行新后端/测试、切引擎/瓶子、改门禁/裁定、连接Windows或使用Actions。Windows busy/准备2309测试3600无pending、定时关闭保持。接续从research76和evidence继续验收及引擎整合，75旧缺口为历史来源；原HY顺序和最终目标保留。
+
+经验：每线程open才是独立OFD；child关闭继承FD仍不足，parent未来锁也会共享旧OFD，须准入隔离后换新描述，并在持门后刷新FD。故障退出不先写可能满的stderr或进入Wine异常RPC；逻辑TERMINATED不等于已停止写状态。
+
 ## 用户目标与协作
 
 - **R v1同步候选及真实剩余缺口（2026-10-18，检查点75）**：R v1独立候选0100/0101已接macOS msync及same-binary host loader，协议由962生成963（非CX1810），16文件精确重建；server/native ntdll/两PE模块已编译链接，未执行/安装。源修包括真实初始化/映射/分配失败、稳定原子页表、共享ref与alert索引、WaitAll abandoned/owner回滚/期限和登记清理。独立审查仍确认旧WaitAll暂取与并发Release会使semaphore count>max的P2，**未修、阻止默认采用**；不能钳位/丢许可/禁用WaitAll冒充修复。需统一状态协调及线程死亡恢复，原M3为候选机制，不计M1/M3完成。稳定表2/8MiB每原生进程代价、验收及回退见research75/evidence；无Windows/新测试或游戏门禁提升。用户暂不能重启，Windows busy/余准备2309测试3600无pending保持。
