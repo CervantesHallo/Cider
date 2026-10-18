@@ -1,0 +1,118 @@
+{
+  "schema": "cider.windows-disk-ready-restart-handoff/v1",
+  "date": "2026-10-18",
+  "userDiskReady": "D",
+  "batches": [
+    {
+      "reservation_id": "3b4b6537-4b9d-442c-a677-cc1a78d6be13",
+      "elapsedOuterSeconds": 3.242,
+      "passed": true,
+      "closed": true,
+      "cleanupConfirmed": true,
+      "remoteTaskDispatched": true,
+      "nativeReceipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "3b4b6537-4b9d-442c-a677-cc1a78d6be13",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "completed",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 2.281,
+        "reserved_seconds": 44,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 0,
+        "job_total_processes": 1
+      },
+      "readiness": {
+        "os_build": "26200",
+        "free_memory_kib": 5841756,
+        "fixed_disks": [
+          {
+            "DeviceID": "C:",
+            "Size": 321194553344,
+            "FreeSpace": 28596125696
+          },
+          {
+            "DeviceID": "D:",
+            "Size": 1725834457088,
+            "FreeSpace": 220885598208
+          }
+        ],
+        "vmms_status": "NotInstalled",
+        "hyper_v_features": [
+          {
+            "Name": "Microsoft-Hyper-V-All",
+            "InstallState": 2
+          },
+          {
+            "Name": "Microsoft-Hyper-V",
+            "InstallState": 2
+          }
+        ],
+        "mounted_ewdk_roots": []
+      }
+    },
+    {
+      "reservation_id": "b3f2bc6a-9929-4532-bf72-00e9d215611a",
+      "elapsedOuterSeconds": 3.155,
+      "passed": true,
+      "closed": true,
+      "cleanupConfirmed": true,
+      "remoteTaskDispatched": true,
+      "nativeReceipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "b3f2bc6a-9929-4532-bf72-00e9d215611a",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "completed",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 2.282,
+        "reserved_seconds": 240,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 0,
+        "job_total_processes": 3
+      },
+      "featurePreparation": {
+        "status": "restart-required-before-install",
+        "changed": false,
+        "servicing_started": false,
+        "servicing_complete": true,
+        "before": "Disabled",
+        "after": "Disabled",
+        "restart_needed": true,
+        "disk_free_bytes": 220876271616,
+        "disk_filesystem": "NTFS",
+        "collected_utc": "2026-10-18T03:51:25.3994562Z"
+      }
+    }
+  ],
+  "manualHandoff": {
+    "reservation_id": "227dd7bf-ec3a-4e9d-ae72-e3007548b16b",
+    "state": "declined-no-restart",
+    "closed": true,
+    "elapsedObservedHandoffSeconds": 119.806,
+    "fullReservationChargedSeconds": 300,
+    "agentNoRestartCommandIssued": true
+  },
+  "nativeOperationMeasuredTotalSeconds": 6.397,
+  "manualHandoffTimingScope": "local reservation-to-declined-reboot-request interval, not Windows active work",
+  "reservationChargeSeconds": 690,
+  "remainingSeconds": {
+    "preparation": 2309,
+    "test": 3600
+  },
+  "pending": [],
+  "userCurrentlyCannotRestart": true,
+  "windowsWorkHeld": true,
+  "featureEnabledByThisWork": false,
+  "vmCreated": false,
+  "driverLoaded": false,
+  "hostBootProtectionChanged": false,
+  "rawConnectionData": "private local control directory only",
+  "sources": [
+    "https://learn.microsoft.com/en-us/powershell/module/dism/enable-windowsoptionalfeature",
+    "https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise"
+  ]
+}

@@ -4,6 +4,8 @@
 
 ## 用户目标与协作
 
+- **D盘就绪、重启暂缓（2026-10-18，检查点74）**：用户确认D盘清理完成；原pin/公钥LAN原生查询确认约205.7GiB空闲/NTFS，当前内存约5.6GiB空闲。Hyper-V预检检测既有CBS RebootPending，未调用启用命令/未更改功能。用户暂不能重启，人工交接按明确未执行结果及119.806秒本地间隔关闭，原生两批合计6.397秒；690秒预约全额保留，现余准备2309/测试3600、无pending、busy=true。只待用户明确可重启/已重启再恢复Windows，不叠加未完成组件操作；Mac继续原02同步后端迁移。见research74及windows-disk-ready-restart-20261018.json。
+
 - **R v1工具链接续（2026-10-18）**：Windows用户清理C/D期间busy保持，仅Mac推进。四项源码迁移/原生准备记录已提交推送5739859。Wine11.18配置返回0却报告两PE架构缺C++17；新增独立GCC15.2前端构建，保留原C/CRT，不切LLVM或补目标libstdc++。复审发现继承as/ld缓存、未知旧SDK对象及marker/backend/实际binutils/额外源码核验问题，均改为归档逐文件+完整路径/碰撞安全Unicode校验、全新对象和输入/SDK/g++/cc1plus/COFF绑定；首两批安装前停止，失败保留。双架构前端已构建、Wine C++17均检测通过，实际Makefile原C/新CXX四路径已核；四个组件以及两种PE架构Wine libc++/C++ABI归档最终构建通过，不当作已可用引擎。native wineserver为x86_64、min14/SDK15.4，所有新产物未执行；最初PE GCC PATH缺失导致退出2已修为显式原C路径。四项补丁及脚本经过独立只读对抗性审查，静态无剩余P1/P2；最终组件构建证据在engine-r-v1-bootstrap-20261018.json，未安装新引擎/切瓶子，编译/运行/游戏裁定独立。实际msync传输/等待和object_ops布局已核对依赖，未盲贴yield或CX协议号。
 
 - **Windows实际资源与用户清理（2026-10-18，检查点73）**：用户确认Windows开机/公网未变；Mac实际已在已记录LAN子网且ARP可见，因此改用同一个HostKeyAlias/原Ed25519 pin/项目公钥的已记录LAN，认证/SFTP实际成功。首次SFTP路径被当相对路径、首次PS在不存在E盘Join-Path失败均修并保留真实失败；最终native runner受控Job执行只读PS成功并确认空Job、回执/外层均清理。资源：build26200、20逻辑处理器、约32GB物理内存/7.46GiB当前空闲，Hyper-V两项InstallState2、vmms未装；C约27.3GiB、D约5.0GiB空闲，EWDK仍挂载，原参考client/sys仍在。不改主机保护、不运行driver/VM/RDP。四批全额预扣570秒、真实外层14.846秒，余准备2999/测试3600、无pending。用户决定先释放C/D空间，已按该决定把availability.user_busy置true；用户明确空间/盘符就绪前禁止Windows预约，不因时钟/唤醒自行清busy。 native Job目前仅正常启动/退出/清理通过，超时/STOP/强退和VM控制未通过，不能宣称无人值守接通。地址/密钥/raw日志仅私有；本次预算变更已授权，未来Wine实验须新owner而非篡改旧回执的旧保护摘要。R v1源码准备已有preflight、D3D9、DMO和组件覆盖路径共4个迁移；WinMM新上游已有不同初始化/格式映射，旧0008/0014改记需语义重整，不照贴/不声称已验证。
