@@ -1,0 +1,2169 @@
+macOS: retain atomic WaitAll with lease-backed admission and native exit cleanup.
+
+Cider-Topic: sync/msync
+Cider-Requires: 0102-msync-atomic-waitall.patch
+Cider-Status: nondefault candidate; scoped macOS runtime acceptance recorded in research77
+Cider-Validation: exact reconstruction, paired native modules, actual PE32/PE32+ fixtures
+
+diff --git a/include/wine/msync_coord.h b/include/wine/msync_coord.h
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -24,7 +24,7 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ 
+-#define MSYNC_COORD_MAGIC UINT64_C(0x43494445524d5301)
++#define MSYNC_COORD_MAGIC UINT64_C(0x43494445524d5303)
+ #define MSYNC_COORD_TIDS (1u << 24)
+ #define MSYNC_COORD_HEADER_SIZE 65536u
+ #define MSYNC_COORD_SIZE (MSYNC_COORD_HEADER_SIZE + (uint64_t)MSYNC_COORD_TIDS * sizeof(uint64_t))
+@@ -46,12 +46,39 @@
+     uint64_t magic;
+     uint64_t sequence;
+     uint64_t next_epoch;
++    uint64_t next_lease;
++    uint64_t owner;
++    uint32_t wake_sequence;
++    uint32_t wait_hint; /* boolean: a dead waiter cannot leak a permanent count */
+     uint32_t state;
+     uint32_t count;
+     struct msync_coord_entry entries[MSYNC_COORD_ENTRIES];
+ };
+ 
+ _Static_assert( sizeof(struct msync_coord_header) <= MSYNC_COORD_HEADER_SIZE, "msync header bounds" );
++
++/* Optional pump statistics occupy a separate cache line in the already mapped
++ * header. They are not synchronization state and are disabled by default. */
++#define MSYNC_STATS_OFFSET 4096u
++#define MSYNC_STATS_MAGIC UINT64_C(0x4349444552535401)
++struct msync_coord_statistics
++{
++    uint64_t magic;
++    uint32_t sequence;
++    uint32_t enabled;
++    uint64_t allocations;
++    uint64_t frees;
++    uint64_t current;
++    uint64_t peak;
++    uint64_t fallback_total;
++    uint64_t fallback_current;
++    uint64_t pool_free;
++    uint32_t capacity;
++    uint32_t producer_pid;
++};
++_Static_assert( sizeof(struct msync_coord_header) <= MSYNC_STATS_OFFSET, "journal/statistics overlap" );
++_Static_assert( MSYNC_STATS_OFFSET + sizeof(struct msync_coord_statistics) <= MSYNC_COORD_HEADER_SIZE,
++                "statistics bounds" );
+ 
+ struct msync_coord
+ {
+@@ -62,6 +89,8 @@
+     int (*notify)( unsigned int idx, void *shm, int blocking );
+     void (*set_active)( int active );
+     int (*get_fd)(void); /* refreshed under local quiescence after a fork */
++    uint64_t (*get_token)(void);
++    int cancellation_managed; /* client caller frame already disables POSIX cancellation */
+ };
+ 
+ struct msync_coord_guard
+@@ -69,7 +98,7 @@
+     int fd;
+     struct msync_coord *coord;
+     int cancel_state;
+-    sigset_t signals;
++    uint64_t token;
+ };
+ 
+ /* No Wine exception/debugger/server callback is safe while owning the gate.
+@@ -103,7 +132,7 @@
+ }
+ 
+ /* A separate open description for each thread, never dup() the identity fd.
+- * byte 0 pins this server instance; byte 1 protects the state transaction. */
++ * byte 0 pins this server instance. A unique byte lease is assigned below. */
+ static inline int msync_coord_open( int identity_fd )
+ {
+     char path[PATH_MAX];
+@@ -121,9 +150,123 @@
+     return fd;
+ }
+ 
++/* A token is never reused in this instance. Its EX byte remains locked until
++ * the independent description closes. Recoverers use the kernel lease as proof
++ * that an old executor can no longer write, not a timeout or logical TID state. */
++static inline uint64_t msync_coord_new_lease( struct msync_coord *coord, int fd )
++{
++    uint64_t previous = __atomic_load_n( &coord->header->next_lease, __ATOMIC_RELAXED );
++    do
++    {
++        if (previous >= INT64_MAX - 3) msync_coord_fatal( "lease overflow" );
++    } while (!__atomic_compare_exchange_n( &coord->header->next_lease, &previous, previous + 1,
++                                          0, __ATOMIC_SEQ_CST, __ATOMIC_RELAXED ));
++    msync_coord_lock( fd, F_WRLCK, (off_t)(previous + 3) );
++    return previous + 1;
++}
++
++#define MSYNC_COORD_UL_SHARED 3u
++#define MSYNC_COORD_UL_WAKE_ALL 0x100u
++#define MSYNC_COORD_UL_NO_ERRNO 0x1000000u
++extern int __ulock_wait( uint32_t operation, void *addr, uint64_t value, uint32_t timeout );
++extern int __ulock_wake( uint32_t operation, void *addr, uint64_t value );
++
++static inline void msync_coord_pause(void)
++{
++#ifdef __x86_64__
++    __asm__ volatile( "pause" ::: "memory" );
++#endif
++}
++
++static inline int msync_coord_reclaim( struct msync_coord_guard *guard, uint64_t owner )
++{
++    struct msync_coord_header *header = guard->coord->header;
++    struct flock lease = {0};
++    uint64_t expected = owner;
++    int ret, acquired;
++    if (!owner || owner >= INT64_MAX - 2) msync_coord_fatal( "owner lease" );
++    lease.l_type = F_WRLCK;
++    lease.l_whence = SEEK_SET;
++    lease.l_start = (off_t)(owner + 2);
++    lease.l_len = 1;
++    do ret = fcntl( guard->fd, F_OFD_SETLK, &lease ); while (ret < 0 && errno == EINTR);
++    if (ret < 0)
++    {
++        if (errno == EAGAIN || errno == EACCES) return 0; /* executor still owns its lease */
++        msync_coord_fatal( "owner lease probe" );
++    }
++    acquired = __atomic_compare_exchange_n( &header->owner, &expected, guard->token,
++                                           0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST );
++    msync_coord_lock( guard->fd, F_UNLCK, (off_t)(owner + 2) );
++    return acquired;
++}
++
++static inline void msync_coord_take( struct msync_coord_guard *guard )
++{
++    struct msync_coord_header *header = guard->coord->header;
++    uint64_t expected, owner;
++    uint32_t sequence;
++    unsigned int spin;
++    int ret;
++    if (!guard->token) msync_coord_fatal( "missing lease" );
++    for (;;)
++    {
++        for (spin = 0; spin < 512; ++spin)
++        {
++            expected = __atomic_load_n( &header->owner, __ATOMIC_RELAXED );
++            if (expected)
++            {
++                if (expected == guard->token) msync_coord_fatal( "recursive transaction" );
++                msync_coord_pause();
++                continue;
++            }
++            if (__atomic_compare_exchange_n( &header->owner, &expected, guard->token,
++                                              0, __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST )) return;
++            if (expected == guard->token) msync_coord_fatal( "recursive transaction" );
++            msync_coord_pause();
++        }
++        sequence = __atomic_load_n( &header->wake_sequence, __ATOMIC_SEQ_CST );
++        __atomic_store_n( &header->wait_hint, 1, __ATOMIC_SEQ_CST );
++        owner = __atomic_load_n( &header->owner, __ATOMIC_SEQ_CST );
++        if (owner)
++        {
++            ret = __ulock_wait( MSYNC_COORD_UL_SHARED | MSYNC_COORD_UL_NO_ERRNO,
++                                &header->wake_sequence, sequence, 1000 );
++            if (ret == -ETIMEDOUT && __atomic_load_n( &header->owner, __ATOMIC_SEQ_CST ) == owner &&
++                msync_coord_reclaim( guard, owner ))
++            {
++                return;
++            }
++            if (ret < 0 && ret != -EINTR && ret != -ETIMEDOUT && ret != -EFAULT)
++                msync_coord_fatal( "gate wait" );
++        }
++    }
++}
++
++static inline void msync_coord_give( struct msync_coord_guard *guard )
++{
++    struct msync_coord_header *header = guard->coord->header;
++    uint64_t expected = guard->token;
++    if (!__atomic_compare_exchange_n( &header->owner, &expected, 0, 0,
++                                      __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST ))
++        msync_coord_fatal( "lost gate ownership" );
++    /* Clear the hint BEFORE advancing the sequence. A waiter observes the
++     * sequence before publishing its hint, then rechecks owner; this ordering
++     * cannot strand it behind a late wake from an earlier owner. */
++    if (__atomic_load_n( &header->wait_hint, __ATOMIC_SEQ_CST ) &&
++        __atomic_exchange_n( &header->wait_hint, 0, __ATOMIC_SEQ_CST ))
++    {
++        __atomic_add_fetch( &header->wake_sequence, 1, __ATOMIC_SEQ_CST );
++        __ulock_wake( MSYNC_COORD_UL_SHARED | MSYNC_COORD_UL_WAKE_ALL, &header->wake_sequence, 0 );
++    }
++}
++
+ static inline struct msync_coord_header *msync_coord_map( int fd )
+ {
+     struct msync_coord_header *header;
++    struct stat st;
++    if (fstat( fd, &st ) || !S_ISREG(st.st_mode) || st.st_uid != geteuid() ||
++        (st.st_mode & 0777) != 0600 || st.st_size != MSYNC_COORD_SIZE) msync_coord_fatal( "map identity" );
+     header = mmap( NULL, MSYNC_COORD_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0 );
+     if (header == MAP_FAILED) msync_coord_fatal( "mmap" );
+     if (header->magic != MSYNC_COORD_MAGIC) msync_coord_fatal( "layout version" );
+@@ -137,17 +280,17 @@
+ 
+ static inline void msync_coord_leave( struct msync_coord_guard *guard )
+ {
+-    msync_coord_lock( guard->fd, F_UNLCK, 1 );
++    msync_coord_give( guard );
+     if (guard->coord->set_active) guard->coord->set_active( 0 );
+-    if (pthread_sigmask( SIG_SETMASK, &guard->signals, NULL )) msync_coord_fatal( "restore signals" );
+-    if (pthread_setcancelstate( guard->cancel_state, NULL )) msync_coord_fatal( "restore cancellation" );
++    if (guard->cancel_state != -1 && pthread_setcancelstate( guard->cancel_state, NULL ))
++        msync_coord_fatal( "restore cancellation" );
+ }
+ 
+ /* Return with the gate held and no incomplete transaction. A crashed committer
+  * leaves either no writes, or one decision that every subsequent caller helps
+  * finish. Mapping and BLOCKING wake delivery occur outside the OFD gate. */
+-static inline void msync_coord_enter( struct msync_coord *coord, int fd, const sigset_t *mask,
+-                               struct msync_coord_guard *guard )
++static inline void msync_coord_enter( struct msync_coord *coord, int fd, uint64_t token,
++                                     struct msync_coord_guard *guard )
+ {
+     struct msync_coord_header *header = coord->header;
+     struct msync_coord_entry pending[MSYNC_COORD_ENTRIES];
+@@ -155,18 +298,17 @@
+     unsigned int i, count, state;
+     void *slots[MSYNC_COORD_ENTRIES];
+     int missing;
+-    sigset_t blocked;
+-
+-    msync_coord_signal_mask( &blocked, mask );
+     for (;;)
+     {
+         guard->fd = fd;
+         guard->coord = coord;
+-        if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &guard->cancel_state ) ||
+-            pthread_sigmask( SIG_BLOCK, &blocked, &guard->signals )) msync_coord_fatal( "mask" );
++        guard->cancel_state = -1;
++        if (!coord->cancellation_managed && pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &guard->cancel_state ))
++            msync_coord_fatal( "cancel guard" );
+         if (coord->set_active) coord->set_active( 1 );
+         guard->fd = coord->get_fd ? coord->get_fd() : fd;
+-        msync_coord_lock( guard->fd, F_WRLCK, 1 );
++        guard->token = coord->get_token ? coord->get_token() : token;
++        msync_coord_take( guard );
+         state = __atomic_load_n( &header->state, __ATOMIC_ACQUIRE );
+         if (state == MSYNC_COORD_PREPARING)
+             __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
+@@ -202,11 +344,13 @@
+             for (i = 0; i < count; ++i)
+                 if (pending[i].notify) coord->notify( pending[i].idx, slots[i], 1 );
+             /* Never apply an old snapshot after reacquiring the gate. */
+-            if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &guard->cancel_state ) ||
+-                pthread_sigmask( SIG_BLOCK, &blocked, &guard->signals )) msync_coord_fatal( "mask" );
++            guard->cancel_state = -1;
++            if (!coord->cancellation_managed && pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &guard->cancel_state ))
++                msync_coord_fatal( "cancel guard" );
+             if (coord->set_active) coord->set_active( 1 );
+             guard->fd = coord->get_fd ? coord->get_fd() : fd;
+-            msync_coord_lock( guard->fd, F_WRLCK, 1 );
++            guard->token = coord->get_token ? coord->get_token() : token;
++            msync_coord_take( guard );
+             if (header->sequence == sequence && header->state == MSYNC_COORD_APPLIED)
+                 __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
+             msync_coord_leave( guard );
+@@ -222,10 +366,21 @@
+                                 unsigned int count )
+ {
+     struct msync_coord_header *header = coord->header;
+-    unsigned int i;
++    unsigned int i, actual = 0;
++    struct msync_coord_entry changes[MSYNC_COORD_ENTRIES];
+     if (!count) return;
+     if (count > MSYNC_COORD_ENTRIES || header->state != MSYNC_COORD_CLEAN || header->sequence == UINT64_MAX)
+         msync_coord_fatal( "commit bounds" );
++    for (i = 0; i < count; ++i)
++    {
++        void *shm = coord->slot( entries[i].idx, 0 );
++        if (!shm) msync_coord_fatal( "unmapped preparation" );
++        if (entries[i].notify || __atomic_load_n( (uint64_t *)shm, __ATOMIC_ACQUIRE ) != entries[i].value)
++            changes[actual++] = entries[i];
++    }
++    if (!actual) return;
++    entries = changes;
++    count = actual;
+     __atomic_store_n( &header->state, MSYNC_COORD_PREPARING, __ATOMIC_RELEASE );
+     ++header->sequence;
+     header->count = count;
+diff --git a/server/msync.c b/server/msync.c
+--- a/server/msync.c
++++ b/server/msync.c
+@@ -27,6 +27,7 @@
+ #include <errno.h>
+ #include <fcntl.h>
+ #include <limits.h>
++#include <stddef.h>
+ #include <stdio.h>
+ #include <stdarg.h>
+ #include <sys/mman.h>
+@@ -34,6 +35,7 @@
+ # include <sys/stat.h>
+ #endif
+ #include <mach/mach_init.h>
++#include <mach/mach.h>
+ #include <mach/mach_port.h>
+ #include <mach/mach_vm.h>
+ #include <mach/vm_page_size.h>
+@@ -147,11 +149,14 @@
+ }
+ 
+ static mach_port_name_t receive_port;
++static struct msync_coord coord;
++static int stats_enabled;
+ 
+ struct tid_node
+ {
+     struct tid_node *next;
+-    int tid;
++    uint64_t epoch;
++    unsigned int tid;
+ };
+ 
+ #define MAX_POOL_NODES 0x80000
+@@ -164,6 +169,50 @@
+ };
+ 
+ static struct node_memory_pool *pool;
++
++static struct msync_coord_statistics *msync_statistics(void)
++{
++    return (struct msync_coord_statistics *)((char *)coord.header + MSYNC_STATS_OFFSET);
++}
++
++/* Single writer: the Mach pump. A seqlock permits coherent read-only native
++ * observations without adding logging, RPCs, or a gate to the pump. */
++static inline void pool_statistics( int allocation, int fallback )
++{
++    struct msync_coord_statistics *stats;
++    uint64_t current;
++    if (!stats_enabled) return;
++    stats = msync_statistics();
++    __atomic_add_fetch( &stats->sequence, 1, __ATOMIC_SEQ_CST );
++    current = __atomic_load_n( &stats->current, __ATOMIC_RELAXED );
++    if (allocation)
++    {
++        __atomic_add_fetch( &stats->allocations, 1, __ATOMIC_RELAXED );
++        ++current;
++        if (fallback)
++        {
++            __atomic_add_fetch( &stats->fallback_total, 1, __ATOMIC_RELAXED );
++            __atomic_add_fetch( &stats->fallback_current, 1, __ATOMIC_RELAXED );
++        }
++    }
++    else
++    {
++        if (!current) msync_coord_fatal( "wait node statistics underflow" );
++        __atomic_add_fetch( &stats->frees, 1, __ATOMIC_RELAXED );
++        --current;
++        if (fallback)
++        {
++            if (!__atomic_load_n( &stats->fallback_current, __ATOMIC_RELAXED ))
++                msync_coord_fatal( "fallback statistics underflow" );
++            __atomic_sub_fetch( &stats->fallback_current, 1, __ATOMIC_RELAXED );
++        }
++    }
++    __atomic_store_n( &stats->current, current, __ATOMIC_RELAXED );
++    if (current > __atomic_load_n( &stats->peak, __ATOMIC_RELAXED ))
++        __atomic_store_n( &stats->peak, current, __ATOMIC_RELAXED );
++    __atomic_store_n( &stats->pool_free, pool->count, __ATOMIC_RELAXED );
++    __atomic_add_fetch( &stats->sequence, 1, __ATOMIC_RELEASE );
++}
+ 
+ static void pool_init(void)
+ {
+@@ -178,6 +227,14 @@
+ 
+     for (i = 0; i < MAX_POOL_NODES; i++)
+         pool->free_nodes[i] = &pool->nodes[i];
++    if (stats_enabled)
++    {
++        struct msync_coord_statistics *stats = msync_statistics();
++        stats->magic = MSYNC_STATS_MAGIC;
++        stats->pool_free = stats->capacity = MAX_POOL_NODES;
++        stats->producer_pid = getpid();
++        __atomic_store_n( &stats->enabled, 1, __ATOMIC_RELEASE );
++    }
+ }
+ 
+ static inline struct tid_node *pool_alloc(void)
+@@ -188,19 +245,26 @@
+         fprintf( stderr, "msync: warn: node memory pool exhausted\n" );
+         node = malloc( sizeof(*node) );
+         if (!node) fatal_error( "msync: cannot register waiter: out of memory\n" );
++        pool_statistics( 1, 1 );
+         return node;
+     }
+-    return pool->free_nodes[--pool->count];
++    node = pool->free_nodes[--pool->count];
++    pool_statistics( 1, 0 );
++    return node;
+ }
+ 
+ static inline void pool_free( struct tid_node *node )
+ {
+-    if (node < pool->nodes || node >= pool->nodes + MAX_POOL_NODES)
++    if ((uintptr_t)node < (uintptr_t)pool->nodes ||
++        (uintptr_t)node >= (uintptr_t)(pool->nodes + MAX_POOL_NODES))
+     {
+         free(node);
++        pool_statistics( 0, 1 );
+         return;
+     }
++    if (pool->count == MAX_POOL_NODES) msync_coord_fatal( "duplicate wait node return" );
+     pool->free_nodes[pool->count++] = node;
++    pool_statistics( 0, 0 );
+ }
+ 
+ struct tid_list
+@@ -212,6 +276,62 @@
+ static size_t tid_map_size;
+ static int *shm_tid_map;
+ static const mach_vm_size_t shm_tid_size = 64 * 1024 * 1024; /* 64 MB to index 24 bit tids */
++static long pagesize;
++static void *get_shm( unsigned int idx );
++
++/* shm layout for msync objects. */
++struct msync_shm
++{
++    int low;
++    int high;
++    unsigned short msync_type;
++    unsigned short refcount;
++    int multiple_waiters;
++};
++
++C_ASSERT( sizeof(struct msync_shm) == 16 );
++
++#define MSYNC_MSG_INDEX_MASK 0x0fffffffu
++#define MSYNC_MSG_MUTEX (1u << 28)
++#define MSYNC_MSG_UNREGISTER (1u << 29)
++
++static inline int valid_wait_tid( unsigned int tid )
++{
++    return tid && tid < MSYNC_COORD_TIDS && tid < shm_tid_size / sizeof(*shm_tid_map);
++}
++
++static inline int valid_wait_epoch( uint64_t epoch )
++{
++    return epoch && !(epoch & 1);
++}
++
++static inline int live_wait_epoch( unsigned int tid, uint64_t epoch )
++{
++    return valid_wait_tid( tid ) && valid_wait_epoch( epoch ) &&
++           __atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) == epoch;
++}
++
++/* Only the pump changes hints for a live slot. Each linked node owns one
++ * reference; registration temporarily owns one before its readiness check. */
++static inline void add_wait_hint( struct msync_shm *obj )
++{
++    int previous = __atomic_fetch_add( &obj->multiple_waiters, 1, __ATOMIC_SEQ_CST );
++    if (previous < 0 || previous == INT_MAX) msync_coord_fatal( "wait hint overflow" );
++}
++
++static inline void remove_wait_hint( struct msync_shm *obj )
++{
++    if (__atomic_fetch_sub( &obj->multiple_waiters, 1, __ATOMIC_SEQ_CST ) <= 0)
++        msync_coord_fatal( "wait hint underflow" );
++}
++
++static inline void free_tid_node( unsigned int shm_idx, struct tid_node *node )
++{
++    struct msync_shm *obj = get_shm( shm_idx );
++    if (!obj) msync_coord_fatal( "wait node shared slot" );
++    remove_wait_hint( obj );
++    pool_free( node );
++}
+ 
+ /* This function should only be called from get_tid_list() */
+ static void grow_tid_map( unsigned int shm_idx )
+@@ -233,33 +353,38 @@
+     return tid_map + shm_idx;
+ }
+ 
+-static inline void add_tid( unsigned int shm_idx, int tid )
++static inline void add_tid( unsigned int shm_idx, unsigned int tid, uint64_t epoch )
+ {
+     struct tid_node *new_node;
+     struct tid_list *list = get_tid_list( shm_idx );
+ 
+     new_node = pool_alloc();
+     new_node->tid = tid;
++    new_node->epoch = epoch;
+ 
+     new_node->next = list->head;
+     list->head = new_node;
+ }
+ 
+-static inline void remove_tid( unsigned int shm_idx, int tid )
++static inline void remove_tid( unsigned int shm_idx, unsigned int tid, uint64_t epoch )
+ {
+     struct tid_node *current, *prev = NULL;
+-    struct tid_list *list = get_tid_list( shm_idx );
++    struct tid_list *list;
++
++    /* A late unregister must not allocate a map or touch another incarnation. */
++    if (shm_idx >= tid_map_size) return;
++    list = tid_map + shm_idx;
+ 
+     current = list->head;
+     while (current != NULL)
+     {
+-        if (current->tid == tid)
++        if (current->tid == tid && current->epoch == epoch)
+         {
+             if (prev == NULL)
+                 list->head = current->next;
+             else
+                 prev->next = current->next;
+-            pool_free(current);
++            free_tid_node( shm_idx, current );
+             break;
+         }
+         prev = current;
+@@ -267,15 +392,27 @@
+     }
+ }
+ 
+-static long pagesize;
+-static void *get_shm( unsigned int idx );
+-
+ typedef struct
+ {
+     mach_msg_header_t header;
+-    unsigned int shm_idx[MAXIMUM_WAIT_OBJECTS + 1];
++    uint64_t epoch;
++    uint32_t shm_idx[MAXIMUM_WAIT_OBJECTS + 1];
+     mach_msg_trailer_t trailer;
+ } mach_register_message_t;
++
++typedef struct
++{
++    mach_msg_header_t header;
++    uint64_t epoch;
++    uint32_t tid;
++    uint32_t padding;
++} mach_retire_message_t;
++
++C_ASSERT( MAXIMUM_WAIT_OBJECTS == 64 );
++C_ASSERT( offsetof(mach_register_message_t, epoch) == 24 );
++C_ASSERT( offsetof(mach_register_message_t, shm_idx) == 32 );
++C_ASSERT( offsetof(mach_retire_message_t, tid) == 32 );
++C_ASSERT( sizeof(mach_retire_message_t) == 40 );
+ 
+ typedef struct
+ {
+@@ -283,6 +420,8 @@
+     int entry;
+     mach_msg_trailer_t trailer;
+ } mach_map_message_t;
++
++C_ASSERT( offsetof(mach_map_message_t, trailer) == 28 );
+ 
+ typedef struct
+ {
+@@ -340,18 +479,20 @@
+     if (entry_port != MACH_PORT_NULL) mach_port_deallocate( mach_task_self(), entry_port );
+ }
+ 
+-static inline void unregister_wait( mach_register_message_t *message, unsigned int tid, unsigned int count )
+-{
+-    int i;
++static inline void unregister_wait( const mach_register_message_t *message, unsigned int tid, unsigned int count )
++{
++    unsigned int i;
+ 
+     for (i = 0; i < count; i++)
+-        remove_tid( message->shm_idx[i], tid );
+-}
+-
+-static inline void wake_tid( int tid )
+-{
+-    int *shm = shm_tid_map + tid;
+-
++        remove_tid( message->shm_idx[i] & MSYNC_MSG_INDEX_MASK, tid, message->epoch );
++}
++
++static inline void wake_tid( unsigned int tid, uint64_t epoch )
++{
++    int *shm;
++
++    if (!live_wait_epoch( tid, epoch )) return;
++    shm = shm_tid_map + tid;
+     __atomic_store_n( shm, 0, __ATOMIC_RELEASE );
+     __ulock_wake( UL_COMPARE_AND_WAIT_SHARED, (void *)shm, 0 );
+ }
+@@ -359,31 +500,42 @@
+ static inline void signal_all_internal( unsigned int shm_idx )
+ {
+     struct tid_node *current, *temp;
+-    struct tid_list *list = get_tid_list( shm_idx );
++    struct tid_list *list;
++
++    if (shm_idx >= tid_map_size) return;
++    list = tid_map + shm_idx;
+ 
+     current = list->head;
+     list->head = NULL;
+ 
+     while (current)
+     {
+-        wake_tid( current->tid );
++        wake_tid( current->tid, current->epoch );
+         temp = current;
+         current = current->next;
+-        pool_free(temp);
+-    }
+-}
+-
+-/* shm layout for msync objects. */
+-struct msync_shm
+-{
+-    int low;
+-    int high;
+-    unsigned short msync_type;
+-    unsigned short refcount;
+-    int multiple_waiters;
+-};
+-
+-C_ASSERT( sizeof(struct msync_shm) == 16 );
++        free_tid_node( shm_idx, temp );
++    }
++}
++
++static void retire_waits( unsigned int tid, uint64_t epoch )
++{
++    size_t idx;
++    for (idx = 0; idx < tid_map_size; ++idx)
++    {
++        struct tid_node **link = &tid_map[idx].head;
++        while (*link)
++        {
++            struct tid_node *node = *link;
++            if (node->tid != tid || node->epoch != epoch)
++            {
++                link = &node->next;
++                continue;
++            }
++            *link = node->next;
++            free_tid_node( (unsigned int)idx, node );
++        }
++    }
++}
+ 
+ static unsigned int last_allocated_idx = 1;
+ static unsigned int last_destroyed_idx = UINT32_MAX;
+@@ -402,6 +554,10 @@
+         return;
+     }
+ 
++    /* The allocator may reset the slot immediately after the last decrement.
++     * Drain while this reference still prevents reuse, including dead waiters.
++     * A concurrent new reference can make these wakes spurious, which is safe. */
++    if (refcount == 1) signal_all_internal( shm_idx );
+     refcount = __atomic_sub_fetch( &obj->refcount, 1, __ATOMIC_SEQ_CST );
+ 
+     if (!refcount) __atomic_store_n( &last_destroyed_idx, shm_idx, __ATOMIC_RELEASE );
+@@ -423,6 +579,24 @@
+                 0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, 0);
+ }
+ 
++static void enqueue_retire_waits( unsigned int tid, uint64_t epoch )
++{
++    mach_retire_message_t message = {0};
++    /* fetch_or(odd) returns an even epoch only to the first retirement path. */
++    if (!valid_wait_epoch( epoch )) return;
++    message.header.msgh_bits = MACH_MSGH_BITS_REMOTE(MACH_MSG_TYPE_COPY_SEND);
++    message.header.msgh_id = 0;
++    message.header.msgh_size = sizeof(message);
++    message.header.msgh_remote_port = receive_port;
++    message.epoch = epoch;
++    message.tid = tid;
++    /* This may wait for queue space; callers must have released the gate. The
++     * pump never enters the coordinator or calls the main-thread object code. */
++    if (mach_msg2( &message.header, MACH_SEND_MSG, message.header.msgh_size,
++                   0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, 0 ) != MACH_MSG_SUCCESS)
++        msync_coord_fatal( "wait retirement delivery" );
++}
++
+ static inline mach_msg_return_t signal_all( unsigned int shm_idx, int *shm, int blocking )
+ {
+     mach_msg_header_t send_header = {0};
+@@ -453,17 +627,33 @@
+     *count = msgh_id & 0xFF;
+ }
+ 
+-static inline unsigned int check_bit( const unsigned int bit, unsigned int *shm_idx )
+-{
+-    unsigned int bit_val = (*shm_idx >> bit) & 1;
+-    *shm_idx &= ~(1u << bit);
+-    return bit_val;
++static int valid_wait_message( const mach_register_message_t *message, unsigned int *tid,
++                               unsigned int *count, int *unregister )
++{
++    unsigned int i, flags;
++
++    decode_msgh_id( (unsigned int)message->header.msgh_id, tid, count );
++    if (!valid_wait_tid( *tid ) || !valid_wait_epoch( message->epoch ) ||
++        !*count || *count > MAXIMUM_WAIT_OBJECTS + 1 ||
++        message->header.msgh_size != offsetof(mach_register_message_t, shm_idx) +
++                                     *count * sizeof(message->shm_idx[0])) return 0;
++    *unregister = !!(message->shm_idx[0] & MSYNC_MSG_UNREGISTER);
++    flags = MSYNC_MSG_MUTEX | (*unregister ? MSYNC_MSG_UNREGISTER : 0);
++    /* Validate the whole message before changing a list or hint. Unregister
++     * accepts and strips both flags on EVERY index, including duplicate objs. */
++    for (i = 0; i < *count; ++i)
++    {
++        unsigned int idx = message->shm_idx[i] & MSYNC_MSG_INDEX_MASK;
++        if (!idx || idx > MSYNC_MAX_SHM_INDEX ||
++            (message->shm_idx[i] & ~(MSYNC_MSG_INDEX_MASK | flags))) return 0;
++    }
++    return 1;
+ }
+ 
+ static void *mach_message_pump( void *args )
+ {
+-    int i, val;
+-    unsigned int tid, count, is_mutex;
++    int val, unregister;
++    unsigned int i, tid, count, is_mutex, idx;
+     struct msync_shm *obj;
+     mach_msg_return_t mr;
+     mach_register_message_t receive_message = { 0 };
+@@ -481,59 +671,103 @@
+             continue;
+         }
+ 
+-        /*
+-         * A complex mach message, where the client expects a reply,
+-         * is a send back a mach memory entry request.
+-         */
++        /* All requests are simple messages. Dispose of unexpected rights as
++         * well as the reply right of a malformed map request. */
++        if (receive_message.header.msgh_size < sizeof(mach_msg_header_t) ||
++            receive_message.header.msgh_size > offsetof(mach_register_message_t, trailer) ||
++            (receive_message.header.msgh_bits & MACH_MSGH_BITS_COMPLEX))
++        {
++            mach_msg_destroy( &receive_message.header );
++            continue;
++        }
++
++        /* Map requests retain the old 28-byte body and carry a reply right. */
+         if (receive_message.header.msgh_remote_port != MACH_PORT_NULL)
+         {
++            if (receive_message.header.msgh_size != offsetof(mach_map_message_t, trailer) ||
++                (receive_message.header.msgh_id != 0 && receive_message.header.msgh_id != 1))
++            {
++                mach_msg_destroy( &receive_message.header );
++                continue;
++            }
+             send_shm_to_client( (mach_map_message_t *)&receive_message );
+             continue;
+         }
+ 
+-        /*
+-         * A message with no body is a signal_all or destroy_all operation where the shm_idx
+-         * is the msgh_id and the type of operation is decided by the 29th bit.
+-         * (The shared memory index is only a 28-bit integer at max)
+-         * See signal_all( unsigned int shm_idx ) and destroy_all( unsigned int shm_idx )above.
+-         */
++        /* Header-only signal/destroy messages keep their existing ABI: bit 28
++         * marks destroy, and the remaining low 28 bits identify the slot. */
+         if (receive_message.header.msgh_size == sizeof(mach_msg_header_t))
+         {
+-            if (check_bit( 28, (unsigned int *)&receive_message.header.msgh_id ))
+-                destroy_all_internal( receive_message.header.msgh_id );
++            unsigned int id = (unsigned int)receive_message.header.msgh_id;
++            idx = id & MSYNC_MSG_INDEX_MASK;
++            if (!idx || idx > MSYNC_MAX_SHM_INDEX ||
++                (id & ~(MSYNC_MSG_INDEX_MASK | MSYNC_MSG_MUTEX))) continue;
++            if (id & MSYNC_MSG_MUTEX)
++                destroy_all_internal( idx );
+             else
+-                signal_all_internal( receive_message.header.msgh_id );
++                signal_all_internal( idx );
+             continue;
+         }
+ 
+-        /*
+-         * Finally server_register_wait and server_unregister_wait
+-         */
+-        decode_msgh_id( receive_message.header.msgh_id, &tid, &count );
++        /* Main-thread retirement is queued only after the epoch becomes odd
++         * and the coordinator is released. Late old registrations are rejected
++         * below; old unregisters can still remove their own incarnation. */
++        if (!receive_message.header.msgh_id)
++        {
++            const mach_retire_message_t *message = (const mach_retire_message_t *)&receive_message;
++            if (message->header.msgh_size == sizeof(*message) && valid_wait_tid( message->tid ) &&
++                valid_wait_epoch( message->epoch ) && !live_wait_epoch( message->tid, message->epoch ))
++                retire_waits( message->tid, message->epoch );
++            continue;
++        }
++
++        if (receive_message.header.msgh_size < offsetof(mach_register_message_t, shm_idx) ||
++            !valid_wait_message( &receive_message, &tid, &count, &unregister )) continue;
++        if (unregister)
++        {
++            unregister_wait( &receive_message, tid, count );
++            continue;
++        }
++        if (!live_wait_epoch( tid, receive_message.epoch )) continue;
++
+         for (i = 0; i < count; i++)
+         {
+-            if (i == 0 && check_bit( 29, receive_message.shm_idx + i ))
++            if (!live_wait_epoch( tid, receive_message.epoch ))
+             {
+-                unregister_wait( &receive_message, tid, count );
++                unregister_wait( &receive_message, tid, i );
+                 break;
+             }
+-            is_mutex = check_bit( 28, receive_message.shm_idx + i );
+-            obj = get_shm( receive_message.shm_idx[i] );
+-            if (!obj) fatal_error( "msync: invalid waiter shared slot\n" );
++            idx = receive_message.shm_idx[i] & MSYNC_MSG_INDEX_MASK;
++            is_mutex = !!(receive_message.shm_idx[i] & MSYNC_MSG_MUTEX);
++            obj = get_shm( idx );
++            /* A stale message cannot acquire a hint after the final drain. */
++            if (!obj || !__atomic_load_n( &obj->refcount, __ATOMIC_SEQ_CST ))
++            {
++                unregister_wait( &receive_message, tid, i );
++                wake_tid( tid, receive_message.epoch );
++                break;
++            }
++            add_wait_hint( obj );
+             val = __atomic_load_n( &obj->low, __ATOMIC_SEQ_CST );
+             if ((is_mutex && (val == 0 || val == ~0 ||
+-                              (val == tid && (unsigned int)__atomic_load_n( &obj->high, __ATOMIC_ACQUIRE ) != UINT_MAX))) ||
++                              ((unsigned int)val == tid &&
++                               (unsigned int)__atomic_load_n( &obj->high, __ATOMIC_ACQUIRE ) != UINT_MAX))) ||
+                 (!is_mutex && val != 0))
+             {
+-                if (i > 0) unregister_wait( &receive_message, tid, i );
+-                wake_tid( tid );
++                remove_wait_hint( obj ); /* current object never acquired a node */
++                unregister_wait( &receive_message, tid, i );
++                wake_tid( tid, receive_message.epoch );
+                 break;
+             }
+-            add_tid( receive_message.shm_idx[i], tid );
++            add_tid( idx, tid, receive_message.epoch );
+             if (i == count - 1)
+             {
+-                /* The client can stop spinning and safely start waiting now */
+-                __atomic_store_n( shm_tid_map + tid, 1, __ATOMIC_RELEASE );
++                /* Only acknowledge the live incarnation. No gate is needed:
++                 * retirement is idempotent and the pump owns every node. */
++                if (live_wait_epoch( tid, receive_message.epoch ))
++                    __atomic_store_n( shm_tid_map + tid, 1, __ATOMIC_RELEASE );
++                else
++                    unregister_wait( &receive_message, tid, count );
+             }
+         }
+     }
+@@ -614,8 +848,8 @@
+ }
+ 
+ static int coord_identity_fd = -1;
+-static struct msync_coord coord;
+ static __thread int coord_thread_fd = -1;
++static __thread uint64_t coord_thread_token;
+ 
+ static void *coord_slot( unsigned int idx, int map )
+ {
+@@ -638,13 +872,18 @@
+ 
+ static int coord_fd(void)
+ {
+-    if (coord_thread_fd < 0) coord_thread_fd = msync_coord_open( coord_identity_fd );
++    if (coord_thread_fd < 0)
++    {
++        coord_thread_fd = msync_coord_open( coord_identity_fd );
++        coord_thread_token = msync_coord_new_lease( &coord, coord_thread_fd );
++    }
+     return coord_thread_fd;
+ }
+ 
+ static void coord_enter( struct msync_coord_guard *guard )
+ {
+-    msync_coord_enter( &coord, coord_fd(), NULL, guard );
++    int fd = coord_fd();
++    msync_coord_enter( &coord, fd, coord_thread_token, guard );
+ }
+ 
+ static void coord_finish( struct msync_coord_guard *guard )
+@@ -729,11 +968,13 @@
+ void msync_retire_thread( thread_id_t tid )
+ {
+     struct msync_coord_guard guard;
++    uint64_t epoch;
+     if (!do_msync() || !tid) return;
+     if (tid >= MSYNC_COORD_TIDS) msync_coord_fatal( "thread index" );
+     coord_enter( &guard );
+-    __atomic_fetch_or( &msync_coord_epochs( &coord )[tid], 1, __ATOMIC_RELEASE );
++    epoch = __atomic_fetch_or( &msync_coord_epochs( &coord )[tid], 1, __ATOMIC_RELEASE );
+     msync_coord_leave( &guard );
++    enqueue_retire_waits( tid, epoch );
+ }
+ 
+ void msync_init(void)
+@@ -783,6 +1024,7 @@
+ 
+     mach_port_deallocate( mach_task_self(), bootstrap_port );
+ 
++    stats_enabled = getenv("WINEMSYNC_STATS") && atoi(getenv("WINEMSYNC_STATS"));
+     pool_init();
+ 
+     if (pthread_create( &message_thread, NULL, mach_message_pump, NULL ))
+@@ -949,12 +1191,14 @@
+     struct msync_coord_entry entries[MSYNC_COORD_ENTRIES];
+     struct msync *msync;
+     unsigned int count = 0;
+-
++    uint64_t epoch;
++
++    if (!do_msync() || !tid) return;
+     coord_enter( &guard );
+     if (tid >= MSYNC_COORD_TIDS) msync_coord_fatal( "thread index" );
+     /* EX acquisition recovers old commits before fencing this incarnation.
+      * A blocked/suspended client cannot write after the epoch is retired. */
+-    __atomic_fetch_or( &msync_coord_epochs( &coord )[tid], 1, __ATOMIC_RELEASE );
++    epoch = __atomic_fetch_or( &msync_coord_epochs( &coord )[tid], 1, __ATOMIC_RELEASE );
+     LIST_FOR_EACH_ENTRY( msync, &mutex_list, struct msync, mutex_entry )
+     {
+         struct mutex *mutex = get_shm( msync->shm_idx );
+@@ -971,6 +1215,7 @@
+     }
+     msync_coord_commit( &coord, entries, count );
+     coord_finish( &guard );
++    enqueue_retire_waits( tid, epoch );
+ }
+ 
+ int msync_grab_object( struct msync *msync )
+diff --git a/dlls/ntdll/unix/msync.c b/dlls/ntdll/unix/msync.c
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -206,102 +206,100 @@
+ typedef struct
+ {
+     mach_msg_header_t header;
++    uint64_t epoch;
+     unsigned int shm_idx[MAXIMUM_WAIT_OBJECTS + 1];
+ } mach_register_message_t;
+ 
++struct msync_wait_registration
++{
++    struct msync_wait_registration *prev;
++    mach_register_message_t message;
++};
++static __thread struct msync_wait_registration *wait_registrations;
++/* Wine already owns a native per-thread record. Avoid separate Mach-O TLV
++ * resolver calls for hot state; the descriptor destructor retains its own TLS
++ * record and never depends on thread_data key destruction order. */
++#define coord_thread_epoch (get_thread_data()->msync_epoch)
++#define coord_exiting (get_thread_data()->msync_exiting)
+ static mach_port_t server_port;
+-
+ static int *shm_tid_map;
+-
+ static const mach_msg_bits_t msgh_bits_send = MACH_MSGH_BITS_REMOTE(MACH_MSG_TYPE_COPY_SEND);
+ 
+-static inline mach_msg_return_t server_register_wait( unsigned int msgh_id, const int *objs,
+-                                void **objs_shm, int alert_obj, void *alert_obj_shm, int count )
+-{
+-    int i, is_mutex;
++static void msync_replay_controls(void)
++{
++    struct thread_data *data = get_thread_data();
++    unsigned int pending;
++    if (coord_exiting || data->msync_in_transaction || data->msync_control_depth ||
++        !__atomic_load_n( &data->msync_pending_signals, __ATOMIC_RELAXED )) return;
++    pending = __atomic_exchange_n( &data->msync_pending_signals, 0, __ATOMIC_SEQ_CST );
++    if (pending & (1u << SIGQUIT)) pthread_kill( pthread_self(), SIGQUIT );
++    if (pending & (1u << SIGUSR1)) pthread_kill( pthread_self(), SIGUSR1 );
++    if (pending & (1u << SIGABRT)) pthread_kill( pthread_self(), SIGABRT );
++    if (pending & (1u << SIGINT)) pthread_kill( pthread_self(), SIGINT );
++}
++
++/* Only short publication/release regions defer Wine control signals. Blocking
++ * waits and Mach map exchanges remain interruptible. No kernel signal-mask
++ * operation is needed on the hot path. */
++void msync_control_begin(void)
++{
++    struct thread_data *data = get_thread_data();
++    __atomic_add_fetch( &data->msync_control_depth, 1, __ATOMIC_RELAXED );
++    __atomic_signal_fence( __ATOMIC_SEQ_CST );
++}
++
++void msync_control_end(void)
++{
++    struct thread_data *data = get_thread_data();
++    __atomic_signal_fence( __ATOMIC_SEQ_CST );
++    if (!__atomic_sub_fetch( &data->msync_control_depth, 1, __ATOMIC_RELAXED ))
++    {
++        msync_replay_controls();
++    }
++}
++
++void msync_begin_thread_exit(void)
++{
++    coord_exiting = 1;
++    if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, NULL )) msync_coord_fatal( "exit cancellation" );
++}
++
++static void server_remove_wait( struct msync_wait_registration *registration )
++{
+     mach_msg_return_t mr;
+-    __thread static mach_register_message_t message;
+-
+-    message.header.msgh_remote_port = server_port;
+-    message.header.msgh_bits = msgh_bits_send;
+-    message.header.msgh_id = msgh_id;
+-
++    msync_control_begin();
++    if (wait_registrations != registration) msync_coord_fatal( "wait registration stack" );
++    registration->message.shm_idx[0] |= 1u << 29;
++    mr = mach_msg2( &registration->message.header, MACH_SEND_MSG | MACH_SEND_TIMEOUT,
++                   registration->message.header.msgh_size, 0, MACH_PORT_NULL, 1000, 0 );
++    if (mr != MACH_MSG_SUCCESS) msync_coord_fatal( "wait unregister delivery" );
++    wait_registrations = registration->prev;
++    msync_control_end();
++}
++
++static void server_register_wait( struct msync_wait_registration *registration,
++                                 unsigned int msgh_id, const int *objs, void **objs_shm,
++                                 int alert_obj, int count )
++{
++    mach_msg_return_t mr;
++    unsigned int i;
++    msync_control_begin();
++    memset( registration, 0, sizeof(*registration) );
++    registration->message.header.msgh_remote_port = server_port;
++    registration->message.header.msgh_bits = msgh_bits_send;
++    registration->message.header.msgh_id = msgh_id;
++    registration->message.epoch = coord_thread_epoch;
+     for (i = 0; i < count; i++)
+-    {
+-        struct event *obj = (struct event *)objs_shm[i];
+-
+-        is_mutex = obj->msync_type == MSYNC_MUTEX ? 1 : 0;
+-        message.shm_idx[i] = objs[i]| (is_mutex << 28);
+-        __atomic_add_fetch( &obj->multiple_waiters, 1, __ATOMIC_SEQ_CST);
+-    }
+-
+-    if (alert_obj)
+-    {
+-        struct event *obj = (struct event *)alert_obj_shm;
+-
+-        message.shm_idx[count++] = alert_obj;
+-        __atomic_add_fetch( &obj->multiple_waiters, 1, __ATOMIC_SEQ_CST);
+-    }
+-
+-    message.header.msgh_size = sizeof(mach_msg_header_t) +
+-                               count * sizeof(unsigned int);
+-
+-    mr = mach_msg2( (mach_msg_header_t *)&message, MACH_SEND_MSG, message.header.msgh_size,
+-                     0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, 0 );
+-
+-    if (mr != MACH_MSG_SUCCESS)
+-    {
+-        for (i = 0; i < count - (alert_obj ? 1 : 0); i++)
+-            __atomic_sub_fetch( &((struct event *)objs_shm[i])->multiple_waiters, 1, __ATOMIC_SEQ_CST );
+-        if (alert_obj)
+-            __atomic_sub_fetch( &((struct event *)alert_obj_shm)->multiple_waiters, 1, __ATOMIC_SEQ_CST );
+-        ERR("Failed to send server register wait: %#x\n", mr);
+-    }
+-
+-    return mr;
+-}
+-
+-static inline void server_remove_wait( unsigned int msgh_id, const int *objs, void **objs_shm,
+-                                       int alert_obj, void *alert_obj_shm, int count )
+-{
+-    int i;
+-    mach_msg_return_t mr;
+-    __thread static mach_register_message_t message;
+-
+-    message.header.msgh_remote_port = server_port;
+-    message.header.msgh_bits = msgh_bits_send;
+-    message.header.msgh_id = msgh_id;
+-
+-    for (i = 0; i < count; i++)
+-    {
+-        struct event *obj = (struct event *)objs_shm[i];
+-
+-        int refs = __atomic_sub_fetch( &obj->multiple_waiters, 1, __ATOMIC_SEQ_CST);
+-        if (refs < 0)
+-            __atomic_store_n( &obj->multiple_waiters, 0, __ATOMIC_SEQ_CST);
+-        message.shm_idx[i] = objs[i];
+-    }
+-
+-    if (alert_obj)
+-    {
+-        struct event *obj = (struct event *)alert_obj_shm;
+-
+-        int refs = __atomic_sub_fetch( &obj->multiple_waiters, 1, __ATOMIC_SEQ_CST);
+-        if (refs < 0)
+-            __atomic_store_n( &obj->multiple_waiters, 0, __ATOMIC_SEQ_CST);
+-        message.shm_idx[count++] = alert_obj;
+-    }
+-
+-    message.shm_idx[0] |= (1 << 29);
+-
+-    message.header.msgh_size = sizeof(mach_msg_header_t) +
+-                               count * sizeof(unsigned int);
+-
+-    mr = mach_msg2( (mach_msg_header_t *)&message, MACH_SEND_MSG, message.header.msgh_size,
+-                     0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, 0 );
+-
+-    if (mr != MACH_MSG_SUCCESS)
+-        ERR("Failed to send server remove wait: %#x\n", mr);
++        registration->message.shm_idx[i] = objs[i] |
++             ((((struct event *)objs_shm[i])->msync_type == MSYNC_MUTEX) ? 1u << 28 : 0);
++    if (alert_obj) registration->message.shm_idx[count++] = alert_obj;
++    registration->message.header.msgh_size = offsetof(mach_register_message_t, shm_idx) + count * sizeof(unsigned int);
++    registration->prev = wait_registrations;
++    wait_registrations = registration;
++    mr = mach_msg2( &registration->message.header, MACH_SEND_MSG | MACH_SEND_TIMEOUT,
++                   registration->message.header.msgh_size, 0, MACH_PORT_NULL, 1000, 0 );
++    if (mr != MACH_MSG_SUCCESS) msync_coord_fatal( "wait register delivery" );
++    msync_control_end();
+ }
+ 
+ static inline NTSTATUS msync_wait_single( int obj, void *obj_shm,
+@@ -367,35 +365,27 @@
+ static NTSTATUS msync_wait_multiple( const int *objs, void **objs_shm, int alert_obj, void *alert_obj_shm,
+                                      int count, ULONGLONG *end, int tid )
+ {
+-    int ret, val;
+-    int *addr = shm_tid_map + tid;
++    struct msync_wait_registration registration;
++    int ret = 0, val, *addr = shm_tid_map + tid;
+     ULONGLONG ns_timeleft = 0;
+-    mach_msg_return_t mr;
+-    unsigned int msgh_id;
+-    int total_count = count + (alert_obj ? 1 : 0);
++    NTSTATUS status = STATUS_SUCCESS;
++    unsigned int msgh_id = (tid << 8) | (count + (alert_obj ? 1 : 0));
+ 
+     __atomic_store_n( addr, 2, __ATOMIC_RELEASE );
+-    msgh_id = (tid << 8) | total_count;
+-    mr = server_register_wait( msgh_id, objs, objs_shm, alert_obj, alert_obj_shm, count );
+-
+-    if (mr != MACH_MSG_SUCCESS)
+-        return STATUS_UNSUCCESSFUL;
+-
++    server_register_wait( &registration, msgh_id, objs, objs_shm, alert_obj, count );
+     while (__atomic_load_n( addr, __ATOMIC_ACQUIRE ) == 2)
+     {
+         if (check_shm_contention( objs_shm, alert_obj_shm, count, tid ))
+         {
+-            /* Registration may still be queued; remove follows it on the same port. */
+-            server_remove_wait( msgh_id, objs, objs_shm, alert_obj, alert_obj_shm, count );
+-            return STATUS_PENDING;
++            status = STATUS_PENDING;
++            goto done;
+         }
+         if (end && !update_timeout( *end ))
+         {
+-            server_remove_wait( msgh_id, objs, objs_shm, alert_obj, alert_obj_shm, count );
+-            return STATUS_TIMEOUT;
+-        }
+-    }
+-
++            status = STATUS_TIMEOUT;
++            goto done;
++        }
++    }
+     do
+     {
+         if (end)
+@@ -403,21 +393,18 @@
+             ns_timeleft = update_timeout( *end ) * 100;
+             if (!ns_timeleft)
+             {
+-                server_remove_wait( msgh_id, objs, objs_shm, alert_obj, alert_obj_shm, count );
+-                return STATUS_TIMEOUT;
++                status = STATUS_TIMEOUT;
++                goto done;
+             }
+         }
+         ret = ulock_wait( UL_COMPARE_AND_WAIT_SHARED | ULF_NO_ERRNO, addr, 1, ns_timeleft );
+         val = __atomic_load_n( addr, __ATOMIC_ACQUIRE );
+-        if (!val)
+-            break;
++        if (!val) break;
+     } while (ret == -EINTR || ret == -EFAULT);
+-
+-    server_remove_wait( msgh_id, objs, objs_shm, alert_obj, alert_obj_shm, count );
+-
+-    if (ret == -ETIMEDOUT) return STATUS_TIMEOUT;
+-
+-    return STATUS_SUCCESS;
++    if (ret == -ETIMEDOUT) status = STATUS_TIMEOUT;
++done:
++    server_remove_wait( &registration );
++    return status;
+ }
+ 
+ int do_msync(void)
+@@ -450,99 +437,91 @@
+     mach_msg_trailer_t trailer;
+ } mach_map_message_reply_t;
+ 
+-static void *request_shm_from_server( int entry, int tid )
+-{
+-    mach_map_message_t send_message = {0};
+-    mach_map_message_reply_t receive_message = {0};
++struct msync_map_request
++{
++    struct msync_map_request *prev;
++    mach_port_t reply_port;
++    mach_map_message_reply_t reply;
++    mach_vm_address_t address;
++    mach_vm_size_t size;
++    int cancel_state;
++};
++static __thread struct msync_map_request *map_requests;
++
++/* Native resources are published to the cleanup chain before the cancellable
++ * receive. The mapped page remains owned here until its cache CAS succeeds. */
++static void finish_map_request( struct msync_map_request *request )
++{
++    if (map_requests != request) msync_coord_fatal( "map cleanup stack" );
++    if (request->address)
++        mach_vm_deallocate( mach_task_self(), request->address, request->size );
++    if ((request->reply.header.msgh_bits & MACH_MSGH_BITS_COMPLEX) &&
++        request->reply.body.msgh_descriptor_count == 1 && request->reply.descriptor.name != MACH_PORT_NULL)
++        mach_port_deallocate( mach_task_self(), request->reply.descriptor.name );
++    if (request->reply_port)
++    {
++        if (mach_port_deallocate( mach_task_self(), request->reply_port ) != KERN_SUCCESS ||
++            mach_port_mod_refs( mach_task_self(), request->reply_port, MACH_PORT_RIGHT_RECEIVE, -1 ) != KERN_SUCCESS)
++            msync_coord_fatal( "map reply port release" );
++    }
++    map_requests = request->prev;
++}
++
++/* Returns with controls deferred; the caller must publish or return the map,
++ * unlink this context, and end the short control region. */
++static void *request_shm_from_server( struct msync_map_request *request, int entry, int tid )
++{
++    mach_map_message_t message = {0};
+     mach_msg_return_t mr;
+     kern_return_t kr;
+-    mach_port_t reply_port;
+-    mach_vm_address_t map_address = 0;
+-
+-    TRACE( "requesting shm entry %d from server\n", entry );
+-    memset( &receive_message, 0, sizeof(receive_message) );
+-
+-    kr = mach_port_allocate( mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &reply_port );
+-
+-    if (kr != KERN_SUCCESS)
+-    {
+-        ERR( "Failed to allocate reply port: %s\n", mach_error_string( kr ) );
+-        return NULL;
+-    }
+-
+-    kr = mach_port_insert_right( mach_task_self(), reply_port, reply_port, MACH_MSG_TYPE_MAKE_SEND );
+-
+-    if (kr != KERN_SUCCESS)
+-    {
+-        ERR( "Failed to insert right into reply port: %s\n", mach_error_string( kr ) );
+-        mach_port_mod_refs( mach_task_self(), reply_port, MACH_PORT_RIGHT_RECEIVE, -1 );
+-        return NULL;
+-    }
+-
+-    send_message.header.msgh_bits = MACH_MSGH_BITS_SET( MACH_MSG_TYPE_COPY_SEND, MACH_MSG_TYPE_COPY_SEND, 0, 0 );
+-    send_message.header.msgh_id = tid;
+-    send_message.header.msgh_size = sizeof(send_message);
+-    send_message.header.msgh_remote_port = server_port;
+-    send_message.header.msgh_local_port = reply_port;
+-    send_message.entry = entry;
+-
+-    mr = mach_msg_overwrite( &send_message.header, MACH_SEND_MSG | MACH_RCV_MSG,
+-               send_message.header.msgh_size, sizeof(receive_message), reply_port,
+-               MACH_MSG_TIMEOUT_NONE, MACH_PORT_NULL, &receive_message.header, 0 );
+-
+-    if (mr != MACH_MSG_SUCCESS)
+-    {
+-        ERR( "Failed to send/receive shm map request: %#x\n", mr );
+-    }
+-    else if (receive_message.header.msgh_size < offsetof(mach_map_message_reply_t, status) + sizeof(receive_message.status) ||
+-             receive_message.status != KERN_SUCCESS ||
+-             !(receive_message.header.msgh_bits & MACH_MSGH_BITS_COMPLEX) ||
+-             receive_message.body.msgh_descriptor_count != 1 ||
+-             receive_message.descriptor.name == MACH_PORT_NULL)
+-    {
+-        ERR( "Server could not map msync page %d (status %d)\n", entry, receive_message.status );
+-    }
+-    else
+-    {
+-        mach_vm_size_t size = tid ? shm_tid_size : pagesize;
+-
+-        TRACE( "mapping shm entry %u with size %llu\n", receive_message.descriptor.name, size );
+-
+-        kr = mach_vm_map( mach_task_self(), &map_address, size, 0, VM_FLAGS_ANYWHERE,
+-                          receive_message.descriptor.name, 0, FALSE, VM_PROT_DEFAULT,
+-                          VM_PROT_DEFAULT, VM_INHERIT_NONE );
+-
+-        if (kr != KERN_SUCCESS)
+-        {
+-            ERR( "Failed to map shm entry: %u: %d (%s)\n", receive_message.descriptor.name, kr, mach_error_string( kr ) );
+-            map_address = 0;
+-        }
+-    }
+-
+-    /* Release our send reference, then the receive right we created. */
+-    mach_port_deallocate( mach_task_self(), reply_port );
+-    mach_port_mod_refs( mach_task_self(), reply_port, MACH_PORT_RIGHT_RECEIVE, -1 );
+-    if (mr == MACH_MSG_SUCCESS && (receive_message.header.msgh_bits & MACH_MSGH_BITS_COMPLEX) &&
+-        receive_message.body.msgh_descriptor_count == 1 && receive_message.descriptor.name != MACH_PORT_NULL)
+-        mach_port_deallocate( mach_task_self(), receive_message.descriptor.name );
+-    return (void *)map_address;
++    msync_control_begin();
++    memset( request, 0, sizeof(*request) );
++    if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &request->cancel_state ))
++        msync_coord_fatal( "map cancellation" );
++    request->prev = map_requests;
++    request->size = tid ? shm_tid_size : pagesize;
++    map_requests = request;
++    kr = mach_port_allocate( mach_task_self(), MACH_PORT_RIGHT_RECEIVE, &request->reply_port );
++    if (kr != KERN_SUCCESS) msync_coord_fatal( "map reply port allocation" );
++    kr = mach_port_insert_right( mach_task_self(), request->reply_port, request->reply_port, MACH_MSG_TYPE_MAKE_SEND );
++    if (kr != KERN_SUCCESS) msync_coord_fatal( "map reply send right" );
++    message.header.msgh_bits = MACH_MSGH_BITS_SET( MACH_MSG_TYPE_COPY_SEND, MACH_MSG_TYPE_COPY_SEND, 0, 0 );
++    message.header.msgh_id = tid;
++    message.header.msgh_size = sizeof(message);
++    message.header.msgh_remote_port = server_port;
++    message.header.msgh_local_port = request->reply_port;
++    message.entry = entry;
++    msync_control_end();
++    mr = mach_msg_overwrite( &message.header, MACH_SEND_MSG | MACH_RCV_MSG | MACH_SEND_TIMEOUT | MACH_RCV_TIMEOUT,
++             message.header.msgh_size, sizeof(request->reply), request->reply_port,
++             5000, MACH_PORT_NULL, &request->reply.header, 0 );
++    msync_control_begin();
++    if (mr != MACH_MSG_SUCCESS ||
++        request->reply.header.msgh_size < offsetof(mach_map_message_reply_t, status) + sizeof(request->reply.status) ||
++        request->reply.status != KERN_SUCCESS ||
++        !(request->reply.header.msgh_bits & MACH_MSGH_BITS_COMPLEX) ||
++        request->reply.body.msgh_descriptor_count != 1 || request->reply.descriptor.name == MACH_PORT_NULL)
++        msync_coord_fatal( "shared page reply" );
++    kr = mach_vm_map( mach_task_self(), &request->address, request->size, 0, VM_FLAGS_ANYWHERE,
++                     request->reply.descriptor.name, 0, FALSE, VM_PROT_DEFAULT, VM_PROT_DEFAULT, VM_INHERIT_NONE );
++    if (kr != KERN_SUCCESS) msync_coord_fatal( "shared page mapping" );
++    return (void *)request->address;
+ }
+ 
+ static void *get_shm_slow( unsigned int idx )
+ {
++    struct msync_map_request request;
+     unsigned int entry = ((uint64_t)idx * 16) / pagesize;
+     unsigned int offset = ((uint64_t)idx * 16) % pagesize;
+     void *address, *expected = NULL;
+-    /* No local lock across a cancellable Mach exchange. Concurrent first maps
+-     * race only at publication; the unused mapping is returned to the kernel. */
+-    address = request_shm_from_server( entry, 0 );
+-    if (!address) msync_coord_fatal( "shared page map" );
+-    if (!__atomic_compare_exchange_n( &shm_addrs[entry], &expected, address,
+-                                      0, __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE ))
+-    {
+-        mach_vm_deallocate( mach_task_self(), (mach_vm_address_t)address, pagesize );
+-        address = expected;
+-    }
++    address = request_shm_from_server( &request, entry, 0 );
++    if (__atomic_compare_exchange_n( &shm_addrs[entry], &expected, address,
++                                     0, __ATOMIC_ACQ_REL, __ATOMIC_ACQUIRE ))
++        request.address = 0; /* cache owns the map before controls can resume */
++    else address = expected;
++    finish_map_request( &request );
++    if (pthread_setcancelstate( request.cancel_state, NULL )) msync_coord_fatal( "map cancellation restore" );
++    msync_control_end();
+     return (char *)address + offset;
+ }
+ 
+@@ -575,15 +554,14 @@
+     send_header.msgh_size = sizeof(send_header);
+     send_header.msgh_remote_port = server_port;
+ 
+-    mr = mach_msg2( &send_header, MACH_SEND_MSG, send_header.msgh_size,
+-                    0, MACH_PORT_NULL, MACH_MSG_TIMEOUT_NONE, 0);
++    mr = mach_msg2( &send_header, MACH_SEND_MSG | MACH_SEND_TIMEOUT, send_header.msgh_size,
++                    0, MACH_PORT_NULL, 1000, 0);
+ 
+     if (mr != MACH_MSG_SUCCESS)
+-        ERR( "Failed to send message to server to close msync object %d: %#x\n", obj, mr );
++        msync_coord_fatal( "object close delivery" );
+ }
+ 
+ static struct msync_coord coord;
+-static __thread uint64_t coord_thread_epoch;
+ static __thread int coord_retired;
+ static pthread_key_t coord_fd_key;
+ static pthread_once_t coord_key_once = PTHREAD_ONCE_INIT;
+@@ -592,23 +570,65 @@
+ {
+     struct coord_fd_record *next;
+     int fd;
++    uint64_t token;
+ };
+ /* Also quiesce this process before fork: a child paused before its atfork
+  * callback must never inherit an actively held OFD transaction gate. */
+-static pthread_mutex_t coord_local_gate = PTHREAD_MUTEX_INITIALIZER;
++#define COORD_ADMISSION_CLOSED 0x80000000u
++static unsigned int coord_admission;
++static pthread_mutex_t coord_fork_mutex = PTHREAD_MUTEX_INITIALIZER;
+ static pthread_mutex_t coord_fd_mutex = PTHREAD_MUTEX_INITIALIZER;
+ static struct coord_fd_record *coord_fds;
+ static __thread struct coord_fd_record *coord_record;
+ static __thread sigset_t coord_fork_signals;
+ static __thread int coord_fork_cancel_state;
+ 
++/* Readers only protect this process against fork. They do not serialize
++ * independent native threads or send a contended pthread mutex to the kernel. */
++static void coord_admit(void)
++{
++    unsigned int value = __atomic_load_n( &coord_admission, __ATOMIC_SEQ_CST );
++    for (;;)
++    {
++        if (value & COORD_ADMISSION_CLOSED)
++        {
++            int ret = ulock_wait( 1 | ULF_NO_ERRNO, &coord_admission, value, 1000000 );
++            if (ret < 0 && ret != -EINTR && ret != -ETIMEDOUT && ret != -EFAULT)
++                msync_coord_fatal( "fork admission wait" );
++            value = __atomic_load_n( &coord_admission, __ATOMIC_SEQ_CST );
++        }
++        else
++        {
++            if (value == COORD_ADMISSION_CLOSED - 1) msync_coord_fatal( "admission overflow" );
++            if (__atomic_compare_exchange_n( &coord_admission, &value, value + 1, 0,
++                                              __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST )) return;
++        }
++    }
++}
++
++static void coord_depart(void)
++{
++    unsigned int value = __atomic_sub_fetch( &coord_admission, 1, __ATOMIC_SEQ_CST );
++    if (value == COORD_ADMISSION_CLOSED)
++        __ulock_wake( 1 | ULF_WAKE_ALL, &coord_admission, 0 );
++}
++
+ static void coord_fork_prepare(void)
+ {
+     sigset_t mask;
+     msync_coord_signal_mask( &mask, &server_block_set );
+     if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &coord_fork_cancel_state ) ||
+         pthread_sigmask( SIG_BLOCK, &mask, &coord_fork_signals ) ||
+-        pthread_mutex_lock( &coord_local_gate ) || pthread_mutex_lock( &coord_fd_mutex )) msync_coord_fatal( "fork prepare" );
++        pthread_mutex_lock( &coord_fork_mutex )) msync_coord_fatal( "fork prepare" );
++    if (__atomic_fetch_or( &coord_admission, COORD_ADMISSION_CLOSED, __ATOMIC_SEQ_CST ) & COORD_ADMISSION_CLOSED)
++        msync_coord_fatal( "recursive fork admission" );
++    for (;;)
++    {
++        unsigned int value = __atomic_load_n( &coord_admission, __ATOMIC_SEQ_CST );
++        if (value == COORD_ADMISSION_CLOSED) break;
++        ulock_wait( 1 | ULF_NO_ERRNO, &coord_admission, value, 1000000 );
++    }
++    if (pthread_mutex_lock( &coord_fd_mutex )) msync_coord_fatal( "fork fd registry" );
+ }
+ 
+ static void coord_fork_parent(void)
+@@ -621,9 +641,12 @@
+     {
+         close( record->fd );
+         record->fd = msync_coord_open( inproc_device_fd );
++        record->token = msync_coord_new_lease( &coord, record->fd );
+     }
+     pthread_mutex_unlock( &coord_fd_mutex );
+-    pthread_mutex_unlock( &coord_local_gate );
++    __atomic_store_n( &coord_admission, 0, __ATOMIC_SEQ_CST );
++    __ulock_wake( 1 | ULF_WAKE_ALL, &coord_admission, 0 );
++    pthread_mutex_unlock( &coord_fork_mutex );
+     pthread_sigmask( SIG_SETMASK, &coord_fork_signals, NULL );
+     pthread_setcancelstate( coord_fork_cancel_state, NULL );
+     errno = saved_errno;
+@@ -672,8 +695,16 @@
+         msync_coord_fatal( "TLS/fork registration" );
+ }
+ 
++void msync_unwind_waits(void)
++{
++    msync_begin_thread_exit();
++    while (wait_registrations) server_remove_wait( wait_registrations );
++    while (map_requests) finish_map_request( map_requests );
++}
++
+ void msync_thread_cleanup(void)
+ {
++    msync_unwind_waits();
+     if (coord_record)
+     {
+         if (pthread_setspecific( coord_fd_key, NULL )) msync_coord_fatal( "TLS cleanup" );
+@@ -701,6 +732,7 @@
+         if (!(coord_record = malloc( sizeof(*coord_record) ))) msync_coord_fatal( "fd record allocation" );
+         if (pthread_mutex_lock( &coord_fd_mutex )) msync_coord_fatal( "fd registry lock" );
+         coord_record->fd = msync_coord_open( inproc_device_fd );
++        coord_record->token = msync_coord_new_lease( &coord, coord_record->fd );
+         coord_record->next = coord_fds;
+         coord_fds = coord_record;
+         if (pthread_setspecific( coord_fd_key, coord_record )) msync_coord_fatal( "TLS fd" );
+@@ -711,6 +743,12 @@
+     return coord_record->fd;
+ }
+ 
++static uint64_t coord_token(void)
++{
++    if (!coord_record || coord_retired) msync_coord_fatal( "missing thread lease" );
++    return coord_record->token;
++}
++
+ static void *coord_slot( unsigned int idx, int map )
+ {
+     unsigned int entry = ((uint64_t)idx * 16) / pagesize;
+@@ -725,13 +763,16 @@
+ {
+     if (active)
+     {
+-        get_thread_data()->msync_in_transaction = 1;
+-        if (pthread_mutex_lock( &coord_local_gate )) msync_coord_fatal( "local gate" );
++        __atomic_store_n( &get_thread_data()->msync_in_transaction, 1, __ATOMIC_RELAXED );
++        __atomic_signal_fence( __ATOMIC_SEQ_CST );
++        coord_admit();
+     }
+     else
+     {
+-        if (pthread_mutex_unlock( &coord_local_gate )) msync_coord_fatal( "local gate release" );
+-        get_thread_data()->msync_in_transaction = 0;
++        coord_depart();
++        __atomic_signal_fence( __ATOMIC_SEQ_CST );
++        __atomic_store_n( &get_thread_data()->msync_in_transaction, 0, __ATOMIC_RELAXED );
++        msync_replay_controls();
+     }
+ }
+ 
+@@ -740,8 +781,9 @@
+ static void coord_enter( struct msync_coord_guard *guard )
+ {
+     unsigned int tid = GetCurrentThreadId();
+-    if (coord_retired) msync_coord_fatal( "retired internal reentry" );
+-    msync_coord_enter( &coord, -1, &server_block_set, guard );
++    if (coord_retired || !get_thread_data()->msync_private_frames)
++        msync_coord_fatal( "transaction outside pinned frame" );
++    msync_coord_enter( &coord, -1, 0, guard );
+     if (!coord_thread_epoch || (coord_thread_epoch & 1) || tid >= MSYNC_COORD_TIDS ||
+         __atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) != coord_thread_epoch)
+     {
+@@ -841,12 +883,22 @@
+     }
+ 
+     mach_port_deallocate( mach_task_self(), bootstrap_port );
+-    coord.header = msync_coord_map( coord_fd() );
++    coord.header = msync_coord_map( inproc_device_fd );
++    coord_fd();
+     coord.slot = coord_slot;
+     coord.notify = coord_notify;
++    coord.cancellation_managed = 1;
+     coord.set_active = coord_set_active;
+     coord.get_fd = coord_fd;
+-    shm_tid_map = request_shm_from_server( 0, 1 );
++    coord.get_token = coord_token;
++    {
++        struct msync_map_request request;
++        shm_tid_map = request_shm_from_server( &request, 0, 1 );
++        request.address = 0;
++        finish_map_request( &request );
++        if (pthread_setcancelstate( request.cancel_state, NULL )) msync_coord_fatal( "map cancellation restore" );
++        msync_control_end();
++    }
+ 
+     if (!shm_tid_map)
+     {
+@@ -1083,7 +1135,6 @@
+ NTSTATUS msync_wait_objs( const DWORD count, const int *objs, BOOLEAN wait_any,
+                           int alert_obj, const LARGE_INTEGER *timeout )
+ {
+-    static const LARGE_INTEGER zero = {0};
+     struct msync_coord_entry entries[MAXIMUM_WAIT_OBJECTS];
+     struct msync_coord_guard guard;
+     void *objs_shm[MAXIMUM_WAIT_OBJECTS], *alert_obj_shm = NULL;
+@@ -1161,8 +1212,9 @@
+     }
+ 
+ userapc:
+-    ret = server_wait( NULL, 0, SELECT_INTERRUPTIBLE | SELECT_ALERTABLE, &zero );
+-    return ret == STATUS_TIMEOUT ? STATUS_USER_APC : ret;
++    /* The inproc caller must release its native frame/pins before APC delivery
++     * touches the guest stack or changes the syscall return context. */
++    return STATUS_USER_APC;
+ }
+ 
+ #else /* __APPLE__ */
+@@ -1180,6 +1232,8 @@
+ {
+ }
+ 
++void msync_unwind_waits(void) {}
++
+ void msync_thread_cleanup(void)
+ {
+ }
+diff --git a/dlls/ntdll/unix/msync.h b/dlls/ntdll/unix/msync.h
+--- a/dlls/ntdll/unix/msync.h
++++ b/dlls/ntdll/unix/msync.h
+@@ -23,8 +23,13 @@
+ extern void msync_init(void);
+ extern void msync_close( int obj );
+ extern void msync_thread_cleanup(void);
++extern void msync_unwind_waits(void);
+ 
+ #ifdef __APPLE__
++
++extern void msync_control_begin(void);
++extern void msync_control_end(void);
++extern void msync_begin_thread_exit(void);
+ 
+ extern void msync_set_thread_epoch( unsigned __int64 epoch );
+ 
+diff --git a/dlls/ntdll/unix/sync.c b/dlls/ntdll/unix/sync.c
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -831,6 +831,166 @@
+     }
+ }
+ 
++#ifdef __APPLE__
++/* Caller pins belong to a native frame, not to a Windows handle. Keep an
++ * explicit TLS stack so a server-pipe abort or SIGQUIT can release them before
++ * pthread_exit(), even when the guest never returns from its wait. All guest
++ * pointer accesses happen outside these frames. */
++struct inproc_frame
++{
++    struct inproc_frame *prev;
++    struct inproc_sync *pins[MAXIMUM_WAIT_OBJECTS];
++    unsigned int count;
++    int cancel_state;
++};
++#define inproc_frames (get_thread_data()->msync_frames)
++
++static void inproc_frame_enter( struct inproc_frame *frame )
++{
++    msync_control_begin();
++    if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &frame->cancel_state )) _exit(1);
++    frame->prev = inproc_frames;
++    frame->count = 0;
++    inproc_frames = frame;
++    get_thread_data()->msync_private_frames++;
++}
++
++/* The caller has deferred controls since acquiring its first unrecorded pin. */
++static void inproc_frame_leave( struct inproc_frame *frame )
++{
++    assert( inproc_frames == frame );
++    while (frame->count) release_inproc_sync( frame->pins[--frame->count] );
++    inproc_frames = frame->prev;
++    get_thread_data()->msync_private_frames--;
++    if (pthread_setcancelstate( frame->cancel_state, NULL )) _exit(1);
++    msync_control_end();
++}
++
++void inproc_thread_cleanup(void)
++{
++    msync_begin_thread_exit();
++    while (inproc_frames)
++    {
++        msync_control_begin();
++        inproc_frames->cancel_state = PTHREAD_CANCEL_DISABLE;
++        inproc_frame_leave( inproc_frames );
++    }
++}
++
++enum inproc_operation
++{
++    INPROC_RELEASE_SEMAPHORE, INPROC_QUERY_SEMAPHORE, INPROC_SET_EVENT,
++    INPROC_RESET_EVENT, INPROC_PULSE_EVENT, INPROC_QUERY_EVENT,
++    INPROC_RELEASE_MUTEX, INPROC_QUERY_MUTEX
++};
++union inproc_result
++{
++    LONG previous;
++    SEMAPHORE_BASIC_INFORMATION semaphore;
++    EVENT_BASIC_INFORMATION event;
++    MUTANT_BASIC_INFORMATION mutex;
++};
++
++static NTSTATUS inproc_object_operation( HANDLE handle, enum inproc_operation op, ULONG count,
++                                         union inproc_result *result )
++{
++    static const enum inproc_sync_type types[] =
++    {
++        INPROC_SYNC_SEMAPHORE, INPROC_SYNC_SEMAPHORE, INPROC_SYNC_EVENT, INPROC_SYNC_EVENT,
++        INPROC_SYNC_EVENT, INPROC_SYNC_EVENT, INPROC_SYNC_MUTEX, INPROC_SYNC_MUTEX
++    };
++    static const ACCESS_MASK access[] =
++    {
++        SEMAPHORE_MODIFY_STATE, SEMAPHORE_QUERY_STATE, EVENT_MODIFY_STATE, EVENT_MODIFY_STATE,
++        EVENT_MODIFY_STATE, EVENT_QUERY_STATE, 0, MUTANT_QUERY_STATE
++    };
++    struct inproc_frame frame;
++    struct inproc_sync stack, *sync;
++    NTSTATUS ret;
++
++    if (inproc_device_fd < 0) return STATUS_NOT_IMPLEMENTED;
++    inproc_frame_enter( &frame );
++    if (!(ret = get_inproc_sync( handle, types[op], access[op], &stack, &sync )))
++    {
++        frame.pins[frame.count++] = sync;
++        msync_control_end();
++        switch (op)
++        {
++        case INPROC_RELEASE_SEMAPHORE: ret = linux_release_semaphore_obj( sync->fd, count, (ULONG *)&result->previous ); break;
++        case INPROC_QUERY_SEMAPHORE: ret = linux_query_semaphore_obj( sync->fd, &result->semaphore ); break;
++        case INPROC_SET_EVENT: ret = linux_set_event_obj( sync->fd, &result->previous ); break;
++        case INPROC_RESET_EVENT: ret = linux_reset_event_obj( sync->fd, &result->previous ); break;
++        case INPROC_PULSE_EVENT: ret = linux_pulse_event_obj( sync->fd, &result->previous ); break;
++        case INPROC_QUERY_EVENT: ret = linux_query_event_obj( sync->fd, &result->event ); break;
++        case INPROC_RELEASE_MUTEX: ret = linux_release_mutex_obj( sync->fd, &result->previous ); break;
++        case INPROC_QUERY_MUTEX: ret = linux_query_mutex_obj( sync->fd, &result->mutex ); break;
++        default: assert( 0 ); ret = STATUS_INVALID_PARAMETER;
++        }
++        msync_control_begin();
++    }
++    inproc_frame_leave( &frame );
++    return ret;
++}
++
++static NTSTATUS inproc_release_semaphore( HANDLE handle, ULONG count, ULONG *prev_count )
++{
++    union inproc_result result = {0};
++    NTSTATUS ret = inproc_object_operation( handle, INPROC_RELEASE_SEMAPHORE, count, &result );
++    if (!ret && prev_count) *prev_count = result.previous;
++    return ret;
++}
++static NTSTATUS inproc_query_semaphore( HANDLE handle, SEMAPHORE_BASIC_INFORMATION *info )
++{
++    union inproc_result result = {0};
++    NTSTATUS ret = inproc_object_operation( handle, INPROC_QUERY_SEMAPHORE, 0, &result );
++    if (!ret) *info = result.semaphore;
++    return ret;
++}
++static NTSTATUS inproc_set_event( HANDLE handle, LONG *prev_state )
++{
++    union inproc_result result = {0};
++    NTSTATUS ret = inproc_object_operation( handle, INPROC_SET_EVENT, 0, &result );
++    if (!ret && prev_state) *prev_state = result.previous;
++    return ret;
++}
++static NTSTATUS inproc_reset_event( HANDLE handle, LONG *prev_state )
++{
++    union inproc_result result = {0};
++    NTSTATUS ret = inproc_object_operation( handle, INPROC_RESET_EVENT, 0, &result );
++    if (!ret && prev_state) *prev_state = result.previous;
++    return ret;
++}
++static NTSTATUS inproc_pulse_event( HANDLE handle, LONG *prev_state )
++{
++    union inproc_result result = {0};
++    NTSTATUS ret = inproc_object_operation( handle, INPROC_PULSE_EVENT, 0, &result );
++    if (!ret && prev_state) *prev_state = result.previous;
++    return ret;
++}
++static NTSTATUS inproc_query_event( HANDLE handle, EVENT_BASIC_INFORMATION *info )
++{
++    union inproc_result result = {0};
++    NTSTATUS ret = inproc_object_operation( handle, INPROC_QUERY_EVENT, 0, &result );
++    if (!ret) *info = result.event;
++    return ret;
++}
++static NTSTATUS inproc_release_mutex( HANDLE handle, LONG *prev_count )
++{
++    union inproc_result result = {0};
++    NTSTATUS ret = inproc_object_operation( handle, INPROC_RELEASE_MUTEX, 0, &result );
++    if (!ret && prev_count) *prev_count = result.previous;
++    return ret;
++}
++static NTSTATUS inproc_query_mutex( HANDLE handle, MUTANT_BASIC_INFORMATION *info )
++{
++    union inproc_result result = {0};
++    NTSTATUS ret = inproc_object_operation( handle, INPROC_QUERY_MUTEX, 0, &result );
++    if (!ret) *info = result.mutex;
++    return ret;
++}
++#else
++void inproc_thread_cleanup(void) {}
++
+ static NTSTATUS inproc_release_semaphore( HANDLE handle, ULONG count, ULONG *prev_count )
+ {
+     struct inproc_sync stack, *sync;
+@@ -926,6 +1086,8 @@
+     release_inproc_sync( sync );
+     return ret;
+ }
++
++#endif
+ 
+ static int get_inproc_alert_fd(void)
+ {
+@@ -958,6 +1120,82 @@
+     return fd;
+ }
+ 
++#ifdef __APPLE__
++static NTSTATUS inproc_wait( DWORD count, const HANDLE *handles, WAIT_TYPE type,
++                             BOOLEAN alertable, const LARGE_INTEGER *timeout )
++{
++    struct inproc_frame frame;
++    struct inproc_sync stack[MAXIMUM_WAIT_OBJECTS], *sync;
++    HANDLE local_handles[MAXIMUM_WAIT_OBJECTS];
++    LARGE_INTEGER local_timeout;
++    int objs[MAXIMUM_WAIT_OBJECTS], alert_fd = 0;
++    NTSTATUS ret = STATUS_SUCCESS;
++    unsigned int i;
++    if (inproc_device_fd < 0) return STATUS_NOT_IMPLEMENTED;
++    assert( count <= MAXIMUM_WAIT_OBJECTS );
++    memcpy( local_handles, handles, count * sizeof(HANDLE) );
++    if (timeout) local_timeout = *timeout;
++    inproc_frame_enter( &frame );
++    for (i = 0; i < count; i++)
++    {
++        if ((ret = get_inproc_sync( local_handles[i], INPROC_SYNC_UNKNOWN, SYNCHRONIZE, &stack[i], &sync ))) goto done;
++        frame.pins[frame.count++] = sync;
++        objs[i] = sync->fd;
++    }
++    if (alertable) alert_fd = get_inproc_alert_fd();
++    msync_control_end();
++    ret = linux_wait_objs( inproc_device_fd, count, objs, type, alert_fd, timeout ? &local_timeout : NULL );
++    msync_control_begin();
++done:
++    inproc_frame_leave( &frame );
++    if (ret == STATUS_USER_APC)
++    {
++        static const LARGE_INTEGER zero;
++        ret = server_wait( NULL, 0, SELECT_INTERRUPTIBLE | SELECT_ALERTABLE, &zero );
++        if (ret == STATUS_TIMEOUT) ret = STATUS_USER_APC;
++    }
++    return ret;
++}
++
++static NTSTATUS inproc_signal_and_wait( HANDLE signal, HANDLE wait,
++                                        BOOLEAN alertable, const LARGE_INTEGER *timeout )
++{
++    struct inproc_frame frame;
++    struct inproc_sync stack_signal, stack_wait, *signal_sync, *wait_sync;
++    LARGE_INTEGER local_timeout;
++    int alert_fd = 0;
++    NTSTATUS ret;
++    if (inproc_device_fd < 0) return STATUS_NOT_IMPLEMENTED;
++    if (timeout) local_timeout = *timeout;
++    inproc_frame_enter( &frame );
++    if ((ret = get_inproc_sync( signal, INPROC_SYNC_UNKNOWN, 0, &stack_signal, &signal_sync ))) goto done;
++    frame.pins[frame.count++] = signal_sync;
++    if ((ret = check_signal_access( signal_sync ))) goto done;
++    if ((ret = get_inproc_sync( wait, INPROC_SYNC_UNKNOWN, SYNCHRONIZE, &stack_wait, &wait_sync ))) goto done;
++    frame.pins[frame.count++] = wait_sync;
++    if (alertable) alert_fd = get_inproc_alert_fd();
++    msync_control_end();
++    switch (signal_sync->type)
++    {
++    case INPROC_SYNC_EVENT: ret = linux_set_event_obj( signal_sync->fd, NULL ); break;
++    case INPROC_SYNC_MUTEX: ret = linux_release_mutex_obj( signal_sync->fd, NULL ); break;
++    case INPROC_SYNC_SEMAPHORE: ret = linux_release_semaphore_obj( signal_sync->fd, 1, NULL ); break;
++    default: assert( 0 ); ret = STATUS_OBJECT_TYPE_MISMATCH;
++    }
++    if (!ret) ret = linux_wait_objs( inproc_device_fd, 1, &wait_sync->fd, WaitAny, alert_fd,
++                                    timeout ? &local_timeout : NULL );
++    msync_control_begin();
++done:
++    inproc_frame_leave( &frame );
++    if (ret == STATUS_USER_APC)
++    {
++        static const LARGE_INTEGER zero;
++        ret = server_wait( NULL, 0, SELECT_INTERRUPTIBLE | SELECT_ALERTABLE, &zero );
++        if (ret == STATUS_TIMEOUT) ret = STATUS_USER_APC;
++    }
++    return ret;
++}
++#else
+ static NTSTATUS inproc_wait( DWORD count, const HANDLE *handles, WAIT_TYPE type,
+                              BOOLEAN alertable, const LARGE_INTEGER *timeout )
+ {
+@@ -1020,6 +1258,7 @@
+     return ret;
+ }
+ 
++#endif
+ 
+ /******************************************************************************
+  *              NtCreateSemaphore (NTDLL.@)
+diff --git a/dlls/ntdll/unix/signal_x86_64.c b/dlls/ntdll/unix/signal_x86_64.c
+--- a/dlls/ntdll/unix/signal_x86_64.c
++++ b/dlls/ntdll/unix/signal_x86_64.c
+@@ -544,6 +544,21 @@
+     return (struct thread_data *)(rsp & ~signal_stack_mask);
+ }
+ 
++#ifdef __APPLE__
++/* Control signals must not run Wine/server callbacks in a state transaction.
++ * No host TLS is touched before init_handler restores GSBASE. This handler-side
++ * check uses only the registered native signal-stack thread_data and lock-free
++ * sig_atomic_t fields. Synchronous private faults still fail the process. */
++static inline BOOL defer_msync_signal( int signal )
++{
++    struct thread_data *data = get_current_thread_data();
++    if (!__atomic_load_n( &data->msync_in_transaction, __ATOMIC_RELAXED ) &&
++        !__atomic_load_n( &data->msync_control_depth, __ATOMIC_RELAXED )) return FALSE;
++    __atomic_fetch_or( &data->msync_pending_signals, 1u << signal, __ATOMIC_SEQ_CST );
++    return TRUE;
++}
++#endif
++
+ extern void __wine_syscall_dispatcher_instrumentation(void);
+ static void *instrumentation_callback;
+ static pthread_mutex_t instrumentation_callback_mutex = PTHREAD_MUTEX_INITIALIZER;
+@@ -780,7 +795,7 @@
+ /***********************************************************************
+  *           init_handler
+  */
+-static inline struct thread_data *init_handler( void *sigcontext )
++static inline struct thread_data *init_handler( int signal, void *sigcontext )
+ {
+     struct thread_data *data = get_current_thread_data();
+     struct amd64_thread_data *amd64_data;
+@@ -789,7 +804,8 @@
+     if (!(amd64_data = amd64_thread_data( data )))
+     {
+ #ifdef __APPLE__
+-        if (data->msync_in_transaction) _exit(1);
++        if ((data->msync_in_transaction || data->msync_private_frames) &&
++            signal != SIGQUIT && signal != SIGUSR1 && signal != SIGINT) _exit(1);
+ #endif
+         return data;
+     }
+@@ -801,7 +817,8 @@
+     _thread_set_tsd_base( (uint64_t)amd64_data->pthread_teb );
+     /* No logging/debugger RPC here; stderr itself may be blocked. Kernel
+      * closes the OFD gate and another participant recovers its journal. */
+-    if (data->msync_in_transaction) _exit(1);
++    if ((data->msync_in_transaction || data->msync_private_frames) &&
++            signal != SIGQUIT && signal != SIGUSR1 && signal != SIGINT) _exit(1);
+ 
+     /* When in a syscall, CS will be the kernel's selector (0x07, SYSCALL_CS in xnu source)
+      * instead of the user selector (cs64_sel: 0x2b, USER64_CS).
+@@ -2287,7 +2304,7 @@
+ static void segv_handler( int signal, siginfo_t *siginfo, void *_sigcontext )
+ {
+     ucontext_t *sigcontext = _sigcontext;
+-    struct thread_data *data = init_handler( sigcontext );
++    struct thread_data *data = init_handler( signal, sigcontext );
+     struct xcontext context;
+     EXCEPTION_RECORD rec = { .ExceptionAddress = (void *)RIP_sig(sigcontext) };
+ 
+@@ -2378,7 +2395,7 @@
+ static void trap_handler( int signal, siginfo_t *siginfo, void *_sigcontext )
+ {
+     ucontext_t *sigcontext = _sigcontext;
+-    struct thread_data *data = init_handler( sigcontext );
++    struct thread_data *data = init_handler( signal, sigcontext );
+     struct xcontext context;
+     EXCEPTION_RECORD rec = { .ExceptionAddress = (void *)RIP_sig(sigcontext) };
+ 
+@@ -2425,7 +2442,7 @@
+ static void fpe_handler( int signal, siginfo_t *siginfo, void *_sigcontext )
+ {
+     ucontext_t *sigcontext = _sigcontext;
+-    struct thread_data *data = init_handler( sigcontext );
++    struct thread_data *data = init_handler( signal, sigcontext );
+     struct xcontext context;
+     EXCEPTION_RECORD rec = { .ExceptionAddress = (void *)RIP_sig(sigcontext) };
+ 
+@@ -2500,8 +2517,12 @@
+ static void int_handler( int signal, siginfo_t *siginfo, void *_sigcontext )
+ {
+     ucontext_t *sigcontext = _sigcontext;
+-    struct thread_data *data = init_handler( sigcontext );
++    struct thread_data *data;
+     HANDLE handle;
++#ifdef __APPLE__
++    if (defer_msync_signal( signal )) return;
++#endif
++    data = init_handler( signal, sigcontext );
+ 
+     if (p__wine_ctrl_routine)
+     {
+@@ -2521,11 +2542,15 @@
+ static void abrt_handler( int signal, siginfo_t *siginfo, void *_sigcontext )
+ {
+     ucontext_t *sigcontext = _sigcontext;
+-    struct thread_data *data = init_handler( sigcontext );
++    struct thread_data *data;
+     struct xcontext context;
+     EXCEPTION_RECORD rec = { .ExceptionCode = EXCEPTION_WINE_ASSERTION,
+                              .ExceptionFlags = EXCEPTION_NONCONTINUABLE,
+                              .ExceptionAddress = (void *)RIP_sig(sigcontext) };
++#ifdef __APPLE__
++    if (defer_msync_signal( signal )) return;
++#endif
++    data = init_handler( signal, sigcontext );
+ 
+     save_context( data, &context, sigcontext );
+     setup_raise_exception( data, sigcontext, &rec, &context );
+@@ -2540,7 +2565,11 @@
+ static void quit_handler( int signal, siginfo_t *siginfo, void *_sigcontext )
+ {
+     ucontext_t *sigcontext = _sigcontext;
+-    struct thread_data *data = init_handler( sigcontext );
++    struct thread_data *data;
++#ifdef __APPLE__
++    if (defer_msync_signal( signal )) return;
++#endif
++    data = init_handler( signal, sigcontext );
+ 
+     if (is_inside_syscall( data, RSP_sig(sigcontext) )) abort_thread( 0 );
+     user_mode_abort_thread( 0, get_syscall_frame( data ));
+@@ -2555,7 +2584,11 @@
+ static void usr1_handler( int signal, siginfo_t *siginfo, void *_sigcontext )
+ {
+     ucontext_t *sigcontext = _sigcontext;
+-    struct thread_data *data = init_handler( sigcontext );
++    struct thread_data *data;
++#ifdef __APPLE__
++    if (defer_msync_signal( signal )) return;
++#endif
++    data = init_handler( signal, sigcontext );
+ 
+     if (!data->teb)
+     {
+@@ -2630,7 +2663,7 @@
+ {
+     extern const void *__wine_syscall_dispatcher_prolog_end_ptr;
+     ucontext_t *sigcontext = _sigcontext;
+-    struct thread_data *data = init_handler( sigcontext );
++    struct thread_data *data = init_handler( signal, sigcontext );
+     struct syscall_frame *frame = get_syscall_frame( data );
+ 
+     TRACE_(seh)("SIGSYS, rax %#lx, rip %#lx.\n", (long)RAX_sig(sigcontext), (long)RIP_sig(sigcontext));
+diff --git a/dlls/ntdll/unix/unix_private.h b/dlls/ntdll/unix/unix_private.h
+--- a/dlls/ntdll/unix/unix_private.h
++++ b/dlls/ntdll/unix/unix_private.h
+@@ -128,6 +128,13 @@
+     struct list  entry;             /* entry in TEB list */
+     char         debug_info[0x800]; /* debug_info structure */
+     volatile sig_atomic_t msync_in_transaction; /* native private state; no Wine RPC on a fault */
++    volatile sig_atomic_t msync_pending_signals; /* replay asynchronous control only after release */
++    volatile sig_atomic_t msync_control_depth; /* pin/registration publication only */
++    volatile sig_atomic_t msync_private_frames; /* no guest-memory access inside these frames */
++    unsigned __int64 msync_epoch;
++    BOOL         msync_exiting;
++    struct inproc_frame *msync_frames;
++    BOOL         holds_fd_cache; /* unwind internal lock if server pipe closes */
+     char         signal_stack[];    /* signal stack */
+     /* char kernel_stack[] */
+ };
+@@ -255,6 +262,8 @@
+ extern unsigned int server_call_unlocked( void *req_ptr );
+ extern void server_enter_uninterrupted_section( pthread_mutex_t *mutex, sigset_t *sigset );
+ extern void server_leave_uninterrupted_section( pthread_mutex_t *mutex, sigset_t *sigset );
++extern void server_thread_cleanup(void);
++extern void inproc_thread_cleanup(void);
+ extern unsigned int server_select( const union select_op *select_op, data_size_t size, UINT flags,
+                                    timeout_t abs_timeout, struct context_data *context, struct user_apc *user_apc );
+ extern unsigned int server_wait( const union select_op *select_op, data_size_t size, UINT flags,
+diff --git a/dlls/ntdll/unix/server.c b/dlls/ntdll/unix/server.c
+--- a/dlls/ntdll/unix/server.c
++++ b/dlls/ntdll/unix/server.c
+@@ -329,6 +329,7 @@
+ {
+     pthread_sigmask( SIG_BLOCK, &server_block_set, sigset );
+     mutex_lock( mutex );
++    if (mutex == &fd_cache_mutex) get_thread_data()->holds_fd_cache = TRUE;
+ }
+ 
+ 
+@@ -337,8 +338,22 @@
+  */
+ void server_leave_uninterrupted_section( pthread_mutex_t *mutex, sigset_t *sigset )
+ {
++    if (mutex == &fd_cache_mutex) get_thread_data()->holds_fd_cache = FALSE;
+     mutex_unlock( mutex );
+     pthread_sigmask( SIG_SETMASK, sigset, NULL );
++}
++
++
++/* A server reply pipe can close while a control signal is masked. read_reply()
++ * then calls abort_thread() directly. Release only the native lock owned by
++ * this thread, before dropping its caller pins; never touch guest locks. */
++void server_thread_cleanup(void)
++{
++    if (get_thread_data()->holds_fd_cache)
++    {
++        get_thread_data()->holds_fd_cache = FALSE;
++        mutex_unlock( &fd_cache_mutex );
++    }
+ }
+ 
+ 
+@@ -1563,6 +1578,13 @@
+     stack_t ss;
+ 
+     data->msync_in_transaction = 0;
++    data->msync_pending_signals = 0;
++    data->msync_control_depth = 0;
++    data->msync_private_frames = 0;
++    data->holds_fd_cache = FALSE;
++    data->msync_epoch = 0;
++    data->msync_exiting = FALSE;
++    data->msync_frames = NULL;
+     ss.ss_sp    = data->signal_stack;
+     ss.ss_size  = signal_stack_size;
+     ss.ss_flags = 0;
+@@ -1855,6 +1877,7 @@
+     sigset_t sigset;
+     unsigned int ret;
+     int fd = -1;
++    HANDLE local_dest = NULL;
+ 
+     if (dest) *dest = 0;
+ 
+@@ -1901,7 +1924,7 @@
+         req->options     = options;
+         if (!(ret = wine_server_call( req )))
+         {
+-            if (dest) *dest = wine_server_ptr_handle( reply->handle );
++            local_dest = wine_server_ptr_handle( reply->handle );
+         }
+     }
+     SERVER_END_REQ;
+@@ -1909,6 +1932,7 @@
+     server_leave_uninterrupted_section( &fd_cache_mutex, &sigset );
+ 
+     if (fd != -1) close( fd );
++    if (!ret && dest) *dest = local_dest;
+     return ret;
+ }
+ 
+diff --git a/dlls/ntdll/unix/thread.c b/dlls/ntdll/unix/thread.c
+--- a/dlls/ntdll/unix/thread.c
++++ b/dlls/ntdll/unix/thread.c
+@@ -1117,6 +1117,9 @@
+ static DECLSPEC_NORETURN void pthread_exit_wrapper( int status )
+ {
+     struct thread_data *data = get_thread_data();
++    server_thread_cleanup();
++    msync_unwind_waits();
++    inproc_thread_cleanup();
+     msync_thread_cleanup();
+     if (!do_msync()) close( data->alert_fd );
+     close( data->wait_fd[0] );

@@ -472,7 +472,7 @@
     "evidence": "docs/research/evidence/engine-r-v1-bootstrap-20261018.json"
   },
   "nextTopicCandidates": {
-    "status": "compiled source candidates, not accepted for default/runtime",
+    "status": "compiled and executed in owned macOS lab; complete runtime/default acceptance pending",
     "requiresPorts": [
       "engine/porting/wine-11.18/0001-ntdll-preflight-policy-deny.patch",
       "engine/porting/wine-11.18/0002-wined3d-prefer-copy-swap-pixel-formats.patch",
@@ -482,28 +482,32 @@
     "patchOrder": [
       "engine/porting/wine-11.18/candidates/0100-macos-inproc-msync.patch",
       "engine/porting/wine-11.18/candidates/0101-ntdll-retain-host-loader.patch",
-      "engine/porting/wine-11.18/candidates/0102-msync-atomic-waitall.patch"
+      "engine/porting/wine-11.18/candidates/0102-msync-atomic-waitall.patch",
+      "engine/porting/wine-11.18/candidates/0103-msync-lease-admission-and-exit-cleanup.patch"
     ],
     "patchSHA256": {
       "engine/porting/wine-11.18/candidates/0100-macos-inproc-msync.patch": "708af3db653384c810f7b0bdeefa27b2076a75e701bbdf369642cd213debde4e",
       "engine/porting/wine-11.18/candidates/0101-ntdll-retain-host-loader.patch": "94f2c350ae6c1325f97f86522d6f6965510f4493b048256bd9e0232b0b7014b5",
-      "engine/porting/wine-11.18/candidates/0102-msync-atomic-waitall.patch": "6209faf6001add44481c48595d7e8a0db894bf60a944e528b2f99a856fbe1beb"
+      "engine/porting/wine-11.18/candidates/0102-msync-atomic-waitall.patch": "6209faf6001add44481c48595d7e8a0db894bf60a944e528b2f99a856fbe1beb",
+      "engine/porting/wine-11.18/candidates/0103-msync-lease-admission-and-exit-cleanup.patch": "fef604f6189b3d75d1ae2d6cfc368838d6caa04a68a5b7ba16800874fc7ad1e7"
     },
     "protocol": 964,
     "baseProtocol": 962,
     "evidence": "docs/research/evidence/engine-r-v1-waitall-20261018.json",
-    "review": "WaitAll no-rollback transaction source repair and owner-exit integration compiled; final scoped adversarial readback found no remaining P1/P2; runtime/native/performance gates pending",
+    "review": "0103 final scoped source review and actual PE32/64 concurrency/lifecycle passed; continuous pressure and final performance in progress; full M1/native kernel/application gates pending",
     "runtimeAccepted": false,
     "selectedByRecipe": false,
     "enginePolicyRegistered": false,
     "previousEvidence": "docs/research/evidence/engine-r-v1-msync-candidate-20261018.json",
-    "coordinationCost": "2 fcntl calls plus local admission per normal state operation; global state serialization and 128MiB+64KiB sparse epoch/journal mapping, actual RSS/latency unmeasured",
+    "coordinationCost": "normal state path atomic owner, no fcntl; independent OFD lease for actual death proof, global serialization and sparse epoch/journal mapping retained; four-API RTT median4.3us vs same-engine server20.6us and old non-atomic2.2us",
     "platformComponentsCompiled": [
       "wine",
       "wow64/x86_64",
       "wow64cpu/x86_64",
       "win32u/native+i386+x86_64",
       "winemac/native+i386+x86_64"
-    ]
+    ],
+    "macRuntimeEvidence": "docs/research/evidence/engine-r-v1-waitall-mac-20261018.json",
+    "sharedCoordMagicVersion": 3
   }
 }

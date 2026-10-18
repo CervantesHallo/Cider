@@ -2,7 +2,21 @@
 
 更新：2026-10-18。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
 
-## 当前续修检查点（2026-10-18）
+## 当前续修检查点：WaitAll Mac 实测（2026-10-18，进行中）
+
+本轮用户明确授权完成 Mac 并发运行与性能验收。完整 Wine11.18 已构建，在 `out/waitall-mac-20261018` 的私有 CIDER_HOME、独立 bundle id `org.cider.waitall-lab` 的签名 GUI/XPC 中执行；生产 EnginePolicy、常用 App/引擎/瓶子和 Windows 账本未改。0102 OFD 正常路径真实 RTT19.2µs，性能失败；保留原16字节槽/Mach/ulock/inproc、原子提交和内核死亡证明，0103改为原子owner+独立OFD租约，正常状态路径无fcntl。
+
+实际暂停/终止用例发现fd_cache_mutex遗留、inproc调用引用和泵等待节点退出清理问题，已修；补线程代际Mach登记/退休、native映射请求清理、APC在释放引用后分发。两位范围明确代理已完成独立源码/测试审查，发现问题由父代理实际修复；最终fast7限定复审无剩余P1/P2。POSIX取消在完整调用帧统一保护，正常Windows暂停/终止仍单独处理，未禁用功能/钳位许可/放行游戏。候选0103已导出并zero-fuzz/offset重建9文件，最终native pair见私有fast7-native-pair.json。
+
+fast7实际PE32/PE32+基础825项各通过；两位宽生命周期各64轮通过（各5780检查、64暂停/恢复/终止、64子进程、64被终止WaitAny）；8线程100000次/worker并发通过。45秒预检约928万次sem获取/归还、峰值1、实际泵约150万次分配回收保持有界。首轮`fast7-duration-one-hour.log`在18:34:46合盖睡眠、18:48:28唤醒，822秒不能计压力；明确停止实验进程，退出137/未通过及清理观察已保留，session43233结束。驱动补host活动/墙钟间隙拒绝判据后，新`fast7-duration-one-hour-awake.log`**正在连续运行，未判通过**（session78290）。约17分钟时实际节点分配3470万次/current32/peak36/fallback0/FD289，活动与guest计时一致。不要把旧断续轮算成一小时。
+
+`after-hour-perf.py`已作为一次性串行后续命令运行（session57346），只在当前小时实际通过后执行固定v2三轮比较，每次先清理私有实验进程，拒绝睡眠/样本数/EXE摘要不一致。它不是heartbeat/定时任务；不要另起重复压力或同时跑基准。所有子代理已完成并关闭，native最终头的两个故障负对照也已重跑且被正确拒绝。最终研究77、结构化证据和02/13已写进行中状态，结束后回填真实结果。`collect-evidence.py`在实验根可汇总；其status字段和旧负对照路径需按最终实测更新。Windows busy/原预算保持，本轮不连接、不重启；不启动heartbeat或新Goal。现有caffeinate只防idle，不能阻止合盖睡眠；不绕过锁屏。
+
+固定3轮同EXE250k/4线程往返比较：fast7 p50中位4.3µs、同native pair server20.6µs、旧非原子原版2.2µs；RTT代理4.79倍未达5倍，不能改门槛。私有CS归因控制中位差约-0.95%，单轮离群保留。原17要求单对象传递，已增加单向signal→peer-return实际样本（含arming/disarm/QPC开销，不保证peer已睡眠），保留RTT独立输出；v2固定方案在任何新指标结果前落盘perf-protocol-v2.json，**尚未执行v2比较**，勿把新旧指标混用。源码review仅限定义的范围，节点池稳定不是所有共享引用、所有进程死亡或M1/应用/游戏已完成。所有人类环境初始hash在protected.json，结束需再核对并清理私有进程。
+
+下方为上一源码阶段记录；本轮结束须用实际结果更新research77、02/13和本检查点，再按用户身份[skip ci]提交推送。
+
+## 上一源码阶段检查点（历史）
 
 Windows暂不能重启，只推进Mac原02。0102叠加0100/0101，保留共享槽/Mach/ulock/inproc，删除WaitAll暂取/回滚，统一状态提交、恢复日志和线程代际。源码复审发现的持本地锁映射、SIGABRT/RPC、fork继承未来OFD锁、旧FD整数、无TEB故障、stderr阻塞、饱和提示和retired递归退出均修；父代理按最终摘要读回，限定静态复审无剩余P1/P2。协议964生成幂等，15变更/完整链20文件精确重建，四种组件产物链接0错误0警告。
 
