@@ -1,0 +1,415 @@
+{
+  "schema": "cider.quarantine-restore-manifest/v1",
+  "base": "374980ecab3a6f80b00db950020fad39a8f20e39",
+  "candidate": "47c72831803b69f1eb0c24e444b9c463de158dfb",
+  "authorizedToRestore": false,
+  "groups": {
+    "A": [
+      {
+        "path": ".github/workflows/ci.yml",
+        "sha256": "5a25915b20db797ef0ab17be1f33b072c29734ac7206acf531e8f42b12d098bc",
+        "bytes": 698
+      },
+      {
+        "path": "App/Package.resolved",
+        "sha256": "00222d2929dcf6f56184bbc6c9518ee5e000068ff269c9b4d989058990e01ff0",
+        "bytes": 405
+      },
+      {
+        "path": "App/Package.swift",
+        "sha256": "80711e9b218afde3f33d3aff88eb76ed4a59a159a140d59726f06b0b3ffa5904",
+        "bytes": 694
+      },
+      {
+        "path": "App/Resources/Cider.entitlements",
+        "sha256": "6149fed4734616467bcd8e19aaaaeb9dbb79daf92c7bb152f678fc8b04f933e1",
+        "bytes": 297
+      },
+      {
+        "path": "App/Sources/Cider/CiderApp.swift",
+        "sha256": "59414da6443a0eb158fb8c5e9502e8187b0f1817e62ca951ce3bf40ce9601d5f",
+        "bytes": 723
+      },
+      {
+        "path": "App/Sources/Cider/CommandHost.swift",
+        "sha256": "89a0ead9aff43bb410069767b7c33cb364f706974005415af1cd998fa9f3ddcd",
+        "bytes": 2096
+      },
+      {
+        "path": "App/Sources/Cider/Model/AppModel+Bottles.swift",
+        "sha256": "9890d006f020bf53bf9d6fc475f55271fde3d26653f3763be4937699d4c31036",
+        "bytes": 25713
+      },
+      {
+        "path": "App/Sources/Cider/Model/AppModel.swift",
+        "sha256": "dc7113d9d2db07f34bac73447692736c2a9d687bbae4ee3046fe2cc96ed0c2f2",
+        "bytes": 35697
+      },
+      {
+        "path": "Packages/CiderKit/Package.swift",
+        "sha256": "3e35693e72133ec1a33d827f1a49cf3ba7d38d42681d6d5e1f1a0be750790584",
+        "bytes": 1329
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderBottle/BottleStore.swift",
+        "sha256": "64804729eed59379218d11d05f783386a6991dababb66f1acb5b1d72a2e88711",
+        "bytes": 15096
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderBottle/Diagnostics.swift",
+        "sha256": "5addf3b6df01fbfa8c3c7bfb0e6acd4d40ff263dafe003459ad4cdf72430b79f",
+        "bytes": 16131
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderCore/CiderDiagnostics.swift",
+        "sha256": "52abc5116a5281acee60203f3e0840fee92cc412610e91d5b80dfab4f494dbb8",
+        "bytes": 474
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderCore/CiderResources.swift",
+        "sha256": "fa5d2e25080838a8baabe6b7ca2fbaa67782d0c4319851a2a93c032eb7711726",
+        "bytes": 3154
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderCore/CommandObservation.swift",
+        "sha256": "34302124814480b67bd123dc355e56fff429e5de6dd8636d59003ea1b7aff6b0",
+        "bytes": 1392
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderCore/WinePathMapping.swift",
+        "sha256": "10734bd49e5ae7c25962aa6fc903fc3497c254d507aa947be329aed5e8a94d4b",
+        "bytes": 2397
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderData/Recipe.swift",
+        "sha256": "e99ff74162c00edb4df843dfb65a863a325979c47cf3040f481c564f36867617",
+        "bytes": 8366
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIPC/Broker.swift",
+        "sha256": "dfb9012c737e5ea33f4a6335709b1c84e24b63727175b341f37e1c7ad76dc23b",
+        "bytes": 12604
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIPC/BundleLocation.swift",
+        "sha256": "ad6530b7e6de3083401fc8cfd759f277be434224329d031ffc723803b2760877",
+        "bytes": 2105
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIPC/Client.swift",
+        "sha256": "59931bfeeefcd9c6b0511771dc548812dd261841aac93bbb8c43446a0518d944",
+        "bytes": 5004
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIPC/Host.swift",
+        "sha256": "c98707f952157c6ccef8d8aad83c30250cb2fac6ace132f20cf96be23438093c",
+        "bytes": 13884
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIPC/Identity.swift",
+        "sha256": "ede0f0435f2d57936701a4b6026d718aafe7b89f35b5ce62c6c51cd059ab5811",
+        "bytes": 1524
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIPC/Location.swift",
+        "sha256": "558418dbef775b2443638f7c78e28586efa2c0734218d59d65f44c065baf0134",
+        "bytes": 5994
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIPC/Wire.swift",
+        "sha256": "f409dea94552a5dbbe71450f458c78f53b1203330c3e073a56be0678f4141bc7",
+        "bytes": 5679
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIntegration/AppCatalog.swift",
+        "sha256": "14fda8be25895bbc16514d7b2c36397c17ab3e135e20f1c3a0384e28b76704fb",
+        "bytes": 12522
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIntegration/BottlePreparation.swift",
+        "sha256": "75a61a2c213ede1e6c84b99d0a72ebd78fa9083122543e1e0fccaffec9df2f5d",
+        "bytes": 1581
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIntegration/InstallationActivity.swift",
+        "sha256": "cb3786b9c9da91de9b42dd73eef705e70c32eb1c578f007ae1c2ea8b379a6c30",
+        "bytes": 9837
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIntegration/ManualInstaller.swift",
+        "sha256": "0fddba5f1d0911f44060717cb41b8140c96e1335e6e093b3055ac3e01c7b09a2",
+        "bytes": 3419
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift",
+        "sha256": "f21aa03d9685c5b35e02b00f2cf68acce831949c06c3df8cf44bf7e205d65197",
+        "bytes": 24684
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderPE/ShellLink.swift",
+        "sha256": "a683daed57febe299eb489d0d21005a3160345de07692b4f2e9468333825d25f",
+        "bytes": 12251
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift",
+        "sha256": "52afd0f42af1d179881f78c270fa378e19aaaf0ca38e3f92d2f555e60016d216",
+        "bytes": 16327
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderRuntime/Spawn.swift",
+        "sha256": "b8210d1c0c396cbc19b265f775223f4eaa4afbd724c585711a364632dc504355",
+        "bytes": 5926
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderRuntime/WineRunner+ExitStatus.swift",
+        "sha256": "ead3b42c1d7a9edbeba43c982e9f6040b995b9e32841743f91315282946857b6",
+        "bytes": 13956
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift",
+        "sha256": "8295aefdf2263c18838d214a0c2f0c8260c4bf5d47f4dbf20bb13ef4762e7aa8",
+        "bytes": 23336
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderStore/Command.swift",
+        "sha256": "434148ae5daada11e8289c20ee92fc3a41e393ce89a0cd8684161b5e5e0bad92",
+        "bytes": 5689
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderStore/EngineHost.swift",
+        "sha256": "8d8e263cea413eeda345bedda54d11eabccd7b17c19f47c43a60635bd5682df6",
+        "bytes": 8191
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/AppLifecycleTests.swift",
+        "sha256": "76cb6b52e5b4e828982b78ac0d9a7cd28e3ad9cc7b7569bbb6ce01a931ddb323",
+        "bytes": 8477
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/BottleManagementTests.swift",
+        "sha256": "21ad26160d1313246c906fdad47c153c3d7136bb6a1a2e1bb95fde4ff2c618ff",
+        "bytes": 11977
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/BottlePreparationTests.swift",
+        "sha256": "f8d13c3579c3f618fd6d7b97aac225a0a99384bb712dc8ce00553785b2250de2",
+        "bytes": 4560
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/CommandObservationTests.swift",
+        "sha256": "83280f3a0ac167a730a530d0f49e56fcad0a0543e9732dff8d8a300c5f133eef",
+        "bytes": 2910
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/CompatDBTests.swift",
+        "sha256": "37e787c2fd0473d3ce9d4fc81ce2746a05032f6bf414208d04aa9e2b8af0c780",
+        "bytes": 14184
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/InstallationActivityTests.swift",
+        "sha256": "c9370d0ced174349c6c3bf1b8f92e8632f02f8b5cfd7c28e3271534f9dc29deb",
+        "bytes": 10502
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/InstallerExitStatusTests.swift",
+        "sha256": "cb7b085f3e4848f44cc207ddf5ec021a1065ac7e7a635974fb44f10e8eb26aa7",
+        "bytes": 7129
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/ProcessScopeTests.swift",
+        "sha256": "e917c48cf898e89388e53472bc7ce69b737faa245724a0eeab840a0d31d4bbea",
+        "bytes": 7203
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/QuarantinePathTests.swift",
+        "sha256": "05769079cdc3cd492342c2be2380eb9b28ebcc5600d6707330884f5d9d02b697",
+        "bytes": 6548
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/QuarantineResourcesTests.swift",
+        "sha256": "2a5a1a08106b9ac9927250a9a9dd804051979d05dbd9451a4a87fe0bfaaf84d7",
+        "bytes": 7818
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/QuarantineShellLinkTests.swift",
+        "sha256": "43972b5db93f4358516061d5c5993ef0de8f5da158716671763a01fca1a66905",
+        "bytes": 12621
+      },
+      {
+        "path": "Packages/CiderKit/Tests/CiderKitTests/StopDrainTests.swift",
+        "sha256": "350ce6580d53501c761b49b40ded1ca172ce135c34c5419efb7ecdab11e80881",
+        "bytes": 2744
+      },
+      {
+        "path": "Tools/CiderBridge/Package.swift",
+        "sha256": "da14076cd11f792212f085ca767f17a3985522ea25d4dd59bf7c78d5b4a28dad",
+        "bytes": 309
+      },
+      {
+        "path": "Tools/CiderBridge/Sources/CiderXPCBridge/CiderXPCBridge.swift",
+        "sha256": "46938fd215585515680c051109ffc85f6cfa7415759f5bcc591d642adc2f0066",
+        "bytes": 987
+      },
+      {
+        "path": "Tools/CiderCommands/Package.resolved",
+        "sha256": "b1066a3892965cef567889d91a79d549ff11f2647ff62433656a8c126eef4f78",
+        "bytes": 405
+      },
+      {
+        "path": "Tools/CiderCommands/Package.swift",
+        "sha256": "dc25ea28e2747dc4705d09d5fddfa57c9a53d952303d91faf3a467a8adf817f6",
+        "bytes": 855
+      },
+      {
+        "path": "Tools/CiderCommands/Sources/CiderCommands/CiderCommandExecutor.swift",
+        "sha256": "fe02c91076389e6d88e76840ae088082f7fb4ce57acc82fa22383a3b386b22f2",
+        "bytes": 7832
+      },
+      {
+        "path": "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift",
+        "sha256": "c73c273345bb5bfa8a18c394f1cf29a54abe31fa627e91fc8fa54bc28d2e65f8",
+        "bytes": 23639
+      },
+      {
+        "path": "Tools/CiderCommands/Tests/CiderCommandsTests/CiderCommandsTests.swift",
+        "sha256": "2698ec8b2211fa1e892fc750bca8e729cb43c93cb5d87d145eb74aaec9b83f88",
+        "bytes": 21789
+      },
+      {
+        "path": "Tools/ciderctl/Package.resolved",
+        "sha256": "02ab67135257ecbf8a43eb577d18af2c7503c5439bb68aea1624f98e71517e0f",
+        "bytes": 405
+      },
+      {
+        "path": "Tools/ciderctl/Package.swift",
+        "sha256": "084121005661b78aa0aa82f930f732bb15a0122678432b292ad7e5c180871ed5",
+        "bytes": 525
+      },
+      {
+        "path": "Tools/ciderctl/Sources/ciderctl/ciderctl.swift",
+        "sha256": "027be447e1971e5115acfe7c61751c1a18ef274e106c637243182089328dc24c",
+        "bytes": 8463
+      },
+      {
+        "path": "Tools/wine-exit-status/README.md",
+        "sha256": "e8c0ea10ea012d1b2fa958b1a9a57918c550ba1276e3e5832af790773a30ccb9",
+        "bytes": 3562
+      },
+      {
+        "path": "Tools/wine-exit-status/build.sh",
+        "sha256": "231dd68316f6b288f06f84b577a81c41e008a41ee7381b56c99f7bbe913315a9",
+        "bytes": 1121
+      },
+      {
+        "path": "Tools/wine-exit-status/capture.c",
+        "sha256": "e0706c89c9f7f937bb4a431587f525cca2e30b8871d30848e8f6e6772ac4ffcf",
+        "bytes": 8465
+      },
+      {
+        "path": "Tools/wine-exit-status/package.swift",
+        "sha256": "ae0ffe733044076ec2157562ddc946511215c94056a300711b1f2025d06078b5",
+        "bytes": 1487
+      },
+      {
+        "path": "data/recipes/launcher.mihoyo-cn.json",
+        "sha256": "eb17d667a848e7f0ca657ffa0a62e63eca30088e61589ff95e2ecf2b1654e190",
+        "bytes": 1456
+      },
+      {
+        "path": "data/recipes/runtime.vcrun2022.json",
+        "sha256": "a9a46309663360d55b882c7c24b37fe0e801e6147d69118e410121ce17eb9bf6",
+        "bytes": 3517
+      },
+      {
+        "path": "scripts/build-app.sh",
+        "sha256": "56c001e93ccc76d2aff8e4bd3439f8d7c2f658df2fb521b614989a7a8221c5a5",
+        "bytes": 6138
+      }
+    ],
+    "B": [
+      {
+        "path": "engine/patches/cider/0014-winmm-initialize-before-worker-lock.patch",
+        "sha256": "da5dc2d401ee8b077d76c500ab7914b49ea4392f0ee13eb42da434f3f348c6b4",
+        "bytes": 1506
+      },
+      {
+        "path": "engine/recipes/cider-cx26-wma1-mm2.json",
+        "sha256": "0fd16f479024419d851b3783b38a99efb623d310119e8a4a3bb7dd64dcb47ac8",
+        "bytes": 2751
+      }
+    ],
+    "C": [
+      {
+        "path": "scripts/windows-reference-budget.py",
+        "sha256": "713a4258985c5e0dff3e2ec3a4f4d0eaf98fae11126efb183630dd4318818fcf",
+        "bytes": 24609
+      }
+    ],
+    "D": [
+      {
+        "path": "engine/patches/candidates/0009-token-kernel-object-mapping.patch",
+        "sha256": "0915a074d9af4c8bbaa913cc73c3453c30ece9244bbe835f95460f087efc45cf",
+        "bytes": 6830
+      },
+      {
+        "path": "engine/patches/candidates/0012-reference-callers.patch",
+        "sha256": "35f3650200407d4b5f7bc08905d9788d21d1cf80a75e9e6ce1d68c848970f49f",
+        "bytes": 15923
+      },
+      {
+        "path": "engine/patches/candidates/0013-object-reference-lifetime.patch",
+        "sha256": "c4e807661d52d8e10647396eae21a3dd4b3e02f6d70aa70324bc1e0a6f9b931a",
+        "bytes": 8221
+      },
+      {
+        "path": "engine/patches/candidates/0015-close-borrowed-object-cleanup.patch",
+        "sha256": "5a64b7fc2037c00196f300408a54bed0f4f8ff4633471b43e77d93794b8d22d4",
+        "bytes": 852
+      },
+      {
+        "path": "engine/patches/candidates/0016-ioctl-allocation-buffer-ownership.patch",
+        "sha256": "a3efba58956fb5ca4b5bac24641050e78334c2ffb955fe2cae49f3844b54aad5",
+        "bytes": 804
+      },
+      {
+        "path": "engine/patches/candidates/0017-primary-token-release.patch",
+        "sha256": "73e9e604184c6deaf5f10e0ba8e1e744c393c9c16a8a2c83ab8e14e543e2427b",
+        "bytes": 1390
+      },
+      {
+        "path": "engine/patches/candidates/0018-process-primary-reference-ownership.patch",
+        "sha256": "6024551fd02a18f5096dcc5223e470ca0fcaa9cfd7dc9dd52ff41215245a7bb7",
+        "bytes": 2152
+      },
+      {
+        "path": "engine/patches/candidates/0019-owned-primary-token-reference.patch",
+        "sha256": "2e94ee3f312a9376429dd00877445ff6fa2ffe0afa85e5fc7d25aae698194763",
+        "bytes": 19922
+      },
+      {
+        "path": "engine/patches/candidates/0020-primary-token-ddk-declarations.patch",
+        "sha256": "97d2f57ddd535a1b863b6aa8490f503ef988bd131b5aba86cd4d2e2d0ed22601",
+        "bytes": 861
+      },
+      {
+        "path": "engine/patches/candidates/QUARANTINE-REPAIR.md",
+        "sha256": "c4f9d6e2ac04219a897966039a1d12d074ffdc4d2aaefcb63d661aa1b78009ae",
+        "bytes": 2897
+      },
+      {
+        "path": "engine/patches/candidates/README.md",
+        "sha256": "9a9137130117c1a54bec9697c890c5eb61d65a58308ed2f2e6e6a76d63a15ad7",
+        "bytes": 2478
+      },
+      {
+        "path": "Packages/CiderKit/Sources/CiderStore/EnginePolicy.swift",
+        "sha256": "4494ed938617cc28c5c8bff923ee20a5b270bc4b6f38abf14a0eaf4a17a20ad5",
+        "bytes": 2246
+      }
+    ]
+  },
+  "excludedRejectedPatch": "engine/patches/rejected/0010-ntoskrnl-primary-token-reference.patch.txt",
+  "note": "A/B/C still fixed aab2970; D remains nondefault and isolated, adds owned K2 reference pair/protocol1810/native-binding dependency. No restoration, Windows-budget mutation or game-gate authorization.",
+  "previousCandidate": "4e226f6d8a832b56aa1350ddce1ba225ecf7b066",
+  "applicationCandidate": "aab29700744a53bf249608b14f7151710f914665"
+}

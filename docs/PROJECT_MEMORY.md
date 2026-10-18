@@ -1,8 +1,10 @@
 # Cider 项目持久记忆
 
-更新：2026-10-16。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
+更新：2026-10-18。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
 
 ## 用户目标与协作
+
+- **检查点71（2026-10-18，隔离K2源码补齐）**：0017–0020已按既有Wine kernel-object模型实现真实指定process的primary token引用/释放，manager归属与process句柄/映射身份绑定，不创建token访问句柄、不改普通DACL检查或替代宿主身份；退休0010不恢复。109项精确C模型、6个编译后破坏变体、14文件zero-fuzz重建、native/两架构模块及隔离release通过；两种真实Wine架构各420项0失败，64正常并发轮、2个明确夹具异常（到达注入点才接纳预期）、关闭child全部句柄后held token仍可查询/归还。服务/所有本批prefix进程/XPC job清理有回执；混配native对被产品spawn前拒绝，0新Wine spawn。独立复审发现核心finally/owner/close三项及夹具保活/异常/故障标记等问题均已修；早期弱证据、1114和NameError保留，不作最终通过。协议1810必须配套server/ntdll Unix/两架构PE，EnginePolicy新增精确pair但旧两组保留。详见research71和结构化证据；不宣称Windows原生契约/游戏/生产验收或整阶段完成。所有源码仍隔离，主线实现374980e、常用App/安装引擎/存档/原神下载和真实预算不变；Windows/Actions/定时0。原HY顺序/此前游戏验收保留。接续需用户既有隔离恢复范围决定及独立Windows/机时条件，不自动整包恢复或改账。通用安全提示无错误码且此次实际工具成功，不能沿用旧“K2一律禁止”说法。
 
 - **检查点70（2026-10-17，K2继续）**：用户转述新提示仅“谨慎开放网络安全”一类、无错误码。最近工具调用均成功，原始近期日志无明确新拒绝；可能产品/模型层提示，不能否定用户看到它，也不能用旧blocked-action摘要断言整个K2不能实现。官方说明承认误判；没有改Codex配置/防护或发送反馈。0017实际补释放接口PsDereferencePrimaryToken→已有ObDereferenceObject/stdcall，3个精确委托模型、32/64模块链接/真实反汇编及6文件重建通过；取得函数仍stub，K2未完成。只读自己进程公开API的两架构观察确认OpenToken(0)拒绝/Query打开成功/复制零权可行但Query仍拒绝；Wine固定测试明确零权打开应拒绝，不能删除allocator/DACL检查来凑成功。当前伪句柄解析调用方且微软禁止复制，不作目标token替代。继续沿既有真实对象引用机制研究取得接口，不重放历史被拒访问替换动作；所有游戏/门禁/原生Windows预算/隔离不变。新代码仍只在隔离分支，无物理Windows、Actions或定时。
 
@@ -11,6 +13,12 @@
 - **持续检查点68（2026-10-17）**：继续原HY1后，aab2970同一release产品源码保持；Unicode/CP936快捷方式与宿主EXE保存项分别经过真实Catalog→WindowsPath→AppLifecycle→Wine启动及重开共6次，guest实际argv/cwd/env/退出37一致。产品CLI→XPC→GUI完整创建win7_64新瓶子/前缀revision2也通过，共7项及实际清理，见research68；服务链不冒称SwiftUI点击/Windows Shell。恢复候选已整理为A应用/安装、B音频候选、C预算脚本、D非默认kernel，固定aab2970文件摘要在restore manifest。当前下一交付受用户原“等我指令再恢复”约束，需要明确恢复范围；真实kernel还依赖独立Windows/机时新决定，K2旧工具拒绝保留。不要无变化重复构建/测试或将整批标全完成。常用App/账本/游戏数据保持、无Windows/Actions/定时。
 
 - **持续检查点67（2026-10-17）**：隔离源码aab2970中四个产品新瓶子入口已从预约/config公开前登记并保留停止活动到初始化、刷新、安装/打开；手动EXE/MSI也用完整DWORD。真实旧Stop后两次后续spawn/创建0，最终0后续spawn/创建1且无created；19项Swift、5项手动CiderKit服务实际Wine、release/严格签名及清理通过。复审两项P2均修：同锁停止到删除、install忙标记先检查/取得并正确转移。服务执行不冒称GUI点击/TCC/Windows kernel/游戏。源码仍隔离、常用App/账本未改，无Windows/Actions/定时。接着做原HY1特殊快捷方式参数/guest cwd真实证据，**不要组件完成就发final停止**；原阶段/门禁/K2既有拒绝/Windows旧pending保留。
+
+- **持续检查点66（2026-10-17）**：隔离提交3f55e9c已补完整安装DWORD、最小必要引号/真实MSI阻塞修复、资源打包校验、跨GUI/CLI停止、原子取消完成及刷新/自动打开交接、异步客户端输出。38项Swift/15命令/8原生XPC/24最终PE采集器/10真实配方及2种真实Stop均通过，独立复审范围无P1/P2；异常数值不是故障注入、不是Windows kernel/TCC/游戏验收。失败与修正后回执均保留，常用App/引擎/游戏/真实账本不动，无Windows/Actions/定时。报告66是继续工作检查点，**不结束任务**；现在继续新瓶子初始化与手动安装入口交接，不能因一个组件通过再次发final停下。原HY顺序、隔离及真实Windows预算边界保持。
+
+- **继续工作的当前关键点（2026-10-17）**：不要在组件检查点发final停下；用户再次明确持续推进。隔离的完整安装退出链已经有8项真实EXE/MSI安装、最终打包采集器32/64共24项、25项Swift定向检查；最小必要引号修复Wine msiexec保留选项引号而打开帮助界面的阻塞，诊断scratch移出sessions/附记录/别名比较两项P2已修。尚未提交这组源码，主线只记忆变化。当前进一步实做原L6：已真实复现CLI安装等待detect时Kill返回0后，迟到detect文件使原任务继续启动下一依赖程序（spawn PID43445、旧CLI最终0）；失败及清理在隔离tests/runtime/exit-status/results/installer-stop-before-coordination.json。正在补按瓶子prefix的共享安装活动/取消、GUI与CLI Stop屏障、下载协作取消及WineRunner锁内最后启动检查；不把已有组件通过当整个任务完成。完整活动检查点在隔离out/ACTIVE_CONTINUATION.md。真实Windows未连、账本/旧pending不动，自动化关，原隔离未恢复。
+
+- **持续推进纠正及在做项（2026-10-16，65之后）**：用户再次明确不能因阶段报告停下。一个 Windows/平台依赖项受阻时继续处理原队列中可独立推进的 Mac 实作；不重复同一阻塞或另建定时。当前仍只改隔离分支：正在把48/49已有完整DWORD退出码采集接入RecipeInstaller，旧代码忽略安装器返回值。已在同一已知无账户私有prefix完成32/64各高位/259/重启码/Unicode参数/cwd/env及超时/坏PE/旧结果共24项，真实产品路径与清理通过，结果在隔离tests/runtime/exit-status/results。正在补App源码构建PE工具/摘要资源、完整退出判定、显式MSI约定与待重启结果的GUI/CLI传递；尚未完成整条安装验收/审查，不作为交付或原生Windows通过。无需Windows连接，真实账本/主线实现/常用App/游戏不动，65阶段结论是历史检查点。
 
 - **完全访问后的隔离收尾（2026-10-16）**：本轮实际配置已是danger-full-access/never，未再申请沙箱权限。隔离源码c9a1931补修断开CLI后等待占位、Bridge重连丢失GUI容量、多CIDER_HOME复用错误GUI。观察解除不杀程序/不重放，GUI跨连接保留8普通/2控制容量，冷启动按根flock并创建独立实例；保留原命令与GUI派生架构。3自有子进程测试、5原生XPC、4AppKit多目录项和真实产品Wine断线后仍运行/新命令/ps通过；只读复审范围无剩余P1/P2。最后显式捕获消除警告，3项重验、无警告release/严格签名通过，三组件与实际运行字节相同，无需重跑。首次产品LS清理-10814误判与真实精确路径缺席读回分开保留，未按共享引擎bundleID删其他登记。见research65；所有实现仍隔离，K2旧工具拒绝未重试/未实现、独立kernel/机时结算及隐私/正式签名/游戏验收保留。原HY接续点、常用App/引擎/存档/原神下载/真实账本、定时关闭不变，无Windows/Actions，不整包恢复。
 

@@ -1,0 +1,63 @@
+{
+  "schema": "cider.k2-owned-reference-repair/v1",
+  "sourceCommit": "47c72831803b69f1eb0c24e444b9c463de158dfb",
+  "applicationCandidate": "aab29700744a53bf249608b14f7151710f914665",
+  "restoredToMain": false,
+  "defaultEngineEnabled": false,
+  "nativeWindowsConformance": false,
+  "gameSessionAcceptance": false,
+  "windowsOperations": 0,
+  "actionsRuns": 0,
+  "modelChecks": 109,
+  "compiledMutationControls": 6,
+  "wineRuns": [
+    {
+      "architecture": "x86_64",
+      "result": {
+        "schema": "cider.owned-token-runtime/v2",
+        "win32Error": 0,
+        "cleanupError": 0,
+        "checks": 420,
+        "failures": 0,
+        "firstFailure": 0,
+        "firstStatus": 0,
+        "rounds": 64,
+        "concurrentRounds": 64,
+        "expectedFaults": 2,
+        "childExited": true,
+        "childExitCode": 0,
+        "childHandlesClosedBeforeRelease": true
+      },
+      "cleanupPassed": true,
+      "file": "tests/kernel/token-reference-contract/results/wine-owned-x86_64-final.json"
+    },
+    {
+      "architecture": "i686",
+      "result": {
+        "schema": "cider.owned-token-runtime/v2",
+        "win32Error": 0,
+        "cleanupError": 0,
+        "checks": 420,
+        "failures": 0,
+        "firstFailure": 0,
+        "firstStatus": 0,
+        "rounds": 64,
+        "concurrentRounds": 64,
+        "expectedFaults": 2,
+        "childExited": true,
+        "childExitCode": 0,
+        "childHandlesClosedBeforeRelease": true
+      },
+      "cleanupPassed": true,
+      "file": "tests/kernel/token-reference-contract/results/wine-owned-i686-final.json"
+    }
+  ],
+  "mixedNativePairRejectedBeforeSpawn": true,
+  "mixedPairNewWineSpawns": 0,
+  "artifactManifest": "tests/kernel/token-reference-contract/results/owned-runtime-manifest.json",
+  "review": "Core 3 P1/P2, public ABI/pair and fixture lifetime/SEH/sensitivity findings corrected; incremental independent final reviews no remaining P1/P2 in reviewed scope. Static review is not runtime evidence.",
+  "protected": {
+    "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+    "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+  }
+}
