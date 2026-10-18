@@ -4,6 +4,8 @@
 
 ## 用户目标与协作
 
+- **R v1同步候选及真实剩余缺口（2026-10-18，检查点75）**：R v1独立候选0100/0101已接macOS msync及same-binary host loader，协议由962生成963（非CX1810），16文件精确重建；server/native ntdll/两PE模块已编译链接，未执行/安装。源修包括真实初始化/映射/分配失败、稳定原子页表、共享ref与alert索引、WaitAll abandoned/owner回滚/期限和登记清理。独立审查仍确认旧WaitAll暂取与并发Release会使semaphore count>max的P2，**未修、阻止默认采用**；不能钳位/丢许可/禁用WaitAll冒充修复。需统一状态协调及线程死亡恢复，原M3为候选机制，不计M1/M3完成。稳定表2/8MiB每原生进程代价、验收及回退见research75/evidence；无Windows/新测试或游戏门禁提升。用户暂不能重启，Windows busy/余准备2309测试3600无pending保持。
+
 - **D盘就绪、重启暂缓（2026-10-18，检查点74）**：用户确认D盘清理完成；原pin/公钥LAN原生查询确认约205.7GiB空闲/NTFS，当前内存约5.6GiB空闲。Hyper-V预检检测既有CBS RebootPending，未调用启用命令/未更改功能。用户暂不能重启，人工交接按明确未执行结果及119.806秒本地间隔关闭，原生两批合计6.397秒；690秒预约全额保留，现余准备2309/测试3600、无pending、busy=true。只待用户明确可重启/已重启再恢复Windows，不叠加未完成组件操作；Mac继续原02同步后端迁移。见research74及windows-disk-ready-restart-20261018.json。
 
 - **R v1工具链接续（2026-10-18）**：Windows用户清理C/D期间busy保持，仅Mac推进。四项源码迁移/原生准备记录已提交推送5739859。Wine11.18配置返回0却报告两PE架构缺C++17；新增独立GCC15.2前端构建，保留原C/CRT，不切LLVM或补目标libstdc++。复审发现继承as/ld缓存、未知旧SDK对象及marker/backend/实际binutils/额外源码核验问题，均改为归档逐文件+完整路径/碰撞安全Unicode校验、全新对象和输入/SDK/g++/cc1plus/COFF绑定；首两批安装前停止，失败保留。双架构前端已构建、Wine C++17均检测通过，实际Makefile原C/新CXX四路径已核；四个组件以及两种PE架构Wine libc++/C++ABI归档最终构建通过，不当作已可用引擎。native wineserver为x86_64、min14/SDK15.4，所有新产物未执行；最初PE GCC PATH缺失导致退出2已修为显式原C路径。四项补丁及脚本经过独立只读对抗性审查，静态无剩余P1/P2；最终组件构建证据在engine-r-v1-bootstrap-20261018.json，未安装新引擎/切瓶子，编译/运行/游戏裁定独立。实际msync传输/等待和object_ops布局已核对依赖，未盲贴yield或CX协议号。

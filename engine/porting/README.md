@@ -54,3 +54,7 @@ Wine11.18的configure已实际通过，但明确报告两架构缺少C++17前端
 - Wine自己的两架构libc++/C++ABI也实际由新GCC前端构建；未使用或安装GCC目标libstdc++。显式CC/CXX选择和最终产物摘要见[构建证据](../../docs/research/evidence/engine-r-v1-bootstrap-20261018.json)。
 - 新引擎未执行、未安装/发布、未切换用户瓶子；msync/macOS loader/WoW64完整整合仍未完成，不能据此采用新配方或提升游戏裁定。
 - 首轮继承缓存、APFS等价路径检查、漏设PE编译器PATH及静态库目标名的失败记录已保留，后续成功未覆盖这些记录。最终配置仍报告可选EGL/libva/FFmpeg缺失；当前组件范围不代表完整引擎依赖验收。
+
+## 下一主题的非默认候选
+
+`wine-11.18/candidates/0100-macos-inproc-msync.patch`及0101接同步与host loader，新协议由962生成963；16文件精确重建及server/原生和双PE ntdll编译通过。它们没有被任何配方选择。独立复审仍确认旧WaitAll暂取回滚与并发Release导致信号量超过max的P2，尚未修复，阻止默认采用；不能以构建成功算整体同步正确。固定页表2/8MiB成本、已修源路径、原生/运行/性能缺项、协调方案及回退见[research75](../../docs/research/75-r-v1-msync-source-candidate-20261018.md)。

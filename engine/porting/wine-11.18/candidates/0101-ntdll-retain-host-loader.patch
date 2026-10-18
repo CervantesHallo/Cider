@@ -1,0 +1,35 @@
+ntdll: retain a host-bundle hard link only to the same actual loader.
+
+Cider-Topic: macos/host-loader
+Upstream: Cider0006 guard; CX temporary preloader links absent here
+Cider-Test: source/compilation only; Dock/TCC acceptance pending
+Cider-Review-By: static findings recorded in research75; unresolved default-adoption gates
+Cider-Status: nondefault, requires the candidate native pair
+
+--- a/dlls/ntdll/unix/loader.c
++++ b/dlls/ntdll/unix/loader.c
+@@ -409,6 +409,24 @@
+         data_dir = build_relative_path( dll_dir, LIBDIR "/wine", DATADIR "/wine" );
+         wineloader = build_path( ntdll_dir, "wine" );
+     }
++
++#ifdef __APPLE__
++    /* Retain only a host-bundle hard link to this engine's actual loader. */
++    if (!build_dir)
++    {
++        const char *host_loader = getenv( "WINELOADER" );
++        struct stat loader_stat, host_stat;
++        if (host_loader && host_loader[0] == '/' && strstr( host_loader, ".app/Contents/MacOS/" ) &&
++            !stat( wineloader, &loader_stat ) && !stat( host_loader, &host_stat ) &&
++            loader_stat.st_dev == host_stat.st_dev && loader_stat.st_ino == host_stat.st_ino)
++        {
++            char *host_path = strdup( host_loader );
++            if (!host_path) fatal_error( "cannot allocate host loader path\n" );
++            free( (void *)wineloader );
++            wineloader = host_path;
++        }
++    }
++#endif
+ 
+     set_dll_path();
+     set_system_dll_path();

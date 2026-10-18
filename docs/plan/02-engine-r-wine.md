@@ -1,5 +1,9 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+## 2026-10-18 同步源候选（最新）
+
+R v1独立候选0100/0101已接macOS msync及same-binary host loader，协议由962生成963（非CX1810），16文件精确重建；server/native ntdll/两PE模块已编译链接，未执行/安装。源修包括真实初始化/映射/分配失败、稳定原子页表、共享ref与alert索引、WaitAll abandoned/owner回滚/期限和登记清理。独立审查仍确认旧WaitAll暂取与并发Release会使semaphore count>max的P2，**未修、阻止默认采用**；不能钳位/丢许可/禁用WaitAll冒充修复。需统一状态协调及线程死亡恢复，原M3为候选机制，不计M1/M3完成。稳定表2/8MiB每原生进程代价、验收及回退见research75/evidence；无Windows/新测试或游戏门禁提升。用户暂不能重启，Windows busy/余准备2309测试3600无pending保持。
+
 > v1 · 2026-09-27 · 依赖 00（ADR-002/004/005/006/007）、研究 02/12/17/18/20。只写现在要做和马上要做的；后续按窗口卡补充。
 
 ## 目标

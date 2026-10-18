@@ -116,7 +116,7 @@
       "recipes": [
         "cider-cx26-r2.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "source-port-in-nondefault-candidate"
     },
     {
       "patch": "cider/0007-winegstreamer-clear-dmo-output-status.patch",
@@ -198,7 +198,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "included-in-nondefault-msync-candidate"
     },
     {
       "patch": "highball/0006-kernelbase-per-exe-command-line-append.patch",
@@ -404,6 +404,19 @@
         "CX msync_wait_objs takes BOOLEAN wait_any; upstream linux_wait_objs takes WAIT_TYPE. Preserve WaitAny/WaitAll/WaitAll-one-object and APC status semantics explicitly.",
         "Highball0005 yield requires the actual msync backend and matching server fallback; the yield-only patch is not an implementation of macOS inproc synchronization."
       ]
+    },
+    {
+      "topic": "graphics/d3d9-gl",
+      "status": "upstream-primary-behavior-inspected",
+      "files": [
+        "dlls/wined3d/directx.c",
+        "dlls/wined3d/wined3d_main.c"
+      ],
+      "findings": [
+        "Fixed upstream AUTO selects OpenGL and explicit Vulkan remains explicit.",
+        "Unlike the old Highball patch, upstream does not try Vulkan if automatic OpenGL adapter creation fails. This difference has not been changed or accepted as exact fallback equivalence."
+      ],
+      "runtimeVerified": false
     }
   ],
   "bootstrapBuild": {
@@ -457,5 +470,29 @@
     },
     "finalComponentBuildAfterConfigurationComplete": true,
     "evidence": "docs/research/evidence/engine-r-v1-bootstrap-20261018.json"
+  },
+  "nextTopicCandidates": {
+    "status": "compiled source candidates, not accepted for default/runtime",
+    "requiresPorts": [
+      "engine/porting/wine-11.18/0001-ntdll-preflight-policy-deny.patch",
+      "engine/porting/wine-11.18/0002-wined3d-prefer-copy-swap-pixel-formats.patch",
+      "engine/porting/wine-11.18/0007-winegstreamer-clear-dmo-output-status.patch",
+      "engine/porting/wine-11.18/0003-ntdll-winedllpath-prepend.patch"
+    ],
+    "patchOrder": [
+      "engine/porting/wine-11.18/candidates/0100-macos-inproc-msync.patch",
+      "engine/porting/wine-11.18/candidates/0101-ntdll-retain-host-loader.patch"
+    ],
+    "patchSHA256": {
+      "engine/porting/wine-11.18/candidates/0100-macos-inproc-msync.patch": "708af3db653384c810f7b0bdeefa27b2076a75e701bbdf369642cd213debde4e",
+      "engine/porting/wine-11.18/candidates/0101-ntdll-retain-host-loader.patch": "94f2c350ae6c1325f97f86522d6f6965510f4493b048256bd9e0232b0b7014b5"
+    },
+    "protocol": 963,
+    "baseProtocol": 962,
+    "evidence": "docs/research/evidence/engine-r-v1-msync-candidate-20261018.json",
+    "review": "one confirmed inherited WaitAll semaphore rollback atomicity P2 remains; do not clamp/drop releases/disable WaitAll to claim a fix",
+    "runtimeAccepted": false,
+    "selectedByRecipe": false,
+    "enginePolicyRegistered": false
   }
 }

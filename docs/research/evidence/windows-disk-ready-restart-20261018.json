@@ -96,7 +96,6 @@
     "fullReservationChargedSeconds": 300,
     "agentNoRestartCommandIssued": true
   },
-  "nativeOperationMeasuredTotalSeconds": 6.397,
   "manualHandoffTimingScope": "local reservation-to-declined-reboot-request interval, not Windows active work",
   "reservationChargeSeconds": 690,
   "remainingSeconds": {
@@ -114,5 +113,7 @@
   "sources": [
     "https://learn.microsoft.com/en-us/powershell/module/dism/enable-windowsoptionalfeature",
     "https://www.microsoft.com/en-us/evalcenter/evaluate-windows-11-enterprise"
-  ]
+  ],
+  "observedNativeBatchOuterTotalSeconds": 6.397,
+  "nativeBatchTimingScope": "full controller upload/dispatch/return/receipt interval, not pure Windows CPU or child duration"
 }
