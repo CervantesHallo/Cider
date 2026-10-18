@@ -16,7 +16,34 @@
       "dlls/ntdll/unix/process.c": {
         "url": "https://raw.githubusercontent.com/wine-mirror/wine/7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/process.c",
         "sha256": "d2b284cc0222b8dfc0985fdf88b7f2d33096ae0dee4386dc26463e818c4593ff"
+      },
+      "dlls/wined3d/context_gl.c": {
+        "url": "https://raw.githubusercontent.com/wine-mirror/wine/7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/wined3d/context_gl.c",
+        "sha256": "25b852086ed524fed9b9be49f49af146491b7ec1eee37211ff1dd45ee85c1263"
+      },
+      "dlls/winegstreamer/wg_sample.c": {
+        "url": "https://raw.githubusercontent.com/wine-mirror/wine/7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/winegstreamer/wg_sample.c",
+        "sha256": "3c58ebdf5c82f7b81b71e16396b522437b799b118cddaa07ffe02482215c6bc8"
+      },
+      "dlls/winmm/waveform.c": {
+        "url": "https://raw.githubusercontent.com/wine-mirror/wine/7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/winmm/waveform.c",
+        "sha256": "e3b71fc83ba276e2926c77b6ed3e2a563acf7618480308073df61185c40f0c17"
+      },
+      "dlls/ntdll/unix/loader.c": {
+        "url": "https://raw.githubusercontent.com/wine-mirror/wine/7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/loader.c",
+        "sha256": "b4adcaab240ecca26305f212894597b6250a253f181f0861ba67e7a3376d24fa"
       }
+    },
+    "sourceArchive": {
+      "url": "https://codeload.github.com/wine-mirror/wine/tar.gz/7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+      "sha256": "be19d188e0bfb7939f8ace82e9450030ae3d78ba872c7b28a3fd56b99bf133bb",
+      "bytes": 75676014,
+      "archiveRoot": "wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+      "members": 13835,
+      "pinnedSourceFilesMatch": true,
+      "versionMatches": true,
+      "extractValidation": "single prefix, no traversal/privileged/special/hardlink members; no extraction through symlink ancestors; symlinks resolve inside source",
+      "scope": "complete upstream source prepared, no build or runtime adoption"
     }
   },
   "cxOracle": {
@@ -53,7 +80,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "source-port-prepared"
     },
     {
       "patch": "cider/0003-winemac-initialize-style-masks.patch",
@@ -100,7 +127,7 @@
         "cider-cx26-wma1-mm2.json",
         "cider-cx26-wma1.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "source-port-prepared"
     },
     {
       "patch": "cider/0008-winmm-lazy-format-probing.patch",
@@ -110,7 +137,7 @@
         "cider-cx26-wma1-mm1.json",
         "cider-cx26-wma1-mm2.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "semantic-rebase-required"
     },
     {
       "patch": "cider/0014-winmm-initialize-before-worker-lock.patch",
@@ -119,7 +146,7 @@
       "recipes": [
         "cider-cx26-wma1-mm2.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "semantic-rebase-required"
     },
     {
       "patch": "highball/0001-use-the-real-user-name.patch",
@@ -158,7 +185,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "source-port-prepared"
     },
     {
       "patch": "highball/0005-ntdll-yield-after-auto-event-set.patch",
@@ -296,9 +323,87 @@
       "zeroFuzzAndOffset": true,
       "scope": "source preparation only, not compilation or runtime acceptance",
       "recipeSelected": false
+    },
+    {
+      "patch": "engine/porting/wine-11.18/0002-wined3d-prefer-copy-swap-pixel-formats.patch",
+      "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+      "file": "dlls/wined3d/context_gl.c",
+      "originalSHA256": "25b852086ed524fed9b9be49f49af146491b7ec1eee37211ff1dd45ee85c1263",
+      "portedSHA256": "42627ca2eb0a9f172aed787b16dc2d295e1b562fcefce787c3473e246ebf40c7",
+      "patchSHA256": "a0ddccd214db3ed5499739503a844cb81646c182b93186d653f014f231e076ea",
+      "zeroFuzzAndOffset": true,
+      "scope": "source preparation only, not compilation or runtime acceptance",
+      "recipeSelected": false
+    },
+    {
+      "patch": "engine/porting/wine-11.18/0007-winegstreamer-clear-dmo-output-status.patch",
+      "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+      "file": "dlls/winegstreamer/wg_sample.c",
+      "originalSHA256": "3c58ebdf5c82f7b81b71e16396b522437b799b118cddaa07ffe02482215c6bc8",
+      "portedSHA256": "241e08c21dedb97db3cc29e91904e46e7ecb7ae1f1a5062787cdefb425e48d5e",
+      "patchSHA256": "b50b50f5a8e939d813004b91091be5baf7bbdfb8862247ba457ad25ac48c01c1",
+      "zeroFuzzAndOffset": true,
+      "scope": "source preparation only, not compilation or runtime acceptance",
+      "recipeSelected": false
+    },
+    {
+      "patch": "engine/porting/wine-11.18/0003-ntdll-winedllpath-prepend.patch",
+      "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+      "file": "dlls/ntdll/unix/loader.c",
+      "originalSHA256": "b4adcaab240ecca26305f212894597b6250a253f181f0861ba67e7a3376d24fa",
+      "portedSHA256": "d2cad0f2697a651987320cd96562abcf80a9b5cc9ca217377661c602d4c550bb",
+      "patchSHA256": "0b11f524026cf8f40d21b9db0f8252819a98cd7fe70e0ba6ffd8ba182ff54a4f",
+      "zeroFuzzAndOffset": true,
+      "scope": "source preparation only, not compilation or runtime acceptance",
+      "recipeSelected": false
     }
   ],
   "buildReady": false,
   "runtimeAccepted": false,
-  "changesUserEngineOrBottle": false
+  "changesUserEngineOrBottle": false,
+  "dependencyFindings": [
+    {
+      "topic": "audio/winmm",
+      "sourceFile": "dlls/winmm/waveform.c",
+      "status": "semantic-rebase-required",
+      "findings": [
+        "Upstream WinMM no longer has WINMM_GetSupportedFormats initialization probes; it advertises legacy PCM masks with a different format-mapping path. Do not import the old lazy probe patch without checking actual format support semantics.",
+        "Upstream already uses an InitOnce callback with a different signature and owns the MMDevice enumerator differently.",
+        "The old Cider publication lock added by 0008 is absent; 0014 cannot be applied as if that exact old dependency cycle still exists. New callback/worker lock behavior still requires a separate review and runtime evidence."
+      ],
+      "acceptedAsEquivalent": false,
+      "runtimeVerified": false
+    },
+    {
+      "topic": "sync/msync",
+      "status": "dependency-audit-only",
+      "acceptedAsEquivalent": false,
+      "runtimeVerified": false,
+      "files": {
+        "server/inproc_sync.c": {
+          "upstreamSHA256": "0e7173cc883a2ee1d319608c2e1ac8f1a1411398486b7f253974e2fbb55651ac",
+          "cxOracleSHA256": "79009f53d087430a5b41efbc9e5b645f5ec55cf1438bebd260a7ed756f14899f"
+        },
+        "server/object.h": {
+          "upstreamSHA256": "62374414bb40ab7a289fbd32ec1feaf44eece37f550f904232087e9f7f4af74c",
+          "cxOracleSHA256": "4eeb93c65b13544bde8d4635f0fdd0df71b072be2b990e07394b0547fdc21904"
+        },
+        "server/protocol.def": {
+          "upstreamSHA256": "100fa300a1792da89feb3d62606ffe6223c72ced737ed47cd22a66c8753ca6a0",
+          "cxOracleSHA256": "efcfc4fef3a0e2c02ada7eeae79a32cc947b1537d4f218caad220b2a6bac3c2b"
+        },
+        "dlls/ntdll/unix/sync.c": {
+          "upstreamSHA256": "882b5023241fcb5204e38a4da0899421370ad718049e5db35662f78cf71068c8",
+          "cxOracleSHA256": "4e3345b1f8fdd5ffe33bd2494489058ec9e722b2bb1f987ff5052791200a08a6"
+        }
+      },
+      "findings": [
+        "Both bases already use get_sync and the inproc synchronization cache; preserve upstream ownership/access checks rather than introducing parallel per-object hooks.",
+        "Upstream server inproc_sync.c uses designated object_ops initializers. Rebase the macOS backend against this layout; do not copy the older positional initializer.",
+        "CX transports a shared-memory index in get_inproc_sync_fd replies while upstream only transports an fd. Server protocol, client receive/close paths and generated tables must change together; no literal CX protocol version transplant.",
+        "CX msync_wait_objs takes BOOLEAN wait_any; upstream linux_wait_objs takes WAIT_TYPE. Preserve WaitAny/WaitAll/WaitAll-one-object and APC status semantics explicitly.",
+        "Highball0005 yield requires the actual msync backend and matching server fallback; the yield-only patch is not an implementation of macOS inproc synchronization."
+      ]
+    }
+  ]
 }

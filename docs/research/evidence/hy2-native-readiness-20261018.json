@@ -1,0 +1,148 @@
+{
+  "schema": "cider.hy2-native-preparation/v1",
+  "date": "2026-10-18",
+  "hy1HumanConfirmation": "User: logged in, image and buttons normal. No fresh CAPTCHA/update transaction inferred.",
+  "authorization": {
+    "id": "user-preparation-20261018-hy2-independent60",
+    "phase": "preparation",
+    "additionalSeconds": 3600,
+    "oldReservation": "ba2ed2b2-3f78-4911-b941-bd5b3d369dd2",
+    "oldReservedSeconds": 300,
+    "approvedObservedSeconds": 330.987,
+    "extraChargeSeconds": 31,
+    "schemaAfterReconciliation": "cider.windows-machine-budget/v2"
+  },
+  "batches": [
+    {
+      "id": "f085ace4-2e17-4ce2-a816-16b1690db08a",
+      "reservedSeconds": 180,
+      "elapsedOuterSeconds": 8.162,
+      "endpointKind": "stored-public",
+      "remoteTaskDispatched": false,
+      "passed": false,
+      "cleanupConfirmed": true,
+      "closed": true,
+      "nativeReceipt": null
+    },
+    {
+      "id": "272e4976-babf-4658-849d-6777cab9037f",
+      "reservedSeconds": 180,
+      "elapsedOuterSeconds": 0.353,
+      "endpointKind": "recorded-lan-same-host-pin",
+      "remoteTaskDispatched": false,
+      "passed": false,
+      "cleanupConfirmed": true,
+      "closed": true,
+      "nativeReceipt": null
+    },
+    {
+      "id": "89806899-f9c5-4671-8630-85460eba1ed5",
+      "reservedSeconds": 120,
+      "elapsedOuterSeconds": 3.238,
+      "endpointKind": "recorded-lan-same-host-pin",
+      "remoteTaskDispatched": true,
+      "passed": false,
+      "cleanupConfirmed": true,
+      "closed": true,
+      "nativeReceipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "89806899-f9c5-4671-8630-85460eba1ed5",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "completed",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 2.344,
+        "reserved_seconds": 60,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 1,
+        "job_total_processes": 1
+      }
+    },
+    {
+      "id": "cdaaa9ca-fb93-452c-bdf5-34996179a9fa",
+      "reservedSeconds": 90,
+      "elapsedOuterSeconds": 3.093,
+      "endpointKind": "recorded-lan-same-host-pin",
+      "remoteTaskDispatched": true,
+      "passed": true,
+      "cleanupConfirmed": true,
+      "closed": true,
+      "nativeReceipt": {
+        "schema": "cider.windows-run-cleanup/v1",
+        "reservation_id": "cdaaa9ca-fb93-452c-bdf5-34996179a9fa",
+        "runner_schema": "cider.windows-cli-job/v1",
+        "status": "completed",
+        "cleanup_confirmed": true,
+        "elapsed_seconds": 2.172,
+        "reserved_seconds": 44,
+        "elapsed_scope": "owned-child-cleanup-before-receipt-publication",
+        "win32_error": 0,
+        "child_started": true,
+        "primary_exit_code": 0,
+        "job_total_processes": 1
+      }
+    }
+  ],
+  "newBatchReservedTotalSeconds": 570,
+  "newBatchObservedTotalSeconds": 14.846,
+  "remainingSeconds": {
+    "preparation": 2999,
+    "test": 3600
+  },
+  "pending": [],
+  "userBusyForDiskCleanup": true,
+  "nativeResourceSummary": {
+    "os_version": "10.0.26200",
+    "os_build": "26200",
+    "architecture": "64 \u4f4d",
+    "logical_processors": 20,
+    "total_memory_bytes": 34163294208,
+    "free_memory_kib": 7819392,
+    "hypervisor_present": true,
+    "virtualization": [
+      {
+        "VirtualizationFirmwareEnabled": false,
+        "SecondLevelAddressTranslationExtensions": false,
+        "VMMonitorModeExtensions": false
+      }
+    ],
+    "fixed_disks": [
+      {
+        "DeviceID": "C:",
+        "Size": 321194553344,
+        "FreeSpace": 29280915456
+      },
+      {
+        "DeviceID": "D:",
+        "Size": 1725834457088,
+        "FreeSpace": 5316608000
+      }
+    ],
+    "hyper_v_features": [
+      {
+        "Name": "Microsoft-Hyper-V-All",
+        "InstallState": 2
+      },
+      {
+        "Name": "Microsoft-Hyper-V",
+        "InstallState": 2
+      }
+    ],
+    "vmms_status": "NotInstalled",
+    "existing_vm_states": [],
+    "errors": []
+  },
+  "ewdkMounted": true,
+  "existingReferenceClientPresent": true,
+  "existingReferenceDriverPresent": true,
+  "runnerSourceSHA256": "8486693f5793cdb39f5d00de230100feb2a8aa81c6ea2530d6326294a66d9af2",
+  "runnerBinarySHA256": "c9a37cb8a66aa505fc45e101f499eef8f819b07017fbd3f39182bb876ae34ae8",
+  "nativeJobScope": "normal owned PowerShell creation/exit/empty-job cleanup only; deadline/STOP/forced-exit/VM control not verified",
+  "nativeKernelConformance": false,
+  "vmCreatedOrStarted": false,
+  "driverLoaded": false,
+  "rdpSessionStarted": false,
+  "hostProtectionChanged": false,
+  "connectionDataAndRawLogs": "private local control directory only"
+}

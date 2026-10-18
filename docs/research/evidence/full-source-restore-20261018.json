@@ -107,6 +107,24 @@
     "existingRecipePatchUnion": 21,
     "sourcePortsPrepared": 1,
     "buildReady": false,
-    "runtimeAccepted": false
-  }
+    "runtimeAccepted": false,
+    "sourceManifestCommit": "f10cdcc6c820920f00ddda9855e6c2c53ea16bff"
+  },
+  "hy1HumanConfirmation": {
+    "date": "2026-10-18",
+    "source": "direct user reply",
+    "reply": "Logged in; image and buttons normal",
+    "scope": [
+      "logged-in state",
+      "launcher rendering",
+      "launcher buttons"
+    ],
+    "notObserved": [
+      "new login transaction",
+      "actual CAPTCHA challenge",
+      "full update transaction",
+      "gameplay"
+    ]
+  },
+  "laterAuthorizedBudgetChange": "docs/research/evidence/hy2-native-readiness-20261018.json"
 }

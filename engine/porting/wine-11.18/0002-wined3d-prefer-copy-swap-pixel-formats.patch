@@ -1,0 +1,22 @@
+Subject: [porting] 0002-wined3d-prefer-copy-swap-pixel-formats.patch
+
+Source: wine-mirror/wine commit 7b3fff76fa5178f6ce0141b2c776afa2a822f101.
+Cider-Topic: graphics/d3d9-gl
+Status: source port only; not selected by a recipe or runtime-validated.
+Preserves the reviewed CX26 Cider fix; existing native/runtime evidence stays base-specific.
+
+--- a/dlls/wined3d/context_gl.c
++++ b/dlls/wined3d/context_gl.c
+@@ -1681,8 +1681,10 @@
+             continue;
+ 
+         value = 1;
+-        if (swap_effect_copy && cfg->swap_method == WGL_SWAP_COPY_ARB)
+-            value += 1;
++        /* Prefer copy-swap for partial presents too: keep the existing Cider
++         * path which avoids per-frame GPU readback and GDI composition. */
++        if (cfg->swap_method == WGL_SWAP_COPY_ARB)
++            value += swap_effect_copy ? 1 : 64;
+         /* We try to locate a format which matches our requirements exactly. In case of
+          * depth it is no problem to emulate 16-bit using e.g. 24-bit, so accept that. */
+         if (cfg->depthSize == ds_format->depth_size)

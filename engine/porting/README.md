@@ -16,11 +16,25 @@
 | x87sidecar | Highball0012 | 继续显式实验、默认关闭；不作游戏兼容依据 |
 | kernel对象候选 | 0009/0012/0013/0015–0020 | 真实所有权及原生对照；新base重新生成协议表，不能照搬1810和CX生成头 |
 
-## 本轮已做的第一个源码迁移
+## 已完成的四个源码迁移
 
 `wine-11.18/0001-ntdll-preflight-policy-deny.patch`移植既有Cider0001。preflight helper与CX oracle函数体完全相同，调用位于PE解析成功之后、选择machine和创建进程之前。新代码只新增同一策略函数和检查，不修改普通API访问判断或游戏裁定。
 
-已在固定commit的process.c临时副本上以zero fuzz/offset应用，结果字节与预期一致；证据在输入JSON。没有编译整个Wine、执行迁移后引擎或提升兼容状态，不能据此称v1已可用。其余主题仍为not-yet-ported。
+另已迁移Cider0002的D3D9/GL COPY交换评分，以及Cider0007的DMO输出标志提前清零。前者保留原格式约束/评分关系，后者保留新上游的STREAM_CHANGE处理、buffer数据和真实HRESULT，仅调整旧状态清理时点。
+
+另保留Highball0003的组件覆盖目录优先级：`WINEDLLPATH_PREPEND`在引擎builtin之前，原`WINEDLLPATH`仍在之后，空段继续沿原分隔规则忽略；没有增加隐式当前目录查找。
+
+四个补丁均在固定commit的相应源码临时副本上以zero fuzz/offset应用，结果字节与预期一致；逐文件/补丁摘要及状态在输入JSON。父代理核对新增/替换块、原错误分支与资源释放顺序；没有编译整个Wine、执行迁移后引擎或提升兼容状态，不能据此称v1已可用。
+
+## WinMM迁移的实际差异
+
+固定Wine11.18的waveform.c已改变初始化：不存在旧WINMM_GetSupportedFormats初始化探测，InitOnce回调签名及enumerator归属也不同，格式掩码采用另一套映射路径。旧0008及依赖它的0014不能直接照贴；新base未包含旧0008引入的那段发布锁，并不等于新worker/callback组合已经证明无死锁。
+
+输入JSON将这两项改记semantic-rebase-required，而非“已上游修复/等效通过”。后续需按实际格式转换/查询结果、枚举错误回滚和冷启动锁序重整，保持原能力与真实返回；现阶段没有变更用户在用mm1/mm2的实现或采用状态。
+
+## 同步依赖核对
+
+CX与固定上游已经共享get_sync/inproc缓存模型；迁移需要保留该所有权/权限路径。上游object_ops已改为指定字段初始化，CX的macOS分支不能连旧位置表整体复制。共享内存索引与Unix fd的收发、关闭及协议生成必须成组处理；WaitAny/WaitAll与APC返回也须明确映射。单独移植Highball0005的yield不足以得到msync。当前只完成具体依赖核对，尚未修改同步后端，逐文件摘要在输入JSON。
 
 ## 后续次序
 

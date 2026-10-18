@@ -1,0 +1,27 @@
+Subject: [porting] 0007-winegstreamer-clear-dmo-output-status.patch
+
+Source: wine-mirror/wine commit 7b3fff76fa5178f6ce0141b2c776afa2a822f101.
+Cider-Topic: media/dmo
+Status: source port only; not selected by a recipe or runtime-validated.
+Preserves the reviewed CX26 Cider fix; existing native/runtime evidence stays base-specific.
+
+--- a/dlls/winegstreamer/wg_sample.c
++++ b/dlls/winegstreamer/wg_sample.c
+@@ -545,6 +545,9 @@
+ 
+     TRACE_(mfplat)("transform %#I64x, buffer %p.\n", transform, buffer);
+ 
++    /* Failed reads can become S_FALSE; discard stale output flags first. */
++    buffer->dwStatus = 0;
++
+     if (FAILED(hr = wg_sample_create_dmo(buffer->pBuffer, &wg_sample)))
+         return hr;
+     wg_sample->size = 0;
+@@ -557,7 +560,6 @@
+         return hr;
+     }
+ 
+-    buffer->dwStatus = 0;
+     if (wg_sample->flags & WG_SAMPLE_FLAG_INCOMPLETE)
+         buffer->dwStatus |= DMO_OUTPUT_DATA_BUFFERF_INCOMPLETE;
+     if (wg_sample->flags & WG_SAMPLE_FLAG_HAS_PTS)
