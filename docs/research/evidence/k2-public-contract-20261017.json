@@ -1,0 +1,110 @@
+{
+  "schema": "cider.k2-public-contract-investigation/v1",
+  "K2Implemented": false,
+  "privateAccessPathAdded": false,
+  "accessChecksChanged": false,
+  "userReportedGenericNotice": true,
+  "newToolRejectionConfirmed": false,
+  "refusalDetails": "user provided generic capability caution, no error code; exact classification unknown",
+  "sourceSHA256": "841f740e30ea600d40cb49870b06ae4d8b25e10444f6a890c0a294f2e2c46783",
+  "observations": {
+    "scope": "observations only, own-process public APIs; no native Windows contract inferred",
+    "records": [
+      {
+        "architecture": "x86_64",
+        "observation": {
+          "schema": "cider.own-token-zero-access-observation/v1",
+          "wine": true,
+          "processBits": 64,
+          "openZero": {
+            "success": false,
+            "error": 5,
+            "querySuccess": false,
+            "queryError": 6
+          },
+          "openQuery": {
+            "success": true,
+            "error": 0
+          },
+          "duplicateZero": {
+            "success": true,
+            "error": 0,
+            "querySuccess": false,
+            "queryError": 5
+          },
+          "cleanupError": 0,
+          "mutatedToken": false
+        },
+        "cliExitCode": 0
+      },
+      {
+        "architecture": "i686",
+        "observation": {
+          "schema": "cider.own-token-zero-access-observation/v1",
+          "wine": true,
+          "processBits": 32,
+          "openZero": {
+            "success": false,
+            "error": 5,
+            "querySuccess": false,
+            "queryError": 6
+          },
+          "openQuery": {
+            "success": true,
+            "error": 0
+          },
+          "duplicateZero": {
+            "success": true,
+            "error": 0,
+            "querySuccess": false,
+            "queryError": 5
+          },
+          "cleanupError": 0,
+          "mutatedToken": false
+        },
+        "cliExitCode": 0
+      }
+    ]
+  },
+  "nativeWindowsOperations": 0,
+  "cleanupVerified": true,
+  "excludedRoutes": [
+    "query-only is not complete kernel contract",
+    "zero-access token open",
+    "duplicate or reuse current-process token pseudohandle for a different target"
+  ],
+  "releaseImplemented": true,
+  "referenceImplemented": false,
+  "releaseBodySHA256": "be8e5115479d9dc395018a19c29ae2bb3592d7b9ce520b06104664a6ee502f19",
+  "genericDereferenceUnchanged": true,
+  "releasePEProof": {
+    "scope": "linked real PE body and calling convention only; no live token backend or Windows execution",
+    "modules": [
+      {
+        "arch": "x86_64",
+        "moduleSHA256": "1ab71405b9207b6b2192d19931963532ac5dbdf04a04b2459658c8f185556d04",
+        "bytes": 1905913,
+        "symbol": "PsDereferencePrimaryToken",
+        "asmSHA256": "60a9b7ca406b36821bcd95886768fbf12d03734f9dd0407fcba35035183501ef",
+        "delegatesToObjectDereference": true
+      },
+      {
+        "arch": "i386",
+        "moduleSHA256": "6f895dee4eb7480f2afa24f4404924bcbb4175033038705f5a1460721d4ff900",
+        "bytes": 1647395,
+        "symbol": "_PsDereferencePrimaryToken@4",
+        "asmSHA256": "22b7322ad935c1d1ae1eb1045a5c0a3274d43a8c5f8ffcf2c8b30791390d091a",
+        "delegatesToObjectDereference": true
+      }
+    ],
+    "lookupStillStub": true
+  },
+  "releaseChecks": {
+    "scope": "exact wrapper with modeled generic dereference; not actual token backend or native Windows",
+    "extractedSHA256": "be8e5115479d9dc395018a19c29ae2bb3592d7b9ce520b06104664a6ee502f19",
+    "checks": 3,
+    "exitCode": 0,
+    "output": "PASS: exact pointer and one release, final release, underlying failure propagation",
+    "primaryLookupImplemented": false
+  }
+}
