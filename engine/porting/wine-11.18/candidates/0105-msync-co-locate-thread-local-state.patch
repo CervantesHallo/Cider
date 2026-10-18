@@ -1,0 +1,222 @@
+macOS: co-locate record and retired flags in one native TLS object.
+
+Cider-Topic: sync/msync
+Cider-Requires: 0104-msync-thread-local-fork-admission.patch
+Cider-Status: nondefault candidate; performance and continuous acceptance separate
+Cider-Validation: exact mechanical reverse, SDK15.4 native build and PE32/64 runtime
+
+Keep all state transitions, the per-thread destructor key, independent leases,
+fork refresh, atomic commit, and recovery unchanged. Only the backing TLS
+object changes. The two hot getters each resolve one TLS object instead of two.
+This static call count is not a claim of measured speedup.
+
+diff --git a/dlls/ntdll/unix/msync.c b/dlls/ntdll/unix/msync.c
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -562,7 +562,12 @@
+ }
+ 
+ static struct msync_coord coord;
+-static __thread int coord_retired;
++struct coord_fd_record;
++static __thread struct
++{
++    int retired;
++    struct coord_fd_record *record;
++} coord_thread;
+ static pthread_key_t coord_fd_key;
+ static pthread_once_t coord_key_once = PTHREAD_ONCE_INIT;
+ 
+@@ -579,7 +584,6 @@
+ static pthread_mutex_t coord_fork_mutex = PTHREAD_MUTEX_INITIALIZER;
+ static pthread_mutex_t coord_fd_mutex = PTHREAD_MUTEX_INITIALIZER;
+ static struct coord_fd_record *coord_fds;
+-static __thread struct coord_fd_record *coord_record;
+ static __thread sigset_t coord_fork_signals;
+ static __thread int coord_fork_cancel_state;
+ 
+@@ -662,8 +666,8 @@
+     /* fork inherits OTHER threads' open descriptions too. CLOEXEC is too late:
+      * a stopped pre-exec child must not retain its parent's transaction lock. */
+     for (record = coord_fds; record; record = record->next) close( record->fd );
+-    coord_fds = coord_record = NULL;
+-    coord_retired = 1; /* child must exec/_exit; never enter the old Wine instance */
++    coord_fds = coord_thread.record = NULL;
++    coord_thread.retired = 1; /* child must exec/_exit; never enter the old Wine instance */
+     coord_fork_parent();
+ }
+ 
+@@ -673,7 +677,7 @@
+     sigset_t signals, mask;
+     int cancel_state;
+     msync_coord_signal_mask( &mask, &server_block_set );
+-    if (coord_retired) return; /* pre-exec child already closed inherited records */
++    if (coord_thread.retired) return; /* pre-exec child already closed inherited records */
+     if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &cancel_state ) ||
+         pthread_sigmask( SIG_BLOCK, &mask, &signals )) msync_coord_fatal( "cleanup mask" );
+     if (record)
+@@ -686,8 +690,8 @@
+         pthread_mutex_unlock( &coord_fd_mutex );
+         free( record );
+     }
+-    coord_record = NULL;
+-    coord_retired = 1;
++    coord_thread.record = NULL;
++    coord_thread.retired = 1;
+     if (pthread_sigmask( SIG_SETMASK, &signals, NULL ) ||
+         pthread_setcancelstate( cancel_state, NULL )) msync_coord_fatal( "cleanup restore" );
+ }
+@@ -709,12 +713,12 @@
+ void msync_thread_cleanup(void)
+ {
+     msync_unwind_waits();
+-    if (coord_record)
++    if (coord_thread.record)
+     {
+         if (pthread_setspecific( coord_fd_key, NULL )) msync_coord_fatal( "TLS cleanup" );
+-        coord_close_fd( coord_record );
+-    }
+-    coord_retired = 1;
++        coord_close_fd( coord_thread.record );
++    }
++    coord_thread.retired = 1;
+ }
+ 
+ void msync_set_thread_epoch( unsigned __int64 epoch )
+@@ -724,8 +728,8 @@
+ 
+ static int coord_fd(void)
+ {
+-    if (coord_retired) msync_coord_fatal( "retired internal reentry" );
+-    if (!coord_record)
++    if (coord_thread.retired) msync_coord_fatal( "retired internal reentry" );
++    if (!coord_thread.record)
+     {
+         sigset_t signals, mask;
+         int cancel_state;
+@@ -733,25 +737,25 @@
+         if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &cancel_state ) ||
+             pthread_sigmask( SIG_BLOCK, &mask, &signals )) msync_coord_fatal( "TLS mask" );
+         if (pthread_once( &coord_key_once, coord_make_key )) msync_coord_fatal( "TLS init" );
+-        if (!(coord_record = malloc( sizeof(*coord_record) ))) msync_coord_fatal( "fd record allocation" );
++        if (!(coord_thread.record = malloc( sizeof(*coord_thread.record) ))) msync_coord_fatal( "fd record allocation" );
+         if (pthread_mutex_lock( &coord_fd_mutex )) msync_coord_fatal( "fd registry lock" );
+-        coord_record->thread_data = get_thread_data();
+-        coord_record->fd = msync_coord_open( inproc_device_fd );
+-        coord_record->token = msync_coord_new_lease( &coord, coord_record->fd );
+-        coord_record->next = coord_fds;
+-        coord_fds = coord_record;
+-        if (pthread_setspecific( coord_fd_key, coord_record )) msync_coord_fatal( "TLS fd" );
++        coord_thread.record->thread_data = get_thread_data();
++        coord_thread.record->fd = msync_coord_open( inproc_device_fd );
++        coord_thread.record->token = msync_coord_new_lease( &coord, coord_thread.record->fd );
++        coord_thread.record->next = coord_fds;
++        coord_fds = coord_thread.record;
++        if (pthread_setspecific( coord_fd_key, coord_thread.record )) msync_coord_fatal( "TLS fd" );
+         if (pthread_mutex_unlock( &coord_fd_mutex )) msync_coord_fatal( "fd registry unlock" );
+         if (pthread_sigmask( SIG_SETMASK, &signals, NULL ) ||
+             pthread_setcancelstate( cancel_state, NULL )) msync_coord_fatal( "TLS restore" );
+     }
+-    return coord_record->fd;
++    return coord_thread.record->fd;
+ }
+ 
+ static uint64_t coord_token(void)
+ {
+-    if (!coord_record || coord_retired) msync_coord_fatal( "missing thread lease" );
+-    return coord_record->token;
++    if (!coord_thread.record || coord_thread.retired) msync_coord_fatal( "missing thread lease" );
++    return coord_thread.record->token;
+ }
+ 
+ static void *coord_slot( unsigned int idx, int map )
+@@ -779,7 +783,7 @@
+ static void coord_enter( struct msync_coord_guard *guard )
+ {
+     unsigned int tid = GetCurrentThreadId();
+-    if (coord_retired || !get_thread_data()->msync_private_frames)
++    if (coord_thread.retired || !get_thread_data()->msync_private_frames)
+         msync_coord_fatal( "transaction outside pinned frame" );
+     msync_coord_enter( &coord, -1, 0, guard );
+     if (!coord_thread_epoch || (coord_thread_epoch & 1) || tid >= MSYNC_COORD_TIDS ||
+@@ -940,7 +944,7 @@
+     struct msync_coord_guard guard;
+     struct msync_coord_entry entry;
+     ULONG current;
+-    if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
++    if (coord_thread.retired) return STATUS_THREAD_IS_TERMINATING;
+     semaphore = get_shm( obj );
+     coord_enter( &guard );
+     current = semaphore->count;
+@@ -961,7 +965,7 @@
+     struct semaphore *semaphore;
+     struct msync_coord_guard guard;
+     SEMAPHORE_BASIC_INFORMATION result = {0};
+-    if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
++    if (coord_thread.retired) return STATUS_THREAD_IS_TERMINATING;
+     semaphore = get_shm( obj );
+     coord_enter( &guard );
+     result.CurrentCount = semaphore->count;
+@@ -978,7 +982,7 @@
+     struct msync_coord_entry entry;
+     LONG current;
+     int yield;
+-    if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
++    if (coord_thread.retired) return STATUS_THREAD_IS_TERMINATING;
+     event = get_shm( obj );
+     coord_enter( &guard );
+     current = event->signaled;
+@@ -998,7 +1002,7 @@
+     struct msync_coord_guard guard;
+     struct msync_coord_entry entry;
+     LONG current;
+-    if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
++    if (coord_thread.retired) return STATUS_THREAD_IS_TERMINATING;
+     event = get_shm( obj );
+     coord_enter( &guard );
+     current = event->signaled;
+@@ -1012,7 +1016,7 @@
+ NTSTATUS msync_pulse_event_obj( int obj, LONG *prev_state )
+ {
+     LONG current;
+-    if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
++    if (coord_thread.retired) return STATUS_THREAD_IS_TERMINATING;
+     msync_set_event_obj( obj, &current );
+     sched_yield();
+     msync_reset_event_obj( obj, NULL );
+@@ -1026,7 +1030,7 @@
+     struct event *event;
+     struct msync_coord_guard guard;
+     EVENT_BASIC_INFORMATION result = {0};
+-    if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
++    if (coord_thread.retired) return STATUS_THREAD_IS_TERMINATING;
+     event = get_shm( obj );
+     coord_enter( &guard );
+     result.EventState = event->signaled;
+@@ -1042,7 +1046,7 @@
+     struct msync_coord_guard guard;
+     struct msync_coord_entry entry;
+     ULONG current;
+-    if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
++    if (coord_thread.retired) return STATUS_THREAD_IS_TERMINATING;
+     mutex = get_shm( obj );
+     coord_enter( &guard );
+     if (mutex->tid != GetCurrentThreadId())
+@@ -1064,7 +1068,7 @@
+     struct mutex *mutex;
+     struct msync_coord_guard guard;
+     MUTANT_BASIC_INFORMATION result = {0};
+-    if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
++    if (coord_thread.retired) return STATUS_THREAD_IS_TERMINATING;
+     mutex = get_shm( obj );
+     coord_enter( &guard );
+     result.CurrentCount = (LONG)(1u - mutex->count);
+@@ -1143,7 +1147,7 @@
+     unsigned int i, j, blocked;
+     int ready, abandoned;
+ 
+-    if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
++    if (coord_thread.retired) return STATUS_THREAD_IS_TERMINATING;
+     if (count > MAXIMUM_WAIT_OBJECTS || (!count && !alert_obj)) return STATUS_INVALID_PARAMETER;
+     if (tid >= shm_tid_size / sizeof(*shm_tid_map)) return STATUS_INSUFFICIENT_RESOURCES;
+     if (alert_obj) alert_obj_shm = get_shm( alert_obj );

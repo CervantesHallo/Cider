@@ -83,12 +83,12 @@
     "msync-coordinator.c": "bc5f87682d1c746ccdc900eafa3b7c6116c47acfbde337ff18f6758d798bda58",
     "waitall-lifecycle.c": "6dbe7002ce6a9afbe589bd9dd63b8900669c29d024080baab0ae17c2d12ebb2f",
     "waitall-processes.c": "653075f530a1467c1c0d4198e1b71b07be2a09a444d73c28c580c9b9a7ca9c62",
-    "waitall.c": "7c00c38c602793d31d5504fd25cb611d6889f0bda124582142468aa0b6a14f29",
+    "waitall.c": "a1c2ff32dbb4b499535b5ce0e414f14284f4e4a1a3e0c553ec9eed63065d2b9c",
     "stats-snapshot.c": "c214a60d84c48966d29a01cdc71775c458e9cfd03ebd5ddd6e6693b2d7461245",
     "policy-probe.c": "d92f25d528e8422829c3750d040050d7b44f93f6c12f6c1bc72daa2ed8f5384c",
     "owned-processes.swift": "0ddd1a60ca0a3e8d8427695be6630ee7809162ed4260a344c99068a3e640855b",
-    "run-mac.py": "c036e912483a42760217ff31caa4e6341544062073e2e61b0470369da30b292e",
-    "README.md": "99f22902783e093a8707695583d0bda94b0d42cffc918c46b4cdde3c7c6a1897"
+    "run-mac.py": "f8cd87217df705ad476d1334a94f95730139451a4a4bbfd2e5e328561a29fb60",
+    "README.md": "31b8dfc3c5bda76a1428013ab202de4954fee6aaa83ec08a5ed682f49a134286"
   },
   "protectedBefore": {
     "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "3febfbf37dd04e8bdc261e7494d4f4cf208afa86386f265894f352404c66064d",
@@ -8065,5 +8065,3516 @@
     "binarySHA256": "7a3fbda8810bddb2c057f686632cc6865192e30f260927322a0ec27842bd5ade",
     "capturedUnix": 1792325714.2385468
   },
+  "batteryPerformanceCohorts": [
+    {
+      "rawResult": "out/waitall-mac-20261018-admission/paired-perf-battery-v1.json",
+      "rawResultSHA256": "7c966ee9f039510d19005b0567e196f0ca36d5d43bd1c0c315a3962f39856143",
+      "state": "complete",
+      "protocol": {
+        "schema": "cider.waitall-battery-perf/v1",
+        "declaredUTC": "2026-10-18T14:15:08.542258+00:00",
+        "declaredBeforeRuns": true,
+        "powerCondition": "Battery Power with lowpowermode0 throughout; no sleep; separate from AC cohort",
+        "iterations": 250000,
+        "threads": 4,
+        "controlWarmupPerWorker": 16000000,
+        "controlMultiplier": 1024,
+        "primary": "actual auto-event signal-to-peer-return p50; not guaranteed blocked wake; overhead not subtracted",
+        "threshold": "same native pair server median of three / candidate median of three >=5",
+        "controlThreshold": "private uncontended CS median relative difference within3percent",
+        "orders": [
+          [
+            "WaitAll Admission Server",
+            "WaitAll Fast7",
+            "WaitAll Admission"
+          ],
+          [
+            "WaitAll Admission",
+            "WaitAll Admission Server"
+          ],
+          [
+            "WaitAll Admission Server",
+            "WaitAll Admission"
+          ]
+        ],
+        "supplemental": "Fast7 single battery observation plus first Admission Server observation cover the two missing AC trial roles only as separately labelled battery diagnostics; not appended to AC data",
+        "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+        "legacyACArtifactSHA256": "4b3311654891a5567edc2a69ee932b051ad4e36a48721c6aa3f3e6fcd03997e6",
+        "legacyACTrials": 13,
+        "legacyACRemainsIncomplete": true,
+        "fullM1Accepted": false
+      },
+      "rows": [
+        {
+          "rep": 0,
+          "bottle": "WaitAll Admission Server",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792332908813073000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 10100.0,
+            "p95_ns": 17100.0,
+            "p99_ns": 37200.0,
+            "p99_9_ns": 142600.0,
+            "max_ns": 20998100.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 20600.0,
+            "p95_ns": 32500.0,
+            "p99_ns": 71100.0,
+            "p99_9_ns": 247800.0,
+            "max_ns": 21011400.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 25343419,
+            "qpc_batch_ticks_sum": 101136446,
+            "wall_ns": 2534341900.0,
+            "ns_per_op": 1.237,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 78099850.0,
+            "batch_p95_ns": 83709600.0,
+            "batch_p99_ns": 86237700.0,
+            "batch_max_ns": 88722800.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 0,
+          "bottle": "WaitAll Fast7",
+          "role": "supplemental",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018/runs/1792332943658591000-cider-lab-wine11.18-waitall-fast7-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "8fa01bd094b8f07809ec709f04205bd217bcb0298134ec38a169a9ccfc638188",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2300.0,
+            "p95_ns": 4500.0,
+            "p99_ns": 8000.0,
+            "p99_9_ns": 54900.0,
+            "max_ns": 841600.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4800.0,
+            "p95_ns": 9300.0,
+            "p99_ns": 17900.0,
+            "p99_9_ns": 121300.0,
+            "max_ns": 846500.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 28650793,
+            "qpc_batch_ticks_sum": 114132195,
+            "wall_ns": 2865079300.0,
+            "ns_per_op": 1.399,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 84159000.0,
+            "batch_p95_ns": 109790000.0,
+            "batch_p99_ns": 119525500.0,
+            "batch_max_ns": 125539400.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 0,
+          "bottle": "WaitAll Admission",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792332964151904000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 4100.0,
+            "p99_ns": 6500.0,
+            "p99_9_ns": 23900.0,
+            "max_ns": 60900.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4300.0,
+            "p95_ns": 8400.0,
+            "p99_ns": 11200.0,
+            "p99_9_ns": 42200.0,
+            "max_ns": 343400.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 26617566,
+            "qpc_batch_ticks_sum": 106071758,
+            "wall_ns": 2661756600.0,
+            "ns_per_op": 1.3,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 80152650.0,
+            "batch_p95_ns": 102082400.0,
+            "batch_p99_ns": 125287900.0,
+            "batch_max_ns": 126204200.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 1,
+          "bottle": "WaitAll Admission",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792332977812416000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 3100.0,
+            "p99_ns": 5800.0,
+            "p99_9_ns": 10100.0,
+            "max_ns": 46200.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4900.0,
+            "p95_ns": 7500.0,
+            "p99_ns": 10800.0,
+            "p99_9_ns": 14300.0,
+            "max_ns": 60700.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 25864495,
+            "qpc_batch_ticks_sum": 103315939,
+            "wall_ns": 2586449500.0,
+            "ns_per_op": 1.263,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 80176150.0,
+            "batch_p95_ns": 85163800.0,
+            "batch_p99_ns": 92365100.0,
+            "batch_max_ns": 95132900.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 1,
+          "bottle": "WaitAll Admission Server",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792332990631810000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 10300.0,
+            "p95_ns": 13600.0,
+            "p99_ns": 18200.0,
+            "p99_9_ns": 37000.0,
+            "max_ns": 42100.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 20600.0,
+            "p95_ns": 24700.0,
+            "p99_ns": 29200.0,
+            "p99_9_ns": 52800.0,
+            "max_ns": 119700.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 28371556,
+            "qpc_batch_ticks_sum": 113222048,
+            "wall_ns": 2837155600.0,
+            "ns_per_op": 1.385,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 88208750.0,
+            "batch_p95_ns": 91301700.0,
+            "batch_p99_ns": 94082000.0,
+            "batch_max_ns": 96237400.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 2,
+          "bottle": "WaitAll Admission Server",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792333020492220000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; (no estimate) present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; 3:55 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 10100.0,
+            "p95_ns": 13400.0,
+            "p99_ns": 16800.0,
+            "p99_9_ns": 45100.0,
+            "max_ns": 106600.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 20400.0,
+            "p95_ns": 24500.0,
+            "p99_ns": 29500.0,
+            "p99_9_ns": 71500.0,
+            "max_ns": 127100.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 22761903,
+            "qpc_batch_ticks_sum": 90944076,
+            "wall_ns": 2276190300.0,
+            "ns_per_op": 1.111,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 69097650.0,
+            "batch_p95_ns": 87399800.0,
+            "batch_p99_ns": 98311400.0,
+            "batch_max_ns": 99238900.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 2,
+          "bottle": "WaitAll Admission",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792333050668659000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; 3:55 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t95%; discharging; 3:55 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 4100.0,
+            "p99_ns": 6100.0,
+            "p99_9_ns": 16000.0,
+            "max_ns": 146200.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4800.0,
+            "p95_ns": 8100.0,
+            "p99_ns": 11100.0,
+            "p99_9_ns": 39800.0,
+            "max_ns": 618700.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 21925187,
+            "qpc_batch_ticks_sum": 87540324,
+            "wall_ns": 2192518700.0,
+            "ns_per_op": 1.071,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 68003300.0,
+            "batch_p95_ns": 71236500.0,
+            "batch_p99_ns": 74381100.0,
+            "batch_max_ns": 74760800.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        }
+      ],
+      "medians": {
+        "WaitAll Admission Server": {
+          "wakeupP50Ns": 10100.0,
+          "roundtripP50Ns": 20600.0,
+          "controlNsPerOp": 1.237
+        },
+        "WaitAll Admission": {
+          "wakeupP50Ns": 2200.0,
+          "roundtripP50Ns": 4800.0,
+          "controlNsPerOp": 1.263
+        }
+      },
+      "singleEventSpeedup": 4.590909090909091,
+      "singleEvent5xMet": false,
+      "controlRelativeChange": 0.021018593371058936,
+      "controlWithin3Percent": true,
+      "fullM1Accepted": false,
+      "finalCleanup": [
+        {
+          "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "mode": "stop",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+          }
+        },
+        {
+          "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "mode": "stop",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          }
+        }
+      ],
+      "legacyACUnchanged": true
+    },
+    {
+      "rawResult": "out/waitall-tls-prototype/paired-perf-battery-v1.json",
+      "rawResultSHA256": "390dc2e861c268a5a379bd41c59a5076f649bf19368eab7b752c73c1c892c919",
+      "state": "complete",
+      "protocol": {
+        "schema": "cider.waitall-battery-perf/v1",
+        "declaredUTC": "2026-10-18T14:27:37.378158+00:00",
+        "declaredBeforeRuns": true,
+        "powerCondition": "Battery Power with lowpowermode0 throughout; no sleep; separate from AC cohort",
+        "iterations": 250000,
+        "threads": 4,
+        "controlWarmupPerWorker": 16000000,
+        "controlMultiplier": 1024,
+        "primary": "actual auto-event signal-to-peer-return p50; not guaranteed blocked wake; overhead not subtracted",
+        "threshold": "same native pair server median of three / candidate median of three >=5",
+        "controlThreshold": "private uncontended CS median relative difference within3percent",
+        "orders": [
+          [
+            "WaitAll TLS Server",
+            "WaitAll TLS"
+          ],
+          [
+            "WaitAll TLS",
+            "WaitAll TLS Server"
+          ],
+          [
+            "WaitAll TLS Server",
+            "WaitAll TLS"
+          ]
+        ],
+        "supplemental": null,
+        "previousBatteryCohortSHA256": "7c966ee9f039510d19005b0567e196f0ca36d5d43bd1c0c315a3962f39856143",
+        "implementation": "mechanical record/retired TLS co-location only; no shared transaction or recovery changes",
+        "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+        "legacyACArtifactSHA256": "4b3311654891a5567edc2a69ee932b051ad4e36a48721c6aa3f3e6fcd03997e6",
+        "legacyACTrials": 13,
+        "legacyACRemainsIncomplete": true,
+        "fullM1Accepted": false
+      },
+      "rows": [
+        {
+          "rep": 0,
+          "bottle": "WaitAll TLS Server",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792333657503646000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 5:09 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 5:09 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 10100.0,
+            "p95_ns": 13600.0,
+            "p99_ns": 18000.0,
+            "p99_9_ns": 22300.0,
+            "max_ns": 7475200.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 20600.0,
+            "p95_ns": 24600.0,
+            "p99_ns": 29000.0,
+            "p99_9_ns": 34600.0,
+            "max_ns": 9054900.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 21958168,
+            "qpc_batch_ticks_sum": 87441180,
+            "wall_ns": 2195816800.0,
+            "ns_per_op": 1.072,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 67349400.0,
+            "batch_p95_ns": 74408100.0,
+            "batch_p99_ns": 82760900.0,
+            "batch_max_ns": 85475700.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 0,
+          "bottle": "WaitAll TLS",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792333688479666000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 5:09 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 5:09 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 4200.0,
+            "p99_ns": 7600.0,
+            "p99_9_ns": 9900.0,
+            "max_ns": 11400.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4300.0,
+            "p95_ns": 8100.0,
+            "p99_ns": 11300.0,
+            "p99_9_ns": 14500.0,
+            "max_ns": 15200.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 25749010,
+            "qpc_batch_ticks_sum": 102754865,
+            "wall_ns": 2574901000.0,
+            "ns_per_op": 1.257,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 78925650.0,
+            "batch_p95_ns": 84310600.0,
+            "batch_p99_ns": 96908900.0,
+            "batch_max_ns": 98787400.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 1,
+          "bottle": "WaitAll TLS",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792333701316756000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 5:09 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 4:59 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 4200.0,
+            "p99_ns": 6800.0,
+            "p99_9_ns": 11000.0,
+            "max_ns": 130000.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4300.0,
+            "p95_ns": 8100.0,
+            "p99_ns": 11300.0,
+            "p99_9_ns": 32900.0,
+            "max_ns": 134000.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 19225475,
+            "qpc_batch_ticks_sum": 76679654,
+            "wall_ns": 1922547500.0,
+            "ns_per_op": 0.939,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 59169800.0,
+            "batch_p95_ns": 64903300.0,
+            "batch_p99_ns": 66609300.0,
+            "batch_max_ns": 70165200.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 1,
+          "bottle": "WaitAll TLS Server",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792333713464719000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 4:59 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 4:59 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 10100.0,
+            "p95_ns": 13400.0,
+            "p99_ns": 16600.0,
+            "p99_9_ns": 21700.0,
+            "max_ns": 26100.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 20500.0,
+            "p95_ns": 24300.0,
+            "p99_ns": 28300.0,
+            "p99_9_ns": 35200.0,
+            "max_ns": 52800.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 21722400,
+            "qpc_batch_ticks_sum": 86760818,
+            "wall_ns": 2172240000.0,
+            "ns_per_op": 1.061,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 67320200.0,
+            "batch_p95_ns": 70290500.0,
+            "batch_p99_ns": 72358800.0,
+            "batch_max_ns": 74706300.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 2,
+          "bottle": "WaitAll TLS Server",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792333743025119000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 4:59 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 4:49 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 10100.0,
+            "p95_ns": 13500.0,
+            "p99_ns": 17100.0,
+            "p99_9_ns": 20800.0,
+            "max_ns": 43500.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 20500.0,
+            "p95_ns": 24400.0,
+            "p99_ns": 27700.0,
+            "p99_9_ns": 41400.0,
+            "max_ns": 58100.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 20505089,
+            "qpc_batch_ticks_sum": 81699759,
+            "wall_ns": 2050508900.0,
+            "ns_per_op": 1.001,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 63553200.0,
+            "batch_p95_ns": 64505800.0,
+            "batch_p99_ns": 69768400.0,
+            "batch_max_ns": 70207400.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 2,
+          "bottle": "WaitAll TLS",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792333772488423000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 4:49 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t94%; discharging; 4:49 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 4100.0,
+            "p99_ns": 6900.0,
+            "p99_9_ns": 9900.0,
+            "max_ns": 38200.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4300.0,
+            "p95_ns": 8100.0,
+            "p99_ns": 11300.0,
+            "p99_9_ns": 29600.0,
+            "max_ns": 73600.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 20613731,
+            "qpc_batch_ticks_sum": 82107011,
+            "wall_ns": 2061373100.0,
+            "ns_per_op": 1.007,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 63144000.0,
+            "batch_p95_ns": 70184600.0,
+            "batch_p99_ns": 77800200.0,
+            "batch_max_ns": 79904700.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        }
+      ],
+      "medians": {
+        "WaitAll TLS Server": {
+          "wakeupP50Ns": 10100.0,
+          "roundtripP50Ns": 20500.0,
+          "controlNsPerOp": 1.061
+        },
+        "WaitAll TLS": {
+          "wakeupP50Ns": 2200.0,
+          "roundtripP50Ns": 4300.0,
+          "controlNsPerOp": 1.007
+        }
+      },
+      "singleEventSpeedup": 4.590909090909091,
+      "singleEvent5xMet": false,
+      "controlRelativeChange": -0.0508953817153629,
+      "controlWithin3Percent": false,
+      "fullM1Accepted": false,
+      "finalCleanup": [
+        {
+          "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "mode": "stop",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+          }
+        },
+        {
+          "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "mode": "stop",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          }
+        }
+      ],
+      "previousBatteryUnchanged": true,
+      "legacyACUnchanged": true
+    },
+    {
+      "rawResult": "out/waitall-benchmark-v4/paired-perf-battery-v4.json",
+      "rawResultSHA256": "1016e3c9c9613c653c2b7a2cdc52702bfe48a52e25f2c2a8cfddcddfe234369b",
+      "state": "complete",
+      "protocol": {
+        "schema": "cider.waitall-battery-perf/v1",
+        "declaredUTC": "2026-10-18T14:55:57.011738+00:00",
+        "declaredBeforeRuns": true,
+        "powerCondition": "Battery Power with lowpowermode0 throughout; no sleep; separate from AC cohort",
+        "iterations": 250000,
+        "threads": 4,
+        "controlWarmupPerWorker": 16000000,
+        "controlMultiplier": 1024,
+        "primary": "actual auto-event signal-to-peer-return p50; not guaranteed blocked wake; overhead not subtracted",
+        "threshold": "same native pair server median of three / candidate median of three >=5",
+        "controlThreshold": "private uncontended CS median relative difference within3percent",
+        "orders": [
+          [
+            "WaitAll Admission Server",
+            "WaitAll Admission"
+          ],
+          [
+            "WaitAll Admission",
+            "WaitAll Admission Server"
+          ],
+          [
+            "WaitAll Admission Server",
+            "WaitAll Admission"
+          ]
+        ],
+        "supplemental": null,
+        "fixture": "v4 acquire-only cancellation reads; original F8 backend unchanged",
+        "sourceSHA256": "a1c2ff32dbb4b499535b5ce0e414f14284f4e4a1a3e0c553ec9eed63065d2b9c",
+        "previousBatteryCohortSHA256": "7c966ee9f039510d19005b0567e196f0ca36d5d43bd1c0c315a3962f39856143",
+        "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+        "legacyACArtifactSHA256": "4b3311654891a5567edc2a69ee932b051ad4e36a48721c6aa3f3e6fcd03997e6",
+        "legacyACTrials": 13,
+        "legacyACRemainsIncomplete": true,
+        "fullM1Accepted": false
+      },
+      "rows": [
+        {
+          "rep": 0,
+          "bottle": "WaitAll Admission Server",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792335357182628000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t89%; discharging; 7:49 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t89%; discharging; 7:49 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 10400.0,
+            "p95_ns": 13900.0,
+            "p99_ns": 18500.0,
+            "p99_9_ns": 25700.0,
+            "max_ns": 45100.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 21100.0,
+            "p95_ns": 25500.0,
+            "p99_ns": 30100.0,
+            "p99_9_ns": 52200.0,
+            "max_ns": 62800.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 20042486,
+            "qpc_batch_ticks_sum": 79706515,
+            "wall_ns": 2004248600.0,
+            "ns_per_op": 0.979,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 61720700.0,
+            "batch_p95_ns": 66197800.0,
+            "batch_p99_ns": 68439500.0,
+            "batch_max_ns": 68694900.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 0,
+          "bottle": "WaitAll Admission",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792335387029311000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t89%; discharging; 7:49 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t89%; discharging; 7:49 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 4300.0,
+            "p99_ns": 6200.0,
+            "p99_9_ns": 11200.0,
+            "max_ns": 23100.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4300.0,
+            "p95_ns": 8500.0,
+            "p99_ns": 11000.0,
+            "p99_9_ns": 27000.0,
+            "max_ns": 125000.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 23715381,
+            "qpc_batch_ticks_sum": 94404521,
+            "wall_ns": 2371538100.0,
+            "ns_per_op": 1.158,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 58818450.0,
+            "batch_p95_ns": 148239200.0,
+            "batch_p99_ns": 305679400.0,
+            "batch_max_ns": 317362800.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 1,
+          "bottle": "WaitAll Admission",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792335398860839000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t89%; discharging; 7:49 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t88%; discharging; 7:29 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2300.0,
+            "p95_ns": 4000.0,
+            "p99_ns": 6400.0,
+            "p99_9_ns": 19900.0,
+            "max_ns": 142700.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4500.0,
+            "p95_ns": 8200.0,
+            "p99_ns": 11700.0,
+            "p99_9_ns": 41500.0,
+            "max_ns": 164900.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 28983539,
+            "qpc_batch_ticks_sum": 115610616,
+            "wall_ns": 2898353900.0,
+            "ns_per_op": 1.415,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 90844200.0,
+            "batch_p95_ns": 96473300.0,
+            "batch_p99_ns": 98801400.0,
+            "batch_max_ns": 100820600.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 1,
+          "bottle": "WaitAll Admission Server",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792335411833458000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t88%; discharging; 7:29 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t88%; discharging; 7:29 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 10300.0,
+            "p95_ns": 14300.0,
+            "p99_ns": 23400.0,
+            "p99_9_ns": 64700.0,
+            "max_ns": 220100.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 21000.0,
+            "p95_ns": 26600.0,
+            "p99_ns": 44700.0,
+            "p99_9_ns": 90600.0,
+            "max_ns": 236400.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 25188041,
+            "qpc_batch_ticks_sum": 100667023,
+            "wall_ns": 2518804100.0,
+            "ns_per_op": 1.23,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 77821800.0,
+            "batch_p95_ns": 83076500.0,
+            "batch_p99_ns": 83671000.0,
+            "batch_max_ns": 84158200.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 2,
+          "bottle": "WaitAll Admission Server",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792335443457286000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t88%; discharging; 7:29 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t88%; discharging; 7:19 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 10100.0,
+            "p95_ns": 13600.0,
+            "p99_ns": 16800.0,
+            "p99_9_ns": 33300.0,
+            "max_ns": 108800.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 20500.0,
+            "p95_ns": 24400.0,
+            "p99_ns": 28600.0,
+            "p99_9_ns": 52900.0,
+            "max_ns": 116500.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 21454240,
+            "qpc_batch_ticks_sum": 85138764,
+            "wall_ns": 2145424000.0,
+            "ns_per_op": 1.048,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 66088050.0,
+            "batch_p95_ns": 71110600.0,
+            "batch_p99_ns": 72838500.0,
+            "batch_max_ns": 75675000.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 2,
+          "bottle": "WaitAll Admission",
+          "role": "primary_pair",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792335471959075000-cider-lab-wine11.18-waitall-admission-x86_64-x86_64-bench.json",
+          "nativeSHA256": {
+            "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+            "lib/wine/x86_64-unix/ntdll.so": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t88%; discharging; 7:19 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "after": {
+            "power": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=26607715)\t88%; discharging; 7:19 remaining present: true\n",
+            "battery": true,
+            "lowPowerMode": 0
+          },
+          "valid": true,
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 4100.0,
+            "p99_ns": 7600.0,
+            "p99_9_ns": 10100.0,
+            "max_ns": 12000.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4200.0,
+            "p95_ns": 8100.0,
+            "p99_ns": 11400.0,
+            "p99_9_ns": 15600.0,
+            "max_ns": 47800.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 21429482,
+            "qpc_batch_ticks_sum": 85487275,
+            "wall_ns": 2142948200.0,
+            "ns_per_op": 1.046,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 66101250.0,
+            "batch_p95_ns": 71611600.0,
+            "batch_p99_ns": 78721600.0,
+            "batch_max_ns": 81504700.0
+          },
+          "cleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        }
+      ],
+      "medians": {
+        "WaitAll Admission Server": {
+          "wakeupP50Ns": 10300.0,
+          "roundtripP50Ns": 21000.0,
+          "controlNsPerOp": 1.048
+        },
+        "WaitAll Admission": {
+          "wakeupP50Ns": 2200.0,
+          "roundtripP50Ns": 4300.0,
+          "controlNsPerOp": 1.158
+        }
+      },
+      "singleEventSpeedup": 4.681818181818182,
+      "singleEvent5xMet": false,
+      "controlRelativeChange": 0.10496183206106857,
+      "controlWithin3Percent": false,
+      "fullM1Accepted": false,
+      "finalCleanup": [
+        {
+          "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "mode": "stop",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+          }
+        },
+        {
+          "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "mode": "stop",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          }
+        }
+      ],
+      "previousBatteryUnchanged": true,
+      "legacyACUnchanged": true
+    }
+  ],
+  "optionalTLSCandidate": {
+    "patch": {
+      "patch": "engine/porting/wine-11.18/candidates/0105-msync-co-locate-thread-local-state.patch",
+      "SHA256": "f82a6075206a7e56bca182eee6da6cc39d116a4cc671d5dca80fd911d0a82d0b",
+      "exact": true,
+      "sourceSHA256": "73ca0778cbd47996f58e77fdd0da91faba07501170cd9dfe9b4d38a8ab34965a",
+      "nativeSHA256": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+      "stdout": "patching file 'dlls/ntdll/unix/msync.c'\n"
+    },
+    "nativeBuild": [
+      {
+        "phase": "compile",
+        "argv": [
+          "clang",
+          "-arch",
+          "x86_64",
+          "-std=gnu23",
+          "-m64",
+          "-c",
+          "-o",
+          "/Users/cervantes/Cider/out/waitall-tls-prototype/msync.o",
+          "/Users/cervantes/Cider/out/waitall-tls-prototype/msync.c",
+          "-Idlls/ntdll",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/dlls/ntdll",
+          "-Iinclude",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/include",
+          "-D__WINESRC__",
+          "-DFAR=",
+          "-DZ_SOLO",
+          "-D_NTSYSTEM_",
+          "-D_ACRTIMP=",
+          "-DWINBASEAPI=",
+          "-DWINE_UNIX_LIB",
+          "-Wall",
+          "-pipe",
+          "-fcf-protection=none",
+          "-fvisibility=hidden",
+          "-fno-stack-protector",
+          "-fno-strict-aliasing",
+          "-Wdeclaration-after-statement",
+          "-Wempty-body",
+          "-Wignored-qualifiers",
+          "-Winit-self",
+          "-Wpointer-arith",
+          "-Wstrict-prototypes",
+          "-Wtype-limits",
+          "-Wunused-but-set-parameter",
+          "-Wvla",
+          "-Wwrite-strings",
+          "-gdwarf-4",
+          "-fPIC",
+          "-fasynchronous-unwind-tables",
+          "-I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include",
+          "-g",
+          "-O2",
+          "-U_FORTIFY_SOURCE",
+          "-D_FORTIFY_SOURCE=0",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/dlls/ntdll/unix"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "phase": "link",
+        "argv": [
+          "clang",
+          "-arch",
+          "x86_64",
+          "-std=gnu23",
+          "-m64",
+          "-o",
+          "/Users/cervantes/Cider/out/waitall-tls-prototype/ntdll.so",
+          "-dynamiclib",
+          "-install_name",
+          "@rpath/ntdll.so",
+          "-Wl,-rpath,@loader_path/",
+          "dlls/ntdll/unix/alpc.o",
+          "dlls/ntdll/unix/cdrom.o",
+          "dlls/ntdll/unix/debug.o",
+          "dlls/ntdll/unix/env.o",
+          "dlls/ntdll/unix/file.o",
+          "dlls/ntdll/unix/loader.o",
+          "/Users/cervantes/Cider/out/waitall-tls-prototype/msync.o",
+          "dlls/ntdll/unix/loadorder.o",
+          "dlls/ntdll/unix/process.o",
+          "dlls/ntdll/unix/registry.o",
+          "dlls/ntdll/unix/security.o",
+          "dlls/ntdll/unix/serial.o",
+          "dlls/ntdll/unix/server.o",
+          "dlls/ntdll/unix/signal_arm.o",
+          "dlls/ntdll/unix/signal_arm64.o",
+          "dlls/ntdll/unix/signal_i386.o",
+          "dlls/ntdll/unix/signal_x86_64.o",
+          "dlls/ntdll/unix/socket.o",
+          "dlls/ntdll/unix/sync.o",
+          "dlls/ntdll/unix/syscall.o",
+          "dlls/ntdll/unix/system.o",
+          "dlls/ntdll/unix/tape.o",
+          "dlls/ntdll/unix/thread.o",
+          "dlls/ntdll/unix/virtual.o",
+          "dlls/ntdll/unix/version.o",
+          "-framework",
+          "IOKit",
+          "-framework",
+          "CoreFoundation",
+          "-framework",
+          "CoreFoundation",
+          "-framework",
+          "CoreServices",
+          "-L/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/lib",
+          "-Wl,-rpath,/Library/Frameworks/GStreamer.framework/Versions/1.0/lib"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "runtimePreparation": {
+      "pair": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e:ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+      "mechanicalReverseExactlyMatchesBase": true,
+      "sourceSHA256": "73ca0778cbd47996f58e77fdd0da91faba07501170cd9dfe9b4d38a8ab34965a",
+      "privatePolicySHA256": "70a6c8462399f68c814edfb69b2c2810dbc01deef3db6839e127fdab4e1621e7",
+      "sharedProtocolChanged": false,
+      "productionPolicyChanged": false,
+      "defaultSelected": false
+    },
+    "functionalPassed": true,
+    "ownContinuousHourAccepted": false,
+    "defaultSelected": false,
+    "runtimeTests": [
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792333479446404000-cider-lab-wine11.18-waitall-tls-x86_64-i686-correctness.json",
+        "rawResultSHA256": "df379ccb4526afc99d744878f0f17aae7222a55f479e27f667b749df870d4c9e",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [
+          "--correctness"
+        ],
+        "suite": "waitall",
+        "arch": "i686",
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "700f22df18a6b5331f18216557895d90691769f0db5436f1e30113483d25d6cb",
+        "activeSeconds": 9.112699792,
+        "wallSeconds": 9.1126070022583,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "correctness",
+            "ok": true,
+            "checks": 825,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 58994,
+            "startAbstime": 18721582678985,
+            "samples": 7,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 58994,
+              "sequence": 14,
+              "allocations": 7,
+              "frees": 0,
+              "current": 7,
+              "peak": 7,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524281,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18776064,
+              "producerPhysicalFootprintBytes": 18297960,
+              "producerUserTimeNs": 749254,
+              "producerSystemTimeNs": 467186,
+              "producerStartAbstime": 18721582678985,
+              "producerFDCount": 72
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 58994,
+              "sequence": 276,
+              "allocations": 85,
+              "frees": 53,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 3461120,
+              "producerPhysicalFootprintBytes": 18961536,
+              "producerUserTimeNs": 1442171,
+              "producerSystemTimeNs": 2211474,
+              "producerStartAbstime": 18721582678985,
+              "producerFDCount": 259
+            },
+            "maxCurrent": 36,
+            "minCurrent": 7,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              72,
+              259
+            ],
+            "RSSRangeBytes": [
+              3461120,
+              18776064
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-tls-e0bf5eef-a8bf-4803-8ccd-14e1b8524ef6/20261018T142439-waitall-i686-2A15C075-B90F-45D6-8798-F40960E1F57E/wine.log",
+        "rawLogSHA256": "2a3370ecdbbc06927b1040d339c02fe81e7d111aaad5107566421c5f322efd8d"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792333488698670000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-correctness.json",
+        "rawResultSHA256": "35057809f740ecfa429077e202159c2ad7b1c72789193d0bb42fff01a986f215",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [
+          "--correctness"
+        ],
+        "suite": "waitall",
+        "arch": "x86_64",
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+        "activeSeconds": 5.537099416,
+        "wallSeconds": 5.537044048309326,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "correctness",
+            "ok": true,
+            "checks": 825,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 59060,
+            "startAbstime": 18721780683017,
+            "samples": 5,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 59060,
+              "sequence": 4,
+              "allocations": 2,
+              "frees": 0,
+              "current": 2,
+              "peak": 2,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524286,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18747392,
+              "producerPhysicalFootprintBytes": 18400480,
+              "producerUserTimeNs": 880656,
+              "producerSystemTimeNs": 311602,
+              "producerStartAbstime": 18721780683017,
+              "producerFDCount": 54
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 59060,
+              "sequence": 276,
+              "allocations": 85,
+              "frees": 53,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 4505600,
+              "producerPhysicalFootprintBytes": 19076344,
+              "producerUserTimeNs": 1577167,
+              "producerSystemTimeNs": 1983235,
+              "producerStartAbstime": 18721780683017,
+              "producerFDCount": 259
+            },
+            "maxCurrent": 34,
+            "minCurrent": 2,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              54,
+              259
+            ],
+            "RSSRangeBytes": [
+              4505600,
+              19406848
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-tls-e0bf5eef-a8bf-4803-8ccd-14e1b8524ef6/20261018T142448-waitall-x86_64-328DC8D2-034B-49E8-9960-70690C330FB1/wine.log",
+        "rawLogSHA256": "308ee97f0e7c1a2b22cff349e04bdf85a4ec7e004abad40a669869635871fead"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792333494323192000-cider-lab-wine11.18-waitall-tls-x86_64-i686-correctness.json",
+        "rawResultSHA256": "db9b5d8c11bc6d500a13affcc7fdcc7fc850d240113b1d8a411631e9707d0f13",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [
+          "--iterations",
+          "64"
+        ],
+        "suite": "lifecycle",
+        "arch": "i686",
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "1e8dba1c5875566856060be4bf96bac4e6200ea0c4bb68f32ff9d421a916c416",
+        "activeSeconds": 10.742879958,
+        "wallSeconds": 10.742772340774536,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "ok": true,
+            "checks": 5780,
+            "failures": 0,
+            "output_error": false,
+            "requested_per_case": 64,
+            "interruption_rounds": 64,
+            "suspensions_with_context": 64,
+            "resumed_progress": 64,
+            "terminated_waitall_threads": 64,
+            "mutex_normal": 40,
+            "mutex_abandoned": 24,
+            "process_rounds": 64,
+            "children_created": 64,
+            "children_reaped": 64,
+            "waitany_armed": 64,
+            "waitany_live_samples": 64,
+            "terminated_waitany_threads": 64,
+            "waitany_rounds": 64,
+            "worker_completed_pairs_observed": 2051758,
+            "child_completed_pairs": 4096,
+            "parent_recovery_pairs": 192
+          }
+        ],
+        "cases": [
+          {
+            "type": "case",
+            "name": "suspend_context_resume_terminate_waitall",
+            "ok": true,
+            "completed": 64,
+            "requested": 64,
+            "elapsed_ticks": 3807620,
+            "frequency": 10000000,
+            "timing_includes_checks_io_creation_cleanup": true
+          },
+          {
+            "type": "case",
+            "name": "createprocess_during_local_waitall",
+            "ok": true,
+            "completed": 64,
+            "requested": 64,
+            "elapsed_ticks": 49810873,
+            "frequency": 10000000,
+            "timing_includes_checks_io_creation_cleanup": true
+          },
+          {
+            "type": "case",
+            "name": "terminate_waitany_persistent_unsignaled_events",
+            "ok": true,
+            "completed": 64,
+            "requested": 64,
+            "elapsed_ticks": 2491284,
+            "frequency": 10000000,
+            "timing_includes_checks_io_creation_cleanup": true
+          }
+        ],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 59101,
+            "startAbstime": 18721911124886,
+            "samples": 10,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 59101,
+              "sequence": 72,
+              "allocations": 26,
+              "frees": 10,
+              "current": 16,
+              "peak": 16,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524272,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18898944,
+              "producerPhysicalFootprintBytes": 18457776,
+              "producerUserTimeNs": 1367839,
+              "producerSystemTimeNs": 639398,
+              "producerStartAbstime": 18721911124886,
+              "producerFDCount": 114
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 59101,
+              "sequence": 788,
+              "allocations": 213,
+              "frees": 181,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 4456448,
+              "producerPhysicalFootprintBytes": 19154120,
+              "producerUserTimeNs": 4782852,
+              "producerSystemTimeNs": 8283083,
+              "producerStartAbstime": 18721911124886,
+              "producerFDCount": 253
+            },
+            "maxCurrent": 32,
+            "minCurrent": 16,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              114,
+              306
+            ],
+            "RSSRangeBytes": [
+              4325376,
+              18898944
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-tls-e0bf5eef-a8bf-4803-8ccd-14e1b8524ef6/20261018T142454-waitall-lifecycle-i686-CD0609CB-ED89-4172-986F-0344E818E4FB/wine.log",
+        "rawLogSHA256": "a39f51c43063670dbab645a9b9711f12fbee4b0e74ef4c8a1c91042ffb5268cb"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792333505193004000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-correctness.json",
+        "rawResultSHA256": "c3aab203e04cc7d9555279668c5e0ae77eedb04292f8b574d359aff3493e99db",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [
+          "--iterations",
+          "64"
+        ],
+        "suite": "lifecycle",
+        "arch": "x86_64",
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "7ab313409a61e7872f712f26426fcc57c28e5c765825fb3f3f830a5e88f66a1a",
+        "activeSeconds": 9.516045834,
+        "wallSeconds": 9.515948057174683,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "ok": true,
+            "checks": 5780,
+            "failures": 0,
+            "output_error": false,
+            "requested_per_case": 64,
+            "interruption_rounds": 64,
+            "suspensions_with_context": 64,
+            "resumed_progress": 64,
+            "terminated_waitall_threads": 64,
+            "mutex_normal": 36,
+            "mutex_abandoned": 28,
+            "process_rounds": 64,
+            "children_created": 64,
+            "children_reaped": 64,
+            "waitany_armed": 64,
+            "waitany_live_samples": 64,
+            "terminated_waitany_threads": 64,
+            "waitany_rounds": 64,
+            "worker_completed_pairs_observed": 1753692,
+            "child_completed_pairs": 4096,
+            "parent_recovery_pairs": 192
+          }
+        ],
+        "cases": [
+          {
+            "type": "case",
+            "name": "suspend_context_resume_terminate_waitall",
+            "ok": true,
+            "completed": 64,
+            "requested": 64,
+            "elapsed_ticks": 3744396,
+            "frequency": 10000000,
+            "timing_includes_checks_io_creation_cleanup": true
+          },
+          {
+            "type": "case",
+            "name": "createprocess_during_local_waitall",
+            "ok": true,
+            "completed": 64,
+            "requested": 64,
+            "elapsed_ticks": 39502766,
+            "frequency": 10000000,
+            "timing_includes_checks_io_creation_cleanup": true
+          },
+          {
+            "type": "case",
+            "name": "terminate_waitany_persistent_unsignaled_events",
+            "ok": true,
+            "completed": 64,
+            "requested": 64,
+            "elapsed_ticks": 2647393,
+            "frequency": 10000000,
+            "timing_includes_checks_io_creation_cleanup": true
+          }
+        ],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 59409,
+            "startAbstime": 18722171806827,
+            "samples": 9,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 59409,
+              "sequence": 68,
+              "allocations": 24,
+              "frees": 10,
+              "current": 14,
+              "peak": 14,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524274,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18898944,
+              "producerPhysicalFootprintBytes": 18457776,
+              "producerUserTimeNs": 1498734,
+              "producerSystemTimeNs": 689406,
+              "producerStartAbstime": 18722171806827,
+              "producerFDCount": 107
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 59409,
+              "sequence": 788,
+              "allocations": 213,
+              "frees": 181,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 3481600,
+              "producerPhysicalFootprintBytes": 19174624,
+              "producerUserTimeNs": 4343346,
+              "producerSystemTimeNs": 6820736,
+              "producerStartAbstime": 18722171806827,
+              "producerFDCount": 253
+            },
+            "maxCurrent": 34,
+            "minCurrent": 14,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              107,
+              291
+            ],
+            "RSSRangeBytes": [
+              3481600,
+              18898944
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-tls-e0bf5eef-a8bf-4803-8ccd-14e1b8524ef6/20261018T142505-waitall-lifecycle-x86_64-69BE5E6A-C83E-48E7-A134-F8162DCDDE7E/wine.log",
+        "rawLogSHA256": "475100f3cd1293fdc86d48f30dc85681fe1c187d50efd0699ef1316e25457d85"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792333514836420000-cider-lab-wine11.18-waitall-tls-x86_64-i686-stress.json",
+        "rawResultSHA256": "345d96a4f23707827d1a4f2d6f1d2c7afd4e0c671920b6d0be60e72513eb71fd",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [
+          "--stress",
+          "100000",
+          "8"
+        ],
+        "suite": "waitall",
+        "arch": "i686",
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "700f22df18a6b5331f18216557895d90691769f0db5436f1e30113483d25d6cb",
+        "activeSeconds": 6.004201375,
+        "wallSeconds": 6.0041399002075195,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "stress",
+            "ok": true,
+            "checks": 154,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [
+          {
+            "type": "stress",
+            "scenario": "blocked_waitall_release_race",
+            "threads": 8,
+            "iterations_per_worker": 100000,
+            "duration_seconds": 0,
+            "elapsed_ms": 272,
+            "seed": 3406662283,
+            "initial_count": 1,
+            "final_count": 1,
+            "maximum": 1,
+            "sampled_peak": 1,
+            "sem_acquisitions": 0,
+            "successful_releases": 0,
+            "release_too_many_posts": 200000,
+            "release_attempts": 200000,
+            "waitall_successes": 0,
+            "waitany_auto_successes": 0,
+            "wait_timeouts": 400000,
+            "count_samples": 218750,
+            "waitany_0ms_calls": 0,
+            "waitany_1ms_calls": 0,
+            "waitany_1ms_timeouts": 0,
+            "waitany_policy": "zero_timeout_only",
+            "waitany_1ms_timeout_observed": false,
+            "mach_pool_occupancy_observed": false
+          },
+          {
+            "type": "stress",
+            "scenario": "mixed_waitall_waitany_events",
+            "threads": 8,
+            "iterations_per_worker": 100000,
+            "duration_seconds": 0,
+            "elapsed_ms": 777,
+            "seed": 3406663167,
+            "initial_count": 1,
+            "final_count": 1,
+            "maximum": 1,
+            "sampled_peak": 1,
+            "sem_acquisitions": 142045,
+            "successful_releases": 142045,
+            "release_too_many_posts": 200000,
+            "release_attempts": 342045,
+            "waitall_successes": 6141,
+            "waitany_auto_successes": 22449,
+            "wait_timeouts": 235506,
+            "count_samples": 218750,
+            "waitany_0ms_calls": 200000,
+            "waitany_1ms_calls": 0,
+            "waitany_1ms_timeouts": 0,
+            "waitany_policy": "zero_timeout_only",
+            "waitany_1ms_timeout_observed": false,
+            "mach_pool_occupancy_observed": false
+          }
+        ],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 59702,
+            "startAbstime": 18722403229406,
+            "samples": 5,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 59702,
+              "sequence": 72,
+              "allocations": 26,
+              "frees": 10,
+              "current": 16,
+              "peak": 16,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524272,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18948096,
+              "producerPhysicalFootprintBytes": 18539744,
+              "producerUserTimeNs": 1572556,
+              "producerSystemTimeNs": 697329,
+              "producerStartAbstime": 18722403229406,
+              "producerFDCount": 114
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 59702,
+              "sequence": 276,
+              "allocations": 85,
+              "frees": 53,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 4239360,
+              "producerPhysicalFootprintBytes": 19084512,
+              "producerUserTimeNs": 2147783,
+              "producerSystemTimeNs": 1911374,
+              "producerStartAbstime": 18722403229406,
+              "producerFDCount": 259
+            },
+            "maxCurrent": 32,
+            "minCurrent": 16,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              114,
+              315
+            ],
+            "RSSRangeBytes": [
+              4239360,
+              18948096
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-tls-e0bf5eef-a8bf-4803-8ccd-14e1b8524ef6/20261018T142515-waitall-i686-3D423496-7919-40A5-9353-941A8FF432C2/wine.log",
+        "rawLogSHA256": "eb7edef694f0638cb61b47545dbd130720d8e7ae31d38b39be4c3d5170485e04"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792333520923044000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-stress.json",
+        "rawResultSHA256": "ad576b786a2dba6c04c012c455f02fea7f4f6acf9fdd4cf74097701bdc563446",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [
+          "--stress",
+          "100000",
+          "8"
+        ],
+        "suite": "waitall",
+        "arch": "x86_64",
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+        "activeSeconds": 5.926159666999999,
+        "wallSeconds": 5.926101922988892,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "stress",
+            "ok": true,
+            "checks": 154,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [
+          {
+            "type": "stress",
+            "scenario": "blocked_waitall_release_race",
+            "threads": 8,
+            "iterations_per_worker": 100000,
+            "duration_seconds": 0,
+            "elapsed_ms": 212,
+            "seed": 3406664514,
+            "initial_count": 1,
+            "final_count": 1,
+            "maximum": 1,
+            "sampled_peak": 1,
+            "sem_acquisitions": 0,
+            "successful_releases": 0,
+            "release_too_many_posts": 200000,
+            "release_attempts": 200000,
+            "waitall_successes": 0,
+            "waitany_auto_successes": 0,
+            "wait_timeouts": 400000,
+            "count_samples": 218750,
+            "waitany_0ms_calls": 0,
+            "waitany_1ms_calls": 0,
+            "waitany_1ms_timeouts": 0,
+            "waitany_policy": "zero_timeout_only",
+            "waitany_1ms_timeout_observed": false,
+            "mach_pool_occupancy_observed": false
+          },
+          {
+            "type": "stress",
+            "scenario": "mixed_waitall_waitany_events",
+            "threads": 8,
+            "iterations_per_worker": 100000,
+            "duration_seconds": 0,
+            "elapsed_ms": 715,
+            "seed": 3406664315,
+            "initial_count": 1,
+            "final_count": 1,
+            "maximum": 1,
+            "sampled_peak": 1,
+            "sem_acquisitions": 140332,
+            "successful_releases": 140332,
+            "release_too_many_posts": 200000,
+            "release_attempts": 340332,
+            "waitall_successes": 6942,
+            "waitany_auto_successes": 24323,
+            "wait_timeouts": 235345,
+            "count_samples": 218750,
+            "waitany_0ms_calls": 200000,
+            "waitany_1ms_calls": 0,
+            "waitany_1ms_timeouts": 0,
+            "waitany_policy": "zero_timeout_only",
+            "waitany_1ms_timeout_observed": false,
+            "mach_pool_occupancy_observed": false
+          }
+        ],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 59736,
+            "startAbstime": 18722549145975,
+            "samples": 5,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 59736,
+              "sequence": 8,
+              "allocations": 4,
+              "frees": 0,
+              "current": 4,
+              "peak": 4,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524284,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18776064,
+              "producerPhysicalFootprintBytes": 18416888,
+              "producerUserTimeNs": 1521764,
+              "producerSystemTimeNs": 403302,
+              "producerStartAbstime": 18722549145975,
+              "producerFDCount": 66
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 59736,
+              "sequence": 276,
+              "allocations": 85,
+              "frees": 53,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 4108288,
+              "producerPhysicalFootprintBytes": 19047696,
+              "producerUserTimeNs": 2180851,
+              "producerSystemTimeNs": 1791012,
+              "producerStartAbstime": 18722549145975,
+              "producerFDCount": 259
+            },
+            "maxCurrent": 32,
+            "minCurrent": 4,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              66,
+              295
+            ],
+            "RSSRangeBytes": [
+              4108288,
+              18776064
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-tls-e0bf5eef-a8bf-4803-8ccd-14e1b8524ef6/20261018T142521-waitall-x86_64-49BFDD03-3C2B-44A0-A891-F196271DB878/wine.log",
+        "rawLogSHA256": "9e5d325e48ecd6c1ad1743a90eb4ff0fd322f7cd364b266addef267d3a853f05"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792333526928289000-cider-lab-wine11.18-waitall-tls-x86_64-i686-correctness.json",
+        "rawResultSHA256": "4baca46a1e74a8615766bf0e443683139adbb4e0b3b32fce9a9cc38a42633538",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [
+          "100000"
+        ],
+        "suite": "processes",
+        "arch": "i686",
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "f96e6e0f59f7a1bc66adeb9f66d7f8b96f1c9c5038fa6c9838352359fe0a9559",
+        "activeSeconds": 6.070948166,
+        "wallSeconds": 6.070888042449951,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "ok": true,
+            "errors": 0,
+            "output_error": false,
+            "pointer_bits": 32,
+            "iterations_per_role": 100000,
+            "cleanup_checked": true
+          }
+        ],
+        "cases": [
+          {
+            "type": "result",
+            "initial_count": 1,
+            "final_count": 0,
+            "maximum": 1,
+            "successful_releases": 91768,
+            "sem_acquisitions": 91769,
+            "release_too_many_posts": 308232,
+            "waitall_successes": 0,
+            "queries": 400000
+          }
+        ],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 59765,
+            "startAbstime": 18722693347540,
+            "samples": 5,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 59765,
+              "sequence": 18,
+              "allocations": 9,
+              "frees": 0,
+              "current": 9,
+              "peak": 9,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524279,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18878464,
+              "producerPhysicalFootprintBytes": 18498808,
+              "producerUserTimeNs": 1515084,
+              "producerSystemTimeNs": 513024,
+              "producerStartAbstime": 18722693347540,
+              "producerFDCount": 81
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 59765,
+              "sequence": 276,
+              "allocations": 85,
+              "frees": 53,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 4485120,
+              "producerPhysicalFootprintBytes": 19301648,
+              "producerUserTimeNs": 2528332,
+              "producerSystemTimeNs": 2912733,
+              "producerStartAbstime": 18722693347540,
+              "producerFDCount": 259
+            },
+            "maxCurrent": 32,
+            "minCurrent": 9,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              81,
+              409
+            ],
+            "RSSRangeBytes": [
+              4485120,
+              18878464
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-tls-e0bf5eef-a8bf-4803-8ccd-14e1b8524ef6/20261018T142527-waitall-processes-i686-69AE6615-BE49-46B5-8E59-ADB7606C6F24/wine.log",
+        "rawLogSHA256": "46f8d0d7ce23ed72b6f171ba594be4c1ee216a113eecf07280449cb03a17a9a7"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792333533082233000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-correctness.json",
+        "rawResultSHA256": "f1505e5e387bca1464d2222c0a5d3a7f6a5641223f527263879ffaa42e115fbd",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [
+          "100000"
+        ],
+        "suite": "processes",
+        "arch": "x86_64",
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "79456ac3881f73ea7b32a5efa3b842fc79aa8eba759a956bdc6c276b1cafa0c9",
+        "activeSeconds": 5.671653208,
+        "wallSeconds": 5.671597719192505,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "ok": true,
+            "errors": 0,
+            "output_error": false,
+            "pointer_bits": 64,
+            "iterations_per_role": 100000,
+            "cleanup_checked": true
+          }
+        ],
+        "cases": [
+          {
+            "type": "result",
+            "initial_count": 1,
+            "final_count": 0,
+            "maximum": 1,
+            "successful_releases": 83989,
+            "sem_acquisitions": 83990,
+            "release_too_many_posts": 316011,
+            "waitall_successes": 0,
+            "queries": 400000
+          }
+        ],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 59814,
+            "startAbstime": 18722840948541,
+            "samples": 5,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 59814,
+              "sequence": 72,
+              "allocations": 26,
+              "frees": 10,
+              "current": 16,
+              "peak": 16,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524272,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18939904,
+              "producerPhysicalFootprintBytes": 18531552,
+              "producerUserTimeNs": 1587014,
+              "producerSystemTimeNs": 684257,
+              "producerStartAbstime": 18722840948541,
+              "producerFDCount": 114
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 59814,
+              "sequence": 276,
+              "allocations": 85,
+              "frees": 53,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 4579328,
+              "producerPhysicalFootprintBytes": 19248376,
+              "producerUserTimeNs": 2477924,
+              "producerSystemTimeNs": 2737662,
+              "producerStartAbstime": 18722840948541,
+              "producerFDCount": 259
+            },
+            "maxCurrent": 32,
+            "minCurrent": 16,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              114,
+              385
+            ],
+            "RSSRangeBytes": [
+              4579328,
+              18939904
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-tls-e0bf5eef-a8bf-4803-8ccd-14e1b8524ef6/20261018T142533-waitall-processes-x86_64-EAA1E570-426B-4095-85EF-DF635EC341B1/wine.log",
+        "rawLogSHA256": "4197dc8ac68e2afeff72beb94e943ad865f9a31aacef13b762ba44363919eb9f"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792333538820650000-cider-lab-wine11.18-waitall-tls-x86_64-x86_64-duration.json",
+        "rawResultSHA256": "40d694738d9d0319f26498edb0749b20b89314cc8beed7c7bd6adde26ad2dff8",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [
+          "--duration",
+          "20",
+          "8"
+        ],
+        "suite": "waitall",
+        "arch": "x86_64",
+        "nativeSHA256": {
+          "bin/wineserver": "ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
+          "lib/wine/x86_64-unix/ntdll.so": "7dcfb3b210e336885106bdc827bb1949f244a8b4d9e8d375f53f46267015145e",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "7b77147c929bd5fc1d066a51724db397a0b96989f8bb99127a612c9273c984e5",
+        "activeSeconds": 24.869080667000002,
+        "wallSeconds": 24.868828058242798,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "duration",
+            "ok": true,
+            "checks": 78,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [
+          {
+            "type": "stress",
+            "scenario": "mixed_waitall_waitany_events",
+            "threads": 8,
+            "iterations_per_worker": 0,
+            "duration_seconds": 20,
+            "elapsed_ms": 20007,
+            "seed": 3406637560,
+            "initial_count": 1,
+            "final_count": 1,
+            "maximum": 1,
+            "sampled_peak": 1,
+            "sem_acquisitions": 3862907,
+            "successful_releases": 3862907,
+            "release_too_many_posts": 2386472,
+            "release_attempts": 6249379,
+            "waitall_successes": 379643,
+            "waitany_auto_successes": 485706,
+            "wait_timeouts": 9800051,
+            "count_samples": 12767483,
+            "waitany_0ms_calls": 2227815,
+            "waitany_1ms_calls": 2225091,
+            "waitany_1ms_timeouts": 4,
+            "waitany_policy": "role1_random_half_1ms_otherwise_0ms",
+            "waitany_1ms_timeout_observed": true,
+            "mach_pool_occupancy_observed": false
+          }
+        ],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 59862,
+            "startAbstime": 18722978683718,
+            "samples": 24,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 59862,
+              "sequence": 72,
+              "allocations": 26,
+              "frees": 10,
+              "current": 16,
+              "peak": 16,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524272,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18923520,
+              "producerPhysicalFootprintBytes": 18547984,
+              "producerUserTimeNs": 1459510,
+              "producerSystemTimeNs": 671327,
+              "producerStartAbstime": 18722978683718,
+              "producerFDCount": 114
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 59862,
+              "sequence": 2348356,
+              "allocations": 587105,
+              "frees": 587073,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 2195456,
+              "producerPhysicalFootprintBytes": 19047696,
+              "producerUserTimeNs": 12645056,
+              "producerSystemTimeNs": 42684788,
+              "producerStartAbstime": 18722978683718,
+              "producerFDCount": 253
+            },
+            "maxCurrent": 32,
+            "minCurrent": 16,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              114,
+              295
+            ],
+            "RSSRangeBytes": [
+              1773568,
+              18923520
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-tls-e0bf5eef-a8bf-4803-8ccd-14e1b8524ef6/20261018T142539-waitall-x86_64-29D6BC5C-636F-499B-B5F1-84C8238FDEE2/wine.log",
+        "rawLogSHA256": "e355623b83c994c7589207bde6618b0bc0a69ad1460174ac1f0dfdd69b040dcf"
+      }
+    ]
+  },
+  "benchmarkV4": {
+    "scope": "only bench-worker cancellation reads; engine unmodified",
+    "build": {
+      "sourceSHA256": "a1c2ff32dbb4b499535b5ce0e414f14284f4e4a1a3e0c553ec9eed63065d2b9c",
+      "rows": [
+        {
+          "arch": "i686",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/waitall.c",
+            "-o",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/waitall-bench-v4-i686.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "exeSHA256": "da4ad4eeaa5ba2a29b5a992dd8b926b85e01a1df43dbb56b157636baaee732a0"
+        },
+        {
+          "arch": "x86_64",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/waitall.c",
+            "-o",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/waitall-bench-v4-x86_64.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9"
+        }
+      ],
+      "scope": "v4 fixture only; no engine changes; v3 EXEs preserved"
+    },
+    "performanceAccepted": false
+  },
+  "performanceBoundaries": [
+    "Battery formal comparison uses a separately declared same-condition cohort; AC is not a universal prerequisite",
+    "Old AC13of15 remains incomplete and unchanged; not pooled with battery",
+    "All three complete battery cohorts miss5x; TLS and fixture-v4 cohorts additionally fail control3percent",
+    "TLS and ping-only stack sampling are not full M1 or game acceptance"
+  ],
   "protectedUnchangedNow": true
 }

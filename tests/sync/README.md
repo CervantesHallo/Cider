@@ -83,6 +83,18 @@ laboratory; an elapsed guest hour alone is insufficient. Locking the screen is
 compatible with this command path. Closing a MacBook lid can suspend it despite
 an idle-sleep assertion, so a continuous run requires an awake Mac.
 
+Formal performance may use either AC or battery power with low-power mode off.
+Declare one power condition for the whole cohort and check it before/after every
+run. Do not append battery measurements to an incomplete AC cohort. Preserve
+interrupted/invalid trials and their original files.
+
+The current benchmark source uses acquire-only reads for its cancellation flag;
+it does not change the stress or lifecycle programs. To retain an already frozen
+v3 EXE, compile the new benchmark into `waitall-bench-v4-{arch}.exe` and select
+`--benchmark-fixture v4`. Default `v3` selects the legacy `waitall-{arch}.exe`
+filename in the prepared lab. These labels select artifact slots: bind the exact
+EXE/source hashes for every comparison rather than infer a version from a name.
+
 Run serially. Do not compile, profile or run pressure workloads alongside a
 performance comparison. Freeze repetition count/order before measurement and
 retain all results. Benchmark records distinguish:

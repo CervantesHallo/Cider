@@ -45,6 +45,7 @@ parser.add_argument('--arch', choices=['i686', 'x86_64'], required=True)
 parser.add_argument('--mode', choices=['correctness', 'stress', 'duration', 'bench'], required=True)
 parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes'], default='waitall')
 parser.add_argument('--stats', action='store_true')
+parser.add_argument('--benchmark-fixture', choices=['v3', 'v4'], default='v3')
 parser.add_argument('--iterations', type=int, default=10000)
 parser.add_argument('--threads', type=int, default=4)
 parser.add_argument('--timeout', type=int, default=150)
@@ -70,8 +71,12 @@ if not prefix.is_relative_to(root) or not config['engine']['id'].startswith('cid
     raise SystemExit('Non-laboratory prefix or engine')
 lock = os.open(root / 'wine-runtime.lock', os.O_RDWR | os.O_CREAT | os.O_NOFOLLOW, 0o600)
 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+if args.benchmark_fixture != 'v3' and (args.suite != 'waitall' or args.mode != 'bench'):
+    raise SystemExit('The alternative benchmark fixture is only valid for waitall bench mode')
 source = root / ({'waitall': 'waitall-', 'lifecycle': 'waitall-lifecycle-',
                   'processes': 'waitall-processes-'}[args.suite] + args.arch + '.exe')
+if args.benchmark_fixture == 'v4':
+    source = root / ('waitall-bench-v4-' + args.arch + '.exe')
 destination = prefix / 'drive_c/CiderTests' / source.name
 destination.parent.mkdir(exist_ok=True)
 shutil.copy2(source, destination)
@@ -100,6 +105,7 @@ record = {'schema': 'cider.waitall-mac-run/v1', 'state': 'running', 'bottle': co
           'engine': config['engine']['id'], 'sync': config['settings'].get('sync', 'msync'),
           'arch': args.arch, 'arguments': arguments, 'prefix': str(prefix),
           'suite': args.suite, 'statisticsRequested': args.stats,
+          'benchmarkFixture': args.benchmark_fixture if args.mode == 'bench' else None,
           'exeSHA256': hashlib.sha256(source.read_bytes()).hexdigest(), 'timeoutSeconds': args.timeout,
           'windowsOperations': 0, 'loadAverageBefore': os.getloadavg()}
 engine_root = home / 'AppSupport/Engines' / config['engine']['id'] / 'engine'

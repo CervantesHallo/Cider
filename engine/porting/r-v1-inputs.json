@@ -513,9 +513,17 @@
       "patch": "engine/porting/wine-11.18/candidates/0104-msync-thread-local-fork-admission.patch",
       "sha256": "7aff6ded9550836d8d435f76f9ca115247fe9b7fbe74e5ea07157246e9223bb0",
       "requires": "engine/porting/wine-11.18/candidates/0103-msync-lease-admission-and-exit-cleanup.patch",
-      "status": "isolated PE32/64 basics/lifecycle, 3600s continuous pressure, both cross-process suites and final PE32 stress/child-policy passed; fixed AC performance13of15 unchanged, two trials pending; no default adoption",
+      "status": "PE32/64 functionality and own hour passed; separate complete battery v3 cohort4.5909x failed5x, control+2.1019% passed; legacy AC13of15 unchanged; no default adoption",
       "nativePair": "e6054a73212afb1f24d9cc3bdd3415635e1049e26efd4a679a7e4151dee8760a:ce78d67cefb2e6b6a790463ef5531b3415a601c7657fb29c009e1498903663c4",
       "changes": "process-local fork admission only; shared transaction/death-proof/journal/notifications unchanged",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalTLSCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0105-msync-co-locate-thread-local-state.patch",
+      "sha256": "f82a6075206a7e56bca182eee6da6cc39d116a4cc671d5dca80fd911d0a82d0b",
+      "requires": "0104-msync-thread-local-fork-admission.patch",
+      "status": "PE32/64 short functionality passed; battery v3 formal speed/control failed; own hour not run",
       "selectedByRecipe": false,
       "productionPolicyBound": false
     }

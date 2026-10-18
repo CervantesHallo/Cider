@@ -1046,6 +1046,13 @@ static uint64_t bench_warmup(const group *g)
     return g->iterations < 1024 ? g->iterations : UINT64_C(1024);
 }
 
+/* Cancellation polling is a read. A shared CAS here adds cross-worker cache
+ * traffic to the private-CS control and the event sampling workload. */
+static LONG bench_stop_requested(const group *g)
+{
+    return __atomic_load_n(&g->stop, __ATOMIC_ACQUIRE);
+}
+
 static DWORD WINAPI bench_worker(void *argument)
 {
     worker *w = (worker *)argument;
@@ -1053,7 +1060,7 @@ static DWORD WINAPI bench_worker(void *argument)
     uint64_t i, warmup = bench_warmup(g);
     unsigned b, batches = g->iterations < BATCHES ? (unsigned)g->iterations : BATCHES;
     ULONGLONG deadline = GetTickCount64() + RUN_MS;
-    for (i = 0; i < warmup && !InterlockedCompareExchange(&g->stop, 0, 0); ++i) {
+    for (i = 0; i < warmup && !bench_stop_requested(g); ++i) {
         if (GetTickCount64() >= deadline) { worker_fail(w, 37, ERROR_TIMEOUT); break; }
         if (!bench_iteration(w)) break;
     }
@@ -1068,7 +1075,7 @@ static DWORD WINAPI bench_worker(void *argument)
             /* A shared atomic on EVERY iteration would serialize the independent
              * semaphore benchmark. Sample cancellation/deadlines every 128 ops. */
             if ((i & 127) == 0) {
-                if (InterlockedCompareExchange(&g->stop, 0, 0)) { w->completed += i; return 0; }
+                if (bench_stop_requested(g)) { w->completed += i; return 0; }
                 if (GetTickCount64() >= deadline) {
                     w->completed += i; worker_fail(w, 39, ERROR_TIMEOUT); return 0;
                 }
