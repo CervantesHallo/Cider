@@ -25,6 +25,10 @@ Cider主界面从旧PID90909正常退出并以新PID26910重开；Steam主PID911
 
 下一R线交付按原02的v0 Steam通过后安排：主题补丁清点、固定新Wine输入及逐主题迁移，维持CX oracle对照；不能把旧CX树重命名当成v1完成。P-3余项可继续使用已有带符号v0分析。Engine A按00/P3原2027年6–8月及前置probe/FEXUnixLib/A-lite/平台条件推进；R的自建不等待A。
 
+本轮已实际开始v1首步：从Wine只读官方mirror核对wine-11.18 tag及commit `7b3fff76fa5178f6ce0141b2c776afa2a822f101`，按实际commit重取process.c，与tag取得的字节一致；其SHA256、21个现有配方补丁的主题/摘要及迁移状态写入`engine/porting/r-v1-inputs.json`。GitHub的tag签名验证为false（原始reason保留），没有冒称已独立验证签名。
+
+首个preflight补丁移植到该固定源码，helper函数体与CX旧补丁相同，仅增加该函数和进程建立前的同语义检查。父代理逐项核对：空环境沿旧行为、名称匹配/分隔/大小写函数体不改、原PE失败及非PE分支不改、拒绝后沿现有done清理。临时副本zero fuzz/offset应用后字节完全匹配，没有编译/运行新Wine、生成可用引擎配方或更改EnginePolicy绑定。新目录是源码准备，不能升级游戏裁定；迁移接续须完整核对CX msync、loader/WoW64及图形依赖，kernel新base要重新生成协议而非照搬1810。
+
 执行主序仍为HY1启动器余项→HY2原生契约/依赖组→HY3证据与许可闭环→HY4原神→HY5崩铁/绝区零，柚子社全系保持同等最终目标。Epic弃用，官方国服、现有下载和反作弊红线保持。源码中的kernel候选现已恢复，但Windows原生对照尚缺，仍非默认；恢复不自动切换已登录瓶子或提升游戏评级。
 
 ## 回执

@@ -1,0 +1,304 @@
+{
+  "schema": "cider.engine-r-porting-inputs/v1",
+  "status": "source-preparation-only",
+  "plan": "docs/plan/02-engine-r-wine.md",
+  "upstream": {
+    "repository": "https://gitlab.winehq.org/wine/wine",
+    "readOnlyMirror": "https://github.com/wine-mirror/wine",
+    "tag": "wine-11.18",
+    "tagObject": "ccf4f04c3d4b58856e9e6db6e202409622420d5e",
+    "commit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+    "githubTagVerification": {
+      "verified": false,
+      "reason": "unknown_key"
+    },
+    "files": {
+      "dlls/ntdll/unix/process.c": {
+        "url": "https://raw.githubusercontent.com/wine-mirror/wine/7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/process.c",
+        "sha256": "d2b284cc0222b8dfc0985fdf88b7f2d33096ae0dee4386dc26463e818c4593ff"
+      }
+    }
+  },
+  "cxOracle": {
+    "sourceSHA256": "ac99c8ca4b3848f3e81784135f023df266b61c2345726ea55a50b3e030dd6872",
+    "baseRecipe": "engine/recipes/cider-cx26.json",
+    "currentRecipeLines": [
+      "engine/recipes/cider-cx26-r2.json",
+      "engine/recipes/cider-cx26-wma1-mm1.json",
+      "engine/recipes/cider-cx26-wma1-mm2.json"
+    ]
+  },
+  "topics": [
+    {
+      "patch": "cider/0001-ntdll-preflight-policy-deny.patch",
+      "topic": "policy/exec-guard",
+      "sha256": "50e9c045415ccb62b8e26aca6b5a1b6325d439e50667ac8315cecda4c116e638",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "source-port-prepared"
+    },
+    {
+      "patch": "cider/0002-wined3d-prefer-copy-swap-pixel-formats.patch",
+      "topic": "graphics/d3d9-gl",
+      "sha256": "adc80891a3b156e20341eb969cbc8f57b85e5daeb1c19a1a37c1065c9411cf92",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "cider/0003-winemac-initialize-style-masks.patch",
+      "topic": "macos/custom-caption",
+      "sha256": "96c422de01a1c68938e998a1b3eaf7dcd7608f695de2c8d31dcf7963bff17dfd",
+      "recipes": [
+        "cider-cx26-r2.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "cider/0004-win32u-preserve-custom-client-area.patch",
+      "topic": "macos/custom-caption",
+      "sha256": "00432c9b06da260212929a1851eb074342f731719587fb837a9ec3e2db51f000",
+      "recipes": [
+        "cider-cx26-r2.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "cider/0005-winemac-sync-custom-caption-geometry.patch",
+      "topic": "macos/custom-caption",
+      "sha256": "a7b85ee74b1de3cc813d5cb2c19c12dd4c599b1569b692d6e5021d7cc54a5261",
+      "recipes": [
+        "cider-cx26-r2.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "cider/0006-ntdll-retain-macos-host-bundle.patch",
+      "topic": "macos/host-loader",
+      "sha256": "c39aaaaf9549b558c7ffad57a4f7e7edd77cc64198da2898d56b8c46995055e0",
+      "recipes": [
+        "cider-cx26-r2.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "cider/0007-winegstreamer-clear-dmo-output-status.patch",
+      "topic": "media/dmo",
+      "sha256": "054aeaaff50d87b2d8c7aa6e56fd2fe9b5b43c512e56048f74c35b1fade9b788",
+      "recipes": [
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "cider/0008-winmm-lazy-format-probing.patch",
+      "topic": "audio/winmm",
+      "sha256": "0dcf673b1d0e754091e0fdee46f92c72efef1c8ee908ecadf1f602bcfe47e01c",
+      "recipes": [
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "cider/0014-winmm-initialize-before-worker-lock.patch",
+      "topic": "audio/winmm",
+      "sha256": "da5dc2d401ee8b077d76c500ab7914b49ea4392f0ee13eb42da434f3f348c6b4",
+      "recipes": [
+        "cider-cx26-wma1-mm2.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0001-use-the-real-user-name.patch",
+      "topic": "user-profile",
+      "sha256": "32f32bc1c3b270def7a0622f1fe67afdcf20d3877cd51e99be17b50817ecf1d6",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0002-wined3d-auto-renderer-opengl-first.patch",
+      "topic": "graphics/d3d9-gl",
+      "sha256": "011e682a90bfa3b2b0ebf6e72c5d93fbf3af674bf5c4cf05dd506622c23eb892",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0003-ntdll-winedllpath-prepend.patch",
+      "topic": "loader/component-overrides",
+      "sha256": "8a56c17512731bd853ddc9e638761a5f9623b65e7c44bbefd89e757c3b868dc9",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0005-ntdll-yield-after-auto-event-set.patch",
+      "topic": "sync/msync",
+      "sha256": "bc2c02bb920c5f36a48e8b7a6ad15c1964ad84a2a26215aa39a99ce08f47ba2e",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0006-kernelbase-per-exe-command-line-append.patch",
+      "topic": "app/command-line",
+      "sha256": "cda40f3611a59d450b508000d0f2a9b43b5dba4030af5ce6c35180f8f4a7332b",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0007-winemac-cross-process-child-swapchains.patch",
+      "topic": "graphics/cef-cross-process",
+      "sha256": "cd1fe23109b5addf70d74b7c82cc837f71d99373beb28138bd8802e712d74d26",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0008-macos-mirror-teb-fiberdata.patch",
+      "topic": "macos/wow64-runtime",
+      "sha256": "036980ab0a68fc516bb9eb6e156321e11c40d6e2bccc36a700937084056fed2a",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0009-macos-swap-fiberdata-and-qos-slot.patch",
+      "topic": "macos/wow64-runtime",
+      "sha256": "0fcd084eb255288319d71739d69ba459fec637499cc04ab79aff8767fa8cb42c",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0010-mfreadwrite-video-processor-sample-allocator.patch",
+      "topic": "media/mf",
+      "sha256": "d16d712a2cdbec5194ba977b649054d26ce78ea7ec760a508625b009c40b17ad",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0011-macos-lasterror-in-gs-slot.patch",
+      "topic": "macos/wow64-runtime",
+      "sha256": "f9141f3ffd5a8a6d79304c5e2d7c7e400be738d7ada0a6d35647583e67c153b3",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0012-ntdll-x87sidecar-cooperative-attach.patch",
+      "topic": "experimental/x87",
+      "sha256": "64a3a3dd27b2d1bef469d96fd1ed354c860138b47769f79413c8932118ef154a",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    },
+    {
+      "patch": "highball/0013-ntdll-nx-compat-from-main-image-permanent-under-rosetta.patch",
+      "topic": "macos/wow64-runtime",
+      "sha256": "a208a9b4826bcb87babb2e206aee12b64a50a176544442bc6406e4b605bdb7ab",
+      "recipes": [
+        "cider-cx26-r2.json",
+        "cider-cx26-wma1-mm1.json",
+        "cider-cx26-wma1-mm2.json",
+        "cider-cx26-wma1.json",
+        "cider-cx26.json"
+      ],
+      "v1Status": "not-yet-ported"
+    }
+  ],
+  "independentKernelCandidates": {
+    "status": "nondefault, Windows conformance pending",
+    "sourceCommit": "47c72831803b69f1eb0c24e444b9c463de158dfb",
+    "queue": "engine/patches/candidates/QUARANTINE-REPAIR.md",
+    "portRequirement": "Rebase real ownership functions and regenerate upstream protocol; do not copy CX generated request tables or literal protocol1810 into a different base."
+  },
+  "ports": [
+    {
+      "patch": "engine/porting/wine-11.18/0001-ntdll-preflight-policy-deny.patch",
+      "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+      "originalSHA256": "d2b284cc0222b8dfc0985fdf88b7f2d33096ae0dee4386dc26463e818c4593ff",
+      "portedSHA256": "fa58d1731bd55265296c49caed465124d98ee593bcb17a96a897220d90c1a48a",
+      "patchSHA256": "4ed7b5e76245e7a2ee8b3b8c38830031bb5c93a412143fe9b21e013200771c5b",
+      "helperSHA256": "5e07e4a0640c1f1c4bdd817a3b00668be95ce9cf0560070dc7083ac7b8ec6fac",
+      "sameHelperAsCxOracle": true,
+      "zeroFuzzAndOffset": true,
+      "scope": "source preparation only, not compilation or runtime acceptance",
+      "recipeSelected": false
+    }
+  ],
+  "buildReady": false,
+  "runtimeAccepted": false,
+  "changesUserEngineOrBottle": false
+}

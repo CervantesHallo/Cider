@@ -1,0 +1,50 @@
+Subject: [porting] ntdll: retain Cider child-process policy on Wine 11.18
+
+Source: wine-mirror/wine commit 7b3fff76fa5178f6ce0141b2c776afa2a822f101.
+Cider-Topic: r3/preflight
+Status: source port only; not selected by a recipe or runtime-validated.
+Preserves the existing CX26 helper and documented failure; no game permission change.
+
+--- a/dlls/ntdll/unix/process.c
++++ b/dlls/ntdll/unix/process.c
+@@ -78,6 +78,27 @@
+ static UINT process_error_mode;
+ ULONG process_cookie = 0xdeadbeef;
+ 
++/* Cider host policy, kept identical to the CX26 oracle implementation. */
++static BOOL preflight_denied( const char *unix_name )
++{
++    const char *list = getenv( "CIDER_PREFLIGHT_DENY" ), *base, *p;
++    size_t len;
++
++    if (!list || !unix_name) return FALSE;
++    base = strrchr( unix_name, '/' );
++    base = base ? base + 1 : unix_name;
++    len = strlen( base );
++    for (p = list; *p;)
++    {
++        const char *end = strchr( p, ';' );
++        size_t n = end ? (size_t)(end - p) : strlen( p );
++        if (n == len && !strncasecmp( p, base, n )) return TRUE;
++        if (!end) break;
++        p = end + 1;
++    }
++    return FALSE;
++}
++
+ static char **build_argv( const UNICODE_STRING *cmdline, int reserved )
+ {
+     char **argv, *arg, *src, *dst;
+@@ -769,6 +790,12 @@
+             free( nt_name.Buffer );
+             return STATUS_SUCCESS;
+         }
++        goto done;
++    }
++    if (preflight_denied( unix_name ))
++    {
++        WARN( "%s refused by the host's preflight policy\n", debugstr_us( &nt_name ) );
++        status = STATUS_ACCESS_DISABLED_BY_POLICY_DEFAULT;
+         goto done;
+     }
+     if (!machine)

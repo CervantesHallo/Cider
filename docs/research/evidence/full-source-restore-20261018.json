@@ -21,7 +21,7 @@
   "windowsOperations": 0,
   "newTestsRun": 0,
   "schema": "cider.full-source-restoration/v1",
-  "restorationCommit": "pending-source-commit",
+  "restorationCommit": "01377460ccdb53d76e9e728941bee982961336b0",
   "userAuthorizedAllGroups": true,
   "sourceTrees": {
     "App": {
@@ -99,5 +99,14 @@
   "kernelCandidateDefaultEnabled": false,
   "noSteamCloneUsed": true,
   "protectedMetadataUnchangedAtGuiReopen": true,
-  "referenceBudgetUnchanged": true
+  "referenceBudgetUnchanged": true,
+  "rV1Preparation": {
+    "inputManifest": "engine/porting/r-v1-inputs.json",
+    "inputManifestSHA256": "e4523d422f41c416cf46d50a0bbae31fea56a07b48b3c5c0ca5e5e16bcf84622",
+    "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+    "existingRecipePatchUnion": 21,
+    "sourcePortsPrepared": 1,
+    "buildReady": false,
+    "runtimeAccepted": false
+  }
 }

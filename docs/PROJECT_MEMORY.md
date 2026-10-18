@@ -4,6 +4,8 @@
 
 ## 用户目标与协作
 
+- **R v1首个源码准备（2026-10-18，接续72）**：全面恢复提交0137746，正常新版App已重开，Steam原91113/91115保留，原生Cider资料库5项；实际界面点击HYP后状态转运行，PID27008/原r2/profile revision4正确。HY1真实窗口/登录验证码仍需用户本人确认，已发简短问题，不重试此前已知Wine窗口自动化超时。按02开始v1：固定Wine11.18实际commit7b3fff76...及源码SHA，21个配方补丁主题/依赖写engine/porting/r-v1-inputs.json，首个preflight helper与CX oracle相同、源码应用zero-fuzz/offset比对通过。只完成源码准备，尚未构建/运行v1，未新建可用配方或EnginePolicy绑定；CX msync/loader/WoW64和图形依赖须逐主题迁移，kernel新base不能照搬CX协议1810。该步没有新增测试套件/Windows/Actions/定时；不可把后台机时不足改成反复远控或复跑旧基线。
+
 - **全面恢复授权（2026-10-18，检查点72）**：用户明确“隔离的代码先全面恢复吧，然后严格按照原计划推进”，解除10月14的源码隔离等待限制。全部App/Packages/Tools/engine/data/scripts/tests/CI/AGENTS与已修复快照344148a一致恢复，含A/B/C/D和52–59历史材料；不是恢复原缺陷0010。原主线备份codex/pre-full-restore-20261018保留。主线release App/CLI/Bridge已构建签名，常用UI加载另留回执；Steam已有会话保留。候选内核源码已恢复但原生Windows未验收，非默认/不自动切用户瓶子，真实预算/旧pending不改、无Windows/Actions或新定时。继续HY1→HY2→HY3→HY4/HY5。用户询问自研引擎：R v0早已本地自建、当前Steam实际用cider-cx26.3-r1-wma1-mm1；02的旧Highball状态已标历史。下一步按原02进入R v1主题队列整理/固定输入，带符号v0性能研究可继续；Engine A原P3为2027年6–8月及前置probe/entitlement门槛，不把它当R自研的开始时间。
 
 - **检查点71（2026-10-18，隔离K2源码补齐）**：0017–0020已按既有Wine kernel-object模型实现真实指定process的primary token引用/释放，manager归属与process句柄/映射身份绑定，不创建token访问句柄、不改普通DACL检查或替代宿主身份；退休0010不恢复。109项精确C模型、6个编译后破坏变体、14文件zero-fuzz重建、native/两架构模块及隔离release通过；两种真实Wine架构各420项0失败，64正常并发轮、2个明确夹具异常（到达注入点才接纳预期）、关闭child全部句柄后held token仍可查询/归还。服务/所有本批prefix进程/XPC job清理有回执；混配native对被产品spawn前拒绝，0新Wine spawn。独立复审发现核心finally/owner/close三项及夹具保活/异常/故障标记等问题均已修；早期弱证据、1114和NameError保留，不作最终通过。协议1810必须配套server/ntdll Unix/两架构PE，EnginePolicy新增精确pair但旧两组保留。详见research71和结构化证据；不宣称Windows原生契约/游戏/生产验收或整阶段完成。所有源码仍隔离，主线实现374980e、常用App/安装引擎/存档/原神下载和真实预算不变；Windows/Actions/定时0。原HY顺序/此前游戏验收保留。接续需用户既有隔离恢复范围决定及独立Windows/机时条件，不自动整包恢复或改账。通用安全提示无错误码且此次实际工具成功，不能沿用旧“K2一律禁止”说法。
