@@ -10,7 +10,7 @@ python3 tests/kernel/object-lifetime/run_checks.py \
   --old-source /path/to/original-quarantined/src
 ```
 
-`verify_queue.py`在临时树中逆向原0009/0010得到基线，再依次应用0009/0012/0013；检查零fuzz/offset、六个文件与实际源码逐字节一致，以及旧primary函数体没有重新进入队列。
+`verify_queue.py`在临时树中逆向原0009/0010得到基线，再依次应用当前QUARANTINE-REPAIR队列；检查零fuzz/offset、14个文件与实际源码逐字节一致，以及退休0010的访问句柄/宿主替代函数体没有重新进入队列，且0019真实对象引用实现存在。
 
 ```sh
 python3 tests/kernel/object-lifetime/verify_queue.py \

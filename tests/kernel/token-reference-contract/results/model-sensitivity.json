@@ -1,0 +1,41 @@
+{
+  "scope": "six deliberate source mutations; modeled dependencies only",
+  "results": [
+    {
+      "mutation": "foreign-manager",
+      "compiledModelRejected": true,
+      "exitCode": 1,
+      "diagnostic": "subprocess.CalledProcessError: Command '['/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-primary-server-model-1g1ahekq/checks']' died with <Signals.SIGABRT: 6>."
+    },
+    {
+      "mutation": "wrong-primary-owner",
+      "compiledModelRejected": true,
+      "exitCode": 1,
+      "diagnostic": "subprocess.CalledProcessError: Command '['/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-primary-server-model-05fhxyfx/checks']' died with <Signals.SIGABRT: 6>."
+    },
+    {
+      "mutation": "missing-backend-owner",
+      "compiledModelRejected": true,
+      "exitCode": 1,
+      "diagnostic": "subprocess.CalledProcessError: Command '['/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-primary-server-model-9hfi43g7/checks']' died with <Signals.SIGABRT: 6>."
+    },
+    {
+      "mutation": "missing-local-reference",
+      "compiledModelRejected": true,
+      "exitCode": 1,
+      "diagnostic": "subprocess.CalledProcessError: Command '['/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-primary-client-model-9f92ovu5/checks']' died with <Signals.SIGABRT: 6>."
+    },
+    {
+      "mutation": "missing-process-close",
+      "compiledModelRejected": true,
+      "exitCode": 1,
+      "diagnostic": "subprocess.CalledProcessError: Command '['/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-primary-client-model-arhh4dnv/checks']' died with <Signals.SIGABRT: 6>."
+    },
+    {
+      "mutation": "missing-unwind-release",
+      "compiledModelRejected": true,
+      "exitCode": 1,
+      "diagnostic": "subprocess.CalledProcessError: Command '['/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-primary-client-model-yaa6_pfm/checks']' died with <Signals.SIGABRT: 6>."
+    }
+  ]
+}

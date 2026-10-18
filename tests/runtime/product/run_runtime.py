@@ -455,6 +455,47 @@ def token_handle_contract():
   require(row['wine'] and row['openQuery']['success'] and not row['cleanupError'],'collector did not complete safely')
   records.append({'architecture':arch,'observation':row,'cliExitCode':p.returncode})
  return {'scope':'observations only, own-process public APIs; no native Windows contract inferred','records':records}
+def owned_token_runtime():
+ arch='i686' if '--32' in sys.argv else 'x86_64';results=[]
+ for kind in ['policy','token']:
+  started_ns=time.time_ns();program=BASE/('cider-owned-'+kind+'-'+arch+'.exe')
+  args=['run','-b',BOTTLE,'--wait','--env','WINEDEBUG=+loaddll',str(program)]
+  if kind=='token':args+=['--','Z:'+str(BASE/('cider-owned-token-'+arch+'.sys')).replace('/','\\')]
+  p=cli(args,timeout=70);found=[];loader=[]
+  schema='cider.owned-child-policy/v1' if kind=='policy' else 'cider.owned-token-runtime/v2'
+  for log in (TEST_HOME/'Logs/sessions').glob('*/*/wine.log'):
+   if log.stat().st_mtime_ns<started_ns:continue
+   with log.open('rb') as stream:
+    stream.seek(max(0,log.stat().st_size-(2<<20)));lines=stream.read().decode('utf8','replace').splitlines()
+   for line in lines:
+    if line.startswith('{"schema":"'+schema+'"'):found.append(json.loads(line))
+    elif 'loaddll' in line and ('ntoskrnl.exe' in line or 'cider-owned-token' in line):loader.append(line)
+  row={'kind':kind,'architecture':arch,'cliExitCode':p.returncode,'stdout':p.stdout,'stderr':p.stderr,'observations':found,'loader':loader}
+  results.append(row);RESULT['ownedTokenEvidence']=results
+  require(p.returncode==0 and len(found)==1,json.dumps(row))
+  if kind=='policy':require(not found[0]['childStarted'] and found[0]['markerAbsent'] and found[0]['error']==1260 and not found[0]['cleanupError'],'child policy failed')
+  else:require(found[0]['rounds']==64 and found[0]['concurrentRounds']==64 and found[0]['expectedFaults']==2 and found[0]['childExited'] and found[0]['childHandlesClosedBeforeRelease'] and not any(found[0][k] for k in ['win32Error','cleanupError','failures','childExitCode']),'owned token reference failed')
+ return results
+def reject_mixed_native_pair():
+ import shutil
+ # Replace only this private engine's on-disk server with the recorded old
+ # server; product policy must reject it before a Windows process is spawned.
+ server=Path(OWNER['engine_copy'])/'engine/bin/wineserver'
+ original=server.with_name('wineserver.owned-pair-check')
+ source=Path(OWNER['engine_source'])/'engine/bin/wineserver'
+ require(server.resolve().is_relative_to(BASE) and not original.exists(),'pair check ownership mismatch')
+ before=len(audits());digest=hashlib.sha256(server.read_bytes()).hexdigest()
+ server.rename(original)
+ try:
+  shutil.copy2(source,server)
+  require(hashlib.sha256(server.read_bytes()).hexdigest()!=digest,'expected a different old native server')
+  p=cli(['run','-b',BOTTLE,'--wait',str(BASE/'probe.exe'),'--','--exit','0'],timeout=20)
+  require(p.returncode!=0 and '子进程启动策略尚未验证' in p.stderr,p.stdout+p.stderr)
+  require(len(audits())==before,'mismatched native pair launched a process')
+  return {'cliExitCode':p.returncode,'stderr':p.stderr,'newWineSpawns':0,'oldServerSHA256':hashlib.sha256(server.read_bytes()).hexdigest()}
+ finally:
+  original.replace(server)
+  require(hashlib.sha256(server.read_bytes()).hexdigest()==digest,'native pair was not restored')
 def relaunch():
  p=cli(['run','-b',BOTTLE,'--wait',str(BASE/'probe.exe'),'--','--exit','0'],timeout=35)
  require(p.returncode==0,p.stdout+p.stderr);return {'stdout':p.stdout,'exitCode':p.returncode,'probe':probe_record()[2]}
@@ -496,6 +537,10 @@ try:
   case('wine.actual_object_reference_and_work_callback',kernel_objects)
  elif '--token-handle-contract' in sys.argv:
   case('wine.read_only_own_process_token_handle_contract',token_handle_contract)
+ elif '--owned-token-reference' in sys.argv:
+  case('wine.owned_token_identity_alias_and_process_exit',owned_token_runtime)
+ elif '--native-pair-negative' in sys.argv:
+  case('product.reject_mixed_native_pair_before_spawn',reject_mixed_native_pair)
  elif '--manual-installer' in sys.argv:
   case('kit.manual_installer_full_status_and_stop',manual_installer)
  elif '--shortcut-entries' in sys.argv:

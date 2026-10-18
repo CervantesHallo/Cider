@@ -1,0 +1,156 @@
+{
+  "scope": "temporary reconstruction only; no Wine or driver execution",
+  "steps": [
+    {
+      "patch": "rejected/0010-ntoskrnl-primary-token-reference.patch.txt",
+      "reverse": true,
+      "sha256": "1b4abec5caf8cc866af922118960af9475bd44c44ddaa829a6b87c805f323f80",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0009-token-kernel-object-mapping.patch",
+      "reverse": true,
+      "sha256": "0915a074d9af4c8bbaa913cc73c3453c30ece9244bbe835f95460f087efc45cf",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0009-token-kernel-object-mapping.patch",
+      "reverse": false,
+      "sha256": "0915a074d9af4c8bbaa913cc73c3453c30ece9244bbe835f95460f087efc45cf",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0012-reference-callers.patch",
+      "reverse": false,
+      "sha256": "35f3650200407d4b5f7bc08905d9788d21d1cf80a75e9e6ce1d68c848970f49f",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0013-object-reference-lifetime.patch",
+      "reverse": false,
+      "sha256": "c4e807661d52d8e10647396eae21a3dd4b3e02f6d70aa70324bc1e0a6f9b931a",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0015-close-borrowed-object-cleanup.patch",
+      "reverse": false,
+      "sha256": "5a64b7fc2037c00196f300408a54bed0f4f8ff4633471b43e77d93794b8d22d4",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0016-ioctl-allocation-buffer-ownership.patch",
+      "reverse": false,
+      "sha256": "a3efba58956fb5ca4b5bac24641050e78334c2ffb955fe2cae49f3844b54aad5",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0017-primary-token-release.patch",
+      "reverse": false,
+      "sha256": "73e9e604184c6deaf5f10e0ba8e1e744c393c9c16a8a2c83ab8e14e543e2427b",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0018-process-primary-reference-ownership.patch",
+      "reverse": false,
+      "sha256": "6024551fd02a18f5096dcc5223e470ca0fcaa9cfd7dc9dd52ff41215245a7bb7",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0019-owned-primary-token-reference.patch",
+      "reverse": false,
+      "sha256": "2e94ee3f312a9376429dd00877445ff6fa2ffe0afa85e5fc7d25aae698194763",
+      "fuzz": 0,
+      "offset": 0
+    },
+    {
+      "patch": "candidates/0020-primary-token-ddk-declarations.patch",
+      "reverse": false,
+      "sha256": "97d2f57ddd535a1b863b6aa8490f503ef988bd131b5aba86cd4d2e2d0ed22601",
+      "fuzz": 0,
+      "offset": 0
+    }
+  ],
+  "checks": [
+    {
+      "file": "dlls/ntoskrnl.exe/ntoskrnl.c",
+      "sha256": "1f11091b5fb394702f40c12fdb60c499b75be3bb091bbb48d6f152215c681c3d",
+      "matches": true
+    },
+    {
+      "file": "dlls/ntoskrnl.exe/ntoskrnl_private.h",
+      "sha256": "e90b00d2f607c7c4ea14c83da1e641bf942edda23f06db20d32e548414a8ad7c",
+      "matches": true
+    },
+    {
+      "file": "dlls/ntoskrnl.exe/sync.c",
+      "sha256": "f238ac47f0a2a32858306cbfc5e261403e56fb88d81f23ee1d8f0a6d5fb2e11b",
+      "matches": true
+    },
+    {
+      "file": "dlls/ntoskrnl.exe/pnp.c",
+      "sha256": "2a38c98d2ee7fcf37271ac71ce773fee692fbc419005fff90054c3a7770f9d04",
+      "matches": true
+    },
+    {
+      "file": "dlls/ntoskrnl.exe/ntoskrnl.exe.spec",
+      "sha256": "493b0e44d7032879cf4a60b1f7113cea17732d09fb98cd38cd6062daafc7b32d",
+      "matches": true
+    },
+    {
+      "file": "server/token.c",
+      "sha256": "e50dbadfd28a8d01b5cf258912c5162085ee8d7640cc93fb241e5465c662d0a5",
+      "matches": true
+    },
+    {
+      "file": "server/process.c",
+      "sha256": "a7dde45489a4b8fee2d0183a5c4b8157bcf6c28aff4f6fd3327e3dee6ced644d",
+      "matches": true
+    },
+    {
+      "file": "server/process.h",
+      "sha256": "9797ef519ffa148e110f6a0429b24187f3753b4d307c459b2bda75a75f662edb",
+      "matches": true
+    },
+    {
+      "file": "server/device.c",
+      "sha256": "f659a077c43081a4e11756cc70246a30ff4114d2beab85e54cc74055141a51fb",
+      "matches": true
+    },
+    {
+      "file": "server/protocol.def",
+      "sha256": "2b6a99731ccca81f69d5060166078912e9f6dc1dd8a1f9bbd90b4dc2c4d8de4a",
+      "matches": true
+    },
+    {
+      "file": "server/request_trace.h",
+      "sha256": "4fa92b3da84fe5a46295007dfcf04d0655f626f146d43fa271a73eda92349d74",
+      "matches": true
+    },
+    {
+      "file": "server/request_handlers.h",
+      "sha256": "0bed9a527e0ab4ca0388a6dd4fdab84b196b0ece233dc5500b14135c938623b7",
+      "matches": true
+    },
+    {
+      "file": "include/wine/server_protocol.h",
+      "sha256": "80accd65ec6aaebdea02c6b45ceda704833deec2033f3fa483b0da597799ed6c",
+      "matches": true
+    },
+    {
+      "file": "include/ddk/ntifs.h",
+      "sha256": "846072b0fab099853052b4aa787cb188ffbeb18f9e46c97017d7f508fabbfac3",
+      "matches": true
+    }
+  ],
+  "retired_primary_body_absent": true,
+  "owned_primary_reference_present": true
+}

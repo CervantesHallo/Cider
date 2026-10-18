@@ -9,8 +9,11 @@
 | 3 | 0013-object-reference-lifetime.patch | 同权限稳定句柄、map/ref/FREE同步及对齐，依赖0012 | [62](../../../docs/research/62-quarantine-kernel-repairs-20261015.md) |
 | 4 | 0015-close-borrowed-object-cleanup.patch | CLOSE分配IRP失败不误释放借用文件，依赖0013 | 后续真实Wine验证记录 |
 | 5 | 0016-ioctl-allocation-buffer-ownership.patch | IOCTL分配失败保留context拥有缓冲并回收独立/替换旧缓冲 | 后续真实Wine验证记录 |
-| 6 | 0017-primary-token-release.patch | 仅委托已有对象管理器释放引用；取得接口仍未实现 | [70](../../../docs/research/70-k2-contract-and-refusal-evidence-20261017.md) |
+| 6 | 0017-primary-token-release.patch | 委托已有对象管理器释放引用 | [70](../../../docs/research/70-k2-contract-and-refusal-evidence-20261017.md) |
+| 7 | 0018-process-primary-reference-ownership.patch | 已保留process对象的真实primary token强引用助手 | [71](../../../docs/research/71-k2-owned-reference-runtime-20261018.md) |
+| 8 | 0019-owned-primary-token-reference.patch | 归属本地址空间manager的真实对象引用/异常回滚；server/ntdll协议1810须配套 | [71](../../../docs/research/71-k2-owned-reference-runtime-20261018.md) |
+| 9 | 0020-primary-token-ddk-declarations.patch | 公共DDK声明与实现/stdcall导出一致 | [71](../../../docs/research/71-k2-owned-reference-runtime-20261018.md) |
 
 0010已撤出并仅保留在rejected作历史追溯，不能按旧57记录加入队列。当前顺序以[修复队列](QUARANTINE-REPAIR.md)为准。
 
-32/64模块构建采用既有macOS15.4配置。通用事件/引用/回调已在私有Wine进程进行定向验证；它不覆盖token映射、K2或Windows原生kernel，也没有部署常用引擎。原生生命周期、失败/并发、访问范围及整个权限依赖组通过后，才评审加入配方；不能仅复制补丁列表便认为阶段已完成。
+32/64模块构建采用既有macOS15.4配置。通用事件/引用/回调已在私有Wine进程进行定向验证；既有通用对象结果不覆盖token；K2新增定向Wine结果另记research71，仍不覆盖Windows原生kernel，也没有部署常用引擎。原生生命周期、失败/并发、访问范围及整个权限依赖组通过后，才评审加入配方；不能仅复制补丁列表便认为阶段已完成。

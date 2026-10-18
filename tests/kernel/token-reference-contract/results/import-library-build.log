@@ -1,0 +1,4 @@
+tools/winebuild/winebuild -w --implib -o dlls/ntoskrnl.exe/x86_64-windows/libntoskrnl.a --without-dlltool -b x86_64-w64-mingw32 --export \
+  /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.exe.spec
+tools/winebuild/winebuild -w --implib -o dlls/ntoskrnl.exe/i386-windows/libntoskrnl.a --without-dlltool -b i686-w64-mingw32 --export \
+  /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.exe.spec

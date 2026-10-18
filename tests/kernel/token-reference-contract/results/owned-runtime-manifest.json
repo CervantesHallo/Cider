@@ -1,0 +1,25 @@
+{
+  "schema": "cider.owned-token-runtime-build/v1",
+  "sourceSHA256": {
+    "driver.c": "cdddfc266c138c2ee252526c15233b440bdad6665fe3da1d89b92a51f0714530",
+    "client.c": "75cd033df7358feaa9ebb528f201c4475068717deb8eb6957d2f70b0a626374e",
+    "protocol.h": "1303a31a3bd7409194e07127bbf2497b98786d4f96e4223a8a7052297a9c5b27",
+    "policy-child.c": "905470de68032104bc9e590c49b5da13faef3dc0c12e134b009cd8134dc5b666",
+    "build-runtime.py": "5f7c3955c100471b2a40aa21999a839e3e3e8e1af198f26b823a81b268871b15",
+    "check-client-reference.py": "3f7aa3f5c074e2957e6cac8048e0558040e08bacc176302923c0bfc249c5dd70",
+    "check-server-reference.py": "dd2983c8dc552c4c727f41339eb1afeedf193229fbdb3ceba9b9bac85318f855",
+    "client-reference-model.c": "3ec0e80b526932ea206025614b16a8619b68301f497f4698e18ea7b411d0c2e7",
+    "server-reference-model.c": "27cf0bf705348b86c0635b57897b0590a0fac0de5c64972f5ff8fb470af5b4af",
+    "check-sensitivity.py": "50e1f046883e50a3a9fea5c724ebeb9871089b4807736772c9a5d109eb755de1"
+  },
+  "fixtureSHA256": {
+    "cider-owned-token-i686.exe": "09e82a38b3bfec18b314382926af4a056fc17711f851f2b07eac3da1933c9c9f",
+    "cider-owned-token-x86_64.sys": "28af4ae03984fb704f4a6d68a29f2ae9aac88841fcc97ce62be86cb6c4315212",
+    "cider-owned-token-i686.sys": "e954ee94cd886b0d8144115c08a0109c7eaa8f6db3e4744b71cc5db6a99208c8",
+    "cider-owned-token-x86_64.exe": "4ca65152d29943a6754809db1c11ae37243767fc4406e7fe78e5db8a6ec846f3",
+    "cider-owned-policy-i686.exe": "331fac7fcb54097ced2e9c6e3aa36d37689800b27fc6ced7680e9209fa24e978",
+    "cider-owned-policy-x86_64.exe": "1450281bf1d92d0d204a8bdceb61f7d14ca789f8654fae64b3fc53bbee38472f"
+  },
+  "scope": "Wine fixtures only; native Windows refused by client; no accounts or game code",
+  "controllerSHA256": "66ea56ec11a46c949f9ae76732f71babc21dc82783c08ca3be517ecb45314d71"
+}

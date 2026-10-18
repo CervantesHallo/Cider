@@ -1,0 +1,40 @@
+Building for production...
+[Using on-disk description]
+[1 / 1]
+[2 / 13] CiderStore
+[4 / 14] CiderStore
+[10 / 19] CiderStore
+[12 / 21] CiderRuntime
+[17 / 24] CiderBottle
+[21 / 25] CiderIntegration
+[27 / 30] CiderCommands
+[30 / 33] Cider-product
+[32 / 34] Cider-product
+[34 / 34] Cider-product
+[35 / 36] Cider-product
+Build complete! (21.22秒)
+Building for production...
+[Provisioning 3 / 18]
+[1 / 1]
+[2 / 13] CiderStore
+[4 / 14] CiderStore
+[10 / 18] CiderRuntime
+[11 / 19] CiderStore
+[12 / 20] CiderRuntime
+[17 / 23] CiderBottle
+[21 / 25] CiderIntegration
+[27 / 30] CiderCommands
+[30 / 33] ciderctl-product
+[31 / 34] ciderctl-product
+[33 / 34] ciderctl-product
+[34 / 34] ciderctl-product
+Build complete! (15.75秒)
+Building for production...
+[1 / 1]
+Build complete! (0.53秒)
+/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/backups/Cider-20261017-103525-nB60nt/Cider.app/Contents/Info.plist: OK
+/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/backups/Cider-20261017-103525-nB60nt/Cider.app/Contents/MacOS/CiderXPCBridge: replacing existing signature
+/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/backups/Cider-20261017-103525-nB60nt/Cider.app/Contents/MacOS/ciderctl: replacing existing signature
+/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/backups/Cider-20261017-103525-nB60nt/Cider.app: replacing existing signature
+previous app: /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/backups/Cider-20261017-103525-nB60nt/Cider.app
+built /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app
