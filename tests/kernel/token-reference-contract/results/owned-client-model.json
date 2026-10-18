@@ -1,0 +1,10 @@
+{
+  "scope": "exact client C bodies; RPC/object dependencies and SEH control flow modeled, not native parity",
+  "functionSHA256": {
+    "finish_primary_token_reference": "dfb687694b789c135ff9e91579658c5172aecae1a3b589a46cd16b959a62b047",
+    "unlock_obref": "fabd7bf790f6d53b72b3d36df852d2ad6a7014b3b8588cff574a7f8ee7428601",
+    "PsReferencePrimaryToken": "c2c05407586219eac8d44db332867168075e3ab377cd0ca6b13432620b0acfe3"
+  },
+  "exitCode": 0,
+  "output": "PASS: 39 client adoption/alias/rollback/close/SEH checks; modeled dependencies only"
+}

@@ -15,15 +15,18 @@ Open-source macOS app (Apple Silicon) that runs Windows programs and games on Wi
 
 ## Layout
 
-- `Packages/CiderKit/` — all business logic (SwiftPM, no UI). Modules: CiderCore, CiderSchema, CiderStore (engines, D3DMetal import), CiderRuntime (spawning Wine, preflight gate), CiderBottle, CiderPE, CiderData (compat DB, recipes, red lines), CiderIntegration (Steam, catalog, recipe installer).
-- `Tools/ciderctl/` — CLI on top of CiderKit.
+- `Packages/CiderKit/` — all business logic (SwiftPM, no UI). Modules: CiderCore, CiderSchema, CiderStore (engines, D3DMetal import), CiderRuntime (spawning Wine, preflight gate), CiderBottle, CiderPE, CiderIPC (authenticated command transport), CiderData (compat DB, recipes, red lines), CiderIntegration (Steam, catalog, recipe installer).
+- `Tools/ciderctl/` — command client; help/version/parse errors are local, commands go through XPC to the GUI.
+- `Tools/CiderCommands/` — original command implementations, invoked by the GUI with a per-request context.
+- `Tools/CiderBridge/` — forwarding-only, on-demand user-session Mach service; never spawns Wine.
 - `App/` — SwiftUI app (`scripts/build-app.sh` → out/Cider.app). UI design: https://Codex.ai/artifact/CX8EF8Q8pG6EXzbHWxtdJk
 - `engine/` — `toolchain.sh`, `deps.sh`, `build.sh <recipe>`, `bundle-gstreamer.sh`, patches (build with a macOS 15 SDK). `data/` — compat entries, profiles, recipes (bundled into the app). `scripts/` — app/DMG build, smoke test, `wine-profile.py` (lldb profiler), Steam cold-start gate.
 
 ## Build and run
 
 ```sh
-cd Tools/ciderctl && swift build          # builds CiderKit too
+scripts/build-app.sh                     # packages GUI, client and XPC bridge
+cd Tools/ciderctl && swift build          # optional development client; delegates to packaged app
 .build/debug/ciderctl engine list
 .build/debug/ciderctl bottle create "Name" --locale zh-Hans   # ja | zh-Hans | zh-Hant | ko | en
 .build/debug/ciderctl run -b Name --wait /path/to/setup.exe /S
@@ -31,6 +34,8 @@ cd Tools/ciderctl && swift build          # builds CiderKit too
 ```
 
 `CIDER_HOME=/tmp/x` redirects all data (App Support, Caches, Logs) for experiments. Unit tests need the `Testing` module, which ships with Xcode, not the Command Line Tools.
+
+The packaged GUI is the Wine spawner (ADR-007). A standalone development client locates the checkout's `out/Cider.app`, `CIDER_APP`, or `/Applications/Cider.app`; it never falls back to spawning Wine itself. A command already submitted is not automatically replayed after disconnect. Concurrent `run --wait` must retain separate admission/execution capacity for `kill`.
 
 `scripts/build-app.sh` also packages `Cider.app/Contents/MacOS/ciderctl`; that CLI shares the app's resource data independent of cwd. For the standalone development CLI above, run from the checkout root or set `CIDER_DATA` to the checkout's absolute `data` path. A CLI built in isolation does not bundle the compatibility data.
 

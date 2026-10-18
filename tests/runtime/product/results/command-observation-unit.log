@@ -1,0 +1,58 @@
+Building for debugging...
+[Provisioning 9 / 13]
+[Planning 15 / 356]
+[Planning deferred tasks]
+[3 / 6]
+[4 / 7] CiderCore
+[5 / 8] CiderCore
+[11 / 14] CiderIPC
+[12 / 15] CiderIPC
+[19 / 22] CiderCore
+[21 / 22] CiderCore
+[27 / 29] CiderIPC
+[29 / 30] CiderIPC
+[34 / 58] CiderStore
+[42 / 66] CiderStore
+[45 / 69] CiderRuntime
+[52 / 74] CiderRuntime
+/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/Packages/CiderKit/Sources/CiderRuntime/Spawn.swift:112:43: warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+105 | 
+106 |     func adopt(_ pid: pid_t) {
+107 |         queue.async {
+    |                     |- note: 'self' implicitly strongly captured here
+    |                     `- note: add 'self' as a capture list item to silence
+108 |             self.children.insert(pid)
+109 |             guard self.timer == nil else { return }
+110 |             let timer = DispatchSource.makeTimerSource(queue: self.queue)
+111 |             timer.schedule(deadline: .now(), repeating: .milliseconds(200), leeway: .milliseconds(20))
+112 |             timer.setEventHandler { [weak self] in self?.reap() }
+    |                                           |- warning: 'weak' ownership of capture 'self' differs from implicitly-captured strong reference in outer scope [#ImplicitStrongCapture]
+    |                                           `- note: explicitly assign the capture list item to silence
+113 |             self.timer = timer
+114 |             timer.resume()
+
+[#ImplicitStrongCapture]: <https://docs.swift.org/compiler/documentation/diagnostics/implicit-strong-capture>
+[58 / 80] CiderRuntime
+[64 / 87] CiderBottle
+[68 / 90] CiderBottle
+[76 / 96] CiderIntegration
+[78 / 94] CiderBottle
+[80 / 94] CiderIntegration
+[85 / 94] CiderKit-product
+[85 / 96] CiderKitTests-product
+[94 / 105] CiderKitTests-product
+[98 / 104] CiderKitTests-product
+[100 / 104] CiderKitTests-product
+Build complete! (9.18秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite CommandObservationTests started.
+◇ Test attachedWaitKeepsRealExitCode() started.
+✔ Test attachedWaitKeepsRealExitCode() passed after 0.058 seconds.
+◇ Test detachedWaitLeavesChildAliveAndReapsItsLaterExit() started.
+✔ Test detachedWaitLeavesChildAliveAndReapsItsLaterExit() passed after 0.855 seconds.
+◇ Test observationIsMonotonic() started.
+✔ Test observationIsMonotonic() passed after 0.001 seconds.
+✔ Suite CommandObservationTests passed after 0.915 seconds.
+✔ Test run with 3 tests in 1 suite passed after 0.916 seconds.

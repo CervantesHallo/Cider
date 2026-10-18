@@ -1,0 +1,256 @@
+Subject: [candidate] hold object identity through lookup and synchronize FREE
+
+Applies after 0009 and 0012. The retired 0010 must not be applied.
+A same-access temporary handle retains the actual object across concurrent
+handle close/reuse. The map lock covers lookup/type validation through checked
+reference acquisition and participates in FREE using map -> ref lock order.
+Every mapper recursion and private handle unwinds before propagation.
+Uncertain backend release poisons future operations and reports its real status;
+zero/negative dereference does not decrement, and FREE rejects positive refs.
+No new server protocol, access path, token retrieval or identity changes.
+Not selected by engine recipes. Host race checks do not prove native parity.
+
+--- a/dlls/ntoskrnl.exe/ntoskrnl.c
++++ b/dlls/ntoskrnl.exe/ntoskrnl.c
+@@ -141,11 +141,16 @@
+ }
+ 
+ 
+-struct object_header
++/* Lock order: handle_map_cs -> obref_cs. FREE and lookup/pin share the map lock. */
++DECLARE_CRITICAL_SECTION(handle_map_cs);
++
++struct DECLSPEC_ALIGN(MEMORY_ALLOCATION_ALIGNMENT) object_header
+ {
+     LONG ref;
++    NTSTATUS reference_error; /* terminal backend outcome uncertainty; never synthesize a new owner */
+     POBJECT_TYPE type;
+ };
++C_ASSERT( sizeof(struct object_header) % MEMORY_ALLOCATION_ALIGNMENT == 0 );
+ 
+ static void free_kernel_object( void *obj )
+ {
+@@ -203,38 +208,38 @@
+  */
+ void WINAPI ObDereferenceObject( void *obj )
+ {
+-    struct object_header *header = (struct object_header*)obj - 1;
+-    LONG ref;
+-
+-    if (!obj)
+-    {
+-        FIXME("NULL obj\n");
+-        return;
+-    }
+-
++    struct object_header *header;
++    NTSTATUS status = STATUS_SUCCESS;
++
++    if (!obj) RtlRaiseStatus( STATUS_INVALID_PARAMETER );
++    header = (struct object_header *)obj - 1;
+     EnterCriticalSection( &obref_cs );
+-
+-    ref = --header->ref;
+-    TRACE( "(%p) ref=%lu\n", obj, ref );
+-    if (!ref)
++    if (header->reference_error)
++        status = header->reference_error;
++    else if (header->ref <= 0)
++        status = STATUS_INVALID_PARAMETER;
++    else if (!--header->ref)
+     {
+         if (header->type->release)
+-        {
+             header->type->release( obj );
+-        }
+         else
+         {
+             SERVER_START_REQ( release_kernel_object )
+             {
+                 req->manager  = wine_server_obj_handle( get_device_manager() );
+                 req->user_ptr = wine_server_client_ptr( obj );
+-                if (wine_server_call( req )) FIXME( "failed to release %p\n", obj );
++                status = wine_server_call( req );
+             }
+             SERVER_END_REQ;
++            /* Failure may precede or follow a backend side effect. Do not
++             * invent a retained caller reference or retry a second release.
++             * Fail future acquisition explicitly; a real FREE can retire the
++             * zero-count proxy if the backend did complete the release. */
++            if (status) header->reference_error = status;
+         }
+     }
+-
+     LeaveCriticalSection( &obref_cs );
++    if (status) RtlRaiseStatus( status );
+ }
+ 
+ static NTSTATUS reference_kernel_object_checked( void *obj )
+@@ -247,6 +252,16 @@
+ 
+     EnterCriticalSection( &obref_cs );
+ 
++    if (header->reference_error)
++    {
++        status = header->reference_error;
++        goto done;
++    }
++    if (header->ref < 0)
++    {
++        status = STATUS_INVALID_PARAMETER;
++        goto done;
++    }
+     if (header->ref == MAXLONG)
+     {
+         status = STATUS_INTEGER_OVERFLOW;
+@@ -303,14 +318,10 @@
+     &SeTokenObjectType
+ };
+ 
+-DECLARE_CRITICAL_SECTION(handle_map_cs);
+-
+-NTSTATUS kernel_object_from_handle( HANDLE handle, POBJECT_TYPE type, void **ret )
++static NTSTATUS kernel_object_from_handle_locked( HANDLE handle, POBJECT_TYPE type, void **ret )
+ {
+     void *obj;
+     NTSTATUS status;
+-
+-    EnterCriticalSection( &handle_map_cs );
+ 
+     SERVER_START_REQ( get_kernel_object_ptr )
+     {
+@@ -322,7 +333,6 @@
+     SERVER_END_REQ;
+     if (status)
+     {
+-        LeaveCriticalSection( &handle_map_cs );
+         return status;
+     }
+ 
+@@ -333,11 +343,7 @@
+         ULONG size;
+ 
+         status = NtQueryObject( handle, ObjectTypeInformation, buf, sizeof(buf), &size );
+-        if (status)
+-        {
+-            LeaveCriticalSection( &handle_map_cs );
+-            return status;
+-        }
++        if (status) return status;
+         if (!type)
+         {
+             size_t i;
+@@ -351,14 +357,12 @@
+             if (i == ARRAY_SIZE(known_types))
+             {
+                 FIXME("Unsupported type %s\n", debugstr_us(&type_info->TypeName));
+-                LeaveCriticalSection( &handle_map_cs );
+                 return STATUS_INVALID_HANDLE;
+             }
+         }
+         else if (RtlCompareUnicodeStrings( type->name, lstrlenW(type->name), type_info->TypeName.Buffer,
+                                            type_info->TypeName.Length / sizeof(WCHAR), FALSE) )
+         {
+-            LeaveCriticalSection( &handle_map_cs );
+             return STATUS_OBJECT_TYPE_MISMATCH;
+         }
+ 
+@@ -372,9 +376,33 @@
+     }
+     else if (type && ObGetObjectType( obj ) != type) status = STATUS_OBJECT_TYPE_MISMATCH;
+ 
+-    LeaveCriticalSection( &handle_map_cs );
+     if (!status) *ret = obj;
+     return status;
++}
++
++static void CALLBACK unlock_handle_map( BOOL normal, void *context )
++{
++    LeaveCriticalSection( &handle_map_cs );
++}
++
++NTSTATUS kernel_object_from_handle( HANDLE handle, POBJECT_TYPE type, void **ret )
++{
++    NTSTATUS status;
++
++    if (!ret) return STATUS_INVALID_PARAMETER;
++    EnterCriticalSection( &handle_map_cs );
++    __TRY
++    {
++        status = kernel_object_from_handle_locked( handle, type, ret );
++    }
++    __FINALLY_CTX( unlock_handle_map, NULL );
++    return status;
++}
++
++static void CALLBACK close_reference_handle( BOOL normal, void *handle )
++{
++    LeaveCriticalSection( &handle_map_cs );
++    NtClose( *(HANDLE *)handle );
+ }
+ 
+ /***********************************************************************
+@@ -386,18 +414,27 @@
+                                            POBJECT_HANDLE_INFORMATION info )
+ {
+     NTSTATUS status;
++    HANDLE stable;
+     void *obj;
+ 
+     TRACE( "%p %lx %p %d %p %p\n", handle, access, type, mode, ptr, info );
+-
+-    if (mode != KernelMode)
+-    {
+-        FIXME("UserMode access not implemented\n");
+-        return STATUS_NOT_IMPLEMENTED;
+-    }
+-
+-    status = kernel_object_from_handle( handle, type, &obj );
+-    if (!status) status = reference_kernel_object_checked( obj );
++    if (!ptr) return STATUS_INVALID_PARAMETER;
++    if (mode != KernelMode || info) return STATUS_NOT_IMPLEMENTED;
++
++    /* Keep the actual object alive even if another thread closes/reuses handle.
++     * SAME_ACCESS neither requests new rights nor performs a DACL override. */
++    status = NtDuplicateObject( GetCurrentProcess(), handle, GetCurrentProcess(),
++                                &stable, 0, 0, DUPLICATE_SAME_ACCESS );
++    if (status) return status;
++
++    EnterCriticalSection( &handle_map_cs );
++    __TRY
++    {
++        status = kernel_object_from_handle_locked( stable, type, &obj );
++        if (!status) status = reference_kernel_object_checked( obj );
++    }
++    __FINALLY_CTX( close_reference_handle, &stable );
++
+     if (!status) *ptr = obj;
+     return status;
+ }
+@@ -876,9 +913,23 @@
+ static NTSTATUS dispatch_free( struct dispatch_context *context )
+ {
+     void *obj = wine_server_get_ptr( context->params.free.obj );
+-    TRACE( "freeing %p object\n", obj );
+-    free_kernel_object( obj );
+-    return STATUS_SUCCESS;
++    struct object_header *header;
++    NTSTATUS status = STATUS_SUCCESS;
++
++    if (!obj) return STATUS_INVALID_PARAMETER;
++    header = (struct object_header *)obj - 1;
++    EnterCriticalSection( &handle_map_cs );
++    EnterCriticalSection( &obref_cs );
++    if (!obj || header->ref)
++    {
++        ERR( "refusing FREE of invalid or referenced object %p\n", obj );
++        status = STATUS_INVALID_PARAMETER;
++    }
++    else
++        free_kernel_object( obj );
++    LeaveCriticalSection( &obref_cs );
++    LeaveCriticalSection( &handle_map_cs );
++    return status;
+ }
+ 
+ static NTSTATUS dispatch_cancel( struct dispatch_context *context )

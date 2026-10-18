@@ -1,0 +1,104 @@
+{
+  "kind": "native-macos-xpc-fixture",
+  "createdUTC": "20261016T090125Z",
+  "platform": "macOS-26.7-arm64-arm-64bit",
+  "filters": [
+    "native.handshake.*"
+  ],
+  "selected": [
+    "native.handshake.no_host",
+    "native.handshake.host"
+  ],
+  "skipped": [
+    "native.command.engine_list",
+    "native.command.bottle_list",
+    "native.output.echo_exit",
+    "native.output.stream",
+    "native.output.over_1mib",
+    "native.input.wrong_root",
+    "native.input.schema",
+    "native.input.oversize",
+    "native.input.argument_count",
+    "native.input.malformed",
+    "native.input.nul",
+    "native.duplicate.completed",
+    "native.duplicate.active",
+    "native.peer.client_requirement",
+    "native.peer.host_requirement",
+    "native.disconnect.unknown_no_replay"
+  ],
+  "cases": [
+    {
+      "name": "native.handshake.no_host",
+      "passed": true,
+      "seconds": 0.12051816700000018,
+      "evidence": {
+        "root": "/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-16sh3n_1/support",
+        "version": 1
+      }
+    },
+    {
+      "name": "native.handshake.host",
+      "passed": true,
+      "seconds": 0.02609045799999965,
+      "evidence": {
+        "hostPID": 12762,
+        "root": "/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-16sh3n_1/support",
+        "version": 1
+      }
+    }
+  ],
+  "unitTestsIncluded": 0,
+  "productGUIOrWineSessions": 0,
+  "signatures": {
+    "host": "# designated => cdhash H\"2e9cbe75b11383ff6125a9e8d0e6cb783e777329\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-16sh3n_1/NativeFixture.app/Contents/MacOS/Cider",
+    "client": "# designated => cdhash H\"28e82e7e2836d525670109e1283e22ffd4fc5b21\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-16sh3n_1/NativeFixture.app/Contents/MacOS/ciderctl",
+    "broker": "# designated => cdhash H\"2a0de3e9f37a127d6376c519eb8015152b653326\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-16sh3n_1/NativeFixture.app/Contents/MacOS/CiderXPCBridge"
+  },
+  "label": "org.cider.ipc.5430b0eb199bce535b5dd455",
+  "sourceHashes": {
+    "Packages/CiderKit/Sources/CiderIPC/Broker.swift": "6637888d4c530439859501ee3be9674dd66bb70ce6a830da700dc03f5c6dc8ab",
+    "Packages/CiderKit/Sources/CiderIPC/BundleLocation.swift": "ad6530b7e6de3083401fc8cfd759f277be434224329d031ffc723803b2760877",
+    "Packages/CiderKit/Sources/CiderIPC/Client.swift": "86c342cb8430ac4ecd425f35f1b6126083bc6f92d76ba1e5096405c7c5ab9746",
+    "Packages/CiderKit/Sources/CiderIPC/Host.swift": "b3967fdd0ea46dbaf10fae545f047b21555f34b2269b1688845d2fabb7d08c94",
+    "Packages/CiderKit/Sources/CiderIPC/Identity.swift": "ede0f0435f2d57936701a4b6026d718aafe7b89f35b5ce62c6c51cd059ab5811",
+    "Packages/CiderKit/Sources/CiderIPC/Location.swift": "d6cc9ccd22d047fabfc38366be3e53e98cb0bc5ff67a5e818c34dbd99f509795",
+    "Packages/CiderKit/Sources/CiderIPC/Wire.swift": "954b4a051ccec9e50b58b04a2691d8b6242a7f7a2b2aec22cf094f83967f7b91",
+    "Tools/CiderCommands/Sources/CiderCommands/CiderCommandExecutor.swift": "dfd48573f3a762369deafa1910a396c43726e20d4262ec325f1795aa84caf839",
+    "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "1a3b7e130d24c53cc001cf29e6f4ba558b36cfd3e36526c8d5304eebbbf47c5e"
+  },
+  "cleanup": {
+    "unregistered": true,
+    "hostPIDs": [
+      12762
+    ],
+    "brokerPIDs": [
+      12757
+    ],
+    "livePIDs": [
+      12762
+    ],
+    "errors": [
+      "refusing to signal PID 12762: executable is outside this fixture (/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-16sh3n_1/NativeFixture.app/Contents/MacOS/Cider)",
+      "live fixture PIDs remain: [12762]"
+    ],
+    "passed": false
+  },
+  "sourceChangedDuringRun": false,
+  "hostLogs": [
+    {
+      "name": "host-6F838007-6945-4492-9884-F008957A4A5E.log",
+      "text": ""
+    }
+  ],
+  "nativeCasesExecuted": 2,
+  "nativeCasesPassed": 2,
+  "passed": false,
+  "cleanupFollowup": {
+    "signaledOwnedHostPIDs": [
+      12762
+    ],
+    "livePIDs": [],
+    "jobStillRegistered": false
+  }
+}

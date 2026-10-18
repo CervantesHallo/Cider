@@ -1,0 +1,134 @@
+{
+  "schema": "cider.product-runtime-acceptance/v1",
+  "startedUTC": "2026-10-16T16:13:10.422869Z",
+  "owner": {
+    "schema": "cider.runtime-acceptance/v1",
+    "root": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f",
+    "source_commit": "c9a1931274dc3f7f827b01a5e2fe2f46fec50250",
+    "source_app": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app",
+    "app": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+    "home": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home",
+    "ownership": "Only this test root is writable by this controller",
+    "protected": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "engine_source": "/Users/cervantes/Library/Application Support/Cider/Engines/cider-cx26.3-r1-wma1-mm1-x86_64",
+    "engine_copy": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64",
+    "engine_id": "cider-cx26.3-r1-wma1-mm2-x86_64",
+    "working_changes": "full installer DWORD capture and diagnostics; uncommitted implementation",
+    "candidateSHA256": "b6138ba29331a33ca1d3c4dcad4ba9a3bb735de1464274618fe50a598f81333e",
+    "sourceHashes": {
+      "Packages/CiderKit/Sources/CiderRuntime/WineRunner+ExitStatus.swift": "b2b8abe0b110fa3eac22e8b25a9f090cf7e12e2f202002684bfc460b604be9db",
+      "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift": "80f1c597e809f104468732fc46c36756ea8d0a4be3b118139c0354844af978e4",
+      "Packages/CiderKit/Sources/CiderData/Recipe.swift": "e99ff74162c00edb4df843dfb65a863a325979c47cf3040f481c564f36867617",
+      "Packages/CiderKit/Sources/CiderBottle/Diagnostics.swift": "5addf3b6df01fbfa8c3c7bfb0e6acd4d40ff263dafe003459ad4cdf72430b79f",
+      "App/Sources/Cider/Model/AppModel+Bottles.swift": "ceec8945720aac8406e3a6a1e36f4889d1423ed5eb12551dc1ed61c49c405604",
+      "App/Sources/Cider/Model/AppModel.swift": "da7aed23e52c464cd8b1a69c6eb3ece9c6cfcb1de93437ef501baa7d97b1e195",
+      "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "164cba4908c37d1b7eca6f81dd6892f4028bd6bf5e23f0fc01e7fed6cf35b4ac"
+    },
+    "engine_patch": "0014",
+    "candidateComponentSHA256": {
+      "Cider": "b6138ba29331a33ca1d3c4dcad4ba9a3bb735de1464274618fe50a598f81333e",
+      "ciderctl": "d1d158c789dea2c263e9a45521c314d6cf14ed3b2495a23ad742424666212f40",
+      "CiderXPCBridge": "487327c29aebff19103e5bf1ccf6bd9381217329d1c01b993d3d4a0d77f7a535"
+    },
+    "windowsToolsManifest": {
+      "collectors": {
+        "i686": {
+          "file": "cider-exit-status-i686.exe",
+          "machine": 332,
+          "sha256": "19aabaee34d8e53633ea3f7884a4f2ae8922b9aa9dafc0f5626d3d5fe26eba67"
+        },
+        "x86_64": {
+          "file": "cider-exit-status-x86_64.exe",
+          "machine": 34404,
+          "sha256": "9a9e3a0ceb9c0a28f9449ab27cdf0ff1f71289ae5efabb41299a921ed2485434"
+        }
+      },
+      "schema": "cider.windows-tools/v1",
+      "sourceSHA256": "1acf06f0c3d8dc609bd989313cdaf9f1d085c231e9d2434a8d519fd6fba9dcb0"
+    }
+  },
+  "cases": [
+    {
+      "name": "product.cli_launches_real_gui",
+      "passed": true,
+      "seconds": 2.89009525,
+      "evidence": {
+        "stdout": "cider-cx26.3-r1-wma1-mm2-x86_64\twine-11.0\tdevel\n",
+        "gui": [
+          {
+            "bundle": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+            "pid": 40881,
+            "terminated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "product.reuse_empty_prefix",
+      "passed": true,
+      "seconds": 0.002143499999999854,
+      "evidence": {
+        "reusedOnlyThisOwnedEmptyPrefix": true,
+        "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293"
+      }
+    },
+    {
+      "name": "diagnostic.owned_msi_hang_observation",
+      "passed": true,
+      "seconds": 17.312753375,
+      "evidence": {
+        "route": "direct",
+        "completedWithin12Seconds": true,
+        "exitCode": 0,
+        "stdout": "exit 0 · log /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/sessions/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/20261016T161322-msiexec-8481A83F-7AB2-4DA9-AAF7-0D636D0FC5F8/wine.log\n",
+        "stderr": "",
+        "msiLog": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/exit-status/msi-b4008f4afa67.log",
+        "functionalMSIExitZero": true
+      }
+    }
+  ],
+  "windowsOperations": 0,
+  "clients": [],
+  "guiPID": 40881,
+  "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+  "prefix": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Bottles/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/prefix",
+  "cleanupKill": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": ""
+  },
+  "cleanupGUI": {
+    "exitCode": 0,
+    "result": "[{\"bundle\":\"\\/Users\\/cervantes\\/Cider\\/out\\/runtime-acceptance-20261016-84kr3z6f\\/Cider.app\",\"pid\":40881,\"terminated\":true}]",
+    "stderr": ""
+  },
+  "launchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "engineLaunchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "cleanup": {
+    "jobs": [
+      {
+        "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+        "bootoutCode": 0,
+        "absent": true
+      }
+    ],
+    "liveProcesses": [],
+    "errors": [],
+    "passed": true,
+    "protectedSHA256": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    }
+  },
+  "passed": true,
+  "finishedUTC": "2026-10-16T16:13:32.022955Z"
+}

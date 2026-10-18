@@ -1,0 +1,53 @@
+Subject: [candidate] reference the primary token of a retained server process object
+
+Internal object-lifetime primitive only. The caller must authorize and retain
+the process object. No handle, access-mask change, caller substitution or new
+request/protocol is introduced. The public primary-reference API stays a stub.
+Applies after 0017; not selected by recipes.
+
+--- a/server/process.c
++++ b/server/process.c
+@@ -1077,6 +1077,33 @@
+     return NULL;
+ }
+ 
++/* Reference the primary token belonging to an already validated process object.
++ * The caller must retain the process object and provide its own authority check.
++ * This helper creates no handle, changes no access rights and chooses no current
++ * thread/host identity. The server event loop serializes the slot read and grab. */
++struct token *get_process_primary_token_reference( struct object *object )
++{
++    struct process *process;
++
++    if (!object)
++    {
++        set_error( STATUS_INVALID_PARAMETER );
++        return NULL;
++    }
++    if (object->ops != &process_ops)
++    {
++        set_error( STATUS_OBJECT_TYPE_MISMATCH );
++        return NULL;
++    }
++    process = (struct process *)object;
++    if (!process->token)
++    {
++        set_error( STATUS_NO_TOKEN );
++        return NULL;
++    }
++    return (struct token *)grab_object( process->token );
++}
++
+ /* get a process from a handle (and increment the refcount) */
+ struct process *get_process_from_handle( obj_handle_t handle, unsigned int access )
+ {
+--- a/server/process.h
++++ b/server/process.h
+@@ -104,6 +104,7 @@
+ extern struct thread *get_process_first_thread( struct process *process );
+ extern struct process *get_process_from_id( process_id_t id );
+ extern struct process *get_process_from_handle( obj_handle_t handle, unsigned int access );
++extern struct token *get_process_primary_token_reference( struct object *object );
+ extern struct debug_obj *get_debug_obj( struct process *process, obj_handle_t handle, unsigned int access );
+ extern int process_set_debugger( struct process *process, struct thread *thread );
+ extern void debugger_detach( struct process *process, struct debug_obj *debug_obj );

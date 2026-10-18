@@ -1,0 +1,208 @@
+{
+  "schema": "cider.product-runtime-acceptance/v1",
+  "startedUTC": "2026-10-17T00:47:15.465773Z",
+  "owner": {
+    "schema": "cider.runtime-acceptance/v1",
+    "root": "/Users/cervantes/Cider/out/runtime-acceptance-k13-20261017-et42qd1a",
+    "source_commit": "79f7f16e80e71d210ba2a7e935ab26c186d445d0",
+    "source_app": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app",
+    "app": "/Users/cervantes/Cider/out/runtime-acceptance-k13-20261017-et42qd1a/Cider.app",
+    "home": "/Users/cervantes/Cider/out/runtime-acceptance-k13-20261017-et42qd1a/private-home",
+    "ownership": "Only this test root is writable by this controller",
+    "protected": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "engine_source": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64",
+    "engine_copy": "/Users/cervantes/Cider/out/runtime-acceptance-k13-20261017-et42qd1a/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-k13-x86_64",
+    "engine_id": "cider-cx26.3-r1-wma1-mm2-k13-x86_64",
+    "working_changes": "only new fixture/controller; production source unchanged",
+    "candidateSHA256": "9647b53bfb75415bbdee841689315f85275a0c858efa5b8b1d643ffe306e0986",
+    "sourceHashes": {
+      "App/Sources/Cider/Model/AppModel+Bottles.swift": "9890d006f020bf53bf9d6fc475f55271fde3d26653f3763be4937699d4c31036",
+      "App/Sources/Cider/Model/AppModel.swift": "dc7113d9d2db07f34bac73447692736c2a9d687bbae4ee3046fe2cc96ed0c2f2",
+      "Packages/CiderKit/Package.swift": "3e35693e72133ec1a33d827f1a49cf3ba7d38d42681d6d5e1f1a0be750790584",
+      "Packages/CiderKit/Sources/CiderBottle/BottleStore.swift": "64804729eed59379218d11d05f783386a6991dababb66f1acb5b1d72a2e88711",
+      "Packages/CiderKit/Sources/CiderBottle/Diagnostics.swift": "5addf3b6df01fbfa8c3c7bfb0e6acd4d40ff263dafe003459ad4cdf72430b79f",
+      "Packages/CiderKit/Sources/CiderCore/CommandObservation.swift": "34302124814480b67bd123dc355e56fff429e5de6dd8636d59003ea1b7aff6b0",
+      "Packages/CiderKit/Sources/CiderData/Recipe.swift": "e99ff74162c00edb4df843dfb65a863a325979c47cf3040f481c564f36867617",
+      "Packages/CiderKit/Sources/CiderIPC/Broker.swift": "dfb9012c737e5ea33f4a6335709b1c84e24b63727175b341f37e1c7ad76dc23b",
+      "Packages/CiderKit/Sources/CiderIPC/Client.swift": "59931bfeeefcd9c6b0511771dc548812dd261841aac93bbb8c43446a0518d944",
+      "Packages/CiderKit/Sources/CiderIPC/Host.swift": "c98707f952157c6ccef8d8aad83c30250cb2fac6ace132f20cf96be23438093c",
+      "Packages/CiderKit/Sources/CiderIntegration/BottlePreparation.swift": "75a61a2c213ede1e6c84b99d0a72ebd78fa9083122543e1e0fccaffec9df2f5d",
+      "Packages/CiderKit/Sources/CiderIntegration/InstallationActivity.swift": "cb3786b9c9da91de9b42dd73eef705e70c32eb1c578f007ae1c2ea8b379a6c30",
+      "Packages/CiderKit/Sources/CiderIntegration/ManualInstaller.swift": "0fddba5f1d0911f44060717cb41b8140c96e1335e6e093b3055ac3e01c7b09a2",
+      "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift": "f21aa03d9685c5b35e02b00f2cf68acce831949c06c3df8cf44bf7e205d65197",
+      "Packages/CiderKit/Sources/CiderRuntime/WineRunner+ExitStatus.swift": "ead3b42c1d7a9edbeba43c982e9f6040b995b9e32841743f91315282946857b6",
+      "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift": "8295aefdf2263c18838d214a0c2f0c8260c4bf5d47f4dbf20bb13ef4762e7aa8",
+      "Packages/CiderKit/Sources/CiderStore/Command.swift": "434148ae5daada11e8289c20ee92fc3a41e393ce89a0cd8684161b5e5e0bad92",
+      "Packages/CiderKit/Tests/CiderKitTests/InstallationActivityTests.swift": "c9370d0ced174349c6c3bf1b8f92e8632f02f8b5cfd7c28e3271534f9dc29deb",
+      "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "c73c273345bb5bfa8a18c394f1cf29a54abe31fa627e91fc8fa54bc28d2e65f8",
+      "Tools/wine-exit-status/capture.c": "e0706c89c9f7f937bb4a431587f525cca2e30b8871d30848e8f6e6772ac4ffcf",
+      "tests/kernel/wine-object-runtime/protocol.h": "aa9ea01ebe68405e36c3a8278d660e349249d5110aad68319f5280676a65127c",
+      "tests/kernel/wine-object-runtime/client.c": "08c9b24d0bab516907cd21c330aa7d7cd9e2e6c578977889e9f23a65ddd7b47a",
+      "tests/kernel/wine-object-runtime/driver.c": "a94d2c5b34643cf0402f6e7030ad624f67b4be366fb2f5da63ba5b4039d3f75f"
+    },
+    "engine_patch": "ntoskrnl modules 0009/0012/0013; unchanged server",
+    "candidateComponentSHA256": {
+      "Cider": "9647b53bfb75415bbdee841689315f85275a0c858efa5b8b1d643ffe306e0986",
+      "ciderctl": "1d5fda4270392e575a0f38ebffd9385267fcf004801123ec34e9441a9c81c07d",
+      "CiderXPCBridge": "2a6b0c2008e4dbdc3efdf0f6dc9cde54e1e5333d1d27011f7af71029426d02aa"
+    },
+    "windowsToolsManifest": {
+      "collectors": {
+        "i686": {
+          "file": "cider-exit-status-i686.exe",
+          "machine": 332,
+          "sha256": "edf104356f71b4d84fe391cd57fcc00b471042365d37b8674b4fef46ee4ca624"
+        },
+        "x86_64": {
+          "file": "cider-exit-status-x86_64.exe",
+          "machine": 34404,
+          "sha256": "10252dd733cd3255f39b2a5a676b179eb71dc59d08b2e05edf88797ca85e05bd"
+        }
+      },
+      "schema": "cider.windows-tools/v1",
+      "sourceSHA256": "e0706c89c9f7f937bb4a431587f525cca2e30b8871d30848e8f6e6772ac4ffcf"
+    },
+    "kernel_modules": [
+      {
+        "architecture": "x86_64",
+        "before": "bd6aed68ec3700b4e179dde7c6c33bf084ca122c3fbc7e61121abb92e4a4064b",
+        "after": "d0b8ecc936ce5a52e2869f29f96c892be0150be56953a1447cecc8a1d394a4e1"
+      },
+      {
+        "architecture": "i386",
+        "before": "6e9ac36a8dc4929d056d31199a9c06d548a9a39c982e2efec7bc67021cc66ee7",
+        "after": "1a32439dece2dfe797c28602643ffb2d9d9941f2112f7930439f07ef4e6b38e8"
+      }
+    ]
+  },
+  "cases": [
+    {
+      "name": "product.cli_launches_real_gui",
+      "passed": true,
+      "seconds": 2.866229042,
+      "evidence": {
+        "stdout": "cider-cx26.3-r1-wma1-mm2-k13-x86_64\twine-11.0\tdevel\n",
+        "gui": [
+          {
+            "bundle": "/Users/cervantes/Cider/out/runtime-acceptance-k13-20261017-et42qd1a/Cider.app",
+            "pid": 67666,
+            "terminated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "product.bottle_create_from_gui",
+      "passed": true,
+      "seconds": 56.019278625,
+      "evidence": {
+        "stdout": "created runtime-acceptance-19e43471-1f54-4361-97d1-a7aa7b4ef957 (Runtime Acceptance, zh_CN.UTF-8, cider-cx26.3-r1-wma1-mm2-k13-x86_64)\n",
+        "stderr": "… wineboot\n… shell folders\n… fonts\n",
+        "bottleID": "runtime-acceptance-19e43471-1f54-4361-97d1-a7aa7b4ef957"
+      }
+    },
+    {
+      "name": "wine.actual_object_reference_and_work_callback",
+      "passed": true,
+      "seconds": 5.585001666999993,
+      "evidence": {
+        "cliExitCode": 0,
+        "stdout": "exit 0 · log /Users/cervantes/Cider/out/runtime-acceptance-k13-20261017-et42qd1a/private-home/Logs/sessions/runtime-acceptance-19e43471-1f54-4361-97d1-a7aa7b4ef957/20261017T004815-cider-owned-objects-36CEC433-6033-45E7-853B-271CCCD88A8A/wine.log\n",
+        "stderr": "",
+        "observations": [
+          {
+            "schema": "cider.wine-owned-object-runtime/v1",
+            "win32Error": 0,
+            "serviceCleanupError": 0,
+            "responseBytes": 36,
+            "checks": 1410,
+            "failures": 0,
+            "firstFailure": 0,
+            "firstStatus": 0,
+            "eventRounds": 256,
+            "callbacks": 64,
+            "unsupportedInfoStatus": -1073741822
+          }
+        ],
+        "loader": [
+          "0040:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+          "0094:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+          "00d4:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+          "00e0:trace:loaddll:build_module Loaded L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k13-20261017-et42qd1a\\\\cider-owned-objects.sys\" at 00006FFFFD3D0000: native",
+          "00e0:trace:loaddll:free_modref Unloaded module L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k13-20261017-et42qd1a\\\\cider-owned-objects.sys\" : native"
+        ]
+      }
+    }
+  ],
+  "windowsOperations": 0,
+  "clients": [],
+  "guiPID": 67666,
+  "bottleID": "runtime-acceptance-19e43471-1f54-4361-97d1-a7aa7b4ef957",
+  "prefix": "/Users/cervantes/Cider/out/runtime-acceptance-k13-20261017-et42qd1a/private-home/AppSupport/Bottles/runtime-acceptance-19e43471-1f54-4361-97d1-a7aa7b4ef957/prefix",
+  "kernelObjectEvidence": {
+    "cliExitCode": 0,
+    "stdout": "exit 0 · log /Users/cervantes/Cider/out/runtime-acceptance-k13-20261017-et42qd1a/private-home/Logs/sessions/runtime-acceptance-19e43471-1f54-4361-97d1-a7aa7b4ef957/20261017T004815-cider-owned-objects-36CEC433-6033-45E7-853B-271CCCD88A8A/wine.log\n",
+    "stderr": "",
+    "observations": [
+      {
+        "schema": "cider.wine-owned-object-runtime/v1",
+        "win32Error": 0,
+        "serviceCleanupError": 0,
+        "responseBytes": 36,
+        "checks": 1410,
+        "failures": 0,
+        "firstFailure": 0,
+        "firstStatus": 0,
+        "eventRounds": 256,
+        "callbacks": 64,
+        "unsupportedInfoStatus": -1073741822
+      }
+    ],
+    "loader": [
+      "0040:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+      "0094:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+      "00d4:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+      "00e0:trace:loaddll:build_module Loaded L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k13-20261017-et42qd1a\\\\cider-owned-objects.sys\" at 00006FFFFD3D0000: native",
+      "00e0:trace:loaddll:free_modref Unloaded module L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k13-20261017-et42qd1a\\\\cider-owned-objects.sys\" : native"
+    ]
+  },
+  "cleanupKill": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": ""
+  },
+  "cleanupGUI": {
+    "exitCode": 0,
+    "result": "[{\"bundle\":\"\\/Users\\/cervantes\\/Cider\\/out\\/runtime-acceptance-k13-20261017-et42qd1a\\/Cider.app\",\"pid\":67666,\"terminated\":true}]",
+    "stderr": ""
+  },
+  "launchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "engineLaunchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "cleanup": {
+    "jobs": [
+      {
+        "label": "org.cider.ipc.356e023d5d1aa0861e6e315a",
+        "bootoutCode": 0,
+        "absent": true
+      }
+    ],
+    "liveProcesses": [],
+    "errors": [],
+    "passed": true,
+    "protectedSHA256": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    }
+  },
+  "passed": true,
+  "finishedUTC": "2026-10-17T00:48:22.555732Z"
+}

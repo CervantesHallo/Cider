@@ -1,0 +1,437 @@
+Subject: [candidate] checked reference callers and failure cleanup
+
+Applies after candidates/0009. The retired 0010 is not required. Not selected by any engine recipe.
+Status constructors preserve query/registration failures and register only
+after fallible queries; ByName publishes only after checked acquisition while
+the driver tree owns the object. Unsupported lookup inputs remain explicit.
+Work submission failure releases exactly the reference it acquired and raises;
+callback unwinding also releases that reference. PnP AddDevice unwinding
+releases its named driver reference. Current-thread lookup closes
+its temporary handle before raising and only caches successful results.
+
+The private constructor callback now returns NTSTATUS (all four implementations
+are updated). The constructor-call hunk must be retained when integrating K1's
+handle-map locking changes. No new obref_cs-before-handle_map_cs acquisition.
+Native behavior/parity remains pending. See tests/kernel/reference-callers/.
+
+--- a/dlls/ntoskrnl.exe/ntoskrnl.c
++++ b/dlls/ntoskrnl.exe/ntoskrnl.c
+@@ -30,6 +30,7 @@
+ #include "evntprov.h"
+ #include "ddk/csq.h"
+ #include "wine/server.h"
++#include "wine/exception.h"
+ #include "wine/svcctl.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(ntoskrnl);
+@@ -152,7 +153,7 @@
+     HeapFree( GetProcessHeap(), 0, header );
+ }
+ 
+-static NTSTATUS alloc_kernel_object_checked( POBJECT_TYPE type, HANDLE handle, SIZE_T size,
++NTSTATUS alloc_kernel_object_checked( POBJECT_TYPE type, HANDLE handle, SIZE_T size,
+                                             LONG ref, void **obj )
+ {
+     struct object_header *header;
+@@ -362,10 +363,7 @@
+         }
+ 
+         if (type->constructor)
+-        {
+-            obj = type->constructor( handle );
+-            if (!obj) status = STATUS_NO_MEMORY;
+-        }
++            status = type->constructor( handle, &obj );
+         else
+         {
+             FIXME( "No constructor for type %s\n", debugstr_w(type->name) );
+@@ -439,7 +437,7 @@
+ }
+ 
+ 
+-static void *create_file_object( HANDLE handle );
++static NTSTATUS create_file_object( HANDLE handle, void **obj );
+ 
+ static const WCHAR file_type_name[] = {'F','i','l','e',0};
+ 
+@@ -450,13 +448,17 @@
+ 
+ POBJECT_TYPE IoFileObjectType = &file_type;
+ 
+-static void *create_file_object( HANDLE handle )
++static NTSTATUS create_file_object( HANDLE handle, void **obj )
+ {
+     FILE_OBJECT *file;
+-    if (!(file = alloc_kernel_object( IoFileObjectType, handle, sizeof(*file), 0 ))) return NULL;
++    NTSTATUS status;
++
++    if ((status = alloc_kernel_object_checked( IoFileObjectType, handle, sizeof(*file), 0, (void **)&file )))
++        return status;
+     file->Type = 5;  /* MSDN */
+     file->Size = sizeof(*file);
+-    return file;
++    *obj = file;
++    return STATUS_SUCCESS;
+ }
+ 
+ DECLARE_CRITICAL_SECTION(irp_completion_cs);
+@@ -1320,16 +1322,23 @@
+ }
+ 
+ 
++static void CALLBACK dereference_work_item_device( BOOL normal, void *device )
++{
++    ObDereferenceObject( device );
++}
++
+ static void WINAPI run_work_item_worker(TP_CALLBACK_INSTANCE *instance, void *context)
+ {
+     PIO_WORKITEM work_item = context;
+     DEVICE_OBJECT *device = work_item->device;
+ 
+     TRACE( "%p: calling %p(%p %p)\n", work_item, work_item->worker, device, work_item->context );
+-    work_item->worker( device, work_item->context );
++    __TRY
++    {
++        work_item->worker( device, work_item->context );
++    }
++    __FINALLY_CTX( dereference_work_item_device, device );
+     TRACE( "done\n" );
+-
+-    ObDereferenceObject( device );
+ }
+ 
+ /***********************************************************************
+@@ -1338,12 +1347,23 @@
+ void WINAPI IoQueueWorkItem( PIO_WORKITEM work_item, PIO_WORKITEM_ROUTINE worker,
+                              WORK_QUEUE_TYPE type, void *context )
+ {
++    DEVICE_OBJECT *device;
++    NTSTATUS status;
++
+     TRACE( "%p %p %u %p\n", work_item, worker, type, context );
+ 
+-    ObReferenceObject( work_item->device );
++    if (!work_item || !work_item->device || !worker) RtlRaiseStatus( STATUS_INVALID_PARAMETER );
++    device = work_item->device;
++    if ((status = reference_kernel_object_checked( device ))) RtlRaiseStatus( status );
+     work_item->worker = worker;
+     work_item->context = context;
+-    TrySubmitThreadpoolCallback( run_work_item_worker, work_item, NULL );
++    if (!TrySubmitThreadpoolCallback( run_work_item_worker, work_item, NULL ))
++    {
++        /* TrySubmitThreadpoolCallback preserves TpSimpleTryPost's failure status. */
++        status = RtlGetLastNtStatus();
++        ObDereferenceObject( device );
++        RtlRaiseStatus( status ? status : STATUS_UNSUCCESSFUL );
++    }
+ }
+ 
+ /***********************************************************************
+@@ -2488,17 +2508,27 @@
+ }
+ 
+ 
+-static void *create_process_object( HANDLE handle )
+-{
++static NTSTATUS create_process_object( HANDLE handle, void **obj )
++{
++    PROCESS_BASIC_INFORMATION info;
++    ULONG_PTR wow64;
+     PEPROCESS process;
+-
+-    if (!(process = alloc_kernel_object( PsProcessType, handle, sizeof(*process), 0 ))) return NULL;
++    NTSTATUS status;
++
++    /* Query before registration so a query failure cannot publish a partial proxy. */
++    if ((status = NtQueryInformationProcess( handle, ProcessBasicInformation, &info, sizeof(info), NULL )))
++        return status;
++    if ((status = NtQueryInformationProcess( handle, ProcessWow64Information, &wow64, sizeof(wow64), NULL )))
++        return status;
++    if ((status = alloc_kernel_object_checked( PsProcessType, handle, sizeof(*process), 0, (void **)&process )))
++        return status;
+ 
+     process->header.Type = 3;
+     process->header.WaitListHead.Blink = INVALID_HANDLE_VALUE; /* mark as kernel object */
+-    NtQueryInformationProcess( handle, ProcessBasicInformation, &process->info, sizeof(process->info), NULL );
+-    IsWow64Process( handle, &process->wow64 );
+-    return process;
++    process->info = info;
++    process->wow64 = !!wow64;
++    *obj = process;
++    return STATUS_SUCCESS;
+ }
+ 
+ static const WCHAR process_type_name[] = {'P','r','o','c','e','s','s',0};
+@@ -2558,30 +2588,44 @@
+     return id;
+ }
+ 
+-static void *create_thread_object( HANDLE handle )
++static void CALLBACK close_constructor_handle( BOOL normal, void *handle )
++{
++    NtClose( *(HANDLE *)handle );
++}
++
++static NTSTATUS create_thread_object( HANDLE handle, void **obj )
+ {
+     THREAD_BASIC_INFORMATION info;
++    OBJECT_ATTRIBUTES attr;
+     struct _KTHREAD *thread;
+-    HANDLE process;
+-
+-    if (!(thread = alloc_kernel_object( PsThreadType, handle, sizeof(*thread), 0 ))) return NULL;
+-
++    PEPROCESS process;
++    CLIENT_ID cid;
++    HANDLE handle_process;
++    NTSTATUS status;
++
++    if ((status = NtQueryInformationThread( handle, ThreadBasicInformation, &info, sizeof(info), NULL )))
++        return status;
++    cid.UniqueProcess = info.ClientId.UniqueProcess;
++    cid.UniqueThread = NULL;
++    InitializeObjectAttributes( &attr, NULL, 0, NULL, NULL );
++    if ((status = NtOpenProcess( &handle_process, PROCESS_QUERY_INFORMATION, &attr, &cid )))
++        return status;
++    __TRY
++    {
++        status = kernel_object_from_handle( handle_process, PsProcessType, (void **)&process );
++    }
++    __FINALLY_CTX( close_constructor_handle, &handle_process );
++    if (status) return status;
++
++    if ((status = alloc_kernel_object_checked( PsThreadType, handle, sizeof(*thread), 0, (void **)&thread )))
++        return status;
+     thread->header.Type = 6;
+     thread->header.WaitListHead.Blink = INVALID_HANDLE_VALUE; /* mark as kernel object */
+     thread->user_affinity = 0;
+-
+-    if (!NtQueryInformationThread( handle, ThreadBasicInformation, &info, sizeof(info), NULL ))
+-    {
+-        thread->id = info.ClientId;
+-        if ((process = OpenProcess( PROCESS_QUERY_INFORMATION, FALSE, HandleToUlong(thread->id.UniqueProcess) )))
+-        {
+-            kernel_object_from_handle( process, PsProcessType, (void**)&thread->process );
+-            NtClose( process );
+-        }
+-    }
+-
+-
+-    return thread;
++    thread->id = info.ClientId;
++    thread->process = process;
++    *obj = thread;
++    return STATUS_SUCCESS;
+ }
+ 
+ static const WCHAR thread_type_name[] = {'T','h','r','e','a','d',0};
+@@ -2605,13 +2649,22 @@
+     if (!thread)
+     {
+         HANDLE handle = GetCurrentThread();
++        NTSTATUS status;
+ 
+         /* FIXME: we shouldn't need it, GetCurrentThread() should be client thread already */
+         if (GetCurrentThreadId() == request_thread)
+-            handle = OpenThread( MAXIMUM_ALLOWED, FALSE, client_tid );
+-
+-        kernel_object_from_handle( handle, PsThreadType, (void**)&thread );
++        {
++            OBJECT_ATTRIBUTES attr;
++            CLIENT_ID cid = { NULL, ULongToHandle(client_tid) };
++
++            InitializeObjectAttributes( &attr, NULL, 0, NULL, NULL );
++            status = NtOpenThread( &handle, MAXIMUM_ALLOWED, &attr, &cid );
++            if (status) RtlRaiseStatus( status );
++        }
++
++        status = kernel_object_from_handle( handle, PsThreadType, (void**)&thread );
+         if (handle != GetCurrentThread()) NtClose( handle );
++        if (status) RtlRaiseStatus( status );
+ 
+         NtCurrentTeb()->Instrumentation[1] = thread;
+     }
+@@ -3088,36 +3141,45 @@
+ {
+     struct wine_driver *driver;
+     struct wine_rb_entry *entry;
+-
+-    TRACE("mostly-stub:%s %li %p %li %p %i %p %p\n", debugstr_us(ObjectName),
++    NTSTATUS status;
++
++    TRACE("%s %li %p %li %p %i %p %p\n", debugstr_us(ObjectName),
+         Attributes, AccessState, DesiredAccess, ObjectType, AccessMode,
+         ParseContext, Object);
+ 
+-    if (AccessState) FIXME("Unhandled AccessState\n");
+-    if (DesiredAccess) FIXME("Unhandled DesiredAccess\n");
+-    if (ParseContext) FIXME("Unhandled ParseContext\n");
+-    if (ObjectType) FIXME("Unhandled ObjectType\n");
+-
+-    if (AccessMode != KernelMode)
+-    {
+-        FIXME("UserMode access not implemented\n");
++    if (!Object || !ObjectName || !ObjectName->Buffer || !ObjectName->Length ||
++        ObjectName->Length % sizeof(WCHAR) || ObjectName->Length > ObjectName->MaximumLength)
++        return STATUS_INVALID_PARAMETER;
++    if (AccessMode != KernelMode || AccessState || DesiredAccess || ParseContext ||
++        (Attributes & ~OBJ_CASE_INSENSITIVE))
+         return STATUS_NOT_IMPLEMENTED;
+-    }
+ 
+     EnterCriticalSection(&drivers_cs);
+     entry = wine_rb_get(&wine_drivers, ObjectName);
++    if (!entry)
++    {
++        /* Other object namespaces are not implemented by this local driver tree. */
++        status = STATUS_NOT_IMPLEMENTED;
++        goto done;
++    }
++
++    driver = WINE_RB_ENTRY_VALUE(entry, struct wine_driver, entry);
++    if (!(Attributes & OBJ_CASE_INSENSITIVE) &&
++        RtlCompareUnicodeString( ObjectName, &driver->driver_obj.DriverName, FALSE ))
++        status = STATUS_OBJECT_NAME_NOT_FOUND;
++    else if (ObjectType && ObjectType != IoDriverObjectType)
++        status = STATUS_OBJECT_TYPE_MISMATCH;
++    else
++    {
++        /* Keep the tree's owning reference alive until acquisition has completed. */
++        status = reference_kernel_object_checked( &driver->driver_obj );
++        if (!status) *Object = &driver->driver_obj;
++    }
++
++done:
+     LeaveCriticalSection(&drivers_cs);
+-    if (!entry)
+-    {
+-        FIXME("Object (%s) not found, may not be tracked.\n", debugstr_us(ObjectName));
+-        return STATUS_NOT_IMPLEMENTED;
+-    }
+-
+-    driver = WINE_RB_ENTRY_VALUE(entry, struct wine_driver, entry);
+-    ObReferenceObject( *Object = &driver->driver_obj );
+-    return STATUS_SUCCESS;
+-}
+-
++    return status;
++}
+ 
+ /********************************************************************
+  *           ObOpenObjectByName   (NTOSKRNL.EXE.@)
+@@ -3129,6 +3191,8 @@
+     NTSTATUS status;
+     void *object;
+ 
++    if (!attr || !handle) return STATUS_INVALID_PARAMETER;
++
+     TRACE( "attr(%p %s %lx) %p %u %p %lu %p %p\n", attr->RootDirectory, debugstr_us(attr->ObjectName),
+                                                  attr->Attributes, type, mode, access_state, access, ctx, handle );
+ 
+@@ -3138,7 +3202,7 @@
+         return STATUS_NOT_IMPLEMENTED;
+     }
+ 
+-    if (attr->RootDirectory) FIXME( "RootDirectory unhandled\n" );
++    if (attr->RootDirectory) return STATUS_NOT_IMPLEMENTED;
+ 
+     status = ObReferenceObjectByName(attr->ObjectName, attr->Attributes, access_state, access, type, mode, ctx, &object );
+     if (status != STATUS_SUCCESS)
+@@ -3389,6 +3453,9 @@
+     FIXME("%p %p\n", process, file);
+     return STATUS_NOT_IMPLEMENTED;
+ }
++
++
++
+ 
+ 
+ /***********************************************************************
+--- a/dlls/ntoskrnl.exe/ntoskrnl_private.h
++++ b/dlls/ntoskrnl.exe/ntoskrnl_private.h
+@@ -47,7 +47,7 @@
+ struct _OBJECT_TYPE
+ {
+     const WCHAR *name;            /* object type name used for type validation */
+-    void *(*constructor)(HANDLE); /* used for creating an object from server handle */
++    NTSTATUS (*constructor)(HANDLE, void **); /* publish only a fully initialized object */
+     void (*release)(void*);       /* called when the last reference is released */
+ };
+ 
+@@ -72,6 +72,7 @@
+     struct _KTHREAD kthread;
+ };
+ 
++NTSTATUS alloc_kernel_object_checked( POBJECT_TYPE type, HANDLE handle, SIZE_T size, LONG ref, void **obj );
+ void *alloc_kernel_object( POBJECT_TYPE type, HANDLE handle, SIZE_T size, LONG ref );
+ NTSTATUS kernel_object_from_handle( HANDLE handle, POBJECT_TYPE type, void **ret );
+ 
+--- a/dlls/ntoskrnl.exe/sync.c
++++ b/dlls/ntoskrnl.exe/sync.c
+@@ -182,17 +182,21 @@
+     event->Header.WaitListHead.Flink = NULL;
+ }
+ 
+-static void *create_event_object( HANDLE handle )
++static NTSTATUS create_event_object( HANDLE handle, void **obj )
+ {
+     EVENT_BASIC_INFORMATION info;
+     KEVENT *event;
+-
+-    if (!(event = alloc_kernel_object( ExEventObjectType, handle, sizeof(*event), 0 ))) return NULL;
+-
+-    if (!NtQueryEvent( handle, EventBasicInformation, &info, sizeof(info), NULL ))
+-        KeInitializeEvent( event, info.EventType, info.EventState );
++    NTSTATUS status;
++
++    if ((status = NtQueryEvent( handle, EventBasicInformation, &info, sizeof(info), NULL )))
++        return status;
++    if ((status = alloc_kernel_object_checked( ExEventObjectType, handle, sizeof(*event), 0, (void **)&event )))
++        return status;
++
++    KeInitializeEvent( event, info.EventType, info.EventState );
+     event->Header.WaitListHead.Blink = INVALID_HANDLE_VALUE; /* mark as kernel object */
+-    return event;
++    *obj = event;
++    return STATUS_SUCCESS;
+ }
+ 
+ static const WCHAR event_type_name[] = {'E','v','e','n','t',0};
+--- a/dlls/ntoskrnl.exe/pnp.c
++++ b/dlls/ntoskrnl.exe/pnp.c
+@@ -207,6 +207,11 @@
+     return irp_status.Status;
+ }
+ 
++static void CALLBACK dereference_function_driver( BOOL normal, void *driver )
++{
++    ObDereferenceObject( driver );
++}
++
+ static void load_function_driver( DEVICE_OBJECT *device, HDEVINFO set, SP_DEVINFO_DATA *sp_device )
+ {
+     static const WCHAR driverW[] = {'\\','D','r','i','v','e','r','\\',0};
+@@ -244,13 +249,15 @@
+     }
+ 
+     TRACE("Calling AddDevice routine %p.\n", driver_obj->DriverExtension->AddDevice);
+-    if (driver_obj->DriverExtension->AddDevice)
+-        status = driver_obj->DriverExtension->AddDevice( driver_obj, device );
+-    else
+-        status = STATUS_NOT_IMPLEMENTED;
+-    TRACE("AddDevice routine %p returned %#lx.\n", driver_obj->DriverExtension->AddDevice, status);
+-
+-    ObDereferenceObject( driver_obj );
++    __TRY
++    {
++        if (driver_obj->DriverExtension->AddDevice)
++            status = driver_obj->DriverExtension->AddDevice( driver_obj, device );
++        else
++            status = STATUS_NOT_IMPLEMENTED;
++        TRACE("AddDevice routine %p returned %#lx.\n", driver_obj->DriverExtension->AddDevice, status);
++    }
++    __FINALLY_CTX( dereference_function_driver, driver_obj );
+ 
+     if (status != STATUS_SUCCESS)
+         ERR("AddDevice failed for driver %s, status %#lx.\n", debugstr_w(driver), status);

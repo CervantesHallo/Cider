@@ -1,0 +1,19 @@
+{
+  "scope": "exact C body, host allocation/IRP mocks; ASan/UBSan, not native Windows",
+  "cases": [
+    {
+      "source": "repaired",
+      "extractedSHA256": "556d8970f80ba9a90299033a867a6f33b1f3aef7fe2d487cdf8e5138ca852799",
+      "exitCode": 0,
+      "stdout": "PASS: 12 exact IOCTL paths, all buffers freed once; alias/expanded/separate/empty outputs",
+      "oldASanDoubleFreeReproduced": false
+    },
+    {
+      "source": "old",
+      "extractedSHA256": "fd80c95a39531e6513a7c424aff4d99beeb7b7500ce525de8b266fa5229b27b7",
+      "exitCode": -6,
+      "stdout": "",
+      "oldASanDoubleFreeReproduced": true
+    }
+  ]
+}

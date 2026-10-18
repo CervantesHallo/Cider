@@ -1,0 +1,22 @@
+{
+  "scope": "linked real PE body and calling convention only; no live token backend or Windows execution",
+  "modules": [
+    {
+      "arch": "x86_64",
+      "moduleSHA256": "1ab71405b9207b6b2192d19931963532ac5dbdf04a04b2459658c8f185556d04",
+      "bytes": 1905913,
+      "symbol": "PsDereferencePrimaryToken",
+      "asmSHA256": "60a9b7ca406b36821bcd95886768fbf12d03734f9dd0407fcba35035183501ef",
+      "delegatesToObjectDereference": true
+    },
+    {
+      "arch": "i386",
+      "moduleSHA256": "6f895dee4eb7480f2afa24f4404924bcbb4175033038705f5a1460721d4ff900",
+      "bytes": 1647395,
+      "symbol": "_PsDereferencePrimaryToken@4",
+      "asmSHA256": "22b7322ad935c1d1ae1eb1045a5c0a3274d43a8c5f8ffcf2c8b30791390d091a",
+      "delegatesToObjectDereference": true
+    }
+  ],
+  "lookupStillStub": true
+}

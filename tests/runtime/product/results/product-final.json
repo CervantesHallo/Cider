@@ -1,0 +1,246 @@
+{
+  "schema": "cider.product-runtime-acceptance/v1",
+  "startedUTC": "2026-10-16T13:59:00.371317Z",
+  "owner": {
+    "schema": "cider.runtime-acceptance/v1",
+    "root": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f",
+    "source_commit": "bb096da",
+    "source_app": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app",
+    "app": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+    "home": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home",
+    "ownership": "Only this test root is writable by this controller",
+    "protected": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "engine_source": "/Users/cervantes/Library/Application Support/Cider/Engines/cider-cx26.3-r1-wma1-mm1-x86_64",
+    "engine_copy": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64",
+    "engine_id": "cider-cx26.3-r1-wma1-mm2-x86_64",
+    "working_changes": "ProcessScanner exact-prefix scope, AppModel scope and ps scope",
+    "candidateSHA256": "1d19d80cfb9bb1a1579d4713dfc1fb817c8510d02c8cc1d175480d4e1f037422",
+    "sourceHashes": {
+      "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift": "52afd0f42af1d179881f78c270fa378e19aaaf0ca38e3f92d2f555e60016d216",
+      "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift": "7c3a329bd61a9010ffbf91a19bbf491d55939ceb2bd8a6af8e06ed2d0af5487e",
+      "App/Sources/Cider/Model/AppModel.swift": "784c6489db3e8e4311f1b9daea89e37fe7710fb9d8f649a93a861e2f36a01fb4",
+      "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "525c76e59383bdba6a97cb53ead475a55a088b4fdb432768d3b8f874d82a3677"
+    },
+    "engine_patch": "0014"
+  },
+  "cases": [
+    {
+      "name": "product.cli_launches_real_gui",
+      "passed": true,
+      "seconds": 2.5014005,
+      "evidence": {
+        "stdout": "cider-cx26.3-r1-wma1-mm2-x86_64\twine-11.0\tdevel\n",
+        "gui": [
+          {
+            "bundle": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+            "pid": 28946,
+            "terminated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "product.reuse_empty_prefix",
+      "passed": true,
+      "seconds": 0.0007190830000003423,
+      "evidence": {
+        "reusedOnlyThisOwnedEmptyPrefix": true,
+        "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293"
+      }
+    },
+    {
+      "name": "product.arguments_cwd_environment_and_exit37",
+      "passed": true,
+      "seconds": 6.495185042,
+      "evidence": {
+        "cliExitCode": 37,
+        "stdout": "exit 37 · log /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/sessions/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/20261016T135903-probe-B2C2E2AD-B32E-40D1-9B31-D53215A6105A/wine.log\n",
+        "probe": {
+          "kind": "cider-owned-win32-probe",
+          "windowsPID": 32,
+          "cwd": "Z:\\Users\\cervantes\\Cider\\out\\runtime-acceptance-20261016-84kr3z6f\\caller dir 中文",
+          "fixtureEnvironment": "round-trip",
+          "arguments": [
+            "alpha beta",
+            "",
+            "中文",
+            "quote\"tail",
+            "backslash\\",
+            "tab\tvalue",
+            "--exit",
+            "37"
+          ]
+        },
+        "log": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/sessions/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/20261016T135903-probe-B2C2E2AD-B32E-40D1-9B31-D53215A6105A/wine.log"
+      }
+    },
+    {
+      "name": "product.wait_can_be_stopped_and_gui_is_parent",
+      "passed": true,
+      "seconds": 15.00254175,
+      "evidence": {
+        "unixWinePID": 28983,
+        "nativePPID": 28946,
+        "guiPID": 28946,
+        "parentObservation": "28946 /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64/CiderWineHost.app/Contents/MacOS/wine\n",
+        "stopRequestSeconds": 13.179942041,
+        "stopAndWaiterCompletionSeconds": 13.190999915999999,
+        "stopStdout": "stopped\n",
+        "waitingCLIExitCode": 137,
+        "waitingCLIStdout": "exit 137 · log /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/sessions/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/20261016T135909-probe-23320F8E-E961-473C-A4EE-E7FCB5608413/wine.log\n",
+        "waitingCLIStderr": ""
+      }
+    },
+    {
+      "name": "product.relaunch_after_stop",
+      "passed": true,
+      "seconds": 5.829076000000001,
+      "evidence": {
+        "stdout": "exit 0 · log /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/sessions/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/20261016T135924-probe-3C734FD0-4068-4BC2-A3A1-2E5973A011C2/wine.log\n",
+        "exitCode": 0,
+        "probe": {
+          "kind": "cider-owned-win32-probe",
+          "windowsPID": 32,
+          "cwd": "Z:\\Users\\cervantes\\Cider\\out\\runtime-acceptance-20261016-84kr3z6f",
+          "fixtureEnvironment": "",
+          "arguments": [
+            "--exit",
+            "0"
+          ]
+        }
+      }
+    }
+  ],
+  "windowsOperations": 0,
+  "clients": [],
+  "guiPID": 28946,
+  "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+  "prefix": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Bottles/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/prefix",
+  "spawnParentEvidence": {
+    "unixWinePID": 28983,
+    "nativePPID": 28946,
+    "guiPID": 28946,
+    "parentObservation": "28946 /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64/CiderWineHost.app/Contents/MacOS/wine\n",
+    "probeReady": {
+      "kind": "cider-owned-win32-probe",
+      "windowsPID": 32,
+      "cwd": "Z:\\Users\\cervantes\\Cider\\out\\runtime-acceptance-20261016-84kr3z6f",
+      "fixtureEnvironment": "",
+      "arguments": [
+        "--hold",
+        "30000"
+      ]
+    },
+    "stopDuringGuestStartup": false
+  },
+  "scopedPS": {
+    "exitCode": 0,
+    "rows": [
+      [
+        "28983",
+        "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+        "Z:\\Users\\cervantes\\Cider\\out\\runtime-acceptance-20261016-84kr3z6f\\probe.exe"
+      ],
+      [
+        "28990",
+        "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+        "C:\\windows\\system32\\services.exe"
+      ],
+      [
+        "28992",
+        "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+        "C:\\windows\\system32\\winedevice.exe"
+      ],
+      [
+        "28994",
+        "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+        "C:\\windows\\system32\\plugplay.exe"
+      ],
+      [
+        "28996",
+        "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+        "C:\\windows\\system32\\svchost.exe"
+      ],
+      [
+        "28998",
+        "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+        "C:\\windows\\system32\\winedevice.exe"
+      ]
+    ]
+  },
+  "immediateStopReply": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": "",
+    "seconds": 13.179942041,
+    "ownProcesses": [
+      {
+        "pid": 28946,
+        "path": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app/Contents/MacOS/Cider"
+      },
+      {
+        "pid": 28945,
+        "path": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app/Contents/MacOS/CiderXPCBridge"
+      }
+    ],
+    "serverLock": {
+      "lockPath": "/tmp/.wine-501/server-100000f-5ee617/lock",
+      "type": 2,
+      "holderPID": 0,
+      "holderExecutable": ""
+    }
+  },
+  "stopAttempt": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": "",
+    "waitingCLIExitCode": 137,
+    "waitingCLIStdout": "exit 137 · log /Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/Logs/sessions/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/20261016T135909-probe-23320F8E-E961-473C-A4EE-E7FCB5608413/wine.log\n",
+    "waitingCLIStderr": "",
+    "liveOwnedProcessesAfterStop": [
+      {
+        "pid": 28946,
+        "path": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app/Contents/MacOS/Cider"
+      },
+      {
+        "pid": 28945,
+        "path": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app/Contents/MacOS/CiderXPCBridge"
+      }
+    ]
+  },
+  "cleanupKill": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": ""
+  },
+  "cleanupGUI": {
+    "exitCode": 0,
+    "result": "[{\"bundle\":\"\\/Users\\/cervantes\\/Cider\\/out\\/runtime-acceptance-20261016-84kr3z6f\\/Cider.app\",\"pid\":28946,\"terminated\":true}]",
+    "stderr": ""
+  },
+  "launchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "cleanup": {
+    "jobs": [
+      {
+        "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+        "bootoutCode": 0,
+        "absent": true
+      }
+    ],
+    "liveProcesses": [],
+    "errors": [],
+    "passed": true,
+    "protectedSHA256": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    }
+  },
+  "passed": true,
+  "finishedUTC": "2026-10-16T13:59:31.496317Z"
+}

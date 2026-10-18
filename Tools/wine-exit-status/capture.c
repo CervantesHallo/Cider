@@ -16,10 +16,15 @@ static BOOL append(wchar_t *buffer, size_t *used, wchar_t value)
     return TRUE;
 }
 
-/* Quote each argument, including empty strings; never invoke a command shell. */
+/* Preserve argv using minimal Windows quoting. Some GUI programs parse the raw
+ * command line themselves, so quoting an ordinary switch can change its meaning. */
 static BOOL quote(wchar_t *buffer, size_t *used, const wchar_t *argument)
 {
     size_t slashes, count;
+    if (*argument && !wcspbrk(argument, L" \t\"")) {
+        while (*argument) if (!append(buffer, used, *argument++)) return FALSE;
+        return TRUE;
+    }
     if (!append(buffer, used, L'"')) return FALSE;
     while (*argument) {
         slashes = 0;

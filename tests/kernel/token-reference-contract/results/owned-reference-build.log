@@ -1,0 +1,605 @@
+clang -arch x86_64 -m64 -c -o server/async.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/async.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/atom.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/atom.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/change.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/change.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/class.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/class.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/clipboard.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/clipboard.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/completion.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/completion.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/console.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/console.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/d3dkmt.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/d3dkmt.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/debugger.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/debugger.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/device.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/device.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/directory.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/directory.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/event.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/event.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/fd.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/fd.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/file.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/file.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/msync.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/msync.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/handle.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/handle.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/hook.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/hook.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/inproc_sync.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/inproc_sync.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/mach.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/mach.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/mailslot.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/mailslot.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/main.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/main.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/mapping.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/mapping.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/mutex.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/mutex.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/named_pipe.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/named_pipe.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/object.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/object.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/process.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/process.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/procfs.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/procfs.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/ptrace.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/ptrace.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/queue.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/queue.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/region.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/region.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/registry.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/registry.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/request.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/request.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/semaphore.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/semaphore.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/serial.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/serial.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/signal.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/signal.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/sock.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/sock.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/symlink.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/symlink.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/thread.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/thread.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/timer.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/timer.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/token.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/token.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/trace.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/trace.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/unicode.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/unicode.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DBINDIR="\"/Users/cervantes/Cider/out/engines/cider-cx26.3-r1-x86_64/engine/bin\"" -DDATADIR="\"/Users/cervantes/Cider/out/engines/cider-cx26.3-r1-x86_64/engine/share\"" -DWINE_UNIX_LIB -Wall -pipe \
+  -fcf-protection=none -fvisibility=hidden -fno-stack-protector -fno-strict-aliasing \
+  -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self -Wpointer-arith \
+  -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/user.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/user.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/window.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/window.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o server/winstation.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/winstation.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/cdrom.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/cdrom.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/debug.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/debug.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/env.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/env.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/file.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/file.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/msync.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/msync.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/loader.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/loader.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DBINDIR=\"/Users/cervantes/Cider/out/engines/cider-cx26.3-r1-x86_64/engine/bin\" -DLIBDIR=\"/Users/cervantes/Cider/out/engines/cider-cx26.3-r1-x86_64/engine/lib\" -DDATADIR=\"/Users/cervantes/Cider/out/engines/cider-cx26.3-r1-x86_64/engine/share\" \
+  -DSYSTEMDLLPATH=\"\" -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none \
+  -fvisibility=hidden -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement \
+  -Wempty-body -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/loadorder.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/loadorder.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/process.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/process.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/registry.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/registry.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/security.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/security.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/serial.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/serial.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/server.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/server.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/signal_arm.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/signal_arm.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/signal_arm64.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/signal_arm64.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/signal_i386.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/signal_i386.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/signal_x86_64.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/signal_x86_64.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/socket.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/socket.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/sync.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/sync.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/system.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/system.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/tape.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/tape.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/thread.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/thread.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+clang -arch x86_64 -m64 -c -o dlls/ntdll/unix/virtual.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll/unix/virtual.c \
+  -Idlls/ntdll \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntdll \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DLTC_NO_PROTOTYPES -DLTC_SOURCE -D_NTSYSTEM_ -D_ACRTIMP= -DWINBASEAPI= \
+  -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden -fno-stack-protector \
+  -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wpointer-arith -Wstrict-prototypes -Wtype-limits -Wunused-but-set-parameter -Wvla -Wwrite-strings \
+  -gdwarf-4 -fPIC -fasynchronous-unwind-tables \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+i686-w64-mingw32-gcc -c -o dlls/ntoskrnl.exe/i386-windows/ntoskrnl.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.c \
+  -Idlls/ntoskrnl.exe \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include/msvcrt \
+  -D_MSVCR_VER=0 -D__WINESRC__ -D__WINE_PE_BUILD -Wall -fno-strict-aliasing \
+  -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wno-packed-not-aligned -Wshift-overflow=2 -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -Wpointer-arith -Wlogical-op -Wabsolute-value \
+  -ffunction-sections -Wno-misleading-indentation -fno-omit-frame-pointer \
+  -mpreferred-stack-boundary=2 -gdwarf-4 -g -O2 -Wno-incompatible-pointer-types
+In file included from /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.c:33:
+/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.c: In function 'PsReferencePrimaryToken':
+/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include/wine/exception.h:197:14: error: too few arguments to function 'unlock_handle_map'; expected 2, have 1
+  197 |              (func)(1); \
+      |              ^
+/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.c:3614:13: note: in expansion of macro '__FINALLY'
+ 3614 |             __FINALLY( unlock_handle_map );
+      |             ^~~~~~~~~
+/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.c:383:22: note: declared here
+  383 | static void CALLBACK unlock_handle_map( BOOL normal, void *context )
+      |                      ^~~~~~~~~~~~~~~~~
+make: *** [dlls/ntoskrnl.exe/i386-windows/ntoskrnl.o] Error 1
+make: *** Waiting for unfinished jobs....

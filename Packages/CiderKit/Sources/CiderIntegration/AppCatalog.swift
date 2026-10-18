@@ -173,7 +173,7 @@ public struct AppCatalog: Sendable {
             for case let url as URL in walker where url.pathExtension.lowercased() == "lnk" {
                 let name = url.deletingPathExtension().lastPathComponent
                 guard !skipWords.contains(where: { name.lowercased().contains($0) }),
-                      let link = ShellLink.parse(fileAt: url), let target = link.target,
+                      let link = ShellLink.parse(fileAt: url, ansiCodePage: bottle.config.locale.acp), let target = link.target,
                       target.lowercased().hasSuffix(".exe") else { continue }
                 let key = target.lowercased()
                 guard !seen.contains(key), !excludingRoots.contains(where: { key.hasPrefix($0 + "\\") }),

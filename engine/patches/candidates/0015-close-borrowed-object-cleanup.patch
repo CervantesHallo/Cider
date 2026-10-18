@@ -1,0 +1,20 @@
+Subject: [candidate] do not release a borrowed file after close IRP allocation failure
+
+Applies after 0009, 0012 and 0013. The CLOSE request owns the server file;
+dispatch_close receives its borrowed zero-local-reference proxy and does not
+acquire an Ob reference. An allocation failure must return STATUS_NO_MEMORY
+without an unmatched dereference. Keep the zero-count invariant and the normal
+request completion/ownership protocol. No token or access-path changes.
+
+--- a/dlls/ntoskrnl.exe/ntoskrnl.c
++++ b/dlls/ntoskrnl.exe/ntoskrnl.c
+@@ -677,8 +677,8 @@
+     TRACE( "device %p file %p\n", device, file );
+ 
+     if (!(irp = IoAllocateIrp( device->StackSize, FALSE )))
+     {
+-        ObDereferenceObject( file );
++        /* The server CLOSE request owns this borrowed file; no local ref was acquired. */
+         return STATUS_NO_MEMORY;
+     }
+ 

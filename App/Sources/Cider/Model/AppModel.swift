@@ -65,6 +65,26 @@ struct EnvironmentStatus: Sendable {
     var ready: Bool { rosetta && !engines.isEmpty }
 }
 
+/// Pure event-path filtering; normal FSEvents paths need no Foundation URL work.
+enum LibraryFileEvents {
+    static func isRelevant(_ path: String, bottleRoot: String) -> Bool {
+        if path.hasSuffix(".acf") || path.hasSuffix(".lnk") || path.hasSuffix("cider-bottle.json") || path.hasSuffix("libraryfolders.vdf")
+            || path.contains("/Data/") || path.hasSuffix("/Data") || path.hasSuffix("/Data/")
+            || path.contains("/librarycache/") || path.hasSuffix("/Bottles") || path.hasSuffix("/Bottles/") { return true }
+        // NSString performs literal path-marker searches without Swift's
+        // grapheme traversal. Only actual dot segments need URL normalization.
+        let raw = path as NSString
+        if !raw.hasPrefix("/") || raw.range(of: "/./").location != NSNotFound || raw.range(of: "/../").location != NSNotFound
+            || raw.hasSuffix("/.") || raw.hasSuffix("/..") || raw.range(of: "//").location != NSNotFound {
+            let entry = URL(fileURLWithPath: path).standardizedFileURL
+            return entry.path == bottleRoot || entry.deletingLastPathComponent().path == bottleRoot
+        }
+        var entry = path
+        while entry.hasSuffix("/"), entry != "/" { entry.removeLast() }
+        return entry == bottleRoot || (entry as NSString).deletingLastPathComponent == bottleRoot
+    }
+}
+
 @MainActor
 @Observable
 final class AppModel {
@@ -81,7 +101,7 @@ final class AppModel {
     /// Bottles with any live Windows process (including Wine's own services).
     var runningBottles: Set<String> = []
     /// A recipe worker's owner token lets Stop take over its lock without a late defer unlocking another action.
-    var recipeWorkers: [String: (owner: UUID, task: Task<Bottle, Error>, completed: Bool)] = [:]
+    var recipeWorkers: [String: (owner: UUID, task: Task<(Bottle, RecipeInstaller.Result), Error>, completed: Bool)] = [:]
 
     let paths = CiderPaths.standard()
     /// Compatibility data (bundled + user data directory) and the verdict for each library item.
@@ -247,10 +267,11 @@ final class AppModel {
                 scan = activeProcessScan
             } else {
                 let apps = items
+                let prefixes = Dictionary(uniqueKeysWithValues: bottles.map { ($0.config.id, $0.prefix) })
                 let startedAt = ProcessInfo.processInfo.systemUptime
                 let task = Task.detached(priority: .utility) { () -> ProcessSnapshot in
-                    let processes = ProcessScanner.scan()
-                    // Preserve the existing fallback gate for launcher children.
+                    let processes = ProcessScanner.scan(prefixes: prefixes)
+                    // Preserve the fallback gate for launcher children in this instance's bottles.
                     let blocked = processes.filter { Preflight.check(program: $0.windowsImage, db: nil) != nil }
                     if !blocked.isEmpty { ProcessScanner.terminate(blocked, grace: 0) }
                     var map: [String: [pid_t]] = [:]
@@ -337,11 +358,8 @@ final class AppModel {
             guard let info else { return }
             let model = Unmanaged<AppModel>.fromOpaque(info).takeUnretainedValue()
             let list = (unsafeBitCast(paths, to: NSArray.self) as? [String]) ?? []
-            let relevant = list.prefix(count).contains { p in
-                p.hasSuffix(".acf") || p.hasSuffix(".lnk") || p.hasSuffix("cider-bottle.json") || p.hasSuffix("libraryfolders.vdf")
-                    || p.contains("/Data/") || p.hasSuffix("/Data") || p.hasSuffix("/Data/")
-                    || p.contains("/librarycache/") || p.hasSuffix("/Bottles") || p.hasSuffix("/Bottles/")
-            }
+            let bottleRoot = model.paths.bottles.standardizedFileURL.path
+            let relevant = list.prefix(count).contains { LibraryFileEvents.isRelevant($0, bottleRoot: bottleRoot) }
             if relevant { Task { @MainActor in model.scheduleRefresh() } }
         }
         var context = FSEventStreamContext(version: 0, info: Unmanaged.passUnretained(self).toOpaque(),
@@ -357,26 +375,31 @@ final class AppModel {
     // MARK: Actions
 
     func launch(_ item: LibraryItem) { perform(item, action: .start) }
+    func launch(_ item: LibraryItem, checking check: @escaping @Sendable () throws -> Void) -> Task<Void, Never>? {
+        perform(item, action: .start, launchCheck: check)
+    }
     func restart(_ item: LibraryItem) { perform(item, action: .restart) }
     func stop(_ item: LibraryItem) { perform(item, action: .stop) }
 
     private enum AppAction: String, Sendable { case start, stop, restart }
 
-    private func perform(_ item: LibraryItem, action: AppAction) {
+    @discardableResult
+    private func perform(_ item: LibraryItem, action: AppAction,
+                         launchCheck: (@Sendable () throws -> Void)? = nil) -> Task<Void, Never>? {
         let paths = self.paths
         let snapshot = compat
         // Catalog aliases can refer to the same executable. Serialize by bottle as well as item.
         let bottleKey = "activity:\(item.bottleID)"
         guard !busy.contains(bottleKey) else {
             message = "这个瓶子的操作正在进行，请稍候。"
-            return
+            return nil
         }
         if action == .start, var pending = pendingLaunches[item.id] {
             let waiting = "\(item.title) 的启动请求仍在处理中，请稍候。"
             message = waiting
             pending.feedback = feedbackGeneration
             pendingLaunches[item.id] = pending
-            return
+            return nil
         }
         pendingLaunches.removeValue(forKey: item.id)
         busy.insert(bottleKey)
@@ -389,13 +412,18 @@ final class AppModel {
         case .restart: message = "正在重启 \(item.title)…"
         }
         let feedback = feedbackGeneration
-        Task {
-            defer { busy.remove(item.id); busy.remove(actionKey); busy.remove(bottleKey) }
+        return Task {
+            defer {
+                busy.remove(item.id); busy.remove(actionKey)
+                if !busy.contains("stop-bottle:\(item.bottleID)") { busy.remove(bottleKey) }
+            }
             do {
+                try launchCheck?()
                 let started = try await Task.detached { () -> (started: Bool, warning: String?) in
                     let store = BottleStore(paths: paths, compat: snapshot)
                     let bottle = try store.bottle(item.bottleID)
-                    let runner = try store.runner(for: bottle)
+                    var runner = try store.runner(for: bottle)
+                    if let launchCheck { runner = runner.checkingLaunches(launchCheck) }
                     let cwd: URL?
                     if action == .stop { cwd = nil }
                     else { cwd = try WindowsPath.workingDirectory(item.workingDirectory, in: bottle) }
@@ -410,6 +438,7 @@ final class AppModel {
                     }
                 }.value
                 let observed = await scanProcesses(after: ProcessInfo.processInfo.systemUptime)
+                try launchCheck?()
                 if action == .stop {
                     _ = updateFeedback("已停止 \(item.title)。", owning: feedback)
                 } else if started.started {
@@ -430,6 +459,10 @@ final class AppModel {
                 } else {
                     _ = updateFeedback("\(item.title) 已在运行；需要重新启动时，请使用“重启”。", owning: feedback)
                 }
+            } catch is CancellationError {
+                pendingLaunches.removeValue(forKey: item.id)
+                await scanProcesses()
+                _ = updateFeedback("操作已取消。", owning: feedback)
             } catch let block as Preflight.Block {
                 if feedbackGeneration == feedback { showRouteCard(block) }
             } catch {
@@ -440,35 +473,47 @@ final class AppModel {
     }
 
     func runInstaller(_ url: URL, in bottleID: String) {
+        do {
+            let bottle = try BottleStore(paths: paths).bottle(bottleID)
+            let activity = try RecipeInstaller.beginActivity(in: bottle)
+            do {
+                let task = try runInstallerTask(url, in: bottle, activity: activity)
+                Task { _ = await task.result }
+            } catch { try? activity.finish(error: error); throw error }
+        } catch { message = "安装失败：\(error)" }
+    }
+
+    func runInstallerTask(_ url: URL, in bottle: Bottle, activity: RecipeInstaller.Activity) throws -> Task<Void, Error> {
         let paths = self.paths
+        let bottleID = bottle.config.id
         let key = "activity:\(bottleID)"
-        guard !busy.contains(key), !busy.contains("install") else { message = "这个瓶子的操作正在进行，请稍候。"; return }
+        guard !busy.contains(key), !busy.contains("install") else { throw CiderError.invalid("这个瓶子的操作正在进行，请稍候。") }
+        try activity.checkCancellation()
         busy.insert(key)
         busy.insert("install")
         message = "正在运行 \(url.lastPathComponent)…"
-        Task {
+        return Task {
             var holdsActivity = true
-            defer { busy.remove("install"); if holdsActivity { busy.remove(key) } }
+            defer {
+                busy.remove("install")
+                if holdsActivity, !busy.contains("stop-bottle:\(bottleID)") { busy.remove(key) }
+            }
             do {
-                let session = try await Task.detached { () -> SessionHandle in
+                let running = try await Task.detached {
                     let store = BottleStore(paths: paths)
-                    let runner = try store.runner(for: try store.bottle(bottleID))
-                    let isMSI = url.pathExtension.lowercased() == "msi"
-                    let plan = isMSI
-                        ? runner.plan(program: "msiexec", arguments: ["/i", url.path], label: url.deletingPathExtension().lastPathComponent,
-                                      cwd: url.deletingLastPathComponent())
-                        : runner.plan(program: url.path, label: url.deletingPathExtension().lastPathComponent,
-                                      cwd: url.deletingLastPathComponent())
-                    return try runner.launch(plan)
+                    return try ManualInstaller(store: store).start(url, in: try store.bottle(bottleID), activity: activity)
                 }.value
                 // Installation is now a running program. Keep the install indicator, but allow Stop.
-                busy.remove(key)
+                if !busy.contains("stop-bottle:\(bottleID)") { busy.remove(key) }
                 holdsActivity = false
-                let code = await Task.detached { Spawn.wait(session.pid) }.value
-                message = code == 0 ? "安装程序已结束。" : "安装程序退出，代码 \(code)。"
+                let result = try await Task.detached { try running.wait() }.value
                 await refresh()
+                try activity.finish()
+                message = result.requiresRestart ? "安装程序已结束，请重启瓶子后再打开程序。" : "安装程序已结束。"
             } catch {
-                message = "安装失败：\(error)"
+                try? activity.finish(error: error)
+                if !busy.contains("stop-bottle:\(bottleID)") { message = error is CancellationError ? "安装已取消。" : "安装失败：\(error)" }
+                throw error
             }
         }
     }
@@ -480,11 +525,15 @@ final class AppModel {
         Task {
             defer { busy.remove("create-bottle") }
             do {
-                try await Task.detached {
-                    _ = try BottleStore(paths: paths).create(name: name, template: template, locale: locale, createdBy: "Cider.app")
+                let prepared = try await Task.detached {
+                    try BottlePreparation.create(store: BottleStore(paths: paths), name: name, template: template,
+                        locale: locale, createdBy: "Cider.app")
                 }.value
-                message = "已创建瓶子“\(name)”。"
-                await refresh()
+                do {
+                    await refresh()
+                    try prepared.activity.finish()
+                    message = "已创建瓶子“\(name)”。"
+                } catch { try? prepared.activity.finish(error: error); throw error }
             } catch {
                 message = "创建失败：\(error)"
             }
@@ -499,12 +548,15 @@ final class AppModel {
         let owner = UUID()
         let interrupted = recipeWorkers[bottleID]
         if busy.contains(key) {
-            guard let interrupted else {
+            let registered = bottles.first(where: { $0.config.id == bottleID }).map { RecipeInstaller.hasActiveActivity(in: $0) } ?? false
+            guard interrupted != nil || registered else {
                 message = "这个瓶子的操作正在进行，请稍候。"
                 return
             }
-            interrupted.task.cancel()
-            recipeWorkers[bottleID] = (owner, interrupted.task, interrupted.completed)
+            if let interrupted {
+                interrupted.task.cancel()
+                recipeWorkers[bottleID] = (owner, interrupted.task, interrupted.completed)
+            }
         } else {
             busy.insert(key)
         }
@@ -524,7 +576,8 @@ final class AppModel {
             do {
                 try await Task.detached {
                     let store = BottleStore(paths: paths)
-                    try store.runner(for: try store.bottle(bottleID)).killAll()
+                    let bottle = try store.bottle(bottleID)
+                    try RecipeInstaller.stoppingInstallations(in: bottle) { try store.runner(for: bottle).killAll() }
                 }.value
                 // Await cancellation so a download/installer cannot start another step after Stop reports success.
                 if let interrupted, case .failure(let error) = await interrupted.task.result,

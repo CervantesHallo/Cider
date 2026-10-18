@@ -86,6 +86,16 @@ public struct WineRunner: Sendable {
     /// Compatibility data, so a profile's `actions.env` reaches the launch it was written for
     /// (docs/plan/00 principle 1: what changes lives in data). Profiles are red-line linted on load.
     public let compat: CompatDB?
+    private var launchCheck: @Sendable () throws -> Void = {}
+
+    /// Add a cooperative check to this operation's runner. It runs again under the
+    /// bottle lock immediately before spawn, so Stop cannot be followed by a late launch.
+    public func checkingLaunches(_ check: @escaping @Sendable () throws -> Void) -> WineRunner {
+        var copy = self
+        let previous = launchCheck
+        copy.launchCheck = { try previous(); try check() }
+        return copy
+    }
 
     public init(paths: CiderPaths, engine: InstalledEngine, prefix: URL, bottleID: String, locale: BottleLocale,
                 sync: SyncMode = .default, bottleEnvironment: [String: String] = [:], compat: CompatDB? = nil) {
@@ -192,7 +202,8 @@ public struct WineRunner: Sendable {
 
     /// Spawns the plan, recording `session.json` and an audit line. Returns immediately.
     public func launch(_ plan: LaunchPlan) throws -> SessionHandle {
-        try withBottleOperation {
+        try launchCheck()
+        return try withBottleOperation {
             try FileOperationLock.withLock(at: EngineStore(paths: paths).operationLock(for: engine.manifest.id)) {
                 try launchLocked(plan)
             }
@@ -263,6 +274,7 @@ public struct WineRunner: Sendable {
         let auditFD = open(auditURL.path, O_WRONLY | O_CREAT | O_APPEND | O_CLOEXEC | O_NOFOLLOW, 0o600)
         guard auditFD >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
         defer { close(auditFD) }
+        try launchCheck()
         let pid = try Spawn.launch(
             executable: plan.loader, arguments: plan.argv, environment: plan.env,
             workingDirectory: plan.cwd, logPath: sessionDir.appendingPathComponent("wine.log").path
@@ -275,25 +287,27 @@ public struct WineRunner: Sendable {
             // Retain the true started state and session ownership, even if the post-spawn disk write fails.
             try? JSONFile.write(["warning": "spawn audit write failed", "pid": String(pid)],
                                 to: sessionDir.appendingPathComponent("audit-warning.json"))
-            FileHandle.standardError.write(Data("Cider: 程序已启动，但审计记录未写入：\(error)\n".utf8))
+            CiderDiagnostics.warning("Cider: 程序已启动，但审计记录未写入：\(error)")
         }
         return SessionHandle(pid: pid, directory: sessionDir, warning: auditWarning)
     }
 
     /// Runs a plan to completion and returns its exit code.
-    public func runToCompletion(_ plan: LaunchPlan) throws -> (code: Int32, session: SessionHandle) {
+    public func runToCompletion(_ plan: LaunchPlan, observation: CommandObservation? = nil) throws -> (code: Int32, session: SessionHandle) {
         try Task.checkCancellation()
+        try observation?.check()
         let session = try launch(plan)
         // Cancellation may race with spawn; stop this prefix before handing the cancelled result back.
         if Task.isCancelled { try killAll() }
-        let code = Spawn.wait(session.pid)
+        let code = try Spawn.wait(session.pid, observation: observation)
+        try launchCheck()
         try Task.checkCancellation()
         return (code, session)
     }
 
     /// `wineserver -w`: waits until every process in the prefix has exited.
-    public func waitForIdle() throws {
-        try wineserver(["-w"])
+    public func waitForIdle(observation: CommandObservation? = nil) throws {
+        try wineserver(["-w"], observation: observation)
     }
 
     /// `wineserver -k`: kills every process in the prefix. Processes whose wineserver already died (orphans,
@@ -303,31 +317,76 @@ public struct WineRunner: Sendable {
     }
 
     private func killAllLocked() throws {
-        // Wine returns 1 when no server owns the lock; still clean up tagged orphan processes.
-        try wineserver(["-k"], allowNoServer: true)
         let matches = { (process: WineProcess) in
             process.bottleID == bottleID && process.prefixPath == prefix.path
         }
-        // Include loaders which have not rewritten argv to a Windows image yet, and tagged host helpers.
-        let leftovers = ProcessScanner.scan(includeLoaders: true).filter(matches)
-        let remaining = ProcessScanner.terminate(leftovers, grace: 2)
-        let deadline = ProcessInfo.processInfo.systemUptime + 2
-        while ProcessInfo.processInfo.systemUptime < deadline,
-              ProcessScanner.scan(includeLoaders: true).contains(where: matches) || BottleActivity.isRunning(prefix: prefix) {
-            usleep(100_000)
-        }
-        guard remaining.isEmpty, !ProcessScanner.scan(includeLoaders: true).contains(where: matches),
-              !BottleActivity.isRunning(prefix: prefix) else {
-            throw CiderError.invalid("瓶子仍有进程运行，停止未完成：\(bottleID)")
-        }
+        let complete = try Self.drainStop(
+            requestStop: { try wineserver(["-k"], allowNoServer: true) },
+            scan: { ProcessScanner.scan(includeLoaders: true).filter(matches) },
+            terminate: { ProcessScanner.terminate($0, grace: $1, forceWait: $2) },
+            unresolved: ProcessScanner.unresolved,
+            serverRunning: { BottleActivity.isRunning(prefix: prefix) },
+            now: { ProcessInfo.processInfo.systemUptime }, pause: { usleep(100_000) },
+            onUnconfirmed: { pending, activeServer in
+                let observations = pending.map { process -> String in
+                    var info = proc_bsdinfo()
+                    errno = 0
+                    let read = proc_pidinfo(process.pid, PROC_PIDTBSDINFO, 0, &info, Int32(MemoryLayout<proc_bsdinfo>.size))
+                    let code = errno
+                    return "pid=\(process.pid),image=\(process.windowsImage),read=\(read),errno=\(code),status=\(info.pbi_status),audit=\(ProcessScanner.refreshedAuditIdentity(process) != nil)"
+                }
+                try? JSONFile.write(["bottle": bottleID, "serverRunning": String(activeServer),
+                                     "unresolved": observations.joined(separator: ";")],
+                    to: paths.logs.appendingPathComponent("stop-\(bottleID)-last-failure.json"))
+            })
+        guard complete else { throw CiderError.invalid("瓶子仍有进程运行，停止未完成：\(bottleID)") }
     }
 
-    private func wineserver(_ args: [String], allowNoServer: Bool = false) throws {
+    /// A loader may start its server/children after the first -k. Keep observing the
+    /// same prefix, recapture new descendants, and require two clean observations.
+    /// An unreadable captured identity remains pending. Control waiters are excluded
+    /// by ProcessScanner; their --wait result is allowed to finish normally.
+    static func drainStop(budget: TimeInterval = 12, requestStop: () throws -> Void,
+                          scan: () -> [WineProcess],
+                          terminate: ([WineProcess], TimeInterval, TimeInterval) -> [WineProcess],
+                          unresolved: ([WineProcess]) -> [WineProcess], serverRunning: () -> Bool,
+                          now: () -> TimeInterval, pause: () -> Void,
+                          onUnconfirmed: ([WineProcess], Bool) -> Void = { _, _ in }) throws -> Bool {
+        let deadline = now() + budget
+        var pending: [WineProcess] = []
+        var first = true
+        repeat {
+            try requestStop()
+            let current = scan()
+            pending = unresolved(pending)
+            if !current.isEmpty || !pending.isEmpty {
+                pending = terminate(Array(Set(pending + current)), first ? 2 : 0.25, first ? 2 : 0.5)
+            }
+            first = false
+            pending = unresolved(pending)
+            let empty = pending.isEmpty && scan().isEmpty && !serverRunning()
+            pause()
+            if empty {
+                // Finish the delayed read-only confirmation even when the preceding
+                // synchronous stop used the remaining budget; never start another -k
+                // just to confirm an already clean prefix.
+                let late = scan()
+                pending = unresolved(pending)
+                if pending.isEmpty && late.isEmpty && !serverRunning() { return true }
+                pending = Array(Set(pending + late))
+            }
+        } while now() < deadline
+        onUnconfirmed(unresolved(pending), serverRunning())
+        return false
+    }
+
+    private func wineserver(_ args: [String], allowNoServer: Bool = false, observation: CommandObservation? = nil) throws {
+        try observation?.check()
         let log = paths.logs.appendingPathComponent("wineserver.log")
         try FileManager.default.ensureDirectory(paths.logs)
         let pid = try Spawn.launch(executable: engine.wineserver.path, arguments: args,
                                    environment: environment(debug: .quiet), workingDirectory: nil, logPath: log.path)
-        let code = Spawn.wait(pid)
+        let code = try Spawn.wait(pid, observation: observation)
         guard code == 0 || (allowNoServer && code == 1) else {
             throw CiderError.commandFailed(command: "wineserver \(args.joined(separator: " "))", status: code,
                                            output: (try? String(contentsOf: log, encoding: .utf8)) ?? "")

@@ -1,0 +1,103 @@
+{
+  "sourceSnapshot": "344148a",
+  "sourceMatches": true,
+  "protectedFileCount": 12,
+  "budgetSHA256": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac",
+  "binaries": {
+    "Cider": "3febfbf37dd04e8bdc261e7494d4f4cf208afa86386f265894f352404c66064d",
+    "ciderctl": "2f8ec3983eb7229a5282fd73bd921e78bad77f99617ab748b6095423dcf49f4e",
+    "CiderXPCBridge": "c107f0834d2854b3ed642ab4c958a7d54534eec89d18f4340a03f3a5aaa0e2cf"
+  },
+  "gui": [
+    {
+      "bundle": "/Users/cervantes/Cider/out/Cider.app",
+      "pid": 26910,
+      "terminated": false
+    }
+  ],
+  "existingSteam": "91113 C:\\Program Files (x86)\\Steam\\steam.exe\n91115 /Users/cervantes/Library/Application Support/Cider/Engines/cider-cx26.3-r1-wma1-mm1-x86_64/engine/lib/wine/../../bin/wineserver\n",
+  "releaseBuildLog": "out/restore-20261018-build.log",
+  "oldAppBackup": "out/backups/Cider-20261018-102701-27Nkbe/Cider.app",
+  "windowsOperations": 0,
+  "newTestsRun": 0,
+  "schema": "cider.full-source-restoration/v1",
+  "restorationCommit": "pending-source-commit",
+  "userAuthorizedAllGroups": true,
+  "sourceTrees": {
+    "App": {
+      "expected": "bd3effe3eca891be7e189e70e12686342546ad15",
+      "restored": "bd3effe3eca891be7e189e70e12686342546ad15",
+      "matches": true
+    },
+    "Packages": {
+      "expected": "a7f1f42519c8fcc7814cf79ac3073f3c6273c406",
+      "restored": "a7f1f42519c8fcc7814cf79ac3073f3c6273c406",
+      "matches": true
+    },
+    "Tools": {
+      "expected": "648c7091a147627315b0b3d796dcca30f365d3c2",
+      "restored": "648c7091a147627315b0b3d796dcca30f365d3c2",
+      "matches": true
+    },
+    "engine": {
+      "expected": "a70c70e68a7e1bf59a1cde05e2602ff1f3fb08a2",
+      "restored": "a70c70e68a7e1bf59a1cde05e2602ff1f3fb08a2",
+      "matches": true
+    },
+    "data": {
+      "expected": "ab32a69a5620ead6a68a7e81515a17d755c2a240",
+      "restored": "ab32a69a5620ead6a68a7e81515a17d755c2a240",
+      "matches": true
+    },
+    "scripts": {
+      "expected": "3aecc7035a5a20f3c8a6685366ec5586226d081b",
+      "restored": "3aecc7035a5a20f3c8a6685366ec5586226d081b",
+      "matches": true
+    },
+    ".github": {
+      "expected": "1648c4f17e177c91cfd9031a0daaf4421a7e4597",
+      "restored": "1648c4f17e177c91cfd9031a0daaf4421a7e4597",
+      "matches": true
+    },
+    "tests": {
+      "expected": "787f6b88dd2c363177e50e3fd06cc662e6d912e3",
+      "restored": "787f6b88dd2c363177e50e3fd06cc662e6d912e3",
+      "matches": true
+    },
+    "AGENTS.md": {
+      "expected": "a6aacb4dfa307a763ee1a0497cd180b04ea175d8",
+      "restored": "a6aacb4dfa307a763ee1a0497cd180b04ea175d8",
+      "matches": true
+    }
+  },
+  "hy1Reopened": [
+    {
+      "session": "/Users/cervantes/Library/Logs/Cider/sessions/bottle-ca8f/20261018T023120-\u7c73\u54c8\u6e38\u542f\u52a8\u5668-169C230C-6A0C-4FBB-962A-1FA364BA5562/session.json",
+      "program": "C:\\Program Files\\miHoYo Launcher\\launcher.exe",
+      "engine": "cider-cx26.3-r2-x86_64",
+      "environmentProfile": {
+        "contentSHA256": "91ee46130c107bda2994e640611b55243b8aae1b77399ac5827563798ba398ae",
+        "differingEnvironmentKeys": [],
+        "environmentKeys": [
+          "DXMT_ALLOW_CROSS_PROCESS_SWAPCHAIN"
+        ],
+        "id": "profile.launcher.mihoyo-cn",
+        "program": "C:\\Program Files\\miHoYo Launcher\\launcher.exe",
+        "revision": 4,
+        "target": "launcher.mihoyo-cn"
+      },
+      "status": "spawned session; UI/login not independently accepted"
+    }
+  ],
+  "nativeUIObservations": {
+    "libraryItems": 5,
+    "steam": "running before/after GUI replacement",
+    "hoyo": "running; actual Cider UI launch action and status transition observed",
+    "wineWindowVisualOrLogin": "not independently observed"
+  },
+  "kernelCandidateSourceRestored": true,
+  "kernelCandidateDefaultEnabled": false,
+  "noSteamCloneUsed": true,
+  "protectedMetadataUnchangedAtGuiReopen": true,
+  "referenceBudgetUnchanged": true
+}

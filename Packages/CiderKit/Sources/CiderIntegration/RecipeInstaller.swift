@@ -12,11 +12,13 @@ import Foundation
 public struct RecipeInstaller: Sendable {
     public let store: BottleStore
     public let db: CompatDB
+    private let exitCollector: WindowsExitCollector?
     public var downloads: URL { store.paths.caches.appendingPathComponent("downloads/cas", isDirectory: true) }
 
-    public init(store: BottleStore, db: CompatDB) {
+    public init(store: BottleStore, db: CompatDB, exitCollector: WindowsExitCollector? = nil) {
         self.store = BottleStore(paths: store.paths, compat: db)
         self.db = db
+        self.exitCollector = exitCollector
     }
 
     public enum InstallError: Error, CustomStringConvertible {
@@ -24,12 +26,17 @@ public struct RecipeInstaller: Sendable {
         case dependencyCycle([String])
         case checksum(String)
         case notDetected(String)
+        case installerFailed(String, UInt32, URL)
+        case restartBeforeDetection(String)
         public var description: String {
             switch self {
             case .unknownRecipe(let id): return "没有找到配方 \(id)"
             case .dependencyCycle(let path): return "配方依赖形成循环，安装未开始：" + path.joined(separator: " → ")
             case .checksum(let file): return "\(file) 的校验和不匹配，已停止安装（文件可能被篡改或下载不完整）"
             case .notDetected(let name): return "\(name) 的安装程序结束了，但没有找到安装结果"
+            case .installerFailed(let name, let code, let report):
+                return "\(name) 安装未成功，Windows 退出码 \(code)（0x\(String(code, radix: 16))）；记录：\(report.path)"
+            case .restartBeforeDetection(let name): return "\(name) 的安装程序要求重启，但安装检测尚未通过；请重启瓶子后再检查。"
             }
         }
     }
@@ -100,14 +107,35 @@ public struct RecipeInstaller: Sendable {
     }
 
     /// Installs the recipe and its missing dependencies. `progress` gets short user-facing steps.
-    public func install(_ recipeID: String, in bottle: Bottle, progress: @Sendable (String) -> Void = { _ in }) throws {
+    public struct Result: Sendable {
+        public let requiresRestart: Bool
+    }
+
+    @discardableResult
+    public func install(_ recipeID: String, in bottle: Bottle, progress: @Sendable (String) -> Void = { _ in }) throws -> Result {
+        try install(recipeID, in: bottle, onStop: {}, progress: progress)
+    }
+
+    @discardableResult
+    public func install(_ recipeID: String, in bottle: Bottle, onStop: @escaping @Sendable () -> Void,
+                        progress: @Sendable (String) -> Void = { _ in }) throws -> Result {
+        try InstallationActivity.perform(in: bottle, onStop: onStop) {
+            try installOrdered(recipeID, in: bottle, progress: progress)
+        }
+    }
+
+    private func installOrdered(_ recipeID: String, in bottle: Bottle,
+                                progress: @Sendable (String) -> Void) throws -> Result {
         // Validate the complete accepted-data graph before any download or prefix mutation.
         // An installed dependency does not make an invalid graph safe to execute.
         let ordered = try installationOrder(for: recipeID)
+        var requiresRestart = false
         for recipe in ordered {
-            try Task.checkCancellation()
-            try install(recipe, in: bottle, progress: progress)
+            try InstallationActivity.checkCancellation()
+            let restart = try install(recipe, in: bottle, progress: progress)
+            requiresRestart = requiresRestart || restart
         }
+        return Result(requiresRestart: requiresRestart)
     }
 
     private func installationOrder(for recipeID: String) throws -> [Recipe] {
@@ -118,7 +146,7 @@ public struct RecipeInstaller: Sendable {
         // Iterative depth-first traversal avoids a Swift call stack per dependency.
         var pending: [(id: String, finish: Bool)] = [(recipeID, false)]
         while let frame = pending.popLast() {
-            try Task.checkCancellation()
+            try InstallationActivity.checkCancellation()
             if frame.finish {
                 guard let recipe = db.recipes[frame.id] else { throw InstallError.unknownRecipe(frame.id) }
                 active.remove(frame.id)
@@ -136,7 +164,7 @@ public struct RecipeInstaller: Sendable {
             guard recipe.id == frame.id else { throw CiderError.invalid("配方身份与依赖名称不一致：\(frame.id)") }
             if let reason = RecipePolicy.violation(in: recipe) { throw CiderError.invalid("配方无效：\(frame.id)：\(reason)") }
             for step in recipe.steps {
-                try Task.checkCancellation()
+                try InstallationActivity.checkCancellation()
                 if let run = step.runInstaller {
                     guard run.kind == "exe" || run.kind == "msi",
                           (run.args ?? []).allSatisfy({ !$0.contains("\0") }) else {
@@ -168,13 +196,20 @@ public struct RecipeInstaller: Sendable {
         return environment
     }
 
-    private func install(_ recipe: Recipe, in bottle: Bottle, progress: @Sendable (String) -> Void) throws {
-        try Task.checkCancellation()
-        if isInstalled(recipe, in: bottle) { return }
-        let runner = try store.runner(for: bottle)
+    private func install(_ recipe: Recipe, in bottle: Bottle, progress: @Sendable (String) -> Void) throws -> Bool {
+        try InstallationActivity.checkCancellation()
+        if isInstalled(recipe, in: bottle) { return false }
+        let runner = try store.runner(for: bottle).checkingLaunches { try InstallationActivity.checkCancellation() }
+        // Resolve before downloading; a malformed/missing App tool is a preparation
+        // failure. It must not silently fall back to an 8-bit Unix success alias.
+        let collector: WindowsExitCollector?
+        if recipe.steps.contains(where: { $0.runInstaller != nil }) {
+            collector = try exitCollector ?? WindowsExitCollector.bundled(cpuBackend: runner.engine.manifest.cpuBackend)
+        } else { collector = nil }
+        var requiresRestart = false
         var files: [String: URL] = [:]
         for step in recipe.steps {
-            try Task.checkCancellation()
+            try InstallationActivity.checkCancellation()
             if let run = step.runInstaller {
                 let installerEnvironment = try installerEnvironment(for: step, recipe: recipe)
                 guard let source = recipe.sources[run.source] else { throw CiderError.invalid("配方引用了不存在的下载来源") }
@@ -185,18 +220,28 @@ public struct RecipeInstaller: Sendable {
                     try verifyCachedFile(cached, source: source, name: run.source)
                     file = cached
                 } else {
-                    progress("正在下载 \(recipe.title())…")
+                    progress("正在准备 \(recipe.title()) 的安装文件…")
                     file = try fetch(source, name: run.source)
                     files[run.source] = file
                 }
-                try Task.checkCancellation()
+                try InstallationActivity.checkCancellation()
                 progress("正在安装 \(recipe.title())…")
                 let plan = run.kind == "msi"
-                    ? runner.plan(program: "msiexec", arguments: ["/i", file.path] + (run.args ?? []), label: "install-\(recipe.id)",
+                    ? runner.plan(program: "C:\\windows\\system32\\msiexec.exe",
+                                  arguments: ["/i", WinePathMapping.windowsPath(forHostPath: file.path, prefix: bottle.prefix)] + (run.args ?? []), label: "install-\(recipe.id)",
                                   extraEnv: installerEnvironment)
                     : runner.plan(program: file.path, arguments: run.args ?? [], label: "install-\(recipe.id)",
                                   cwd: file.deletingLastPathComponent(), extraEnv: installerEnvironment)
-                _ = try runner.runToCompletion(plan)
+                guard let collector else { throw CiderError.notFound("安装状态采集工具") }
+                let capture = try runner.prepareWindowsExitCapture(plan, collector: collector.executable,
+                    expectedSHA256: collector.sha256, timeoutMilliseconds: 3_600_000)
+                let completed = try runner.runToCompletion(capture.plan)
+                do { try capture.recordEvidence(in: completed.session) }
+                catch { CiderDiagnostics.warning("安装状态记录未能加入会话诊断，原始记录保留在 \(capture.directory.path)：\(error)") }
+                let status = try capture.readStatus(afterCollectorUnixStatus: completed.code)
+                let restart = try Self.validateInstallerStatus(status, kind: run.kind,
+                    convention: run.exitCodeConvention, title: recipe.title(), report: capture.resultURL)
+                requiresRestart = requiresRestart || restart
             }
             if let sets = step.registry, !sets.isEmpty {
                 let grouped = Dictionary(grouping: sets, by: \.key)
@@ -211,21 +256,44 @@ public struct RecipeInstaller: Sendable {
         // programs such as Steam may keep the bottle busy, so waiting for it to go idle could block forever).
         let deadline = Date().addingTimeInterval(120)
         while !isInstalled(recipe, in: bottle), Date() < deadline {
-            try Task.checkCancellation()
+            try InstallationActivity.checkCancellation()
             Thread.sleep(forTimeInterval: 0.2)
         }
-        try Task.checkCancellation()
-        guard isInstalled(recipe, in: bottle) else { throw InstallError.notDetected(recipe.title()) }
+        try InstallationActivity.checkCancellation()
+        guard isInstalled(recipe, in: bottle) else {
+            if requiresRestart { throw InstallError.restartBeforeDetection(recipe.title()) }
+            throw InstallError.notDetected(recipe.title())
+        }
+        return requiresRestart
+    }
+
+    /// Return a restart requirement only from the full DWORD and declared installer
+    /// contract. File detection cannot turn an installer error into success.
+    static func validateInstallerStatus(_ status: WindowsExitStatus, kind: String, convention: String?,
+                                        title: String, report: URL) throws -> Bool {
+        guard kind == "exe" || kind == "msi", convention == nil || convention == "msi" else {
+            throw CiderError.invalid("安装程序退出码约定不受支持。")
+        }
+        guard let code = status.capturedWindowsExitCode else { throw CiderError.invalid("安装退出状态未完整取得。") }
+        if kind == "msi" || convention == "msi" {
+            switch status.msiDisposition {
+            case .completed: return false
+            case .rebootInitiated, .rebootRequired: return true
+            default: throw InstallError.installerFailed(title, code, report)
+            }
+        }
+        guard kind == "exe", code == 0 else { throw InstallError.installerFailed(title, code, report) }
+        return false
     }
 
     /// Downloads a source into `cas/<sha256>/<file>`; pinned sources must match one of their hashes.
     func fetch(_ source: Recipe.Source, name: String) throws -> URL {
-        try Task.checkCancellation()
+        try InstallationActivity.checkCancellation()
         let fm = FileManager.default
         let filename = try Self.filename(for: source, fallback: name)
         let hashes = try Self.acceptedHashes(for: source)
         for known in hashes {
-            try Task.checkCancellation()
+            try InstallationActivity.checkCancellation()
             guard let dir = try cacheDirectory(hash: known, create: false) else { continue }
             let cached = dir.appendingPathComponent(filename)
             if try Self.fileMode(at: cached) != nil {
@@ -242,18 +310,20 @@ public struct RecipeInstaller: Sendable {
         defer { try? fm.removeItem(at: tmp) }
         var lastError: Error?
         for url in source.urls {
-            try Task.checkCancellation()
+            try InstallationActivity.checkCancellation()
             do {
-                try Command.runCancellable("/usr/bin/curl", ["-fsSL", "--retry", "3", "--connect-timeout", "20", "--max-time", "300", "-o", tmp.path, url])
+                let activity = InstallationActivity.current
+                try Command.runCancellable("/usr/bin/curl", ["-fsSL", "--retry", "3", "--connect-timeout", "20", "--max-time", "300", "-o", tmp.path, url],
+                                           cancellationRequested: { activity?.isCancelled == true })
                 lastError = nil
                 break
             } catch is CancellationError { throw CancellationError() } catch {
                 // Preserve a failed child termination instead of hiding it behind task cancellation.
-                if Task.isCancelled { throw error }
+                if InstallationActivity.isCancelled { throw error }
                 lastError = error
             }
         }
-        try Task.checkCancellation()
+        try InstallationActivity.checkCancellation()
         if let lastError { try? fm.removeItem(at: tmp); throw lastError }
         let sha = try Self.regularFileSHA256(of: tmp)
         guard hashes.isEmpty || hashes.contains(sha) else {
@@ -268,7 +338,7 @@ public struct RecipeInstaller: Sendable {
             try verifyCachedFile(dest, source: source, name: name)
             return dest
         }
-        try Task.checkCancellation()
+        try InstallationActivity.checkCancellation()
         try fm.moveItem(at: tmp, to: dest)
         try verifyCachedFile(dest, source: source, name: name)
         return dest
@@ -315,7 +385,7 @@ public struct RecipeInstaller: Sendable {
     }
 
     private func verifyCachedFile(_ file: URL, source: Recipe.Source, name: String) throws {
-        try Task.checkCancellation()
+        try InstallationActivity.checkCancellation()
         let filename = try Self.filename(for: source, fallback: name)
         let hashes = try Self.acceptedHashes(for: source)
         let expected = file.deletingLastPathComponent().lastPathComponent
@@ -326,7 +396,7 @@ public struct RecipeInstaller: Sendable {
               dir.standardizedFileURL.path == file.deletingLastPathComponent().standardizedFileURL.path,
               hashes.isEmpty || hashes.contains(expected) else { throw InstallError.checksum(filename) }
         guard try Self.regularFileSHA256(of: file) == expected else { throw InstallError.checksum(filename) }
-        try Task.checkCancellation()
+        try InstallationActivity.checkCancellation()
     }
 
     private static func fileMode(at url: URL) throws -> mode_t? {
@@ -343,7 +413,7 @@ public struct RecipeInstaller: Sendable {
     /// Opening without following the final link, then fstat, avoids reading directories, FIFOs or devices.
     /// Check cancellation per chunk rather than hashing an entire installer in an uncancellable call.
     private static func regularFileSHA256(of url: URL) throws -> String {
-        try Task.checkCancellation()
+        try InstallationActivity.checkCancellation()
         let fd = open(url.path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
         guard fd >= 0 else { throw fileError() }
         let handle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
@@ -355,11 +425,11 @@ public struct RecipeInstaller: Sendable {
         }
         var hasher = SHA256()
         while true {
-            try Task.checkCancellation()
+            try InstallationActivity.checkCancellation()
             guard let chunk = try handle.read(upToCount: 1 << 20), !chunk.isEmpty else { break }
             hasher.update(data: chunk)
         }
-        try Task.checkCancellation()
+        try InstallationActivity.checkCancellation()
         return hasher.finalize().map { String(format: "%02x", $0) }.joined()
     }
 }

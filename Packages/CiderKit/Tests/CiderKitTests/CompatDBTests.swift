@@ -20,7 +20,7 @@ import Testing
         #expect(db.profile(steamAppID: "1144400")?.actions.bottleLocale == "zh-Hans")
         #expect(db.verdict(for: key("umu-1144400")).result == .playableCaveats)
         #expect(db.verdict(for: key("umu-1144400", engine: "12")).result == .unverified)
-        #expect(db.verdict(for: key("umu-2458530")).result == .playable)
+        #expect(db.verdict(for: key("umu-2458530")).result == .playableCaveats)
         #expect(db.verdict(for: key("umu-1277930")).result == .unverified)
     }
 

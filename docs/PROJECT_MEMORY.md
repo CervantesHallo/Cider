@@ -4,6 +4,8 @@
 
 ## 用户目标与协作
 
+- **全面恢复授权（2026-10-18，检查点72）**：用户明确“隔离的代码先全面恢复吧，然后严格按照原计划推进”，解除10月14的源码隔离等待限制。全部App/Packages/Tools/engine/data/scripts/tests/CI/AGENTS与已修复快照344148a一致恢复，含A/B/C/D和52–59历史材料；不是恢复原缺陷0010。原主线备份codex/pre-full-restore-20261018保留。主线release App/CLI/Bridge已构建签名，常用UI加载另留回执；Steam已有会话保留。候选内核源码已恢复但原生Windows未验收，非默认/不自动切用户瓶子，真实预算/旧pending不改、无Windows/Actions或新定时。继续HY1→HY2→HY3→HY4/HY5。用户询问自研引擎：R v0早已本地自建、当前Steam实际用cider-cx26.3-r1-wma1-mm1；02的旧Highball状态已标历史。下一步按原02进入R v1主题队列整理/固定输入，带符号v0性能研究可继续；Engine A原P3为2027年6–8月及前置probe/entitlement门槛，不把它当R自研的开始时间。
+
 - **检查点71（2026-10-18，隔离K2源码补齐）**：0017–0020已按既有Wine kernel-object模型实现真实指定process的primary token引用/释放，manager归属与process句柄/映射身份绑定，不创建token访问句柄、不改普通DACL检查或替代宿主身份；退休0010不恢复。109项精确C模型、6个编译后破坏变体、14文件zero-fuzz重建、native/两架构模块及隔离release通过；两种真实Wine架构各420项0失败，64正常并发轮、2个明确夹具异常（到达注入点才接纳预期）、关闭child全部句柄后held token仍可查询/归还。服务/所有本批prefix进程/XPC job清理有回执；混配native对被产品spawn前拒绝，0新Wine spawn。独立复审发现核心finally/owner/close三项及夹具保活/异常/故障标记等问题均已修；早期弱证据、1114和NameError保留，不作最终通过。协议1810必须配套server/ntdll Unix/两架构PE，EnginePolicy新增精确pair但旧两组保留。详见research71和结构化证据；不宣称Windows原生契约/游戏/生产验收或整阶段完成。所有源码仍隔离，主线实现374980e、常用App/安装引擎/存档/原神下载和真实预算不变；Windows/Actions/定时0。原HY顺序/此前游戏验收保留。接续需用户既有隔离恢复范围决定及独立Windows/机时条件，不自动整包恢复或改账。通用安全提示无错误码且此次实际工具成功，不能沿用旧“K2一律禁止”说法。
 
 - **检查点70（2026-10-17，K2继续）**：用户转述新提示仅“谨慎开放网络安全”一类、无错误码。最近工具调用均成功，原始近期日志无明确新拒绝；可能产品/模型层提示，不能否定用户看到它，也不能用旧blocked-action摘要断言整个K2不能实现。官方说明承认误判；没有改Codex配置/防护或发送反馈。0017实际补释放接口PsDereferencePrimaryToken→已有ObDereferenceObject/stdcall，3个精确委托模型、32/64模块链接/真实反汇编及6文件重建通过；取得函数仍stub，K2未完成。只读自己进程公开API的两架构观察确认OpenToken(0)拒绝/Query打开成功/复制零权可行但Query仍拒绝；Wine固定测试明确零权打开应拒绝，不能删除allocator/DACL检查来凑成功。当前伪句柄解析调用方且微软禁止复制，不作目标token替代。继续沿既有真实对象引用机制研究取得接口，不重放历史被拒访问替换动作；所有游戏/门禁/原生Windows预算/隔离不变。新代码仍只在隔离分支，无物理Windows、Actions或定时。

@@ -1,0 +1,512 @@
+Subject: [candidate] preserve owned primary-token references in the Wine kernel-object model
+
+Experimental, isolated guest-compatibility implementation. Resolve only a retained
+process object already mapped by a manager owned by this address space. The
+operation holds the actual server token object; it creates no token handle,
+accepts no PID or access mask, grants no user query/adjust rights and leaves
+ordinary access checks unchanged. No host-token substitution, anti-cheat change
+or game-gate change. Not selected by recipes; native conformance is pending.
+Applies after 0018 and requires matching regenerated protocol/ntdll/server.
+
+--- a/server/device.c
++++ b/server/device.c
+@@ -89,6 +89,7 @@
+ struct device_manager
+ {
+     struct object          obj;            /* object header */
++    struct process        *owner;          /* address space owning kernel pointer mappings */
+     struct object         *sync;           /* sync object for wait/signal */
+     struct list            devices;        /* list of devices */
+     struct list            requests;       /* list of pending irps across all devices */
+@@ -124,6 +125,25 @@
+     no_close_handle,                  /* close_handle */
+     device_manager_destroy            /* destroy */
+ };
++
++
++/* Kernel pointer mappings belong to one address space. A duplicated manager
++ * handle must not mutate another process's local-reference accounting. */
++static struct device_manager *get_owned_device_manager( obj_handle_t handle )
++{
++    struct device_manager *manager;
++
++    if (!(manager = (struct device_manager *)get_handle_obj( current->process, handle,
++                                                             0, &device_manager_ops )))
++        return NULL;
++    if (manager->owner != current->process)
++    {
++        release_object( manager );
++        set_error( STATUS_ACCESS_DENIED );
++        return NULL;
++    }
++    return manager;
++}
+ 
+ 
+ /* device (a single device object) */
+@@ -834,6 +854,7 @@
+     }
+ 
+     if (manager->sync) release_object( manager->sync );
++    release_object( manager->owner );
+ }
+ 
+ static struct device_manager *create_device_manager(void)
+@@ -842,6 +863,7 @@
+ 
+     if ((manager = alloc_object( &device_manager_ops )))
+     {
++        manager->owner        = (struct process *)grab_object( current->process );
+         manager->sync         = NULL;
+         manager->current_call = NULL;
+         list_init( &manager->devices );
+@@ -909,8 +931,7 @@
+     struct device_manager *manager;
+     struct object *root = NULL;
+ 
+-    if (!(manager = (struct device_manager *)get_handle_obj( current->process, req->manager,
+-                                                             0, &device_manager_ops )))
++    if (!(manager = get_owned_device_manager( req->manager )))
+         return;
+ 
+     if (req->rootdir && !(root = get_directory_obj( current->process, req->rootdir )))
+@@ -941,8 +962,7 @@
+     struct kernel_object *ref;
+     struct device *device;
+ 
+-    if (!(manager = (struct device_manager *)get_handle_obj( current->process, req->manager,
+-                                                             0, &device_manager_ops )))
++    if (!(manager = get_owned_device_manager( req->manager )))
+         return;
+ 
+     if ((ref = kernel_object_from_ptr( manager, req->device )) && ref->object->ops == &device_ops)
+@@ -965,8 +985,7 @@
+     struct list *ptr;
+     struct iosb *iosb;
+ 
+-    if (!(manager = (struct device_manager *)get_handle_obj( current->process, req->manager,
+-                                                             0, &device_manager_ops )))
++    if (!(manager = get_owned_device_manager( req->manager )))
+         return;
+ 
+     /* process result of previous call */
+@@ -1074,8 +1093,7 @@
+     struct device_manager *manager;
+     struct object *object = NULL;
+ 
+-    if (!(manager = (struct device_manager *)get_handle_obj( current->process, req->manager,
+-                                                             0, &device_manager_ops )))
++    if (!(manager = get_owned_device_manager( req->manager )))
+         return;
+ 
+     if ((object = get_handle_obj( current->process, req->handle, 0, NULL )))
+@@ -1094,8 +1112,7 @@
+     struct device_manager *manager;
+     struct object *object = NULL;
+ 
+-    if (!(manager = (struct device_manager *)get_handle_obj( current->process, req->manager,
+-                                                             0, &device_manager_ops )))
++    if (!(manager = get_owned_device_manager( req->manager )))
+         return;
+ 
+     if (!(object = get_handle_obj( current->process, req->handle, 0, NULL )))
+@@ -1118,8 +1135,7 @@
+     struct device_manager *manager;
+     struct kernel_object *ref;
+ 
+-    if (!(manager = (struct device_manager *)get_handle_obj( current->process, req->manager,
+-                                                             0, &device_manager_ops )))
++    if (!(manager = get_owned_device_manager( req->manager )))
+         return;
+ 
+     if ((ref = kernel_object_from_ptr( manager, req->user_ptr )) && !ref->owned)
+@@ -1137,8 +1153,7 @@
+     struct device_manager *manager;
+     struct kernel_object *ref;
+ 
+-    if (!(manager = (struct device_manager *)get_handle_obj( current->process, req->manager,
+-                                                             0, &device_manager_ops )))
++    if (!(manager = get_owned_device_manager( req->manager )))
+         return;
+ 
+     if ((ref = kernel_object_from_ptr( manager, req->user_ptr )) && ref->owned)
+@@ -1158,8 +1173,7 @@
+     struct device_manager *manager;
+     struct kernel_object *ref;
+ 
+-    if (!(manager = (struct device_manager *)get_handle_obj( current->process, req->manager,
+-                                                             0, &device_manager_ops )))
++    if (!(manager = get_owned_device_manager( req->manager )))
+         return;
+ 
+     if ((ref = kernel_object_from_ptr( manager, req->user_ptr )))
+@@ -1169,3 +1183,57 @@
+ 
+     release_object( manager );
+ }
++
++/* Reference an actual primary-token object through an existing kernel-process
++ * capability. No token handle or access rights are created by this request. */
++DECL_HANDLER(reference_process_primary_token)
++{
++    struct device_manager *manager;
++    struct process *process = NULL;
++    struct token *token = NULL;
++    struct kernel_object *process_ref, *token_ref;
++
++    if (!(manager = get_owned_device_manager( req->manager )))
++        return;
++    if (!req->process_ptr || !req->candidate_ptr)
++    {
++        set_error( STATUS_INVALID_PARAMETER );
++        goto done;
++    }
++    if (!(process = get_process_from_handle( req->process, PROCESS_QUERY_LIMITED_INFORMATION )))
++        goto done;
++    process_ref = kernel_object_from_ptr( manager, req->process_ptr );
++    if (!process_ref || process_ref->object != (struct object *)process)
++    {
++        set_error( STATUS_INVALID_HANDLE );
++        goto done;
++    }
++    if (kernel_object_from_ptr( manager, req->candidate_ptr ))
++    {
++        set_error( STATUS_OBJECT_NAME_COLLISION );
++        goto done;
++    }
++    if (!(token = get_process_primary_token_reference( (struct object *)process )))
++        goto done;
++    if (!(token_ref = kernel_object_from_obj( manager, (struct object *)token )))
++    {
++        if (!(token_ref = set_kernel_object( manager, (struct object *)token, req->candidate_ptr )))
++        {
++            set_error( STATUS_NO_MEMORY );
++            goto done;
++        }
++    }
++    if (!token_ref->user_ptr)
++    {
++        set_error( STATUS_INVALID_HANDLE );
++        goto done;
++    }
++    reply->new_owned = !token_ref->owned;
++    grab_kernel_object( token_ref );
++    reply->user_ptr = token_ref->user_ptr;
++
++done:
++    if (token) release_object( token );
++    if (process) release_object( process );
++    release_object( manager );
++}
+--- a/server/protocol.def
++++ b/server/protocol.def
+@@ -4272,3 +4272,16 @@
+     data_size_t         runtime_size;   /* size of client runtime data */
+     VARARG(runtime,bytes);              /* client runtime data */
+ @END
++
++
++/* Hold the primary-token object of a validated kernel process mapping.
++ * The reply is a kernel reference, never a user token handle or access grant. */
++@REQ(reference_process_primary_token)
++    obj_handle_t  manager;       /* mapping manager, owned by the caller's address space */
++    obj_handle_t  process;       /* retained process handle with query-limited access */
++    client_ptr_t  process_ptr;   /* existing matching kernel-process mapping */
++    client_ptr_t  candidate_ptr; /* unused local token-proxy storage */
++@REPLY
++    client_ptr_t  user_ptr;      /* canonical token proxy belonging to this manager */
++    int           new_owned;    /* this operation acquired the backend owned reference */
++@END
+--- a/dlls/ntoskrnl.exe/ntoskrnl.c
++++ b/dlls/ntoskrnl.exe/ntoskrnl.c
+@@ -3506,6 +3506,144 @@
+     ObDereferenceObject( token );
+ }
+ 
++static void CALLBACK unlock_obref( BOOL normal )
++{
++    LeaveCriticalSection( &obref_cs );
++}
++
++struct primary_token_reference_context
++{
++    HANDLE process;
++    void *candidate;
++    void *result;
++    BOOL registered;
++    NTSTATUS close_status;
++};
++
++static void CALLBACK finish_primary_token_reference( BOOL normal, void *context )
++{
++    struct primary_token_reference_context *state = context;
++
++    if (state->candidate && !state->registered) free_kernel_object( state->candidate );
++    if (state->process)
++    {
++        HANDLE handle = state->process;
++        state->process = NULL;
++        __TRY
++        {
++            state->close_status = NtClose( handle );
++        }
++        __EXCEPT_ALL
++        {
++            state->close_status = GetExceptionCode();
++        }
++        __ENDTRY
++        if (state->close_status) WARN( "primary-token temporary process handle close failed: %#lx\n", state->close_status );
++    }
++    if (!normal && state->result)
++    {
++        void *token = state->result;
++        state->result = NULL;
++        ObDereferenceObject( token );
++    }
++}
++
++/***********************************************************************
++ *           PsReferencePrimaryToken  (NTOSKRNL.EXE.@)
++ */
++PACCESS_TOKEN WINAPI PsReferencePrimaryToken( PEPROCESS process )
++{
++    struct primary_token_reference_context state = {0};
++    NTSTATUS status = STATUS_SUCCESS;
++
++    if (!process) RtlRaiseStatus( STATUS_INVALID_PARAMETER );
++    __TRY
++    {
++        status = ObOpenObjectByPointer( process, 0, NULL, PROCESS_QUERY_LIMITED_INFORMATION,
++                                        PsProcessType, KernelMode, &state.process );
++        if (!status) status = alloc_kernel_object_checked( SeTokenObjectType, NULL, 0, 0, &state.candidate );
++        if (!status)
++        {
++            EnterCriticalSection( &handle_map_cs );
++            __TRY
++            {
++                EnterCriticalSection( &obref_cs );
++                __TRY
++                {
++                    void *object = NULL;
++                    BOOL new_owned = FALSE;
++                    struct object_header *header;
++
++                    SERVER_START_REQ( reference_process_primary_token )
++                    {
++                        req->manager = wine_server_obj_handle( get_device_manager() );
++                        req->process = wine_server_obj_handle( state.process );
++                        req->process_ptr = wine_server_client_ptr( process );
++                        req->candidate_ptr = wine_server_client_ptr( state.candidate );
++                        status = wine_server_call( req );
++                        if (!status)
++                        {
++                            object = wine_server_get_ptr( reply->user_ptr );
++                            new_owned = reply->new_owned;
++                        }
++                    }
++                    SERVER_END_REQ;
++                    if (!status)
++                    {
++                        state.registered = object == state.candidate;
++                        if (!object) status = STATUS_INVALID_DEVICE_STATE;
++                        else
++                        {
++                            header = (struct object_header *)object - 1;
++                            if (header->type != SeTokenObjectType) status = STATUS_OBJECT_TYPE_MISMATCH;
++                            else if (header->reference_error) status = header->reference_error;
++                            else if (header->ref < 0) status = STATUS_INVALID_PARAMETER;
++                            else if (header->ref == MAXLONG) status = STATUS_INTEGER_OVERFLOW;
++                            else if ((header->ref == 0) != !!new_owned) status = STATUS_INVALID_DEVICE_STATE;
++                            else
++                            {
++                                ++header->ref;
++                                state.result = object;
++                            }
++                            if (status && new_owned)
++                            {
++                                NTSTATUS cleanup_status;
++                                SERVER_START_REQ( release_kernel_object )
++                                {
++                                    req->manager = wine_server_obj_handle( get_device_manager() );
++                                    req->user_ptr = wine_server_client_ptr( object );
++                                    cleanup_status = wine_server_call( req );
++                                }
++                                SERVER_END_REQ;
++                                if (cleanup_status)
++                                {
++                                    if (!header->ref && !header->reference_error) header->reference_error = cleanup_status;
++                                    WARN( "primary-token reference rollback failed: %#lx\n", cleanup_status );
++                                }
++                            }
++                        }
++                    }
++                }
++                __FINALLY( unlock_obref );
++            }
++            __FINALLY_CTX( unlock_handle_map, NULL );
++        }
++    }
++    __FINALLY_CTX( finish_primary_token_reference, &state );
++    if (state.close_status)
++    {
++        if (state.result)
++        {
++            void *token = state.result;
++            state.result = NULL;
++            ObDereferenceObject( token );
++        }
++        if (!status) status = state.close_status;
++    }
++    if (status) RtlRaiseStatus( status );
++    return state.result;
++}
++
+ /***********************************************************************
+  *           PsReferenceProcessFilePointer  (NTOSKRNL.EXE.@)
+  */
+--- a/dlls/ntoskrnl.exe/ntoskrnl.exe.spec
++++ b/dlls/ntoskrnl.exe/ntoskrnl.exe.spec
+@@ -955,7 +955,7 @@
+ @ stdcall PsLookupThreadByThreadId(ptr ptr)
+ @ extern PsProcessType
+ @ stub PsReferenceImpersonationToken
+-@ stub PsReferencePrimaryToken
++@ stdcall PsReferencePrimaryToken(ptr)
+ @ stdcall PsReferenceProcessFilePointer(ptr ptr)
+ @ stdcall PsReleaseProcessExitSynchronization(ptr)
+ @ stdcall PsRemoveCreateThreadNotifyRoutine(ptr)
+--- a/include/wine/server_protocol.h
++++ b/include/wine/server_protocol.h
+@@ -6158,6 +6158,26 @@
+ struct d3dkmt_mutex_release_reply
+ {
+     struct reply_header __header;
++};
++
++
++/* Hold the primary-token object of a validated kernel process mapping.
++ * The reply is a kernel reference, never a user token handle or access grant. */
++struct reference_process_primary_token_request
++{
++    struct request_header __header;
++    obj_handle_t  manager;
++    obj_handle_t  process;
++    char __pad_20[4];
++    client_ptr_t  process_ptr;
++    client_ptr_t  candidate_ptr;
++};
++struct reference_process_primary_token_reply
++{
++    struct reply_header __header;
++    client_ptr_t  user_ptr;
++    int           new_owned;
++    char __pad_20[4];
+ };
+ 
+ 
+@@ -6469,6 +6489,7 @@
+     REQ_d3dkmt_object_open_name,
+     REQ_d3dkmt_mutex_acquire,
+     REQ_d3dkmt_mutex_release,
++    REQ_reference_process_primary_token,
+     REQ_NB_REQUESTS
+ };
+ 
+@@ -6782,6 +6803,7 @@
+     struct d3dkmt_object_open_name_request d3dkmt_object_open_name_request;
+     struct d3dkmt_mutex_acquire_request d3dkmt_mutex_acquire_request;
+     struct d3dkmt_mutex_release_request d3dkmt_mutex_release_request;
++    struct reference_process_primary_token_request reference_process_primary_token_request;
+ };
+ union generic_reply
+ {
+@@ -7093,8 +7115,9 @@
+     struct d3dkmt_object_open_name_reply d3dkmt_object_open_name_reply;
+     struct d3dkmt_mutex_acquire_reply d3dkmt_mutex_acquire_reply;
+     struct d3dkmt_mutex_release_reply d3dkmt_mutex_release_reply;
+-};
+-
+-#define SERVER_PROTOCOL_VERSION 1809
++    struct reference_process_primary_token_reply reference_process_primary_token_reply;
++};
++
++#define SERVER_PROTOCOL_VERSION 1810
+ 
+ #endif /* __WINE_WINE_SERVER_PROTOCOL_H */
+--- a/server/request_trace.h
++++ b/server/request_trace.h
+@@ -3507,6 +3507,20 @@
+     dump_uint64( ", fence_value=", &req->fence_value );
+     fprintf( stderr, ", runtime_size=%u", req->runtime_size );
+     dump_varargs_bytes( ", runtime=", cur_size );
++}
++
++static void dump_reference_process_primary_token_request( const struct reference_process_primary_token_request *req )
++{
++    fprintf( stderr, " manager=%04x", req->manager );
++    fprintf( stderr, ", process=%04x", req->process );
++    dump_uint64( ", process_ptr=", &req->process_ptr );
++    dump_uint64( ", candidate_ptr=", &req->candidate_ptr );
++}
++
++static void dump_reference_process_primary_token_reply( const struct reference_process_primary_token_reply *req )
++{
++    dump_uint64( " user_ptr=", &req->user_ptr );
++    fprintf( stderr, ", new_owned=%d", req->new_owned );
+ }
+ 
+ typedef void (*dump_func)( const void *req );
+@@ -3819,6 +3833,7 @@
+     (dump_func)dump_d3dkmt_object_open_name_request,
+     (dump_func)dump_d3dkmt_mutex_acquire_request,
+     (dump_func)dump_d3dkmt_mutex_release_request,
++    (dump_func)dump_reference_process_primary_token_request,
+ };
+ 
+ static const dump_func reply_dumpers[REQ_NB_REQUESTS] =
+@@ -4129,6 +4144,7 @@
+     (dump_func)dump_d3dkmt_object_open_name_reply,
+     (dump_func)dump_d3dkmt_mutex_acquire_reply,
+     NULL,
++    (dump_func)dump_reference_process_primary_token_reply,
+ };
+ 
+ static const char * const req_names[REQ_NB_REQUESTS] =
+@@ -4439,6 +4455,7 @@
+     "d3dkmt_object_open_name",
+     "d3dkmt_mutex_acquire",
+     "d3dkmt_mutex_release",
++    "reference_process_primary_token",
+ };
+ 
+ static const struct
+--- a/server/request_handlers.h
++++ b/server/request_handlers.h
+@@ -313,6 +313,7 @@
+ DECL_HANDLER(d3dkmt_object_open_name);
+ DECL_HANDLER(d3dkmt_mutex_acquire);
+ DECL_HANDLER(d3dkmt_mutex_release);
++DECL_HANDLER(reference_process_primary_token);
+ 
+ typedef void (*req_handler)( const void *req, void *reply );
+ static const req_handler req_handlers[REQ_NB_REQUESTS] =
+@@ -623,6 +624,7 @@
+     (req_handler)req_d3dkmt_object_open_name,
+     (req_handler)req_d3dkmt_mutex_acquire,
+     (req_handler)req_d3dkmt_mutex_release,
++    (req_handler)req_reference_process_primary_token,
+ };
+ 
+ C_ASSERT( sizeof(abstime_t) == 8 );
+@@ -2374,3 +2376,11 @@
+ C_ASSERT( offsetof(struct d3dkmt_mutex_release_request, fence_value) == 24 );
+ C_ASSERT( offsetof(struct d3dkmt_mutex_release_request, runtime_size) == 32 );
+ C_ASSERT( sizeof(struct d3dkmt_mutex_release_request) == 40 );
++C_ASSERT( offsetof(struct reference_process_primary_token_request, manager) == 12 );
++C_ASSERT( offsetof(struct reference_process_primary_token_request, process) == 16 );
++C_ASSERT( offsetof(struct reference_process_primary_token_request, process_ptr) == 24 );
++C_ASSERT( offsetof(struct reference_process_primary_token_request, candidate_ptr) == 32 );
++C_ASSERT( sizeof(struct reference_process_primary_token_request) == 40 );
++C_ASSERT( offsetof(struct reference_process_primary_token_reply, user_ptr) == 8 );
++C_ASSERT( offsetof(struct reference_process_primary_token_reply, new_owned) == 16 );
++C_ASSERT( sizeof(struct reference_process_primary_token_reply) == 24 );

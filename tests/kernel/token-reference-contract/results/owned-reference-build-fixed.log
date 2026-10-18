@@ -1,0 +1,88 @@
+clang -arch x86_64 -m64 -c -o server/device.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server/device.c \
+  -Iserver -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/server \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -D__WINESRC__ -DWINE_UNIX_LIB -Wall -pipe -fcf-protection=none -fvisibility=hidden \
+  -fno-stack-protector -fno-strict-aliasing -Wdeclaration-after-statement -Wempty-body \
+  -Wignored-qualifiers -Winit-self -Wpointer-arith -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -gdwarf-4 \
+  -I/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/include -g -O2 -DIS_WOW64_BUILD -U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=0
+i686-w64-mingw32-gcc -c -o dlls/ntoskrnl.exe/i386-windows/ntoskrnl.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.c \
+  -Idlls/ntoskrnl.exe \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include/msvcrt \
+  -D_MSVCR_VER=0 -D__WINESRC__ -D__WINE_PE_BUILD -Wall -fno-strict-aliasing \
+  -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wno-packed-not-aligned -Wshift-overflow=2 -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -Wpointer-arith -Wlogical-op -Wabsolute-value \
+  -ffunction-sections -Wno-misleading-indentation -fno-omit-frame-pointer \
+  -mpreferred-stack-boundary=2 -gdwarf-4 -g -O2 -Wno-incompatible-pointer-types
+i686-w64-mingw32-gcc -c -o dlls/ntoskrnl.exe/i386-windows/sync.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/sync.c \
+  -Idlls/ntoskrnl.exe \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include/msvcrt \
+  -D_MSVCR_VER=0 -D__WINESRC__ -D__WINE_PE_BUILD -Wall -fno-strict-aliasing \
+  -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wno-packed-not-aligned -Wshift-overflow=2 -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -Wpointer-arith -Wlogical-op -Wabsolute-value \
+  -ffunction-sections -Wno-misleading-indentation -fno-omit-frame-pointer \
+  -mpreferred-stack-boundary=2 -gdwarf-4 -g -O2 -Wno-incompatible-pointer-types
+x86_64-w64-mingw32-gcc -c -o dlls/ntoskrnl.exe/x86_64-windows/ntoskrnl.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.c \
+  -Idlls/ntoskrnl.exe \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include/msvcrt \
+  -D_MSVCR_VER=0 -D__WINESRC__ -D__WINE_PE_BUILD -Wall -fno-strict-aliasing \
+  -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wno-packed-not-aligned -Wshift-overflow=2 -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -Wpointer-arith -Wlogical-op -Wabsolute-value \
+  -ffunction-sections -Wno-misleading-indentation -Wformat-overflow -Wnonnull -mcx16 -mcmodel=small \
+  -gdwarf-4 -g -O2 -Wno-incompatible-pointer-types
+x86_64-w64-mingw32-gcc -c -o dlls/ntoskrnl.exe/x86_64-windows/sync.o /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/sync.c \
+  -Idlls/ntoskrnl.exe \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe \
+  -Iinclude -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include \
+  -I/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/include/msvcrt \
+  -D_MSVCR_VER=0 -D__WINESRC__ -D__WINE_PE_BUILD -Wall -fno-strict-aliasing \
+  -Wdeclaration-after-statement -Wempty-body -Wignored-qualifiers -Winit-self \
+  -Wno-packed-not-aligned -Wshift-overflow=2 -Wstrict-prototypes -Wtype-limits \
+  -Wunused-but-set-parameter -Wvla -Wwrite-strings -Wpointer-arith -Wlogical-op -Wabsolute-value \
+  -ffunction-sections -Wno-misleading-indentation -Wformat-overflow -Wnonnull -mcx16 -mcmodel=small \
+  -gdwarf-4 -g -O2 -Wno-incompatible-pointer-types
+clang -arch x86_64 -m64 -o server/wineserver server/async.o server/atom.o server/change.o server/class.o server/clipboard.o \
+  server/completion.o server/console.o server/d3dkmt.o server/debugger.o server/device.o \
+  server/directory.o server/event.o server/fd.o server/file.o server/msync.o server/handle.o \
+  server/hook.o server/inproc_sync.o server/mach.o server/mailslot.o server/main.o server/mapping.o \
+  server/mutex.o server/named_pipe.o server/object.o server/process.o server/procfs.o \
+  server/ptrace.o server/queue.o server/region.o server/registry.o server/request.o \
+  server/semaphore.o server/serial.o server/signal.o server/sock.o server/symlink.o server/thread.o \
+  server/timer.o server/token.o server/trace.o server/unicode.o server/user.o server/window.o \
+  server/winstation.o -L/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/lib -Wl,-rpath,@loader_path/../../../../frameworks -Wl,-rpath,@loader_path/../../frameworks -Wl,-rpath,@loader_path/../../../frameworks -Wl,-rpath,/Library/Frameworks/GStreamer.framework/Versions/1.0/lib
+clang -arch x86_64 -m64 -o dlls/ntdll/ntdll.so -dynamiclib -install_name @rpath/ntdll.so -Wl,-rpath,@loader_path\/ \
+  dlls/ntdll/unix/cdrom.o dlls/ntdll/unix/debug.o dlls/ntdll/unix/env.o dlls/ntdll/unix/file.o \
+  dlls/ntdll/unix/msync.o dlls/ntdll/unix/loader.o dlls/ntdll/unix/loadorder.o \
+  dlls/ntdll/unix/process.o dlls/ntdll/unix/registry.o dlls/ntdll/unix/security.o \
+  dlls/ntdll/unix/serial.o dlls/ntdll/unix/server.o dlls/ntdll/unix/signal_arm.o \
+  dlls/ntdll/unix/signal_arm64.o dlls/ntdll/unix/signal_i386.o dlls/ntdll/unix/signal_x86_64.o \
+  dlls/ntdll/unix/socket.o dlls/ntdll/unix/sync.o dlls/ntdll/unix/system.o dlls/ntdll/unix/tape.o \
+  dlls/ntdll/unix/thread.o dlls/ntdll/unix/virtual.o dlls/ntdll/unix/version.o -framework IOKit \
+  -framework CoreFoundation -framework CoreFoundation -framework CoreServices -L/Users/cervantes/Library/Caches/Cider/toolchain/x86_64/lib -Wl,-rpath,@loader_path/../../../../frameworks -Wl,-rpath,@loader_path/../../frameworks -Wl,-rpath,@loader_path/../../../frameworks -Wl,-rpath,/Library/Frameworks/GStreamer.framework/Versions/1.0/lib
+tools/winegcc/winegcc -o dlls/ntoskrnl.exe/i386-windows/ntoskrnl.exe --wine-objdir . -b i686-w64-mingw32 -Wl,--wine-builtin -shared \
+  /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.exe.spec \
+  dlls/ntoskrnl.exe/i386-windows/instr.o dlls/ntoskrnl.exe/i386-windows/ntoskrnl.o \
+  dlls/ntoskrnl.exe/i386-windows/pnp.o dlls/ntoskrnl.exe/i386-windows/sync.o \
+  dlls/ntoskrnl.exe/i386-windows/plugplay_c.o dlls/ntoskrnl.exe/ntoskrnl.res \
+  dlls/advapi32/i386-windows/libadvapi32.a dlls/hal/i386-windows/libhal.a \
+  dlls/rpcrt4/i386-windows/librpcrt4.delay.a dlls/setupapi/i386-windows/libsetupapi.delay.a \
+  dlls/winecrt0/i386-windows/libwinecrt0.a dlls/msvcrt/i386-windows/libmsvcrt.a \
+  dlls/kernel32/i386-windows/libkernel32.a dlls/ntdll/i386-windows/libntdll.a -Wl,--disable-stdcall-fixup
+tools/winegcc/winegcc -o dlls/ntoskrnl.exe/x86_64-windows/ntoskrnl.exe --wine-objdir . -b x86_64-w64-mingw32 -Wl,--wine-builtin -shared \
+  /Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/kernel-remediation/src/dlls/ntoskrnl.exe/ntoskrnl.exe.spec \
+  dlls/ntoskrnl.exe/x86_64-windows/instr.o dlls/ntoskrnl.exe/x86_64-windows/ntoskrnl.o \
+  dlls/ntoskrnl.exe/x86_64-windows/pnp.o dlls/ntoskrnl.exe/x86_64-windows/sync.o \
+  dlls/ntoskrnl.exe/x86_64-windows/plugplay_c.o dlls/ntoskrnl.exe/ntoskrnl.res \
+  dlls/advapi32/x86_64-windows/libadvapi32.a dlls/hal/x86_64-windows/libhal.a \
+  dlls/rpcrt4/x86_64-windows/librpcrt4.delay.a dlls/setupapi/x86_64-windows/libsetupapi.delay.a \
+  dlls/winecrt0/x86_64-windows/libwinecrt0.a dlls/msvcrt/x86_64-windows/libmsvcrt.a \
+  dlls/kernel32/x86_64-windows/libkernel32.a dlls/ntdll/x86_64-windows/libntdll.a 

@@ -70,4 +70,63 @@ public enum Spawn {
         let signal = status & 0x7f
         return signal == 0 ? (status >> 8) & 0xff : 128 + signal
     }
+
+    /// A CLI can abandon observation while its program continues. Only this waiter owns
+    /// waitpid for the child; after detachment a shared nonblocking reaper takes over.
+    public static func wait(_ pid: pid_t, observation: CommandObservation?) throws -> Int32 {
+        guard let observation else { return wait(pid) }
+        while true {
+            var status: Int32 = 0
+            let result = waitpid(pid, &status, WNOHANG)
+            if result == pid {
+                let signal = status & 0x7f
+                return signal == 0 ? (status >> 8) & 0xff : 128 + signal
+            }
+            if result < 0 {
+                if errno == EINTR { continue }
+                return -1
+            }
+            if observation.isDetached {
+                DetachedChildren.shared.adopt(pid)
+                throw CommandObserverDetached()
+            }
+            usleep(50_000)
+        }
+    }
+
+    /// Read-only synchronization point for owned-child regression checks. A process
+    /// disappearing from proc_pidinfo alone does not prove waitpid has reaped it.
+    static func isAwaitingDetachedReap(_ pid: pid_t) -> Bool { DetachedChildren.shared.contains(pid) }
+}
+
+/// No blocked thread per abandoned command. The timer exists only while an owned
+/// child still needs reaping; it sends no signals and never waits for unrelated PIDs.
+private final class DetachedChildren: @unchecked Sendable {
+    static let shared = DetachedChildren()
+    private let queue = DispatchQueue(label: "org.cider.detached-child-reaper", qos: .utility)
+    private var children = Set<pid_t>()
+    private var timer: DispatchSourceTimer?
+
+    func contains(_ pid: pid_t) -> Bool { queue.sync { children.contains(pid) } }
+
+    func adopt(_ pid: pid_t) {
+        queue.async { [self] in
+            self.children.insert(pid)
+            guard self.timer == nil else { return }
+            let timer = DispatchSource.makeTimerSource(queue: self.queue)
+            timer.schedule(deadline: .now(), repeating: .milliseconds(200), leeway: .milliseconds(20))
+            timer.setEventHandler { [weak self] in self?.reap() }
+            self.timer = timer
+            timer.resume()
+        }
+    }
+
+    private func reap() {
+        for pid in children {
+            var status: Int32 = 0
+            let result = waitpid(pid, &status, WNOHANG)
+            if result == pid || (result < 0 && errno == ECHILD) { children.remove(pid) }
+        }
+        if children.isEmpty { timer?.cancel(); timer = nil }
+    }
 }

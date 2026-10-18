@@ -1,0 +1,136 @@
+{
+  "schema": "cider.product-runtime-acceptance/v1",
+  "startedUTC": "2026-10-16T13:53:56.849084Z",
+  "owner": {
+    "schema": "cider.runtime-acceptance/v1",
+    "root": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f",
+    "source_commit": "bb096da",
+    "source_app": "/Users/cervantes/.codex/worktrees/quarantine-fixes-20261014/Cider/out/Cider.app",
+    "app": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+    "home": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home",
+    "ownership": "Only this test root is writable by this controller",
+    "protected": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "engine_source": "/Users/cervantes/Library/Application Support/Cider/Engines/cider-cx26.3-r1-wma1-mm1-x86_64",
+    "engine_copy": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-x86_64",
+    "engine_id": "cider-cx26.3-r1-wma1-mm2-x86_64",
+    "working_changes": "ProcessScanner exact-prefix scope, AppModel scope and ps scope",
+    "candidateSHA256": "1d19d80cfb9bb1a1579d4713dfc1fb817c8510d02c8cc1d175480d4e1f037422",
+    "sourceHashes": {
+      "Packages/CiderKit/Sources/CiderRuntime/ProcessScanner.swift": "52afd0f42af1d179881f78c270fa378e19aaaf0ca38e3f92d2f555e60016d216",
+      "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift": "7c3a329bd61a9010ffbf91a19bbf491d55939ceb2bd8a6af8e06ed2d0af5487e",
+      "App/Sources/Cider/Model/AppModel.swift": "784c6489db3e8e4311f1b9daea89e37fe7710fb9d8f649a93a861e2f36a01fb4",
+      "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "525c76e59383bdba6a97cb53ead475a55a088b4fdb432768d3b8f874d82a3677"
+    },
+    "engine_patch": "0014"
+  },
+  "cases": [
+    {
+      "name": "product.cli_launches_real_gui",
+      "passed": true,
+      "seconds": 3.6512693329999997,
+      "evidence": {
+        "stdout": "cider-cx26.3-r1-wma1-mm2-x86_64\twine-11.0\tdevel\n",
+        "gui": [
+          {
+            "bundle": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/Cider.app",
+            "pid": 28503,
+            "terminated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "product.reuse_empty_prefix",
+      "passed": true,
+      "seconds": 0.0006594579999998906,
+      "evidence": {
+        "reusedOnlyThisOwnedEmptyPrefix": true,
+        "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293"
+      }
+    },
+    {
+      "name": "product.win32_window_and_audio_output",
+      "passed": true,
+      "seconds": 23.944490375,
+      "evidence": {
+        "program": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/window-audio.exe",
+        "nativePID": 28519,
+        "nativeOwnedWindows": [
+          {
+            "bounds": {
+              "Height": 348,
+              "Width": 620,
+              "X": 170,
+              "Y": 165
+            },
+            "layer": 0,
+            "onscreen": null,
+            "ownerPID": 28519,
+            "windowID": 41598
+          }
+        ],
+        "win32Paint": {
+          "kind": "window-result",
+          "paintCount": 40,
+          "timerCount": 40,
+          "surfacePixelMatches": 40
+        },
+        "loadedModule": {
+          "kind": "winmm-module",
+          "candidateModuleLoaded": true
+        },
+        "silentOutputBuffer": {
+          "kind": "audio-result",
+          "openCode": 0,
+          "prepareCode": 0,
+          "writeCode": 0,
+          "bufferCompleted": true,
+          "unprepareCode": 0,
+          "closeCode": 0
+        },
+        "cliExitCode": 0,
+        "noMicrophoneOrCameraRequested": true
+      }
+    }
+  ],
+  "windowsOperations": 0,
+  "clients": [],
+  "guiPID": 28503,
+  "bottleID": "runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293",
+  "prefix": "/Users/cervantes/Cider/out/runtime-acceptance-20261016-84kr3z6f/private-home/AppSupport/Bottles/runtime-acceptance-13ea0e00-20e5-49c5-bdfb-8b61bcc5a293/prefix",
+  "cleanupKill": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": ""
+  },
+  "cleanupGUI": {
+    "exitCode": 0,
+    "result": "[{\"bundle\":\"\\/Users\\/cervantes\\/Cider\\/out\\/runtime-acceptance-20261016-84kr3z6f\\/Cider.app\",\"pid\":28503,\"terminated\":true}]",
+    "stderr": ""
+  },
+  "launchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "cleanup": {
+    "jobs": [
+      {
+        "label": "org.cider.ipc.9909ac4ce959abd387518fd5",
+        "bootoutCode": 0,
+        "absent": true
+      }
+    ],
+    "liveProcesses": [],
+    "errors": [],
+    "passed": true,
+    "protectedSHA256": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    }
+  },
+  "passed": true,
+  "finishedUTC": "2026-10-16T13:54:25.895879Z"
+}

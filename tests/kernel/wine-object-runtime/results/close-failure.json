@@ -1,0 +1,19 @@
+{
+  "scope": "exact C body, mocked allocation/dispatch, ASan/UBSan; not native Windows",
+  "cases": [
+    {
+      "source": "repaired",
+      "extractedSHA256": "09f27408308f66f68540a944f880e034ff672c24c148e7832ff67bd4562f71c0",
+      "exitCode": 0,
+      "stdout": "PASS: allocation failure, normal dispatch, null file; borrowed local ref remains zero",
+      "oldUnmatchedDereferenceReproduced": false
+    },
+    {
+      "source": "old",
+      "extractedSHA256": "66edaf605dca368999ffa5d4b2434a45a64a547c721f15d78cd974330d0ebbdd",
+      "exitCode": -6,
+      "stdout": "",
+      "oldUnmatchedDereferenceReproduced": true
+    }
+  ]
+}

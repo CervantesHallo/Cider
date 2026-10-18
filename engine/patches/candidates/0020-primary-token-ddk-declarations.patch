@@ -1,0 +1,18 @@
+Subject: [candidate] declare primary-token reference pair in the public DDK header
+
+Matches the implemented WINAPI exports in 0017/0019; no behavior change.
+
+--- a/include/ddk/ntifs.h
++++ b/include/ddk/ntifs.h
+@@ -210,9 +210,11 @@
+ void WINAPI KeUnstackDetachProcess(KAPC_STATE*);
+ NTSTATUS WINAPI ObOpenObjectByPointer(void*,ULONG,PACCESS_STATE,ACCESS_MASK,POBJECT_TYPE,KPROCESSOR_MODE,HANDLE*);
+ NTSTATUS WINAPI ObQueryNameString(PVOID,POBJECT_NAME_INFORMATION,ULONG,PULONG);
++void WINAPI PsDereferencePrimaryToken(PACCESS_TOKEN);
+ BOOLEAN WINAPI PsIsSystemThread(PETHREAD);
+ NTSTATUS WINAPI PsLookupProcessByProcessId(HANDLE,PEPROCESS*);
+ NTSTATUS WINAPI PsLookupThreadByThreadId(HANDLE,PETHREAD*);
++PACCESS_TOKEN WINAPI PsReferencePrimaryToken(PEPROCESS);
+ void WINAPI PsRevertToSelf(void);
+ char WINAPI RtlQueryProcessPlaceholderCompatibilityMode(void);
+ 

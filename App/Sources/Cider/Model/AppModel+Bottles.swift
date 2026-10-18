@@ -280,6 +280,12 @@ extension AppModel {
             message = "这个瓶子的操作正在进行，请稍候。"
             return
         }
+        let existingActivity: RecipeInstaller.Activity?
+        do {
+            existingActivity = try bottleID.map {
+                try RecipeInstaller.beginActivity(in: BottleStore(paths: paths, compat: db).bottle($0))
+            }
+        } catch { message = "准备安装失败：\(error)"; return }
         if let activityKey { busy.insert(activityKey) }
         busy.insert("recipe:\(recipe.id)")
         message = "正在准备安装 \(recipe.title())…"
@@ -292,54 +298,76 @@ extension AppModel {
                 if let workerBottleID {
                     if recipeWorkers[workerBottleID]?.owner == owner {
                         recipeWorkers.removeValue(forKey: workerBottleID)
-                        if let heldActivityKey { busy.remove(heldActivityKey) }
+                        if let heldActivityKey, !busy.contains("stop-bottle:\(workerBottleID)") { busy.remove(heldActivityKey) }
                     } else if recipeWorkers[workerBottleID] != nil {
                         recipeWorkers[workerBottleID]?.completed = true
                     }
-                } else if let heldActivityKey { busy.remove(heldActivityKey) }
+                } else if let heldActivityKey, bottleID.map({ busy.contains("stop-bottle:\($0)") }) != true { busy.remove(heldActivityKey) }
             }
             do {
-                let target = try await Task.detached { () -> Bottle in
+                let prepared = try await Task.detached { () -> (Bottle, RecipeInstaller.Activity) in
                     let store = BottleStore(paths: paths, compat: db)
-                    return try bottleID.map { try store.bottle($0) } ?? store.create(
+                    if let bottleID, let existingActivity {
+                        try existingActivity.checkCancellation()
+                        return (try store.bottle(bottleID), existingActivity)
+                    }
+                    let created = try BottlePreparation.create(store: store,
                         name: recipe.bottle?.name ?? recipe.title(),
                         locale: recipe.bottle?.locale.flatMap(BottleLocale.named) ?? .simplifiedChinese,
                         createdBy: "Cider.app recipe \(recipe.id)")
+                    return (created.bottle, created.activity)
                 }.value
-                if heldActivityKey == nil {
-                    let key = "activity:\(target.config.id)"
-                    guard !busy.contains(key) else { throw CiderError.invalid("新瓶子的另一项操作已开始，请稍后重新安装。") }
-                    busy.insert(key)
-                    heldActivityKey = key
-                }
-                let worker = Task.detached { () throws -> Bottle in
-                    let store = BottleStore(paths: paths, compat: db)
-                    try RecipeInstaller(store: store, db: db).install(recipe.id, in: target) { step in
-                        guard !Task.isCancelled else { return }
-                        Task { @MainActor in
-                            guard self.recipeWorkers[target.config.id]?.owner == owner else { return }
-                            self.message = step
-                        }
+                let (target, activity) = prepared
+                do {
+                    try activity.checkCancellation()
+                    if heldActivityKey == nil {
+                        let key = "activity:\(target.config.id)"
+                        guard !busy.contains(key) else { throw CiderError.invalid("新瓶子的另一项操作已开始，请稍后重新安装。") }
+                        busy.insert(key)
+                        heldActivityKey = key
                     }
-                    return target
-                }
-                workerBottleID = target.config.id
-                recipeWorkers[target.config.id] = (owner, worker, false)
-                let bottle = try await worker.value
-                guard !worker.isCancelled else { throw CancellationError() }
-                message = "\(recipe.title()) 已安装到瓶子“\(bottle.config.name)”。"
-                await refresh()
-                guard !worker.isCancelled, recipeWorkers[target.config.id]?.owner == owner else { throw CancellationError() }
-                recipeWorkers.removeValue(forKey: target.config.id)
-                workerBottleID = nil
-                // Hand ownership to the launch action without its lock being removed by this task's defer.
-                if let held = heldActivityKey { busy.remove(held); heldActivityKey = nil }
-                if let program = recipe.launch, let item = items.first(where: {
-                    $0.bottleID == bottle.config.id && $0.launchProgram.caseInsensitiveCompare(program) == .orderedSame
-                }) {
-                    launch(item)
+                    let worker = Task.detached { () throws -> (Bottle, RecipeInstaller.Result) in
+                        let store = BottleStore(paths: paths, compat: db)
+                        let outcome = try activity.performing {
+                            try RecipeInstaller(store: store, db: db).install(recipe.id, in: target) { step in
+                                guard !Task.isCancelled else { return }
+                                Task { @MainActor in
+                                    guard self.recipeWorkers[target.config.id]?.owner == owner else { return }
+                                    self.message = step
+                                }
+                            }
+                        }
+                        return (target, outcome)
+                    }
+                    workerBottleID = target.config.id
+                    recipeWorkers[target.config.id] = (owner, worker, false)
+                    let (bottle, outcome) = try await worker.value
+                    try activity.checkCancellation()
+                    guard !worker.isCancelled else { throw CancellationError() }
+                    message = outcome.requiresRestart
+                        ? "\(recipe.title()) 已安装到瓶子“\(bottle.config.name)”，请重启瓶子后再打开。"
+                        : "\(recipe.title()) 已安装到瓶子“\(bottle.config.name)”。"
+                    await refresh()
+                    try activity.checkCancellation()
+                    guard !worker.isCancelled, recipeWorkers[target.config.id]?.owner == owner else { throw CancellationError() }
+                    // Hand ownership to the launch action without its lock being removed by this task's defer.
+                    if let held = heldActivityKey { busy.remove(held); heldActivityKey = nil }
+                    if !outcome.requiresRestart, let program = recipe.launch, let item = items.first(where: {
+                        $0.bottleID == bottle.config.id && $0.launchProgram.caseInsensitiveCompare(program) == .orderedSame
+                    }) {
+                        if let task = launch(item, checking: { try activity.checkCancellation() }) { await task.value }
+                    }
+                    try activity.checkCancellation()
+                    guard recipeWorkers[target.config.id]?.owner == owner else { throw CancellationError() }
+                    recipeWorkers.removeValue(forKey: target.config.id)
+                    workerBottleID = nil
+                    try activity.finish()
+                } catch {
+                    try? activity.finish(error: error)
+                    throw error
                 }
             } catch {
+                try? existingActivity?.finish(error: error)
                 if workerBottleID.map({ recipeWorkers[$0]?.owner == owner }) ?? true {
                     message = error is CancellationError ? "安装已取消。" : "安装 \(recipe.title()) 失败：\(error)"
                 }
@@ -370,18 +398,25 @@ extension AppModel {
     /// in a Chinese bottle often show mojibake or fail).
     func installIntoNewBottle(_ url: URL, locale: BottleLocale, name: String) {
         let paths = self.paths
+        guard !busy.contains("install") else { message = "另一个安装操作正在进行，请稍候。"; return }
         busy.insert("install")
         message = "正在新建瓶子“\(name)”（\(locale.displayName)）…"
         Task {
+            var holdsInstall = true
+            defer { if holdsInstall { busy.remove("install") } }
             do {
-                let bottle = try await Task.detached {
-                    try BottleStore(paths: paths).create(name: name, locale: locale, createdBy: "Cider.app installer")
+                let prepared = try await Task.detached {
+                    try BottlePreparation.create(store: BottleStore(paths: paths), name: name, locale: locale, createdBy: "Cider.app installer")
                 }.value
-                busy.remove("install")
-                await refresh()
-                runInstaller(url, in: bottle.config.id)
+                do {
+                    await refresh()
+                    try prepared.activity.checkCancellation()
+                    busy.remove("install")
+                    let task = try runInstallerTask(url, in: prepared.bottle, activity: prepared.activity)
+                    holdsInstall = false
+                    try await task.value
+                } catch { try? prepared.activity.finish(error: error); throw error }
             } catch {
-                busy.remove("install")
                 message = "新建瓶子失败：\(error)"
             }
         }
@@ -450,9 +485,9 @@ extension AppModel {
         }
     }
 
-    /// The engine index shipped with the app (data/engines/index.json).
+    /// The shared index location, including an explicit CIDER_DATA override.
     var engineIndex: EngineIndex? {
-        Bundle.main.resourceURL.flatMap { EngineIndex.load(from: $0.appendingPathComponent("data/engines/index.json")) }
+        CiderResources().engineIndexURL().flatMap { EngineIndex.load(from: $0) }
     }
 
     /// Downloads, verifies and installs an engine from the index, reporting progress in `engineDownloadProgress`.

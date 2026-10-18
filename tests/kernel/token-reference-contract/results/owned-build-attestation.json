@@ -1,0 +1,20 @@
+{
+  "schema": "cider.owned-reference-build/v1",
+  "scope": "local source/build attestation, runtime not yet verified",
+  "unchangedPolicyAndAccessSources": {
+    "dlls/ntdll/unix/process.c": "24feed54e541336f5e86a843b16c5d51c1f124b692d751f772e809458e1b097b",
+    "server/handle.c": "e7203d62046bf2188902ae742cc8a590b9f4344c6c3b29b43d420d969add57f6",
+    "server/token.c": "e50dbadfd28a8d01b5cf258912c5162085ee8d7640cc93fb241e5465c662d0a5",
+    "server/security.h": "ded71616b01527dc23826cac16f29ca4be925838f6a28bb28cddd7fb53aa656d",
+    "dlls/ntdll/unix/security.c": "b5d9eecd34d620c992675ae88b4bc5ba8981bb0b70327d0139605f0f569b611c"
+  },
+  "modules": {
+    "server/wineserver": "a3d006b5b8a70fc3a833f6876ce8feacdd3d25e43c49533d67b3cc29c27ae4c2",
+    "dlls/ntdll/ntdll.so": "146c27ac1932ff413fc986991fcf02ef9f1da264897e1fc393a1a764e3654a64",
+    "dlls/ntdll/x86_64-windows/ntdll.dll": "fed0f5f26aa17df324c0e8e044d2b349de455dc2ba5205c4e010429b11fc6fde",
+    "dlls/ntdll/i386-windows/ntdll.dll": "b3644b9b747ea403533cdc674921422192faaef199fb84017e3ead5e4a212ac2",
+    "dlls/ntoskrnl.exe/x86_64-windows/ntoskrnl.exe": "9f8fdaf70e632c682e30201c734765908477d7bfa20f00ef27bd77419213d45a",
+    "dlls/ntoskrnl.exe/i386-windows/ntoskrnl.exe": "635de6ab82521a83e9a88742c1405828aa69703368fdfd572199e5bb17ad8509"
+  },
+  "protocol": 1810
+}

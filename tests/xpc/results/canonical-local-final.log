@@ -1,0 +1,13 @@
+warning: '--skip-update' option is deprecated and will be removed in a future release
+Building for debugging...
+[Computing dependencies]
+[Using on-disk description]
+Build complete! (0.53秒)
+◇ Test run started.
+↳ Testing Library Version: 2084
+↳ Target Platform: arm64e-apple-macos14.0
+◇ Suite FixtureLocalTests started.
+◇ Test canonicalRootAndServiceLabelSurviveMissingDirectoryCreation() started.
+✔ Test canonicalRootAndServiceLabelSurviveMissingDirectoryCreation() passed after 0.006 seconds.
+✔ Suite FixtureLocalTests passed after 0.006 seconds.
+✔ Test run with 1 test in 1 suite passed after 0.006 seconds.

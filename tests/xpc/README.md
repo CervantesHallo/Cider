@@ -1,0 +1,23 @@
+# Native XPC fixture
+
+Run `python3 tests/xpc/run_native.py` from the checkout. Use `--list` to list cases without building or registering a service. Repeat `--filter 'native.input.*'` to select a union of case-name globs; the JSON evidence preserves the filters, skipped cases, and actual native case count. `--output /absolute/path.json` chooses the evidence file.
+
+The Swift package links the current public CiderIPC and CiderCommands libraries. The runner copies its three executables into a temporary app, signs them ad hoc with hardened runtime, verifies the complete bundle, and registers the real RPCLocation launchd job for a private CiderPaths root. The client uses RPCClient; the broker uses RPCBroker; the Foundation host uses RPCGUIHost and an allowlist of readonly engine/bottle commands plus synthetic output and blocking commands. Foundation.Process launches the host. No NSWorkspace, AppKit GUI, Wine, Windows, product prefixes, or authentication overrides are involved.
+
+Malformed-input cases use the real RPCClientProtocol over an authenticated NSXPCConnection so the broker's wire validation receives the malformed bytes. Production client validation remains intact. Peer rejection uses the host executable against the client service, and the client executable against the host service with an empty host slot. All three components retain their real mutual code requirements.
+
+The long-output case checks more than 1 MiB of exact stdout bytes and matching SHA256 values. Duplicate and disconnect cases also inspect an independent host admission log. Native client process exit codes must match the RPC result. A disconnected admitted command must return unknown, execute only once, and remain unreplayed when a replacement host connects.
+
+The broker-crash case kills only its recorded broker, keeps the host and an admitted fixture wait alive, and requires the same host to reconnect to a replacement launchd broker. It records RPCClient's actual unknown-outcome transport error and process exit 75, then submits a fresh request ID while the original wait remains live. After the original wait receives an explicit fixture release and confirms completion, its UUID is intentionally resubmitted to verify the GUI tombstone rejects it. The independent original admission count must remain one.
+
+The reserved-control case holds all eight ordinary workers, then submits `kill -b fixture`. This must reach FixtureExecutor within two seconds and return its explicit completed/64 rejection; that executor's allowlist prevents any Wine call. All eight waits are explicitly released afterward. The retained-ID case uses a bounded client burst in one process to complete 257 intervening native admissions, then verifies the original UUID is still rejected.
+
+The slow-reader case delays its first console ACK for six seconds and checks complete stdout/stderr. The initial-start case retains a new host and calls public `start()` while its launchd service is absent, registers the service later, and requires that same host to connect without restarting.
+
+## Actual packaged CLI cold launch
+
+`python3 tests/xpc/run_packaged_cli.py` is a separate two-case native run. It copies the actual current `out/Cider.app` CLI and bridge bytes into a uniquely identified, ad hoc signed app with hardened runtime. The host is the limited AppKit `FixtureAppHost` target, with LSUIElement and no windows. The actual CLI performs NSWorkspace cold launch into that fixture's NSApplication delegate, then a second real CLI process checks the warm route uses the same host/broker. No product GUI is launched. This runner requires production binaries newer than the current IPC source and records their original hashes before fixture signing.
+
+The fixture refuses to start unless its explicit CIDER_HOME contains the ownership marker. Only readonly engine/bottle lists can execute. Independent execution receipts identify the host PID; the runner labels that evidence separately from fields printed by the real CLI. The missing-root canonicalization regression is a separate local public-API test: `swift test --package-path tests/xpc/Fixture --filter FixtureLocalTests`. It contributes no native XPC case count.
+
+Every run unregisters only its derived launchd label, then checks both launchd registration and the recorded host/broker PIDs. Only recorded children whose executable resolves to the fixture app may be signaled. Operations and subprocesses have time limits. If cleanup fails, the temporary directory is preserved for diagnosis. JSON records retain failed attempts, source hashes, designated code requirements, PID evidence, and separate native counts; they do not count parser tests or these fixtures as product/game compatibility evidence.

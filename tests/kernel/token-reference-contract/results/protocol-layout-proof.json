@@ -1,0 +1,34 @@
+{
+  "protocolVersions": [
+    1809,
+    1810
+  ],
+  "oldRequestOrdinalsPreserved": true,
+  "requestReplyCallerLayoutsUnchanged": {
+    "x86_64": {
+      "old": [
+        64,
+        64,
+        160
+      ],
+      "new": [
+        64,
+        64,
+        160
+      ]
+    },
+    "i686": {
+      "old": [
+        64,
+        64,
+        112
+      ],
+      "new": [
+        64,
+        64,
+        112
+      ]
+    }
+  },
+  "scope": "compile-time wire and caller structure sizes; not runtime conformance"
+}

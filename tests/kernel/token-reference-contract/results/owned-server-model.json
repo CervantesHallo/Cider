@@ -1,0 +1,12 @@
+{
+  "scope": "exact server C bodies, modeled handle/map storage; no live token or native Windows evidence",
+  "functionSHA256": {
+    "get_owned_device_manager": "89211ddcdcde3007dc70c72be21665969326c2f02bdfd85214e720d5a6d0bdc3",
+    "get_process_primary_token_reference": "eaf475dfc693bd9292772874d68b58d47e67128b812b0ac354848d9431f9ea55",
+    "grab_kernel_object": "2c7227512d69d81e140ddf0ddee238625339189b57be1750756fbbd80645fa03",
+    "reference_process_primary_token": "5a80e9db3cebbb183aed2bab1130da06b52317fce8e39aa211ad66316109c94a",
+    "release_kernel_object": "cd5cf8a8905b30b6905244b4fe1ef093189b655ee7024eaca11156727f4aa44e"
+  },
+  "exitCode": 0,
+  "output": "PASS: 70 ownership/alias/slot/owner/binding/failure checks; modeled dependencies only"
+}

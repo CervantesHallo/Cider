@@ -1,0 +1,9 @@
+{
+  "priorResult": "data-roots-baseline-20261016T144237Z.json",
+  "priorRecoveryResult": "data-roots-cleanup-20261016T144353Z.json",
+  "ownedPIDsAbsent": true,
+  "jobsAbsent": true,
+  "launchServicesAbsent": true,
+  "cachedV1FixtureAndTemporaryDirectoryRemoved": true,
+  "passed": true
+}

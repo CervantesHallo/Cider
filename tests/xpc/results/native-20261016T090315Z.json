@@ -1,0 +1,79 @@
+{
+  "kind": "native-macos-xpc-fixture",
+  "createdUTC": "20261016T090315Z",
+  "platform": "macOS-26.7-arm64-arm-64bit",
+  "filters": [
+    "native.output.over_1mib"
+  ],
+  "selected": [
+    "native.output.over_1mib"
+  ],
+  "skipped": [
+    "native.handshake.no_host",
+    "native.handshake.host",
+    "native.command.engine_list",
+    "native.command.bottle_list",
+    "native.output.echo_exit",
+    "native.output.stream",
+    "native.input.wrong_root",
+    "native.input.schema",
+    "native.input.oversize",
+    "native.input.argument_count",
+    "native.input.malformed",
+    "native.input.nul",
+    "native.duplicate.completed",
+    "native.duplicate.active",
+    "native.peer.client_requirement",
+    "native.peer.host_requirement",
+    "native.disconnect.unknown_no_replay"
+  ],
+  "cases": [
+    {
+      "name": "native.output.over_1mib",
+      "passed": false,
+      "seconds": 0.04722195799999973,
+      "error": "stdout above 1 MiB changed or truncated: expected 1347730, received 1048574"
+    }
+  ],
+  "unitTestsIncluded": 0,
+  "productGUIOrWineSessions": 0,
+  "signatures": {
+    "host": "# designated => cdhash H\"a17cd54fddaaa2fbb66b5450319e826a8bc06f14\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-ghkif7vv/NativeFixture.app/Contents/MacOS/Cider",
+    "client": "# designated => cdhash H\"5178986724c413ecb77d63ad7ecc13fabf3df925\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-ghkif7vv/NativeFixture.app/Contents/MacOS/ciderctl",
+    "broker": "# designated => cdhash H\"89104ffd071392a05dd3124751384add6b8a2ef6\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-ghkif7vv/NativeFixture.app/Contents/MacOS/CiderXPCBridge"
+  },
+  "label": "org.cider.ipc.e3bdd78466b292e167c2ab67",
+  "sourceHashes": {
+    "Packages/CiderKit/Sources/CiderIPC/Broker.swift": "6637888d4c530439859501ee3be9674dd66bb70ce6a830da700dc03f5c6dc8ab",
+    "Packages/CiderKit/Sources/CiderIPC/BundleLocation.swift": "ad6530b7e6de3083401fc8cfd759f277be434224329d031ffc723803b2760877",
+    "Packages/CiderKit/Sources/CiderIPC/Client.swift": "86c342cb8430ac4ecd425f35f1b6126083bc6f92d76ba1e5096405c7c5ab9746",
+    "Packages/CiderKit/Sources/CiderIPC/Host.swift": "b3967fdd0ea46dbaf10fae545f047b21555f34b2269b1688845d2fabb7d08c94",
+    "Packages/CiderKit/Sources/CiderIPC/Identity.swift": "ede0f0435f2d57936701a4b6026d718aafe7b89f35b5ce62c6c51cd059ab5811",
+    "Packages/CiderKit/Sources/CiderIPC/Location.swift": "d6cc9ccd22d047fabfc38366be3e53e98cb0bc5ff67a5e818c34dbd99f509795",
+    "Packages/CiderKit/Sources/CiderIPC/Wire.swift": "954b4a051ccec9e50b58b04a2691d8b6242a7f7a2b2aec22cf094f83967f7b91",
+    "Tools/CiderCommands/Sources/CiderCommands/CiderCommandExecutor.swift": "dfd48573f3a762369deafa1910a396c43726e20d4262ec325f1795aa84caf839",
+    "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "1a3b7e130d24c53cc001cf29e6f4ba558b36cfd3e36526c8d5304eebbbf47c5e"
+  },
+  "cleanup": {
+    "unregistered": true,
+    "hostPIDs": [
+      13179
+    ],
+    "brokerPIDs": [
+      13185
+    ],
+    "livePIDs": [],
+    "errors": [],
+    "passed": true
+  },
+  "sourceChangedDuringRun": false,
+  "hostLogs": [
+    {
+      "name": "host-5100F199-D61F-4681-8373-2C2B9F9ECB9C.log",
+      "text": ""
+    }
+  ],
+  "nativeCasesExecuted": 1,
+  "nativeCasesPassed": 0,
+  "passed": false
+}

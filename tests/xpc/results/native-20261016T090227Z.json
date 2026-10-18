@@ -1,0 +1,337 @@
+{
+  "kind": "native-macos-xpc-fixture",
+  "createdUTC": "20261016T090227Z",
+  "platform": "macOS-26.7-arm64-arm-64bit",
+  "filters": [
+    "native.handshake.*",
+    "native.command.*",
+    "native.output.echo_exit",
+    "native.output.stream",
+    "native.input.*",
+    "native.duplicate.*",
+    "native.peer.*",
+    "native.disconnect.*"
+  ],
+  "selected": [
+    "native.handshake.no_host",
+    "native.handshake.host",
+    "native.command.engine_list",
+    "native.command.bottle_list",
+    "native.output.echo_exit",
+    "native.output.stream",
+    "native.input.wrong_root",
+    "native.input.schema",
+    "native.input.oversize",
+    "native.input.argument_count",
+    "native.input.malformed",
+    "native.input.nul",
+    "native.duplicate.completed",
+    "native.duplicate.active",
+    "native.peer.client_requirement",
+    "native.peer.host_requirement",
+    "native.disconnect.unknown_no_replay"
+  ],
+  "skipped": [
+    "native.output.over_1mib"
+  ],
+  "cases": [
+    {
+      "name": "native.handshake.no_host",
+      "passed": true,
+      "seconds": 0.11282279200000112,
+      "evidence": {
+        "root": "/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-l4qxd4y3/support",
+        "version": 1
+      }
+    },
+    {
+      "name": "native.handshake.host",
+      "passed": true,
+      "seconds": 0.029377583000000485,
+      "evidence": {
+        "hostPID": 12936,
+        "root": "/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-l4qxd4y3/support",
+        "version": 1
+      }
+    },
+    {
+      "name": "native.command.engine_list",
+      "passed": true,
+      "seconds": 0.04076191599999923,
+      "evidence": {
+        "chunks": 1,
+        "executorPID": 12936,
+        "exitCode": 0,
+        "id": "ADEFE006-4112-4CE9-994C-6185B9FFA278",
+        "outputIncomplete": false,
+        "sequenceCount": 1,
+        "state": "completed",
+        "stderrBase64": "",
+        "stdoutBase64": "bm8gZW5naW5lcyBpbnN0YWxsZWQK",
+        "version": 1
+      }
+    },
+    {
+      "name": "native.command.bottle_list",
+      "passed": true,
+      "seconds": 0.03567325000000032,
+      "evidence": {
+        "chunks": 1,
+        "executorPID": 12936,
+        "exitCode": 0,
+        "id": "F8835BE6-1A97-47AC-B62B-3213E52347D7",
+        "outputIncomplete": false,
+        "sequenceCount": 1,
+        "state": "completed",
+        "stderrBase64": "",
+        "stdoutBase64": "bm8gYm90dGxlcwo=",
+        "version": 1
+      }
+    },
+    {
+      "name": "native.output.echo_exit",
+      "passed": true,
+      "seconds": 0.0307332080000009,
+      "evidence": {
+        "chunks": 2,
+        "executorPID": 12936,
+        "exitCode": 37,
+        "id": "F582BEC0-DE13-4E4D-8589-561DA2F8B8D4",
+        "outputIncomplete": false,
+        "sequenceCount": 2,
+        "state": "completed",
+        "version": 1,
+        "stdoutBytes": 14,
+        "stderrBytes": 15
+      }
+    },
+    {
+      "name": "native.output.stream",
+      "passed": true,
+      "seconds": 0.034102083000000505,
+      "evidence": {
+        "chunks": 43,
+        "executorPID": 12936,
+        "exitCode": 23,
+        "id": "38BDDA01-A02C-41D2-B791-56A6BA64EB9C",
+        "outputIncomplete": false,
+        "sequenceCount": 43,
+        "state": "completed",
+        "version": 1,
+        "stdoutBytes": 147162,
+        "stderrBytes": 77084
+      }
+    },
+    {
+      "name": "native.input.wrong_root",
+      "passed": true,
+      "seconds": 0.02721333299999884,
+      "evidence": {
+        "inputBytes": 319,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.input.schema",
+      "passed": true,
+      "seconds": 0.026718458999999584,
+      "evidence": {
+        "inputBytes": 315,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.input.oversize",
+      "passed": true,
+      "seconds": 0.026629082999999554,
+      "evidence": {
+        "inputBytes": 131073,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.input.argument_count",
+      "passed": true,
+      "seconds": 0.036758582999999234,
+      "evidence": {
+        "inputBytes": 5406,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.input.malformed",
+      "passed": true,
+      "seconds": 0.027759375000000475,
+      "evidence": {
+        "inputBytes": 9,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.input.nul",
+      "passed": true,
+      "seconds": 0.02958562500000106,
+      "evidence": {
+        "inputBytes": 318,
+        "replyBytes": 0,
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.duplicate.completed",
+      "passed": true,
+      "seconds": 0.06999200000000094,
+      "evidence": {
+        "id": "61ED1CFB-C338-4A40-B67A-BDF95A79F792",
+        "second": {
+          "chunks": 0,
+          "exitCode": 64,
+          "id": "61ED1CFB-C338-4A40-B67A-BDF95A79F792",
+          "message": "请求已提交或执行队列已满，未重复执行。",
+          "outputIncomplete": false,
+          "sequenceCount": 0,
+          "state": "rejected",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "version": 1
+        },
+        "hostAdmissions": 1
+      }
+    },
+    {
+      "name": "native.duplicate.active",
+      "passed": true,
+      "seconds": 0.08046758400000087,
+      "evidence": {
+        "id": "ACC124ED-B74C-45EE-B00F-A4643924C790",
+        "first": {
+          "chunks": 1,
+          "executorPID": 12936,
+          "exitCode": 0,
+          "id": "ACC124ED-B74C-45EE-B00F-A4643924C790",
+          "outputIncomplete": false,
+          "sequenceCount": 1,
+          "state": "completed",
+          "stderrBase64": "",
+          "stdoutBase64": "YWRtaXR0ZWQK",
+          "version": 1
+        },
+        "second": {
+          "chunks": 0,
+          "exitCode": 64,
+          "id": "ACC124ED-B74C-45EE-B00F-A4643924C790",
+          "message": "请求已提交或执行队列已满，未重复执行。",
+          "outputIncomplete": false,
+          "sequenceCount": 0,
+          "state": "rejected",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "version": 1
+        },
+        "hostAdmissions": 1
+      }
+    },
+    {
+      "name": "native.peer.client_requirement",
+      "passed": true,
+      "seconds": 0.051815124999999185,
+      "evidence": {
+        "processExit": 70,
+        "result": {
+          "error": "Couldn’t communicate with a helper application."
+        },
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.peer.host_requirement",
+      "passed": true,
+      "seconds": 0.28591108299999846,
+      "evidence": {
+        "processExit": 70,
+        "result": {
+          "error": "Couldn’t communicate with a helper application."
+        },
+        "hostAdmissions": 0
+      }
+    },
+    {
+      "name": "native.disconnect.unknown_no_replay",
+      "passed": true,
+      "seconds": 0.471184040999999,
+      "evidence": {
+        "response": {
+          "chunks": 0,
+          "exitCode": 75,
+          "id": "36D085FA-629F-430B-8DC5-16E8222F761B",
+          "message": "连接已中断，命令结果尚未确认。请在Cider检查运行状态；本次命令不会自动重试。",
+          "outputIncomplete": false,
+          "sequenceCount": 0,
+          "state": "unknown",
+          "stderrBase64": "",
+          "stdoutBase64": "",
+          "version": 1
+        },
+        "previousHostPID": 12976,
+        "replacementHostPID": 12991,
+        "hostAdmissions": 1
+      }
+    }
+  ],
+  "unitTestsIncluded": 0,
+  "productGUIOrWineSessions": 0,
+  "signatures": {
+    "host": "# designated => cdhash H\"20520a5016a04c355bfd5b3dc44de7e5a23fbfcf\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-l4qxd4y3/NativeFixture.app/Contents/MacOS/Cider",
+    "client": "# designated => cdhash H\"4cada8007817013726400633c3251e01a93e63fa\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-l4qxd4y3/NativeFixture.app/Contents/MacOS/ciderctl",
+    "broker": "# designated => cdhash H\"0f9255dd0c5faf213873a80045e7372b1180e3c9\"\nExecutable=/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-native-xpc-l4qxd4y3/NativeFixture.app/Contents/MacOS/CiderXPCBridge"
+  },
+  "label": "org.cider.ipc.270fbf072177a6310eedbe9c",
+  "sourceHashes": {
+    "Packages/CiderKit/Sources/CiderIPC/Broker.swift": "6637888d4c530439859501ee3be9674dd66bb70ce6a830da700dc03f5c6dc8ab",
+    "Packages/CiderKit/Sources/CiderIPC/BundleLocation.swift": "ad6530b7e6de3083401fc8cfd759f277be434224329d031ffc723803b2760877",
+    "Packages/CiderKit/Sources/CiderIPC/Client.swift": "86c342cb8430ac4ecd425f35f1b6126083bc6f92d76ba1e5096405c7c5ab9746",
+    "Packages/CiderKit/Sources/CiderIPC/Host.swift": "b3967fdd0ea46dbaf10fae545f047b21555f34b2269b1688845d2fabb7d08c94",
+    "Packages/CiderKit/Sources/CiderIPC/Identity.swift": "ede0f0435f2d57936701a4b6026d718aafe7b89f35b5ce62c6c51cd059ab5811",
+    "Packages/CiderKit/Sources/CiderIPC/Location.swift": "d6cc9ccd22d047fabfc38366be3e53e98cb0bc5ff67a5e818c34dbd99f509795",
+    "Packages/CiderKit/Sources/CiderIPC/Wire.swift": "954b4a051ccec9e50b58b04a2691d8b6242a7f7a2b2aec22cf094f83967f7b91",
+    "Tools/CiderCommands/Sources/CiderCommands/CiderCommandExecutor.swift": "dfd48573f3a762369deafa1910a396c43726e20d4262ec325f1795aa84caf839",
+    "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift": "1a3b7e130d24c53cc001cf29e6f4ba558b36cfd3e36526c8d5304eebbbf47c5e"
+  },
+  "cleanup": {
+    "unregistered": true,
+    "hostPIDs": [
+      12936,
+      12976,
+      12991
+    ],
+    "brokerPIDs": [
+      12933
+    ],
+    "livePIDs": [],
+    "errors": [],
+    "passed": true
+  },
+  "sourceChangedDuringRun": false,
+  "hostLogs": [
+    {
+      "name": "host-52EDFCF1-8231-477B-B659-0D07D9412ECA.log",
+      "text": ""
+    },
+    {
+      "name": "host-15755325-33A4-4A66-95C7-E10514E1F939.log",
+      "text": ""
+    },
+    {
+      "name": "host-006CDFC8-6913-440F-9B11-C061DEBB91F1.log",
+      "text": ""
+    }
+  ],
+  "nativeCasesExecuted": 17,
+  "nativeCasesPassed": 17,
+  "passed": true
+}

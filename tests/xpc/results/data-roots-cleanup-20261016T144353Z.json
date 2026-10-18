@@ -1,0 +1,14 @@
+{
+  "priorResult": "data-roots-baseline-20261016T144237Z.json",
+  "jobs": [
+    {
+      "label": "org.cider.ipc.f3dcc8d43fc8b582c60e03a7",
+      "bootoutExitCode": 0,
+      "absent": true
+    }
+  ],
+  "ownedPIDsAbsent": true,
+  "launchServicesAbsent": true,
+  "passed": true,
+  "temporaryDirectoryRetainedOnlyForCachedV1Fixture": "/private/var/folders/1s/s1smkg896ds_0h76_vzb4v3c0000gn/T/cider-data-roots-r7p9wpim"
+}

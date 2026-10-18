@@ -1,0 +1,224 @@
+{
+  "schema": "cider.product-runtime-acceptance/v1",
+  "startedUTC": "2026-10-17T02:41:31.613307Z",
+  "owner": {
+    "schema": "cider.runtime-acceptance/v1",
+    "root": "/Users/cervantes/Cider/out/runtime-acceptance-k2-20261017-5hspl5fo",
+    "source_commit": "57c59e35fa0ca6ab2221a8361079d2cb476a8c46",
+    "working_changes": "isolated K2 reference ownership, exact native pair policy; new source hashes recorded below",
+    "app": "/Users/cervantes/Cider/out/runtime-acceptance-k2-20261017-5hspl5fo/Cider.app",
+    "home": "/Users/cervantes/Cider/out/runtime-acceptance-k2-20261017-5hspl5fo/private-home",
+    "engine_source": "/Users/cervantes/Cider/out/runtime-acceptance-k13-20261017-et42qd1a/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-k13-x86_64",
+    "engine_copy": "/Users/cervantes/Cider/out/runtime-acceptance-k2-20261017-5hspl5fo/private-home/AppSupport/Engines/cider-cx26.3-r1-wma1-mm2-k2-x86_64",
+    "engine_id": "cider-cx26.3-r1-wma1-mm2-k2-x86_64",
+    "protected": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    },
+    "ownership": "fresh empty home; code copied only; no user prefix",
+    "candidateComponentSHA256": {
+      "Cider": "b3e68883301fdf70402de40111b621a2188ac2536d3d051c53589b9e0c7ebd68",
+      "ciderctl": "417613b8ae3e3d9ca715699b0f4371174c8174996b7c8ddd0076a9b0df269f8a",
+      "CiderXPCBridge": "2a6b0c2008e4dbdc3efdf0f6dc9cde54e1e5333d1d27011f7af71029426d02aa"
+    },
+    "nativeModuleSHA256": {
+      "bin/wineserver": "a3d006b5b8a70fc3a833f6876ce8feacdd3d25e43c49533d67b3cc29c27ae4c2",
+      "lib/wine/x86_64-unix/ntdll.so": "146c27ac1932ff413fc986991fcf02ef9f1da264897e1fc393a1a764e3654a64",
+      "lib/wine/i386-windows/ntdll.dll": "b3644b9b747ea403533cdc674921422192faaef199fb84017e3ead5e4a212ac2",
+      "lib/wine/i386-windows/ntoskrnl.exe": "635de6ab82521a83e9a88742c1405828aa69703368fdfd572199e5bb17ad8509",
+      "lib/wine/x86_64-windows/ntdll.dll": "fed0f5f26aa17df324c0e8e044d2b349de455dc2ba5205c4e010429b11fc6fde",
+      "lib/wine/x86_64-windows/ntoskrnl.exe": "9f8fdaf70e632c682e30201c734765908477d7bfa20f00ef27bd77419213d45a"
+    },
+    "sourceHashes": {
+      "Packages/CiderKit/Sources/CiderStore/EnginePolicy.swift": "4494ed938617cc28c5c8bff923ee20a5b270bc4b6f38abf14a0eaf4a17a20ad5",
+      "tests/runtime/product/run_runtime.py": "2e4395fe502b0be908ae6972af9434393420b5dc9e8b7c24f968bda763b3b4f0",
+      "tests/kernel/token-reference-contract/policy-child.c": "905470de68032104bc9e590c49b5da13faef3dc0c12e134b009cd8134dc5b666",
+      "tests/kernel/token-reference-contract/client-reference-model.c": "117a9ecb21b7905ac69bddc55fbb03dfb5cafa7010697b95e0d20c2974248098",
+      "tests/kernel/token-reference-contract/client.c": "eb21ef5cdd8a958dcae33bf05a3aa1505cb82f32ddc57e99969d75378c7a399a",
+      "tests/kernel/token-reference-contract/server-reference-model.c": "27cf0bf705348b86c0635b57897b0590a0fac0de5c64972f5ff8fb470af5b4af",
+      "tests/kernel/token-reference-contract/handle-access.c": "841f740e30ea600d40cb49870b06ae4d8b25e10444f6a890c0a294f2e2c46783",
+      "tests/kernel/token-reference-contract/driver.c": "c22fb397e962d2c402ce53e4318e55fec5a00be6b1035ec1e23e1f0f5ba8edc3",
+      "engine/patches/candidates/0019-owned-primary-token-reference.patch": "2e94ee3f312a9376429dd00877445ff6fa2ffe0afa85e5fc7d25aae698194763",
+      "engine/patches/candidates/0018-process-primary-reference-ownership.patch": "6024551fd02a18f5096dcc5223e470ca0fcaa9cfd7dc9dd52ff41215245a7bb7",
+      "engine/patches/candidates/0020-primary-token-ddk-declarations.patch": "97d2f57ddd535a1b863b6aa8490f503ef988bd131b5aba86cd4d2e2d0ed22601",
+      "engine/patches/candidates/0017-primary-token-release.patch": "73e9e604184c6deaf5f10e0ba8e1e744c393c9c16a8a2c83ab8e14e543e2427b"
+    }
+  },
+  "cases": [
+    {
+      "name": "product.cli_launches_real_gui",
+      "passed": true,
+      "seconds": 3.0053194999999997,
+      "evidence": {
+        "stdout": "cider-cx26.3-r1-wma1-mm2-k2-x86_64\twine-11.0\tdevel\n",
+        "gui": [
+          {
+            "bundle": "/Users/cervantes/Cider/out/runtime-acceptance-k2-20261017-5hspl5fo/Cider.app",
+            "pid": 76967,
+            "terminated": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "product.bottle_create_from_gui",
+      "passed": true,
+      "seconds": 52.647004125,
+      "evidence": {
+        "stdout": "created runtime-acceptance-5c901414-1815-4247-9949-6db23fa9f5bf (Runtime Acceptance, zh_CN.UTF-8, cider-cx26.3-r1-wma1-mm2-k2-x86_64)\n",
+        "stderr": "… wineboot\n… shell folders\n… fonts\n",
+        "bottleID": "runtime-acceptance-5c901414-1815-4247-9949-6db23fa9f5bf"
+      }
+    },
+    {
+      "name": "wine.owned_token_identity_alias_and_process_exit",
+      "passed": true,
+      "seconds": 11.061596666,
+      "evidence": [
+        {
+          "kind": "policy",
+          "architecture": "x86_64",
+          "cliExitCode": 0,
+          "stdout": "exit 0 · log /Users/cervantes/Cider/out/runtime-acceptance-k2-20261017-5hspl5fo/private-home/Logs/sessions/runtime-acceptance-5c901414-1815-4247-9949-6db23fa9f5bf/20261017T024230-cider-owned-policy-x86_64-F1411152-4F1E-45A1-9670-24FE7F9D5AB9/wine.log\n",
+          "stderr": "",
+          "observations": [
+            {
+              "schema": "cider.owned-child-policy/v1",
+              "childStarted": false,
+              "error": 1260,
+              "markerAbsent": true,
+              "cleanupError": 0
+            }
+          ],
+          "loader": [
+            "0040:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+            "0094:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin"
+          ]
+        },
+        {
+          "kind": "token",
+          "architecture": "x86_64",
+          "cliExitCode": 0,
+          "stdout": "exit 0 · log /Users/cervantes/Cider/out/runtime-acceptance-k2-20261017-5hspl5fo/private-home/Logs/sessions/runtime-acceptance-5c901414-1815-4247-9949-6db23fa9f5bf/20261017T024235-cider-owned-token-x86_64-87AA863C-2772-4585-BCF0-4F414EDF46E2/wine.log\n",
+          "stderr": "",
+          "observations": [
+            {
+              "schema": "cider.owned-token-runtime/v1",
+              "win32Error": 0,
+              "cleanupError": 0,
+              "checks": 268,
+              "failures": 0,
+              "firstFailure": 0,
+              "firstStatus": 0,
+              "rounds": 64,
+              "childExited": true,
+              "childExitCode": 0
+            }
+          ],
+          "loader": [
+            "0040:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+            "0094:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+            "0024:trace:loaddll:build_module Loaded L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k2-20261017-5hspl5fo\\\\cider-owned-token-x86_64.exe\" at 0000000140000000: native",
+            "00d4:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+            "00e0:trace:loaddll:build_module Loaded L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k2-20261017-5hspl5fo\\\\cider-owned-token-x86_64.sys\" at 00006FFFFD3D0000: native",
+            "00f0:trace:loaddll:build_module Loaded L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k2-20261017-5hspl5fo\\\\cider-owned-token-x86_64.exe\" at 0000000140000000: native",
+            "00e0:trace:loaddll:free_modref Unloaded module L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k2-20261017-5hspl5fo\\\\cider-owned-token-x86_64.sys\" : native"
+          ]
+        }
+      ]
+    }
+  ],
+  "windowsOperations": 0,
+  "clients": [],
+  "guiPID": 76967,
+  "bottleID": "runtime-acceptance-5c901414-1815-4247-9949-6db23fa9f5bf",
+  "prefix": "/Users/cervantes/Cider/out/runtime-acceptance-k2-20261017-5hspl5fo/private-home/AppSupport/Bottles/runtime-acceptance-5c901414-1815-4247-9949-6db23fa9f5bf/prefix",
+  "ownedTokenEvidence": [
+    {
+      "kind": "policy",
+      "architecture": "x86_64",
+      "cliExitCode": 0,
+      "stdout": "exit 0 · log /Users/cervantes/Cider/out/runtime-acceptance-k2-20261017-5hspl5fo/private-home/Logs/sessions/runtime-acceptance-5c901414-1815-4247-9949-6db23fa9f5bf/20261017T024230-cider-owned-policy-x86_64-F1411152-4F1E-45A1-9670-24FE7F9D5AB9/wine.log\n",
+      "stderr": "",
+      "observations": [
+        {
+          "schema": "cider.owned-child-policy/v1",
+          "childStarted": false,
+          "error": 1260,
+          "markerAbsent": true,
+          "cleanupError": 0
+        }
+      ],
+      "loader": [
+        "0040:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+        "0094:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin"
+      ]
+    },
+    {
+      "kind": "token",
+      "architecture": "x86_64",
+      "cliExitCode": 0,
+      "stdout": "exit 0 · log /Users/cervantes/Cider/out/runtime-acceptance-k2-20261017-5hspl5fo/private-home/Logs/sessions/runtime-acceptance-5c901414-1815-4247-9949-6db23fa9f5bf/20261017T024235-cider-owned-token-x86_64-87AA863C-2772-4585-BCF0-4F414EDF46E2/wine.log\n",
+      "stderr": "",
+      "observations": [
+        {
+          "schema": "cider.owned-token-runtime/v1",
+          "win32Error": 0,
+          "cleanupError": 0,
+          "checks": 268,
+          "failures": 0,
+          "firstFailure": 0,
+          "firstStatus": 0,
+          "rounds": 64,
+          "childExited": true,
+          "childExitCode": 0
+        }
+      ],
+      "loader": [
+        "0040:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+        "0094:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+        "0024:trace:loaddll:build_module Loaded L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k2-20261017-5hspl5fo\\\\cider-owned-token-x86_64.exe\" at 0000000140000000: native",
+        "00d4:trace:loaddll:build_module Loaded L\"C:\\\\windows\\\\system32\\\\ntoskrnl.exe\" at 00006FFFFE210000: builtin",
+        "00e0:trace:loaddll:build_module Loaded L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k2-20261017-5hspl5fo\\\\cider-owned-token-x86_64.sys\" at 00006FFFFD3D0000: native",
+        "00f0:trace:loaddll:build_module Loaded L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k2-20261017-5hspl5fo\\\\cider-owned-token-x86_64.exe\" at 0000000140000000: native",
+        "00e0:trace:loaddll:free_modref Unloaded module L\"Z:\\\\Users\\\\cervantes\\\\Cider\\\\out\\\\runtime-acceptance-k2-20261017-5hspl5fo\\\\cider-owned-token-x86_64.sys\" : native"
+      ]
+    }
+  ],
+  "cleanupKill": {
+    "exitCode": 0,
+    "stdout": "stopped\n",
+    "stderr": ""
+  },
+  "cleanupGUI": {
+    "exitCode": 0,
+    "result": "[{\"bundle\":\"\\/Users\\/cervantes\\/Cider\\/out\\/runtime-acceptance-k2-20261017-5hspl5fo\\/Cider.app\",\"pid\":76967,\"terminated\":true}]",
+    "stderr": ""
+  },
+  "launchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "engineLaunchServicesUnregister": {
+    "exitCode": 0,
+    "stderr": ""
+  },
+  "cleanup": {
+    "jobs": [
+      {
+        "label": "org.cider.ipc.f738f48d9ab72ea3201da725",
+        "bootoutCode": 0,
+        "absent": true
+      }
+    ],
+    "liveProcesses": [],
+    "errors": [],
+    "passed": true,
+    "protectedSHA256": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "ebd21bda1c2c538137b2267d597cda00654578e02461ba610b6445cc64e0022e",
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": "ea821200bf86efab0a1241c5be46c85667775c2fe1e52957e0b5a1837cce14ac"
+    }
+  },
+  "passed": true,
+  "finishedUTC": "2026-10-17T02:42:42.129814Z"
+}

@@ -1,0 +1,21 @@
+{
+  "moduleHashes": {
+    "i386": {
+      "beforeSHA256": "0febed40ba2a816f623b16e741f2ff8990e0a2dd19b657b2b6aaa4fddc7ad214",
+      "afterSHA256": "2468c1236ef0dc31625735c0ddce2cec79699b9052834c08450bc7d566cf951d"
+    },
+    "x86_64": {
+      "beforeSHA256": "e8abbc24143f18a31e53ac1e70363112b4da568e00654607ae2befaa62f07ca9",
+      "afterSHA256": "819dea699e3243e6aa03c2134fbdfd7dcbe4eaac0be991f20460591055c03ed1"
+    }
+  },
+  "changedFiles": [
+    "engine/lib/wine/i386-windows/winmm.dll",
+    "engine/lib/wine/x86_64-windows/winmm.dll",
+    "manifest.json"
+  ],
+  "allOtherFilesUnchanged": true,
+  "beforeFileCount": 4832,
+  "afterFileCount": 4832,
+  "sourceWaveformSHA256": "4c7b2278122b41db02b4d9253bb8f353351e63c1a81283c72973f40f0b434595"
+}

@@ -1,0 +1,10 @@
+{
+  "sourceCollectorSHA256": "1acf06f0c3d8dc609bd989313cdaf9f1d085c231e9d2434a8d519fd6fba9dcb0",
+  "sourceProbeSHA256": "2f78c9149a36497f09b18316f2f48630b70441845761614d8e242310c39fe670",
+  "PE": {
+    "exit-probe-x86_64.exe": "dde1345d9a83d2b4b8b2a79251ebea3cb92ebbab39eb65eabda01ef0fb0948a1",
+    "exit-probe-i686.exe": "d91cf6e5a29a1ff8823d7d5ebbf35d8705d606eeba647d6445b576ebf685ac79",
+    "collector-x86_64.exe": "f6f13a570e50a0889979bdcdf0d512efa1772bb3e029dbf78433c120a2bd0307",
+    "collector-i686.exe": "735556099c8a7e8b446c507d79beb274d594dcb6dcd1d5a868cc21db524d2a4a"
+  }
+}
