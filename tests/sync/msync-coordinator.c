@@ -54,7 +54,7 @@
 
 struct shared_state
 {
-    uint64_t slots[SLOT_COUNT], notices[SLOT_COUNT];
+    uint64_t notices[SLOT_COUNT];
     uint64_t probe_owner_token, probe_waiter_token;
     unsigned int probe_acquired, probe_owner_released;
     unsigned int close_errors, worker_error, stop;
@@ -66,7 +66,11 @@ struct shared_state
 _Static_assert(sizeof(struct shared_state) <= SHARED_SIZE, "shared state bounds");
 static struct shared_state *shared;
 static struct msync_coord coord;
-static uint64_t *slots;
+/* Distinct real pages let death injection trap the second payload store,
+ * independent of how many times a production header resolves its slot. */
+static void *slot_memory;
+static size_t slot_page_size, slot_memory_size;
+#define SLOT(i) (*(uint64_t *)((char *)slot_memory + (size_t)(i) * slot_page_size))
 static int identity_fd = -1, failures, output_error, injection;
 static int notify_block_fd = -1, notify_ready_fd = -1;
 static int watchdog_pipe[2] = {-1,-1};
@@ -76,6 +80,35 @@ static __thread uint64_t work_token;
 static pthread_key_t fd_key;
 static int key_created;
 static const char *test_name = "initialization";
+
+/* Optional tagged headers keep the same journal phases in one versioned word.
+ * Constructed phase inputs run without workers, as documented at each fixture. */
+static unsigned int journal_phase(void)
+{
+#ifdef CIDER_TEST_MSYNC_TAGGED_DECISION
+    return msync_coord_phase(coord.header);
+#else
+    return coord.header->state;
+#endif
+}
+static uint64_t journal_serial(void)
+{
+#ifdef CIDER_TEST_MSYNC_TAGGED_DECISION
+    return msync_coord_serial(coord.header);
+#else
+    return coord.header->sequence;
+#endif
+}
+static void set_journal_phase(unsigned int phase)
+{
+#ifdef CIDER_TEST_MSYNC_TAGGED_DECISION
+    uint64_t tag=__atomic_load_n(&coord.header->decision,__ATOMIC_ACQUIRE);
+    __atomic_store_n(&coord.header->decision,(tag & ~MSYNC_COORD_PHASE_MASK) | phase,__ATOMIC_RELEASE);
+#else
+    __atomic_store_n(&coord.header->state,phase,__ATOMIC_RELEASE);
+#endif
+}
+
 
 static void fail(const char *message)
 {
@@ -352,33 +385,32 @@ static void enter(struct msync_coord_guard *guard)
 }
 static void finish(struct msync_coord_guard *guard)
 {
-    int pending = coord.header->state != MSYNC_COORD_CLEAN;
+#ifdef CIDER_TEST_MSYNC_DIRECT_FINISH
+    msync_coord_finish(guard);
+#else
+    int pending = journal_phase() != MSYNC_COORD_CLEAN;
     msync_coord_leave(guard);
     if (pending) { enter(guard); msync_coord_leave(guard); }
+#endif
 }
 static void *slot(unsigned int idx,int map)
 {
     (void)map;
     if (idx < 1 || idx >= SLOT_COUNT) return NULL;
-    if (injection == 1 && coord.header->state == MSYNC_COORD_COMMITTED && idx == 2) _exit(37);
-    if (injection == 4 && coord.header->state == MSYNC_COORD_COMMITTED && idx == 2)
-    {
-        if (!pipe_byte(notify_ready_fd,1,'S')) _exit(94);
-        raise(SIGSTOP); /* after slot 1's write and before slot 2's write */
-        _exit(95);
-    }
-    return &slots[idx];
+    return &SLOT(idx);
 }
 static int notify(unsigned int idx,void *shm,int blocking)
 {
-    if (idx < 1 || idx >= SLOT_COUNT || shm != &slots[idx]) _exit(96);
+    if (idx < 1 || idx >= SLOT_COUNT || shm != &SLOT(idx)) _exit(96);
 #ifdef CIDER_TEST_MSYNC_DEFER_NOTIFY
     __atomic_add_fetch(&shared->notify_scope_calls,1,__ATOMIC_RELAXED);
     if (!work_token || __atomic_load_n(&coord.header->owner,__ATOMIC_SEQ_CST)==work_token)
         __atomic_store_n(&shared->notify_under_owner,1,__ATOMIC_RELAXED);
 #endif
     if (injection == 2 && !blocking) return 0;
-    if (injection == 3 && coord.header->state == MSYNC_COORD_APPLIED) _exit(38);
+    /* Inject at delivery entry even if a broken header cleared its phase early:
+     * such a mutation must expose the lost wake, rather than skip the crash. */
+    if (injection == 3) _exit(38);
     if (blocking && notify_ready_fd >= 0)
     {
         if (!pipe_byte(notify_ready_fd,1,'N')) _exit(97);
@@ -420,6 +452,48 @@ static void report(int before)
          failures == before && !output_error ? "true" : "false");
     flush_output();
 }
+/* Child-local page protection changes no shared value. Reads/preparation stay
+ * valid, but the actual production store to slot2 faults after slot1 is written.
+ * Only async-signal-safe operations are used at this deliberate fault boundary. */
+static void payload_fault(int signal_number, siginfo_t *info, void *context)
+{
+    uintptr_t address=(uintptr_t)info->si_addr, first=(uintptr_t)&SLOT(2);
+    char marker='S';
+    (void)signal_number; (void)context;
+    if (address < first || address >= first+slot_page_size ||
+        journal_phase() != MSYNC_COORD_COMMITTED) _exit(92);
+    if (injection == 1) _exit(37);
+    if (injection == 4)
+    {
+        if (write(notify_ready_fd,&marker,1) != 1) _exit(94);
+        if (kill(getpid(),SIGSTOP)) _exit(93);
+        _exit(95);
+    }
+    _exit(90);
+}
+static void arm_payload_fault(void)
+{
+    struct sigaction action;
+    memset(&action,0,sizeof(action)); sigemptyset(&action.sa_mask);
+    action.sa_sigaction=payload_fault; action.sa_flags=SA_SIGINFO;
+    if (sigaction(SIGSEGV,&action,NULL) || sigaction(SIGBUS,&action,NULL) ||
+        mprotect(&SLOT(2),slot_page_size,PROT_READ)) _exit(89);
+}
+static void filtered_commit_case(void)
+{
+    struct msync_coord_guard guard;
+    struct msync_coord_entry entries[4]={{1,0,1},{2,0,4},{3,1,1},{4,0,1}};
+    uint64_t serial;
+    int before=failures;
+    test_name="filtered-commit-preserves-slot-order"; reset();
+    enter(&guard); msync_coord_commit(&coord,entries,4); finish(&guard);
+    CHECK(SLOT(1)==1 && SLOT(2)==4 && SLOT(3)==1 && SLOT(4)==1,"filtered payload/slot order");
+    CHECK(notices(1)==0 && notices(2)==0 && notices(3)==1 && notices(4)==0,"unchanged notifying slot retained");
+    serial=journal_serial(); entries[1].value=4; entries[2].notify=0;
+    enter(&guard); msync_coord_commit(&coord,entries,4); finish(&guard);
+    CHECK(journal_serial()==serial,"all-unchanged commit must not create a new decision");
+    report(before);
+}
 static void simple_recovery(int kind)
 {
     struct msync_coord_guard guard;
@@ -436,19 +510,20 @@ static void simple_recovery(int kind)
         {
             enter(&guard);
             /* Constructed PREPARING input, not an observed interrupted memcpy. */
-            __atomic_store_n(&coord.header->state,MSYNC_COORD_PREPARING,__ATOMIC_RELEASE);
+            set_journal_phase(MSYNC_COORD_PREPARING);
             _exit(36);
         }
         injection = kind == 1 ? 1 : 3;
+        if (kind == 1) arm_payload_fault();
         set_pair(kind == 1 ? 0 : 4,kind == 1 ? 0 : 4,kind == 1 ? 0 : 1);
         _exit(99);
     }
     if (!wait_child(child,expected)) goto done;
-    if (kind == 1) CHECK(slots[1] == 0 && slots[2] == 1,"first committed write boundary");
+    if (kind == 1) CHECK(SLOT(1) == 0 && SLOT(2) == 1,"first committed write boundary");
     if (kind == 2) CHECK(notices(1) == 0 && notices(2) == 0,"APPLIED death must precede notifications");
     enter(&guard);
-    CHECK(slots[1] == (kind == 0 ? 1u : kind == 1 ? 0u : 4u) && slots[2] == slots[1],"recovered values");
-    CHECK(coord.header->state == MSYNC_COORD_CLEAN,"recovered journal not clean");
+    CHECK(SLOT(1) == (kind == 0 ? 1u : kind == 1 ? 0u : 4u) && SLOT(2) == SLOT(1),"recovered values");
+    CHECK(journal_phase() == MSYNC_COORD_CLEAN,"recovered journal not clean");
     msync_coord_leave(&guard);
     if (kind == 2)
     {
@@ -470,17 +545,17 @@ static void killed_owner_case(void)
     if (!child)
     {
         if (close(ready[0])) _exit(91);
-        notify_ready_fd = ready[1]; injection = 4; set_pair(2,2,0); _exit(99);
+        notify_ready_fd = ready[1]; injection = 4; arm_payload_fault(); set_pair(2,2,0); _exit(99);
     }
     close_fd(&ready[1]);
     if (!pipe_byte(ready[0],0,'S')) { fail("COMMITTED kill boundary marker absent"); goto done; }
-    CHECK(slots[1] == 2 && slots[2] == 1 && coord.header->state == MSYNC_COORD_COMMITTED,"kill boundary state");
+    CHECK(SLOT(1) == 2 && SLOT(2) == 1 && journal_phase() == MSYNC_COORD_COMMITTED,"kill boundary state");
     if (!signal_owned_child(child)) goto done;
     if (reap_for(child,&status) != 1) { fail("killed owner reap deadline"); goto done; }
     CHECK(WIFSIGNALED(status) && WTERMSIG(status) == SIGKILL,"owner did not die from requested SIGKILL");
     enter(&guard);
-    CHECK(slots[1] == 2 && slots[2] == 2,"killed owner's committed decision was not recovered");
-    CHECK(coord.header->state == MSYNC_COORD_CLEAN,"killed owner journal not clean");
+    CHECK(SLOT(1) == 2 && SLOT(2) == 2,"killed owner's committed decision was not recovered");
+    CHECK(journal_phase() == MSYNC_COORD_CLEAN,"killed owner journal not clean");
     msync_coord_leave(&guard);
 done:
     stop_child(&child); close_fd(&ready[0]); close_fd(&ready[1]); report(before);
@@ -495,8 +570,8 @@ static void stale_helper_case(void)
     test_name = "stale-helper-preserves-new-pending-journal"; reset();
     if (!make_pipe(ready) || !make_pipe(resume)) goto done;
     enter(&guard); injection = 2; msync_coord_commit(&coord,old,2); injection = 0;
-    old_sequence = coord.header->sequence;
-    CHECK(coord.header->state == MSYNC_COORD_APPLIED,"old journal must remain APPLIED");
+    old_sequence = journal_serial();
+    CHECK(journal_phase() == MSYNC_COORD_APPLIED,"old journal must remain APPLIED");
     msync_coord_leave(&guard);
     if (failures != before) goto done;
     child = fork_owned();
@@ -513,8 +588,8 @@ static void stale_helper_case(void)
     enter(&guard); msync_coord_leave(&guard);
     set_pair(7,7,0); /* old snapshot must never overwrite these new values */
     enter(&guard); injection = 2; msync_coord_commit(&coord,newer,2); injection = 0;
-    new_sequence = coord.header->sequence;
-    CHECK(coord.header->state == MSYNC_COORD_APPLIED && new_sequence > old_sequence,"new pending journal not established");
+    new_sequence = journal_serial();
+    CHECK(journal_phase() == MSYNC_COORD_APPLIED && new_sequence > old_sequence,"new pending journal not established");
     msync_coord_leave(&guard);
     CHECK(notices(3) == 0 && notices(4) == 0,"new journal delivered before resume");
     if (failures != before) goto done;
@@ -524,9 +599,9 @@ static void stale_helper_case(void)
     /* Do NOT enter/recover in the parent before these assertions: that would
      * hide a stale helper that incorrectly cleared the newer APPLIED journal. */
     CHECK(notices(3) >= 1 && notices(4) >= 1,"owed wakes for distinct new slots 3/4 were lost");
-    CHECK(slots[1] == 7 && slots[2] == 7,"old helper replayed old slot 1/2 values");
-    CHECK(slots[3] == 8 && slots[4] == 8,"new slot 3/4 values changed");
-    CHECK(coord.header->state == MSYNC_COORD_CLEAN && coord.header->sequence == new_sequence,"new journal not recovered by resumed helper");
+    CHECK(SLOT(1) == 7 && SLOT(2) == 7,"old helper replayed old slot 1/2 values");
+    CHECK(SLOT(3) == 8 && SLOT(4) == 8,"new slot 3/4 values changed");
+    CHECK(journal_phase() == MSYNC_COORD_CLEAN && journal_serial() == new_sequence,"new journal not recovered by resumed helper");
     emit("{\"kind\":\"coordinator-wakes\",\"name\":\"stale-helper\",\"oldIndices\":[1,2],\"newIndices\":[3,4],\"slot3\":%" PRIu64 ",\"slot4\":%" PRIu64 "}\n",notices(3),notices(4));
 done:
     stop_child(&child);
@@ -681,16 +756,16 @@ static void killed_contending_waiter_case(void)
     CHECK(!__atomic_load_n(&coord.header->owner,__ATOMIC_SEQ_CST),"owner not released after waiter death");
     CHECK(!__atomic_load_n(&coord.header->wait_hint,__ATOMIC_SEQ_CST),"dead waiter left a persistent wait hint");
     wake_after_release = __atomic_load_n(&coord.header->wake_sequence,__ATOMIC_SEQ_CST);
-    sequence = coord.header->sequence;
+    sequence = journal_serial();
     for (i=0;i<QUIET_TRANSACTIONS;++i)
     {
         set_pair(i & 1u,i & 1u,0);
-        CHECK(slots[1] == (i & 1u) && slots[2] == slots[1],"post-death transaction values");
+        CHECK(SLOT(1) == (i & 1u) && SLOT(2) == SLOT(1),"post-death transaction values");
         CHECK(!__atomic_load_n(&coord.header->owner,__ATOMIC_SEQ_CST),"post-death owner stuck");
     }
     quiet_wake_delta = __atomic_load_n(&coord.header->wake_sequence,__ATOMIC_SEQ_CST)-wake_after_release;
     CHECK(quiet_wake_delta == 0,"dead waiter caused persistent quiescent wake-sequence updates");
-    CHECK(coord.header->sequence == sequence+QUIET_TRANSACTIONS,"post-death commits not completed exactly once");
+    CHECK(journal_serial() == sequence+QUIET_TRANSACTIONS,"post-death commits not completed exactly once");
     cleanup_gate_child(&victim);
     if (failures != before) goto done;
     if (!start_gate_child(&successor,0)) goto done;
@@ -719,24 +794,24 @@ static void *stress_worker(void *opaque)
     {
         struct msync_coord_entry entries[2];
         enter(&guard);
-        if (slots[1] != slots[2] || slots[1] > 1)
+        if (SLOT(1) != SLOT(2) || SLOT(1) > 1)
         {
             __atomic_store_n(&shared->worker_error,93,__ATOMIC_RELEASE);
             __atomic_store_n(&shared->stop,1,__ATOMIC_RELEASE);
             msync_coord_leave(&guard); break;
         }
-        if (slots[1])
+        if (SLOT(1))
         {
             entries[0]=(struct msync_coord_entry){1,0,0}; entries[1]=(struct msync_coord_entry){2,0,0};
             msync_coord_commit(&coord,entries,2); ++args->consumed;
         }
         finish(&guard); enter(&guard);
-        if (!slots[1])
+        if (!SLOT(1))
         {
             entries[0]=(struct msync_coord_entry){1,0,1}; entries[1]=(struct msync_coord_entry){2,0,1};
             msync_coord_commit(&coord,entries,2); ++args->released;
         }
-        if (slots[1] > 1 || slots[2] != slots[1])
+        if (SLOT(1) > 1 || SLOT(2) != SLOT(1))
         {
             __atomic_store_n(&shared->worker_error,92,__ATOMIC_RELEASE);
             __atomic_store_n(&shared->stop,1,__ATOMIC_RELEASE);
@@ -773,7 +848,7 @@ static void stress_case(unsigned int threads,unsigned int iterations)
     }
     CHECK(created == threads,"requested thread count not created");
     CHECK(!__atomic_load_n(&shared->worker_error,__ATOMIC_ACQUIRE),"thread invariant failure");
-    CHECK(slots[1] == 1+released-consumed && slots[1] <= 1 && slots[2] == slots[1],"thread permit/pair accounting");
+    CHECK(SLOT(1) == 1+released-consumed && SLOT(1) <= 1 && SLOT(2) == SLOT(1),"thread permit/pair accounting");
     if (now_ns(&end))
         emit("{\"kind\":\"coordinator-stress\",\"threads\":%u,\"iterationsPerThread\":%u,\"consumed\":%" PRIu64 ",\"released\":%" PRIu64 ",\"seconds\":%.9f,\"timingScope\":\"thread_create_through_join\"}\n",threads,iterations,consumed,released,(double)(end-start)/1e9);
     report(before);
@@ -803,7 +878,7 @@ static void process_stress_case(void)
         CHECK(args[i].completed == args[i].iterations,"process iterations incomplete");
     }
     CHECK(!__atomic_load_n(&shared->worker_error,__ATOMIC_ACQUIRE),"process invariant failure");
-    CHECK(slots[1] == 1+released-consumed && slots[1] <= 1 && slots[1] == slots[2],"process permit/pair accounting");
+    CHECK(SLOT(1) == 1+released-consumed && SLOT(1) <= 1 && SLOT(1) == SLOT(2),"process permit/pair accounting");
     emit("{\"kind\":\"coordinator-process-stress\",\"processes\":%u,\"consumed\":%" PRIu64 ",\"released\":%" PRIu64 "}\n",created,consumed,released);
 done:
     for (i=0;i<4;++i) stop_child(&pids[i]);
@@ -825,7 +900,7 @@ static void bench(void)
     struct msync_coord_entry entries[2]={{1,0,1},{2,0,1}};
     uint64_t sequence;
     test_name = "native-two-slot-coordinator-benchmark"; reset();
-    sequence = coord.header->sequence;
+    sequence = journal_serial();
     for (i=0;i<1000;++i)
     {
         entries[0].value=entries[1].value=i & 1u;
@@ -846,8 +921,8 @@ static void bench(void)
         samples[b]=(double)(end-start)/iterations;
     }
     qsort(samples,batches,sizeof(*samples),compare_double);
-    CHECK(slots[1] == 1 && slots[2] == 1,"benchmark final alternating values");
-    CHECK(coord.header->sequence == sequence + 102000,"benchmark transactions were elided or duplicated");
+    CHECK(SLOT(1) == 1 && SLOT(2) == 1,"benchmark final alternating values");
+    CHECK(journal_serial() == sequence + 102000,"benchmark transactions were elided or duplicated");
     emit("{\"kind\":\"coordinator-bench\",\"workload\":\"two-slot-alternating-transaction\",\"batchCount\":101,\"transactionsPerBatch\":1000,\"warmupTransactions\":1000,\"measuredTransactions\":101000,\"medianBatchAverageNsPerTransaction\":%.3f,\"p95BatchAverageNsPerTransaction\":%.3f,\"maxBatchAverageNsPerTransaction\":%.3f,\"distribution\":\"101 batch averages, not individual latency tails\",\"scope\":\"production coordinator enter/commit/leave only; notifications disabled; setup and warmup excluded\"}\n",samples[50],samples[95],samples[100]);
 done:
     report(before);
@@ -878,6 +953,37 @@ static void stop_watchdog(void)
     }
     close_fd(&watchdog_pipe[0]); close_fd(&watchdog_pipe[1]);
 }
+#ifdef CIDER_TEST_MSYNC_TAGGED_DECISION
+static void tagged_serial_boundary_case(void)
+{
+    struct msync_coord_guard guard;
+    struct msync_coord_entry entry = {1,0,UINT64_C(0x77112233)};
+    uint64_t before_value=__atomic_load_n(&SLOT(1),__ATOMIC_ACQUIRE);
+    pid_t child;
+    int before=failures;
+    test_name="tagged-serial-boundary";
+    /* Last case, no live workers/helpers: jump forward only, never reset a
+     * serial. The child supplies a constructed maximum-serial CLEAN input. */
+    child=fork_owned();
+    if (child < 0) return;
+    if (!child)
+    {
+        enter(&guard);
+        __atomic_store_n(&coord.header->decision,MSYNC_COORD_SERIAL_MAX<<2,__ATOMIC_RELEASE);
+        msync_coord_commit(&coord,&entry,1); /* must fail before a write/wrap */
+        msync_coord_finish(&guard);
+        _exit(99);
+    }
+    if (!wait_child(child,1)) return;
+    enter(&guard); /* reclaim the genuinely dead child's owner lease */
+    CHECK(journal_phase()==MSYNC_COORD_CLEAN && journal_serial()==MSYNC_COORD_SERIAL_MAX,"serial maximum wrapped or journal changed");
+    CHECK(__atomic_load_n(&SLOT(1),__ATOMIC_ACQUIRE)==before_value,"overflow commit wrote payload");
+    msync_coord_leave(&guard);
+    emit("{\"kind\":\"coordinator-serial-boundary\",\"wrapAccepted\":false,\"serial\":%" PRIu64 "}\n",journal_serial());
+    report(before);
+}
+#endif
+
 #ifdef CIDER_TEST_MSYNC_SNAPSHOT
 static void snapshot_contract_case(void)
 {
@@ -891,7 +997,7 @@ static void snapshot_contract_case(void)
     __atomic_store_n(&epochs[tid],2,__ATOMIC_RELEASE);
     enter(&guard); msync_coord_commit(&coord,&entry,1); finish(&guard);
     CHECK(msync_coord_snapshot_begin(&coord,tid,2,&view),"clean matching epoch begins");
-    CHECK((uint32_t)__atomic_load_n(&slots[6],__ATOMIC_ACQUIRE)==0,"low 32 bits retain zero with nonzero semaphore maximum");
+    CHECK((uint32_t)__atomic_load_n(&SLOT(6),__ATOMIC_ACQUIRE)==0,"low 32 bits retain zero with nonzero semaphore maximum");
     CHECK(msync_coord_snapshot_end(&coord,&view),"unchanged clean view completes");
     enter(&guard);
     CHECK(!msync_coord_snapshot_end(&coord,&view),"held owner rejects previously clean view");
@@ -902,10 +1008,10 @@ static void snapshot_contract_case(void)
     for (state=MSYNC_COORD_PREPARING;state<=MSYNC_COORD_APPLIED;++state)
     {
         CHECK(msync_coord_snapshot_begin(&coord,tid,2,&view),"state test starts clean");
-        __atomic_store_n(&coord.header->state,state,__ATOMIC_RELEASE);
+        set_journal_phase(state);
         CHECK(!msync_coord_snapshot_end(&coord,&view),"pending state rejects end");
         CHECK(!msync_coord_snapshot_begin(&coord,tid,2,&view),"pending state rejects begin");
-        __atomic_store_n(&coord.header->state,MSYNC_COORD_CLEAN,__ATOMIC_RELEASE);
+        set_journal_phase(MSYNC_COORD_CLEAN);
     }
     CHECK(msync_coord_snapshot_begin(&coord,tid,2,&view),"sequence test starts clean");
     entry.value|=1;
@@ -951,7 +1057,13 @@ int main(int argc,char **argv)
     if (coord.header == MAP_FAILED) { coord.header=NULL; fail("coordinator mmap"); goto cleanup; }
     shared=mmap(NULL,SHARED_SIZE,PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANON,-1,0);
     if (shared == MAP_FAILED) { shared=NULL; fail("shared observations mmap"); goto cleanup; }
-    slots=shared->slots;
+    {
+        long page_size=sysconf(_SC_PAGESIZE);
+        if (page_size <= 0) { fail("slot page size"); goto cleanup; }
+        slot_page_size=(size_t)page_size; slot_memory_size=SLOT_COUNT*slot_page_size;
+        slot_memory=mmap(NULL,slot_memory_size,PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANON,-1,0);
+        if (slot_memory == MAP_FAILED) { slot_memory=NULL; fail("slot mmap"); goto cleanup; }
+    }
     coord.header->magic=MSYNC_COORD_MAGIC; coord.slot=slot; coord.notify=notify;
     if (pthread_key_create(&fd_key,close_work)) { fail("pthread_key_create"); goto cleanup; }
     key_created=1;
@@ -963,9 +1075,13 @@ int main(int argc,char **argv)
 #ifdef CIDER_TEST_MSYNC_SNAPSHOT
     snapshot_contract_case();
 #endif
+    filtered_commit_case();
     simple_recovery(0); simple_recovery(1); killed_owner_case(); simple_recovery(2); stale_helper_case();
     stopped_live_owner_case(); killed_contending_waiter_case();
     stress_case(4,10000); stress_case(8,10000); process_stress_case(); bench();
+#ifdef CIDER_TEST_MSYNC_TAGGED_DECISION
+    tagged_serial_boundary_case();
+#endif
 #ifdef CIDER_TEST_MSYNC_DEFER_NOTIFY
     CHECK(__atomic_load_n(&shared->notify_scope_calls,__ATOMIC_RELAXED)>0,"notification scope was exercised");
     CHECK(!__atomic_load_n(&shared->notify_under_owner,__ATOMIC_RELAXED),"notification callback ran under its own transaction gate");
@@ -985,7 +1101,11 @@ cleanup:
     if (shared)
     {
         CHECK(!__atomic_load_n(&shared->close_errors,__ATOMIC_ACQUIRE),"thread/main lease fd close errors");
-        CHECK(munmap(shared,SHARED_SIZE) == 0,"shared observations munmap"); shared=NULL; slots=NULL;
+        CHECK(munmap(shared,SHARED_SIZE) == 0,"shared observations munmap"); shared=NULL;
+    }
+    if (slot_memory)
+    {
+        CHECK(munmap(slot_memory,slot_memory_size) == 0,"slot pages munmap"); slot_memory=NULL;
     }
     if (coord.header)
     {

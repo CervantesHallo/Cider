@@ -4,6 +4,16 @@ These programs exercise the Wine 11.18 candidate chain recorded in
 `engine/porting/r-v1-inputs.json`. They do not select a product engine or change a
 user bottle. See research77 for the measured build, source hashes and results.
 
+Optional candidate0110 also has `msync-waiter-hint.c`. Build it against the exact
+applied `wine/msync_waiter_hint.h` and paired coordinator header using the native
+flags below. It exercises real shared Darwin ulock park/wake after a forced
+payload ABA, observes the exact reader's kernel wait state, checks concurrent
+single/multi hint balance and sticky fallback, and checks cleanup. Run it in an
+owned temporary directory with an outer deadline; its own 20-second alarm kills
+only its test process. Mutations that erase active counts, erase singles while
+clearing MANY, or lose sticky fallback must fail. This is helper/kernel evidence,
+separate from Wine/Windows API equivalence and the candidate's own runtime hour.
+
 ## Programs and evidence boundaries
 
 | File | Scope |
@@ -53,6 +63,16 @@ or the stale-helper sequence guard; retain native teardown evidence.
 
 Compile `owned-processes.swift` against the same laboratory app's CiderKit
 modules. Do not replace it with process-name matching or a global `wineserver -k`.
+
+For optional candidate0109's version5 header, combine
+`-DCIDER_TEST_MSYNC_TAGGED_DECISION -DCIDER_TEST_MSYNC_DIRECT_FINISH`
+with `-DCIDER_TEST_MSYNC_DEFER_NOTIFY`. The native harness reads the actual tagged
+phase/serial, invokes the production direct finish, and ends with a constructed
+maximum-serial input in a real child. It requires fatal rejection before payload
+write or wrap and never resets that serial. Omit the tagged/direct defines for
+older headers. Reject isolated variants that clear before notifying, omit the
+version guard or callbacks, or allow serial wrap. The delivery-entry crash runs
+even if a broken header already cleared its phase, exposing lost notifications.
 
 ## Owned laboratory
 
@@ -129,3 +149,19 @@ and 1024 times the requested measurement iterations for this attribution control
 Other workloads retain 1024 warmup iterations (or fewer for a smaller workload).
 These actual counts are emitted in the benchmark metadata. Retain earlier v2
 control/latency results separately; a longer control is not a threshold change.
+### Payload-store interruption for cached-slot candidates
+
+The coordinator fixture maps each slot on a distinct real shared page. Only the
+owned child protects slot2 as read-only. The production header's actual second
+payload store faults through SIGSEGV/SIGBUS after the first store; the parent
+keeps its writable mapping and checks recovery. The handler checks the fault
+address/phase and uses only async-signal-safe operations. It never logs,
+allocates, waits, recovers, or returns to the faulting store. No production-header
+hook or repeated slot callback is needed.
+
+The filtering case checks payload/notification order after unchanged entries
+are removed, retains an unchanged entry that owes a notification, and rejects a
+new journal serial for an entirely unchanged non-notifying commit. Candidate0111
+only caches normally pinned slot addresses inside one owner-held commit;
+recovery resolves its own mappings. Native checks do not replace Wine runtime,
+continuous-pressure, or performance acceptance. The candidate remains optional.

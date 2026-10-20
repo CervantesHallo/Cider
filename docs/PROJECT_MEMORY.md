@@ -1,8 +1,26 @@
 # Cider 项目持久记忆
 
-更新：2026-10-18。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
+更新：2026-10-20。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
 
-## 当前检查点：电池正式性能已完成，性能目标仍未达标（2026-10-18 夜间）
+## 当前检查点（2026-10-20）：继续 WaitAll，性能仍未通过
+
+用户最新“继续干”；本轮只在 Mac 的独立实验室推进。Windows仍不能重启/busy，不连接、不改账本；不用新定时/Goal。原HY顺序和最终游戏目标不变，所有同步候选均非默认，生产App/引擎/用户瓶子不切换。
+
+F7/0103与F8/0104各自的一小时真实并发压力及两位宽功能已通过，不重复。十份完整独立电池性能队列均未达到5倍：F8、F9、F8-v4、F10、F11、F12、F13、F14、F15、F16；旧AC13/15保持原字节、不拼接。最新F14/0110实际完成11阶段短功能、精确native pair及三对正式比较：server10200/候选2200ns=4.6364倍，CS−7.5949%也未过±3%；不采用/不跑自己的小时。F13/F14/F15补丁和native回归本轮归档。
+
+新F15只在原F8的owner-held commit内复用已pin的槽地址，避免同槽反复间接查询；全局门、租约、journal及通知路径不变（magic3）。私有out/waitall-cached-slots-prototype两组件编译通过，native header恢复/旧helper/竞争及三负对照通过，11阶段Wine短功能和精确pair核对也通过，三对性能4.5455倍失败/CS−1.4634%通过，不采用/无自己的小时。native fixture已改为真实页保护在第二个payload store截获死亡，不再把中断注入依赖于重复slot回调；增加过滤后槽顺序/空提交检查。一个范围受限代理只读复审无具体P1/P2，父代理整合。F16转为原F8的sync.c native frame缓存当前thread_data（实际反汇编有重复pthread_getspecific），只改本帧私有字段/函数，保留取消/controls/pins；组件和11阶段实际功能/精确pair已过，三对4.3043倍/控制−13.4585%均失败，未采用/无自己的小时。无候选借F7/F8小时，门槛不放宽。
+
+F17/0113只组合原F8上的0107+0111+0112三个机械局部优化（独立三文件补丁，不选入配方），父代理审查交互，复用F15完全同header原生正反结果；组件与11阶段Wine短功能/精确pair已过（73294700…/1798e22d…），新性能/小时未开始。
+
+正式比较的新增外部条件：测后观察见Codex renderer近89%CPU、WindowServer约41%、swap约7.19GB，不能由测后快照直接归因全部旧数据。CUA明确禁止控制com.openai.codex，未绕到其他UI手段；已异步请用户方便时⌘H隐藏窗口、保留应用运行。旧失败不改，新安静条件需独立预声明/同pair三对/同5倍和±3%门槛，未答复不视为已隐藏。实际三次5秒累计CPU为Codex49.12/47.05/58.83%、WindowServer43.78/45.28/44.96%，pageout+72，低背景探针未过；F17正式protocol/result未生成，不能绕过guard或自动重试。先待用户隐藏界面后核资源条件；Windows无需操作。
+
+本轮收尾：F17组合11阶段/精确pair通过，原测试Wine与私有GUI/bridge均已退出，受保护的用户App/两瓶配置/Windows账本4文件SHA仍匹配。现有caffeinate不改，无新定时、后台性能或小时任务。接续先收用户隐藏Codex的状态、做一次新的有界低背景核对，再按事前协议执行F17自己的三对性能；不重跑未变化的Win32/小时基线，不跳过guard。若性能两项过，再启动该精确binary自己的连续小时。
+
+记录勘误：部分后续性能protocol的implementation文字从TLS实验误复制；原始回执不改，须以EXE/native pair、实际补丁SHA和单独erratum核对，不能把错误标签当实现身份。正式测试和诊断的证据仍严格分开。
+
+## 先前检查点（2026-10-18至19，历史）
+
+## 电池正式性能已完成，性能目标仍未达标（2026-10-18 夜间）
 
 用户明确要求继续、将保持电脑开机；不新增定时或Goal。锁屏可做后台命令，合盖/睡眠仍须按真实时钟判中断。**正式性能可以在电池供电下测：单独预先声明同供电/LPM0的三对比较，不混入旧AC样本。** 把交流电说成所有正式性能的绝对前提不准确；旧13/15 AC队列仅自身续测须同条件。该文件SHA4b3311654891a5567edc2a69ee932b051ad4e36a48721c6aa3f3e6fcd03997e6、只读v2 EXE归档都保持。门槛仍为同native pair server/候选单事件p50三轮中位≥5，私有CS控制相差≤3%，不挑样/放宽。
 
@@ -15,6 +33,12 @@
 分段诊断已实际完成：out/waitall-phase-profile，私有非验收native4d34919d…，复用ping-only EXE eebfd4b5…运行1m次/worker、2线程，实际client68076，35检查/0失败，26条两线程报告、50ns桶/每64次采样。Set commit p50桶600–650ns、wait gate950–1000ns，含observer effects/墙钟等待，不当CPU或性能门槛。wrapper最初把complete.ok误读成passed，原失败回执保留；profile-reanalysis.json按原logSHA离线验证ok/failures/output_error及全部桶计数，无重跑/改旧回执。
 
 当前更有针对性的F8分支out/waitall-deferred-notify-prototype：通知提交保持APPLIED，复用既有coord_finish恢复路径在本执行者不持owner时同步完成通知，不提前CLEAN。所有10个生产commit调用点均finish；独立审查无P1/P2，同时指出旧helper要4次owner往返。revision1仅native已过；revision2在匹配sequence/APPLIED并标CLEAN后保留已重新取得的guard返回，省第4次重取，其他情形仍原leave/continue。revision1冻结*.revision1。revision2的生产头死亡/旧helper/通知scope与3个负对照、配对构建及追加审查均已过；Wine11阶段短功能通过，9个运行阶段正确efd16cac…/f7e15666…逐一核对。固定三对电池也完成：server10100ns/候选3900ns，2.5897倍失败，CS−0.1002%通过控制，说明该版本实际更慢，不采用/无自己的小时。共享magic3/原子提交/租约/epoch/信号/取消保持；额外gate往返和重复建议唤醒是明确代价，本次实测未换来改善。下一步从F8原子协调器继续，先审查“提交者在仍持有门时取得自己日志快照，门外通知后以版本/phase原子tag确认完成”的直接finish方案，避免现版本重复取门；目前仅设计，未修改/运行/采用，不借旧结果。
+
+2026-10-19接续（F13）：新的out/waitall-tagged-finish-prototype保持F8全局门/租约/epoch/native frame及COMMITTED决策点，将serial+phase合为一个uint64 decision（magic5、serial最大2^62−1），由确实完成通知的helper以完整APPLIED tag CAS清理，禁止旧helper清掉新代日志。提交者仍持门时取得自己日志/slots快照，离门同步通知后CAS，不重复取门；enter仍返回owner-held/CLEAN，finish只保证自身通知完成，新日志可pending。所有10个生产调用点已审查，均容许spent guard/再次enter；所有成功获取仍走原门，不是API成功空桩。独立只读审查最终header b4512d31…无具体P1/P2。count的短路赋值警告已改为提前读取，最终配对组件0警告；native38fd341b…/c566c542…。
+
+F13生产header原生死亡/旧helper/暂停liveowner/竞争、通知scope、最大serial构造输入均已过；旧under-owner/省通知/省版本guard/CLEAN-before-notify/允许wrap五个负对照全部拒绝。早先告警编译和初版crash注入资料另存initial-compilation/initial-boundary，不算运行通过；最终death-before-notify在callback入口无条件退出，使提前CLEAN负例实际丢通知被检测，而非跳过注入。新的私有成对engine/stats reader（明确兼容3/4/5）和空瓶已准备，私有GUI已构建并开始实际11阶段短功能，Wine11阶段短功能已通过、9个运行阶段native pair核对正确；固定三对电池3.8µs/server10.1µs（2.6579倍），CS+9.6491%控制失败。未采用/无自己的小时，不借其他候选。下一步转回原F8的保守等待者计数提示：省无阻塞者时的ULock唤醒，保留有等待者时原内核路径。仅设计尚未编码/采用；无子代理。f94b3f2已推送，生产App/EnginePolicy/用户瓶子及Windows未改，门禁和原HY顺序保持。
+
+F14已编码/配对构建，原生hint helper测试与3个负对照通过（实际KernelPark=true；clear-count负例真实timeout−60），独立只读审查无剩余具体P1/P2。最终publication实现的magic6 engine/GUI已构建并完成11阶段Wine短功能、9阶段正确bb682b03…/cdb9dff3…逐一核对。固定独立三对电池v3已完成：10200/2200ns=4.6364倍未达5，CS−7.5949%控制失败；未采用/无自己的小时。以下为实现边界：已读真实源码，原thread.c清理顺序本来就是msync_unwind_waits→inproc_thread_cleanup→msync_thread_cleanup，因此新的single注册可借现有frame pin，不需要改thread_data布局或加共享引用。server的multiple_waiters原本是完整节点计数而非boolean，不能盲目改bit0。拟采用共享29位总提示计数+PUBLISH位+Multi标志+sticky原路径fallback、pump局部multi计数，所有活对象提示写均SC RMW；single栈记录沿既有wait_registrations，正常/终止精确退出，SIGKILL只能留下保守高估（不持新增ref、不丢许可）；计数极限只关闭优化、保留原唤醒，不钳制任何Windows对象数据。SC发布/park的ABA及sticky已由确切helper+原生ULock验证；真实生命周期/跨进程和长压仍待。先前无条件移到Mach泵仅审查过源码、未实施，不当交付。
 
 Windows仍busy、不能重启，未连接/改预算/重跑Win32。生产EnginePolicy、用户App/两瓶/Windows账本保持；原HY1→HY2→HY3→HY4/HY5与最终游戏目标不变。源码/构建、Mac运行、Windows kernel和游戏会话分别标状态，所有候选非默认、完整M1未通过。仅一个范围明确只读审查代理，父代理做关键实现；Git作者/提交者仅用户、skip ci、无Actions。
 
@@ -234,3 +258,5 @@ Windows暂不能重启，只推进Mac原02。0102叠加0100/0101，保留共享�
 2. 读 research/26–29 获取真实日志证据、评审与取舍；后续报告会继续追加。
 3. 检查 git status、实际引擎/瓶子绑定、当前进程；不要盲目重做实验或重启登录副本。
 4. 原顺序：收尾 HY1 → HY2 Windows 契约/依赖组 → HY3 证据到许可闭环 → HY4 原神本地会话 → HY5 另两款。遇到视觉或 Windows 参考环境缺口，明确记录范围并继续独立可推进工作，不伪造通过状态。
+
+最新F14发布检查：实际Clang将空OR0 RMW降低为stack lock-or+hint load，旧“同字RMW”解释不适用于该代码gen。已改无语义依赖的PUBLISH位29做真实同字SC xor，count位0–28，MANY30/STICKY31；bit值和翻转周期不参与判断。实际probe为lockcmpxchg hint指针。最终helper58fc51d1…、native bb682b03…/cdb9dff3…；原生ABA及三个负对照再过、独立末次审查无P1/P2，尚未Wine。旧零RMW阶段的记录/二进制另存zero-rmw-probe不当采用结果。私有stage/policy已更新最终pair，GUI需重建后再11阶段。所有旧cohort保持。

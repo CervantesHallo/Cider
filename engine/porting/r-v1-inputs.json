@@ -563,6 +563,93 @@
       "status": "paired native/review/recovery-death-stale-helper-scope guards and PE32/PE64 short runtime passed; fixed battery2.5897x failed5x, control-0.1002percent passed; slower/not adopted; no own hour",
       "selectedByRecipe": false,
       "productionPolicyBound": false
+    },
+    "optionalTaggedFinishCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0109-msync-tagged-notification-completion.patch",
+      "sha256": "d77ddd70d6024eb72570b820b96a1502b7126a8158cb11eb7886949b0c7f9137",
+      "requires": "0104-msync-thread-local-fork-admission.patch",
+      "excludes": [
+        "0105",
+        "0106",
+        "0107",
+        "0108"
+      ],
+      "sharedCoordMagicVersion": 5,
+      "status": "PE32/64 short functionality and native guards passed; fixed battery2.6579x failed5x, CS+9.6491percent failed; no own hour",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalCountedHintCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0110-msync-count-single-waiters-before-notify.patch",
+      "sha256": "1b07ca979dff89560d36725e83e2db29505dc096cea43b248fadd1c47c2f3232",
+      "requires": "0104-msync-thread-local-fork-admission.patch",
+      "excludes": [
+        "0105",
+        "0106",
+        "0107",
+        "0108",
+        "0109"
+      ],
+      "sharedCoordMagicVersion": 6,
+      "status": "PE32/64 short functionality and real ULock hint guards passed; fixed battery4.6364x failed5x, CS-7.5949percent failed; no own hour",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalCachedSlotsCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0111-msync-cache-pinned-commit-slots.patch",
+      "sha256": "348e437be9180d42e383220e0dd0b54bcaf3b962a755a0e38da534d9b1e1e376",
+      "requires": "0104-msync-thread-local-fork-admission.patch",
+      "excludes": [
+        "0105",
+        "0106",
+        "0107",
+        "0108",
+        "0109",
+        "0110"
+      ],
+      "sharedCoordMagicVersion": 3,
+      "status": "PE32/64 short runtime, exact pair and native recovery/filter negatives passed; fixed battery4.5455x failed5x, CS-1.4634percent passed; no own hour",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalFrameDataCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0112-msync-cache-native-frame-thread-data.patch",
+      "sha256": "ad9e7097cc4d5e90e88f4ceb6ba5527734de6fffd04ec80533b86d8c80fd4447",
+      "requires": "0104-msync-thread-local-fork-admission.patch",
+      "excludes": [
+        "0105",
+        "0106",
+        "0107",
+        "0108",
+        "0109",
+        "0110",
+        "0111"
+      ],
+      "sharedCoordMagicVersion": 3,
+      "status": "scoped review/PE32 and PE64 eleven-phase short runtime/exact pair passed; fixed battery4.3043x failed5x and CS-13.4585percent failed; no own hour",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalMechanicalCombinationCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0113-msync-combine-local-data-and-slot-reuse.patch",
+      "sha256": "67bd7246c8810fda1409def826906abee1d279919c179dc59f079160e684075a",
+      "requires": "0104-msync-thread-local-fork-admission.patch",
+      "content": [
+        "0107",
+        "0111",
+        "0112"
+      ],
+      "excludes": [
+        "0105",
+        "0106",
+        "0108",
+        "0109",
+        "0110"
+      ],
+      "sharedCoordMagicVersion": 3,
+      "status": "components/parent composition review and PE32/64 eleven-phase short runtime/exact pair passed; identical coordinator-header native guards reused explicitly; quiet-host readiness failed, new performance/hour not started",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
     }
   }
 }

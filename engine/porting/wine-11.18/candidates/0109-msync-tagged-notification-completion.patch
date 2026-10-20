@@ -1,0 +1,318 @@
+macOS: bind notification completion to an atomic journal serial and phase.
+
+Cider-Topic: sync/msync
+Cider-Requires: 0104-msync-thread-local-fork-admission.patch
+Cider-Status: nondefault alternative excluding0105-0108; matching magic5 pair required
+Cider-Review-By: independent scoped memory-order/lifetime/death/fork review and parent
+Cider-Test: exact-header thread/process recovery, stale helpers, live stopped owner,
+ notification scope and serial bound; five negative header variants rejected
+
+Preserve the F8 global owner, independent death lease,16-byte state slots,
+thread epochs, native frame pins, Mach/ulock waits and atomic WaitAll decision.
+COMMITTED remains the decision point. An applied journal is cleared only AFTER
+actual notification callbacks, using exact serial+phase CAS. A stale helper may
+send advisory duplicate wakes but cannot clear a newer serial or replay old data.
+
+The committer snapshots its own completed journal while still owning the gate,
+then leaves, notifies synchronously, and retires that exact tag without another
+owner acquisition. Recovery retains admission/fd/token refresh and owner-held
+CLEAN entry. Finish consumes its guard and completes its own notifications;
+a later journal may already be pending. All ten production callers obey this.
+
+Shared magic advances to5. Commit serials fail before2^62 wrap instead of2^64;
+no semaphore counts or API results are clamped/faked. The new tag CAS and possible
+duplicate callbacks have a measured cost to establish; no performance or overall
+M1/native-Windows/game acceptance follows from source or native fixtures alone.
+
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -24,7 +24,7 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ 
+-#define MSYNC_COORD_MAGIC UINT64_C(0x43494445524d5303)
++#define MSYNC_COORD_MAGIC UINT64_C(0x43494445524d5305)
+ #define MSYNC_COORD_TIDS (1u << 24)
+ #define MSYNC_COORD_HEADER_SIZE 65536u
+ #define MSYNC_COORD_SIZE (MSYNC_COORD_HEADER_SIZE + (uint64_t)MSYNC_COORD_TIDS * sizeof(uint64_t))
+@@ -44,13 +44,12 @@
+ struct msync_coord_header
+ {
+     uint64_t magic;
+-    uint64_t sequence;
++    uint64_t decision; /* serial<<2 | phase; one atomic compare prevents stale clearing */
+     uint64_t next_epoch;
+     uint64_t next_lease;
+     uint64_t owner;
+     uint32_t wake_sequence;
+     uint32_t wait_hint; /* boolean: a dead waiter cannot leak a permanent count */
+-    uint32_t state;
+     uint32_t count;
+     struct msync_coord_entry entries[MSYNC_COORD_ENTRIES];
+ };
+@@ -286,91 +285,111 @@
+         msync_coord_fatal( "restore cancellation" );
+ }
+ 
+-/* Return with the gate held and no incomplete transaction. A crashed committer
+- * leaves either no writes, or one decision that every subsequent caller helps
+- * finish. Mapping and BLOCKING wake delivery occur outside the OFD gate. */
++/* One atomic word binds phase to a never-reused serial. A completed notifier
++ * may clear exactly its APPLIED decision without acquiring the owner again. */
++#define MSYNC_COORD_PHASE_MASK UINT64_C(3)
++#define MSYNC_COORD_SERIAL_MAX (UINT64_MAX >> 2)
++static inline unsigned int msync_coord_phase( const struct msync_coord_header *header )
++{
++    return __atomic_load_n( &header->decision, __ATOMIC_ACQUIRE ) & MSYNC_COORD_PHASE_MASK;
++}
++static inline uint64_t msync_coord_serial( const struct msync_coord_header *header )
++{
++    return __atomic_load_n( &header->decision, __ATOMIC_ACQUIRE ) >> 2;
++}
++static inline void msync_coord_notify_pending( struct msync_coord *coord,
++              const struct msync_coord_entry *pending, void **slots, unsigned int count )
++{
++    unsigned int i;
++    for (i = 0; i < count; ++i)
++        if (pending[i].notify && !coord->notify( pending[i].idx, slots[i], 1 ))
++            msync_coord_fatal( "blocking notification did not complete" );
++}
++static inline void msync_coord_clear_applied( struct msync_coord *coord, uint64_t tag )
++{
++    uint64_t expected = tag;
++    if ((tag & MSYNC_COORD_PHASE_MASK) != MSYNC_COORD_APPLIED)
++        msync_coord_fatal( "notification decision phase" );
++    /* A newer transaction must never lose its notification obligations. A
++     * failed comparison means another helper finished or the serial advanced. */
++    __atomic_compare_exchange_n( &coord->header->decision, &expected,
++                                tag & ~MSYNC_COORD_PHASE_MASK, 0,
++                                __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST );
++}
++
++/* Return owning a CLEAN gate. A dead writer leaves either no decision, or one
++ * recoverable decision. All mapping and notification callbacks run after leave. */
+ static inline void msync_coord_enter( struct msync_coord *coord, int fd, uint64_t token,
+                                      struct msync_coord_guard *guard )
+ {
+     struct msync_coord_header *header = coord->header;
+     struct msync_coord_entry pending[MSYNC_COORD_ENTRIES];
+-    uint64_t sequence;
+-    unsigned int i, count, state;
+     void *slots[MSYNC_COORD_ENTRIES];
++    uint64_t tag;
++    unsigned int state, count, i;
+     int missing;
+     for (;;)
+     {
+         guard->fd = fd;
+         guard->coord = coord;
+         guard->cancel_state = -1;
+-        if (!coord->cancellation_managed && pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &guard->cancel_state ))
++        if (!coord->cancellation_managed &&
++            pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &guard->cancel_state ))
+             msync_coord_fatal( "cancel guard" );
+         if (coord->set_active) coord->set_active( 1 );
+         guard->fd = coord->get_fd ? coord->get_fd() : fd;
+         guard->token = coord->get_token ? coord->get_token() : token;
+         msync_coord_take( guard );
+-        state = __atomic_load_n( &header->state, __ATOMIC_ACQUIRE );
++        tag = __atomic_load_n( &header->decision, __ATOMIC_ACQUIRE );
++        state = tag & MSYNC_COORD_PHASE_MASK;
++        if (state == MSYNC_COORD_CLEAN) return;
+         if (state == MSYNC_COORD_PREPARING)
+-            __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
+-        else if (state != MSYNC_COORD_CLEAN)
+-        {
+-            if ((state != MSYNC_COORD_COMMITTED && state != MSYNC_COORD_APPLIED) ||
+-                !(count = header->count) || count > MSYNC_COORD_ENTRIES)
+-                msync_coord_fatal( "journal state" );
+-            sequence = header->sequence;
+-            memcpy( pending, header->entries, count * sizeof(*pending) );
+-            missing = 0;
+-            for (i = 0; i < count; ++i)
+-            {
+-                if (!pending[i].idx || pending[i].idx > 0x0fffffff)
+-                    msync_coord_fatal( "journal index" );
+-                slots[i] = coord->slot( pending[i].idx, 0 );
+-                if (!slots[i]) missing = 1;
+-            }
+-            if (missing)
+-            {
+-                msync_coord_leave( guard );
+-                for (i = 0; i < count; ++i)
+-                    if (!slots[i] && !coord->slot( pending[i].idx, 1 )) msync_coord_fatal( "map journal slot" );
+-                continue; /* another process may already have recovered it */
+-            }
+-            if (state == MSYNC_COORD_COMMITTED)
+-            {
+-                for (i = 0; i < count; ++i)
+-                    __atomic_store_n( (uint64_t *)slots[i], pending[i].value, __ATOMIC_RELEASE );
+-                __atomic_store_n( &header->state, MSYNC_COORD_APPLIED, __ATOMIC_RELEASE );
+-            }
++        {
++            __atomic_store_n( &header->decision, tag & ~MSYNC_COORD_PHASE_MASK, __ATOMIC_RELEASE );
++            return; /* no committed writes or notification obligations */
++        }
++        if ((state != MSYNC_COORD_COMMITTED && state != MSYNC_COORD_APPLIED) ||
++            !(count = header->count) || count > MSYNC_COORD_ENTRIES)
++            msync_coord_fatal( "journal state" );
++        memcpy( pending, header->entries, count * sizeof(*pending) );
++        for (i = 0, missing = 0; i < count; ++i)
++        {
++            slots[i] = coord->slot( pending[i].idx, 0 );
++            if (!slots[i]) missing = 1;
++        }
++        if (missing)
++        {
+             msync_coord_leave( guard );
+             for (i = 0; i < count; ++i)
+-                if (pending[i].notify) coord->notify( pending[i].idx, slots[i], 1 );
+-            /* Never apply an old snapshot after reacquiring the gate. */
+-            guard->cancel_state = -1;
+-            if (!coord->cancellation_managed && pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &guard->cancel_state ))
+-                msync_coord_fatal( "cancel guard" );
+-            if (coord->set_active) coord->set_active( 1 );
+-            guard->fd = coord->get_fd ? coord->get_fd() : fd;
+-            guard->token = coord->get_token ? coord->get_token() : token;
+-            msync_coord_take( guard );
+-            if (header->sequence == sequence && header->state == MSYNC_COORD_APPLIED)
+-                __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
+-            msync_coord_leave( guard );
+-            continue;
+-        }
+-        return;
+-    }
+-}
+-
+-/* All target slots must be prefetched and pinned by their normal handle cache
+- * (or the server object). The allocator also enters this gate before reuse. */
+-static inline void msync_coord_commit( struct msync_coord *coord, const struct msync_coord_entry *entries,
+-                                unsigned int count )
++                if (!slots[i] && !coord->slot( pending[i].idx, 1 ))
++                    msync_coord_fatal( "map journal slot" );
++            continue; /* snapshot may already have been finished/replaced */
++        }
++        if (state == MSYNC_COORD_COMMITTED)
++        {
++            for (i = 0; i < count; ++i)
++                __atomic_store_n( (uint64_t *)slots[i], pending[i].value, __ATOMIC_RELEASE );
++            tag = (tag & ~MSYNC_COORD_PHASE_MASK) | MSYNC_COORD_APPLIED;
++            __atomic_store_n( &header->decision, tag, __ATOMIC_RELEASE );
++        }
++        msync_coord_leave( guard );
++        msync_coord_notify_pending( coord, pending, slots, count );
++        msync_coord_clear_applied( coord, tag );
++        /* Refresh cancellation/admission/fd/token before the next owned entry.
++         * Stale snapshots cannot clear or replay a newer serial's decision. */
++    }
++}
++
++static inline void msync_coord_commit( struct msync_coord *coord,
++                           const struct msync_coord_entry *entries, unsigned int count )
+ {
+     struct msync_coord_header *header = coord->header;
++    struct msync_coord_entry changes[MSYNC_COORD_ENTRIES];
++    uint64_t tag = __atomic_load_n( &header->decision, __ATOMIC_ACQUIRE );
+     unsigned int i, actual = 0;
+-    struct msync_coord_entry changes[MSYNC_COORD_ENTRIES];
+     if (!count) return;
+-    if (count > MSYNC_COORD_ENTRIES || header->state != MSYNC_COORD_CLEAN || header->sequence == UINT64_MAX)
+-        msync_coord_fatal( "commit bounds" );
++    if (count > MSYNC_COORD_ENTRIES || (tag & MSYNC_COORD_PHASE_MASK) != MSYNC_COORD_CLEAN ||
++        (tag >> 2) == MSYNC_COORD_SERIAL_MAX) msync_coord_fatal( "commit bounds" );
+     for (i = 0; i < count; ++i)
+     {
+         void *shm = coord->slot( entries[i].idx, 0 );
+@@ -381,24 +400,49 @@
+     if (!actual) return;
+     entries = changes;
+     count = actual;
+-    __atomic_store_n( &header->state, MSYNC_COORD_PREPARING, __ATOMIC_RELEASE );
+-    ++header->sequence;
++    tag = (((tag >> 2) + 1) << 2);
++    __atomic_store_n( &header->decision, tag | MSYNC_COORD_PREPARING, __ATOMIC_RELEASE );
+     header->count = count;
+     memcpy( header->entries, entries, count * sizeof(*entries) );
+-    /* No state word changes until this one recoverable decision is published. */
+-    __atomic_store_n( &header->state, MSYNC_COORD_COMMITTED, __ATOMIC_RELEASE );
++    __atomic_store_n( &header->decision, tag | MSYNC_COORD_COMMITTED, __ATOMIC_RELEASE );
+     for (i = 0; i < count; ++i)
+     {
+         void *slot = coord->slot( entries[i].idx, 0 );
+         if (!slot) msync_coord_fatal( "unmapped commit" );
+         __atomic_store_n( (uint64_t *)slot, entries[i].value, __ATOMIC_RELEASE );
+     }
+-    __atomic_store_n( &header->state, MSYNC_COORD_APPLIED, __ATOMIC_RELEASE );
+-    /* Usual path: no extra lock round trips. The pump never takes this gate,
+-     * and a zero-timeout send cannot wait for its queue to drain. */
++    __atomic_store_n( &header->decision, tag | MSYNC_COORD_APPLIED, __ATOMIC_RELEASE );
+     for (i = 0; i < count; ++i)
+-        if (entries[i].notify && !coord->notify( entries[i].idx, coord->slot( entries[i].idx, 0 ), 0 )) return;
+-    __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
++        if (entries[i].notify) return; /* caller must synchronously finish */
++    __atomic_store_n( &header->decision, tag, __ATOMIC_RELEASE );
++}
++
++/* Caller still owns its completed commit and pins. Capture that exact journal
++ * before dropping owner; do not reacquire merely to retrieve our own snapshot. */
++static inline void msync_coord_finish( struct msync_coord_guard *guard )
++{
++    struct msync_coord *coord = guard->coord;
++    struct msync_coord_header *header = coord->header;
++    struct msync_coord_entry pending[MSYNC_COORD_ENTRIES];
++    void *slots[MSYNC_COORD_ENTRIES];
++    uint64_t tag = __atomic_load_n( &header->decision, __ATOMIC_ACQUIRE );
++    unsigned int count, i;
++    if ((tag & MSYNC_COORD_PHASE_MASK) == MSYNC_COORD_CLEAN)
++    {
++        msync_coord_leave( guard );
++        return;
++    }
++    count = header->count;
++    if ((tag & MSYNC_COORD_PHASE_MASK) != MSYNC_COORD_APPLIED ||
++        !count || count > MSYNC_COORD_ENTRIES)
++        msync_coord_fatal( "finish journal state" );
++    memcpy( pending, header->entries, count * sizeof(*pending) );
++    for (i = 0; i < count; ++i)
++        if (!(slots[i] = coord->slot( pending[i].idx, 0 )))
++            msync_coord_fatal( "finish unpinned slot" );
++    msync_coord_leave( guard );
++    msync_coord_notify_pending( coord, pending, slots, count );
++    msync_coord_clear_applied( coord, tag );
+ }
+ 
+ static inline uint64_t msync_coord_value( unsigned int low, unsigned int high )
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -792,13 +792,7 @@
+ 
+ static void coord_finish( struct msync_coord_guard *guard )
+ {
+-    int pending = coord.header->state != MSYNC_COORD_CLEAN;
+-    msync_coord_leave( guard );
+-    if (pending)
+-    {
+-        coord_enter( guard ); /* synchronously discharge this commit's wake obligations */
+-        msync_coord_leave( guard );
+-    }
++    msync_coord_finish( guard );
+ }
+ 
+ void msync_init(void)
+--- a/server/msync.c
++++ b/server/msync.c
+@@ -888,13 +888,7 @@
+ 
+ static void coord_finish( struct msync_coord_guard *guard )
+ {
+-    int pending = coord.header->state != MSYNC_COORD_CLEAN;
+-    msync_coord_leave( guard );
+-    if (pending)
+-    {
+-        coord_enter( guard ); /* finish/recover APPLIED wake obligations outside gate */
+-        msync_coord_leave( guard );
+-    }
++    msync_coord_finish( guard );
+ }
+ 
+ /* A stale instance is removable only when no independent work description

@@ -1,0 +1,51 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [PATCH] msync: reuse pinned slot addresses within one held commit
+
+Requires0104; excludes0105-0110. Owner, journal phases, kernel-backed
+lease/death proof and wake delivery remain unchanged. Targets stay pinned
+by their normal handle/server references for this call. Recovery continues
+to resolve its own slots; no pointer survives a gate leave. At most64 local
+pointers are added. Performance and own-hour acceptance are separate gates.
+
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -368,6 +368,7 @@
+     struct msync_coord_header *header = coord->header;
+     unsigned int i, actual = 0;
+     struct msync_coord_entry changes[MSYNC_COORD_ENTRIES];
++    void *slots[MSYNC_COORD_ENTRIES];
+     if (!count) return;
+     if (count > MSYNC_COORD_ENTRIES || header->state != MSYNC_COORD_CLEAN || header->sequence == UINT64_MAX)
+         msync_coord_fatal( "commit bounds" );
+@@ -376,7 +377,12 @@
+         void *shm = coord->slot( entries[i].idx, 0 );
+         if (!shm) msync_coord_fatal( "unmapped preparation" );
+         if (entries[i].notify || __atomic_load_n( (uint64_t *)shm, __ATOMIC_ACQUIRE ) != entries[i].value)
++        {
++            /* The caller pins these slots until commit/finish returns. Cache
++             * only this owner-held invocation, never across leave/recovery. */
++            slots[actual] = shm;
+             changes[actual++] = entries[i];
++        }
+     }
+     if (!actual) return;
+     entries = changes;
+@@ -388,16 +394,12 @@
+     /* No state word changes until this one recoverable decision is published. */
+     __atomic_store_n( &header->state, MSYNC_COORD_COMMITTED, __ATOMIC_RELEASE );
+     for (i = 0; i < count; ++i)
+-    {
+-        void *slot = coord->slot( entries[i].idx, 0 );
+-        if (!slot) msync_coord_fatal( "unmapped commit" );
+-        __atomic_store_n( (uint64_t *)slot, entries[i].value, __ATOMIC_RELEASE );
+-    }
++        __atomic_store_n( (uint64_t *)slots[i], entries[i].value, __ATOMIC_RELEASE );
+     __atomic_store_n( &header->state, MSYNC_COORD_APPLIED, __ATOMIC_RELEASE );
+     /* Usual path: no extra lock round trips. The pump never takes this gate,
+      * and a zero-timeout send cannot wait for its queue to drain. */
+     for (i = 0; i < count; ++i)
+-        if (entries[i].notify && !coord->notify( entries[i].idx, coord->slot( entries[i].idx, 0 ), 0 )) return;
++        if (entries[i].notify && !coord->notify( entries[i].idx, slots[i], 0 )) return;
+     __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
+ }
+ 

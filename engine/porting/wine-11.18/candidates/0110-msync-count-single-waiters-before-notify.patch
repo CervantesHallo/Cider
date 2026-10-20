@@ -1,0 +1,380 @@
+macOS: count real single waiters before omitting empty kernel notifications.
+
+Cider-Topic: sync/msync
+Cider-Requires: 0104-msync-thread-local-fork-admission.patch
+Cider-Status: nondefault alternative excluding0105-0109; matching magic6 pair required
+Cider-Review-By: independent publication/lifetime/pump-count review and parent
+Cider-Test: exact helper,actual shared-ulock parked ABA,wake/count/sticky negatives;
+ final library disassembly verifies same-word publication RMW
+
+Keep the original F8 owner,16-byte slots,decision journal,leases,epochs,
+state counts/statuses,waits and under-owner kernel notification path. Only omit
+notifications when a conservative registered-waiter advertisement proves empty.
+Singles publish before compare/park and pop through the existing native wait
+registry before frame pins unwind. No new shared reference or thread_data field.
+Hard kill may overestimate; the internal count limit selects the original wake
+fallback. This never clamps a Windows semaphore or returns a fabricated status.
+
+Pump-owned linked-node counts and temporary advertisements preserve MANY without
+erasing singles. Ready-only high indices do not grow the sparse node map. The
+extra local node counter costs one unsigned field per allocated map entry.
+SC operations modify the same hint word; a harmless PUBLISH bit forces actual
+RMW codegen. No correctness depends on its value/wrap period. Invalid internal
+count-zero waits cannot borrow an unpinned alert slot; public Windows count-zero
+rejection and alertable delay server paths are unchanged.
+
+Native/helper/source checks are not Wine/Windows/game acceptance. Paired runtime,
+fixed performance and this exact binary's continuous pressure remain separate.
+
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -24,7 +24,7 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ 
+-#define MSYNC_COORD_MAGIC UINT64_C(0x43494445524d5303)
++#define MSYNC_COORD_MAGIC UINT64_C(0x43494445524d5306)
+ #define MSYNC_COORD_TIDS (1u << 24)
+ #define MSYNC_COORD_HEADER_SIZE 65536u
+ #define MSYNC_COORD_SIZE (MSYNC_COORD_HEADER_SIZE + (uint64_t)MSYNC_COORD_TIDS * sizeof(uint64_t))
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -62,7 +62,7 @@
+ 
+ #include "unix_private.h"
+ #include "msync.h"
+-#include "wine/msync_coord.h"
++#include "wine/msync_waiter_hint.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(sync);
+ 
+@@ -179,7 +179,7 @@
+     int max;
+     unsigned short msync_type;
+     unsigned short refcount;
+-    int multiple_waiters;
++    uint32_t multiple_waiters;
+ };
+ C_ASSERT(sizeof(struct semaphore) == 16);
+ 
+@@ -189,7 +189,7 @@
+     int unused;
+     unsigned short msync_type;
+     unsigned short refcount;
+-    int multiple_waiters;
++    uint32_t multiple_waiters;
+ };
+ C_ASSERT(sizeof(struct event) == 16);
+ 
+@@ -199,7 +199,7 @@
+     unsigned int count;  /* recursion count, like upstream ntsync */
+     unsigned short msync_type;
+     unsigned short refcount;
+-    int multiple_waiters;
++    uint32_t multiple_waiters;
+ };
+ C_ASSERT(sizeof(struct mutex) == 16);
+ 
+@@ -214,6 +214,7 @@
+ {
+     struct msync_wait_registration *prev;
+     mach_register_message_t message;
++    uint32_t *single_hint; /* borrowed native-frame pin, unwound before pins */
+ };
+ static __thread struct msync_wait_registration *wait_registrations;
+ /* Wine already owns a native per-thread record. Avoid separate Mach-O TLV
+@@ -269,10 +270,14 @@
+     mach_msg_return_t mr;
+     msync_control_begin();
+     if (wait_registrations != registration) msync_coord_fatal( "wait registration stack" );
+-    registration->message.shm_idx[0] |= 1u << 29;
+-    mr = mach_msg2( &registration->message.header, MACH_SEND_MSG | MACH_SEND_TIMEOUT,
+-                   registration->message.header.msgh_size, 0, MACH_PORT_NULL, 1000, 0 );
+-    if (mr != MACH_MSG_SUCCESS) msync_coord_fatal( "wait unregister delivery" );
++    if (registration->single_hint) msync_hint_leave( registration->single_hint );
++    else
++    {
++        registration->message.shm_idx[0] |= 1u << 29;
++        mr = mach_msg2( &registration->message.header, MACH_SEND_MSG | MACH_SEND_TIMEOUT,
++                       registration->message.header.msgh_size, 0, MACH_PORT_NULL, 1000, 0 );
++        if (mr != MACH_MSG_SUCCESS) msync_coord_fatal( "wait unregister delivery" );
++    }
+     wait_registrations = registration->prev;
+     msync_control_end();
+ }
+@@ -305,33 +310,37 @@
+ static inline NTSTATUS msync_wait_single( int obj, void *obj_shm,
+                                           ULONGLONG *end, int tid )
+ {
++    struct msync_wait_registration registration;
+     int ret, val = 0;
+     ULONGLONG ns_timeleft = 0;
+-
+-    do 
++    NTSTATUS status;
++    (void)obj;
++    msync_control_begin();
++    registration.prev = wait_registrations;
++    registration.single_hint = &((struct event *)obj_shm)->multiple_waiters;
++    msync_hint_enter( registration.single_hint, 0 );
++    wait_registrations = &registration;
++    msync_control_end();
++    do
+     {
+         if (((struct mutex *)obj_shm)->msync_type == MSYNC_MUTEX)
+         {
+             val = __atomic_load_n( (int *)obj_shm, __ATOMIC_ACQUIRE );
+-            if (!val || val == ~0)
+-                val = tid;
++            if (!val || val == ~0) val = tid;
+         }
+-
+         if (__atomic_load_n( (int *)obj_shm, __ATOMIC_ACQUIRE ) != val)
+-            return STATUS_PENDING;
+-
++        { status = STATUS_PENDING; goto done; }
+         if (end)
+         {
+             ns_timeleft = update_timeout( *end ) * 100;
+-            if (!ns_timeleft) return STATUS_TIMEOUT;
++            if (!ns_timeleft) { status = STATUS_TIMEOUT; goto done; }
+         }
+         ret = ulock_wait( UL_COMPARE_AND_WAIT_SHARED | ULF_NO_ERRNO, obj_shm, val, ns_timeleft );
+     } while (ret == -EINTR || ret == -EFAULT);
+-
+-    if (ret == -ETIMEDOUT)
+-        return STATUS_TIMEOUT;
+-
+-    return STATUS_SUCCESS;
++    status = ret == -ETIMEDOUT ? STATUS_TIMEOUT : STATUS_SUCCESS;
++done:
++    server_remove_wait( &registration );
++    return status;
+ }
+ 
+ static inline int check_shm_contention( void **objs_shm, void *alert_obj_shm, int count, int tid )
+@@ -911,9 +920,11 @@
+     struct event *event_obj = (struct event *)shm;
+     mach_msg_return_t result;
+ 
+-    __ulock_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, shm, 0 );
+-
+-    if (!__atomic_load_n( &event_obj->multiple_waiters, __ATOMIC_SEQ_CST ))
++    uint32_t hint = msync_hint_snapshot( &event_obj->multiple_waiters );
++    if (msync_hint_wake_single( hint ))
++        __ulock_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, shm, 0 );
++
++    if (!msync_hint_wake_many( hint ))
+         return 1;
+ 
+     send_header.msgh_bits = msgh_bits_send;
+@@ -1144,7 +1155,7 @@
+     int ready, abandoned;
+ 
+     if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
+-    if (count > MAXIMUM_WAIT_OBJECTS || (!count && !alert_obj)) return STATUS_INVALID_PARAMETER;
++    if (!count || count > MAXIMUM_WAIT_OBJECTS) return STATUS_INVALID_PARAMETER;
+     if (tid >= shm_tid_size / sizeof(*shm_tid_map)) return STATUS_INSUFFICIENT_RESOURCES;
+     if (alert_obj) alert_obj_shm = get_shm( alert_obj );
+     for (i = 0; i < count; ++i)
+@@ -1199,8 +1210,6 @@
+         if (!wait_any && blocked < count)
+             ret = do_single_wait( objs[blocked], objs_shm[blocked], alert_obj, alert_obj_shm,
+                                   timeout ? &end : NULL, tid );
+-        else if (!count)
+-            ret = msync_wait_single( alert_obj, alert_obj_shm, timeout ? &end : NULL, tid );
+         else if (count == 1)
+             ret = do_single_wait( objs[0], objs_shm[0], alert_obj, alert_obj_shm, timeout ? &end : NULL, tid );
+         else
+--- a/server/msync.c
++++ b/server/msync.c
+@@ -61,7 +61,7 @@
+ #include "handle.h"
+ #include "request.h"
+ #include "msync.h"
+-#include "wine/msync_coord.h"
++#include "wine/msync_waiter_hint.h"
+ 
+ #define UL_COMPARE_AND_WAIT_SHARED  0x3
+ #define ULF_WAKE_ALL                0x00000100
+@@ -270,6 +270,7 @@
+ struct tid_list
+ {
+     struct tid_node *head;
++    unsigned int waiters; /* pump-only: linked nodes only */
+ };
+ 
+ static struct tid_list *tid_map;
+@@ -286,7 +287,7 @@
+     int high;
+     unsigned short msync_type;
+     unsigned short refcount;
+-    int multiple_waiters;
++    uint32_t multiple_waiters;
+ };
+ 
+ C_ASSERT( sizeof(struct msync_shm) == 16 );
+@@ -311,25 +312,27 @@
+            __atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) == epoch;
+ }
+ 
+-/* Only the pump changes hints for a live slot. Each linked node owns one
+- * reference; registration temporarily owns one before its readiness check. */
++static inline struct tid_list *get_tid_list( unsigned int shm_idx );
++/* Only the pump writes the exact MANY presence. The shared count additionally
++ * includes native singles; never clear or decrement their advertisements. */
+ static inline void add_wait_hint( struct msync_shm *obj )
+ {
+-    int previous = __atomic_fetch_add( &obj->multiple_waiters, 1, __ATOMIC_SEQ_CST );
+-    if (previous < 0 || previous == INT_MAX) msync_coord_fatal( "wait hint overflow" );
+-}
+-
+-static inline void remove_wait_hint( struct msync_shm *obj )
+-{
+-    if (__atomic_fetch_sub( &obj->multiple_waiters, 1, __ATOMIC_SEQ_CST ) <= 0)
+-        msync_coord_fatal( "wait hint underflow" );
++    msync_hint_enter( &obj->multiple_waiters, 1 );
++}
++static inline void remove_wait_hint( unsigned int idx, struct msync_shm *obj )
++{
++    msync_hint_leave( &obj->multiple_waiters );
++    if (idx >= tid_map_size || !tid_map[idx].waiters)
++        msync_hint_clear_many( &obj->multiple_waiters );
+ }
+ 
+ static inline void free_tid_node( unsigned int shm_idx, struct tid_node *node )
+ {
+     struct msync_shm *obj = get_shm( shm_idx );
+     if (!obj) msync_coord_fatal( "wait node shared slot" );
+-    remove_wait_hint( obj );
++    if (shm_idx >= tid_map_size || !tid_map[shm_idx].waiters) msync_coord_fatal( "multi waiter underflow" );
++    --tid_map[shm_idx].waiters;
++    remove_wait_hint( shm_idx, obj );
+     pool_free( node );
+ }
+ 
+@@ -359,6 +362,8 @@
+     struct tid_list *list = get_tid_list( shm_idx );
+ 
+     new_node = pool_alloc();
++    if (list->waiters == INT_MAX) msync_coord_fatal( "multi waiter overflow" );
++    ++list->waiters;
+     new_node->tid = tid;
+     new_node->epoch = epoch;
+ 
+@@ -602,8 +607,10 @@
+     mach_msg_header_t send_header = {0};
+     struct msync_shm *obj = (struct msync_shm *)shm;
+ 
+-    __ulock_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, (void *)shm, 0 );
+-    if (!__atomic_load_n( &obj->multiple_waiters, __ATOMIC_SEQ_CST ))
++    uint32_t hint = msync_hint_snapshot( &obj->multiple_waiters );
++    if (msync_hint_wake_single( hint ))
++        __ulock_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, (void *)shm, 0 );
++    if (!msync_hint_wake_many( hint ))
+         return MACH_MSG_SUCCESS;
+ 
+     send_header.msgh_bits = MACH_MSGH_BITS_REMOTE(MACH_MSG_TYPE_COPY_SEND);
+@@ -754,7 +761,7 @@
+                                (unsigned int)__atomic_load_n( &obj->high, __ATOMIC_ACQUIRE ) != UINT_MAX))) ||
+                 (!is_mutex && val != 0))
+             {
+-                remove_wait_hint( obj ); /* current object never acquired a node */
++                remove_wait_hint( idx, obj ); /* current object never acquired a node */
+                 unregister_wait( &receive_message, tid, i );
+                 wake_tid( tid, receive_message.epoch );
+                 break;
+@@ -1115,7 +1122,7 @@
+     assert(shm);
+     __atomic_store_n( (uint64_t *)shm, msync_coord_value( low, high ), __ATOMIC_RELEASE );
+     shm->msync_type = type;
+-    shm->multiple_waiters = 0;
++    __atomic_store_n( &shm->multiple_waiters, 0, __ATOMIC_SEQ_CST );
+     __atomic_store_n( &shm->refcount, 1, __ATOMIC_SEQ_CST );
+ 
+     msync_coord_leave( &guard );
+@@ -1148,7 +1155,7 @@
+     int unused;
+     unsigned short msync_type;
+     unsigned short refcount;
+-    int multiple_waiters;
++    uint32_t multiple_waiters;
+ };
+ 
+ void msync_set_event( struct msync *msync )
+@@ -1182,7 +1189,7 @@
+     unsigned int count;
+     unsigned short msync_type;
+     unsigned short refcount;
+-    int multiple_waiters;
++    uint32_t multiple_waiters;
+ };
+ 
+ void msync_abandon_mutexes( thread_id_t tid )
+--- /dev/null
++++ b/include/wine/msync_waiter_hint.h
+@@ -0,0 +1,64 @@
++#ifndef __WINE_MSYNC_WAITER_HINT_H
++#define __WINE_MSYNC_WAITER_HINT_H
++#include "msync_coord.h"
++
++/* An advisory count, never a Windows permit count. The pump maintains MANY
++ * from its own exact node/temporary-registration count. A hard-killed client
++ * may leave a conservative overestimate; no new shared reference is held.
++ * At the hint limit STICKY permanently selects the original unconditional
++ * single-wake path until the object is destroyed. No API/state is clamped. */
++#define MSYNC_HINT_COUNT UINT32_C(0x1fffffff)
++#define MSYNC_HINT_PUBLISH UINT32_C(0x20000000)
++#define MSYNC_HINT_MANY UINT32_C(0x40000000)
++#define MSYNC_HINT_STICKY UINT32_C(0x80000000)
++static inline void msync_hint_enter( uint32_t *hint, int many )
++{
++    uint32_t old = __atomic_load_n( hint, __ATOMIC_SEQ_CST ), next;
++    for (;;)
++    {
++        if (old & MSYNC_HINT_STICKY)
++        {
++            if (many) __atomic_fetch_or( hint, MSYNC_HINT_MANY, __ATOMIC_SEQ_CST );
++            return;
++        }
++        if ((old & MSYNC_HINT_COUNT) == MSYNC_HINT_COUNT)
++            next = (old & (MSYNC_HINT_MANY | MSYNC_HINT_PUBLISH)) | MSYNC_HINT_STICKY;
++        else next = old + 1;
++        if (many) next |= MSYNC_HINT_MANY;
++        if (__atomic_compare_exchange_n( hint, &old, next, 0,
++                                         __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST )) return;
++    }
++}
++static inline void msync_hint_leave( uint32_t *hint )
++{
++    uint32_t old = __atomic_load_n( hint, __ATOMIC_SEQ_CST );
++    for (;;)
++    {
++        if (old & MSYNC_HINT_STICKY) return;
++        if (!(old & MSYNC_HINT_COUNT)) msync_coord_fatal( "wait hint underflow" );
++        if (__atomic_compare_exchange_n( hint, &old, old - 1, 0,
++                                         __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST )) return;
++    }
++}
++static inline void msync_hint_clear_many( uint32_t *hint )
++{
++    __atomic_fetch_and( hint, ~MSYNC_HINT_MANY, __ATOMIC_SEQ_CST );
++}
++static inline uint32_t msync_hint_snapshot( uint32_t *hint )
++{
++    /* Change an irrelevant bit so the toolchain must perform a real same-word
++     * RMW, rather than lower a zero-op RMW to a stack fence plus load. Publish
++     * preceding payload stores to subsequent registering RMWs; every live hint
++     * write preserves that release sequence. Nothing depends on this bit's
++     * value or on its wrap period. Only COUNT/MANY/STICKY decide notification. */
++    return __atomic_fetch_xor( hint, MSYNC_HINT_PUBLISH, __ATOMIC_SEQ_CST );
++}
++static inline int msync_hint_wake_single( uint32_t hint )
++{
++    return !!(hint & (MSYNC_HINT_COUNT | MSYNC_HINT_STICKY));
++}
++static inline int msync_hint_wake_many( uint32_t hint )
++{
++    return !!(hint & MSYNC_HINT_MANY);
++}
++#endif

@@ -1,0 +1,188 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [PATCH] msync: compose reviewed local-data and pinned-slot reuse
+
+Requires0104, excludes0105-0112 as separately tested branches. This is the
+content of0107,0111,0112 combined againstF8, with no new synchronization
+algorithm. Keep cancellation/control fences, frame pin cleanup, SC fork
+admission, global owner, kernel leases and recoverable journal intact.
+Pointer caching remains local to a function/owned native frame/held commit.
+The original individual performance failures remain evidence, not erased.
+This composition needs its own runtime/performance and continuous hour.
+
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -225,11 +225,10 @@
+ static int *shm_tid_map;
+ static const mach_msg_bits_t msgh_bits_send = MACH_MSGH_BITS_REMOTE(MACH_MSG_TYPE_COPY_SEND);
+ 
+-static void msync_replay_controls(void)
+-{
+-    struct thread_data *data = get_thread_data();
++static void msync_replay_controls_data( struct thread_data *data )
++{
+     unsigned int pending;
+-    if (coord_exiting || data->msync_in_transaction || data->msync_control_depth ||
++    if (data->msync_exiting || data->msync_in_transaction || data->msync_control_depth ||
+         !__atomic_load_n( &data->msync_pending_signals, __ATOMIC_RELAXED )) return;
+     pending = __atomic_exchange_n( &data->msync_pending_signals, 0, __ATOMIC_SEQ_CST );
+     if (pending & (1u << SIGQUIT)) pthread_kill( pthread_self(), SIGQUIT );
+@@ -244,18 +243,22 @@
+ void msync_control_begin(void)
+ {
+     struct thread_data *data = get_thread_data();
+-    __atomic_add_fetch( &data->msync_control_depth, 1, __ATOMIC_RELAXED );
++    /* Only this executor writes depth; signal handlers read/defer. A signal
++     * before publication sees the old safe region; after it sees the new one.
++     * Keep atomic stores and the compiler fence, without a shared RMW. */
++    unsigned int depth = __atomic_load_n( &data->msync_control_depth, __ATOMIC_RELAXED );
++    __atomic_store_n( &data->msync_control_depth, (sig_atomic_t)(depth + 1), __ATOMIC_RELAXED );
+     __atomic_signal_fence( __ATOMIC_SEQ_CST );
+ }
+ 
+ void msync_control_end(void)
+ {
+     struct thread_data *data = get_thread_data();
++    unsigned int depth;
+     __atomic_signal_fence( __ATOMIC_SEQ_CST );
+-    if (!__atomic_sub_fetch( &data->msync_control_depth, 1, __ATOMIC_RELAXED ))
+-    {
+-        msync_replay_controls();
+-    }
++    depth = (unsigned int)__atomic_load_n( &data->msync_control_depth, __ATOMIC_RELAXED ) - 1;
++    __atomic_store_n( &data->msync_control_depth, (sig_atomic_t)depth, __ATOMIC_RELAXED );
++    if (!depth) msync_replay_controls_data( data );
+ }
+ 
+ void msync_begin_thread_exit(void)
+@@ -586,9 +589,8 @@
+ /* SC publication/recheck: a fork sees every admitted existing descriptor, or
+  * its owner sees the closed gate before using it. A cold thread blocked on the
+  * registry has not opened an inheritable work description yet. */
+-static void coord_depart(void)
+-{
+-    struct thread_data *data = get_thread_data();
++static void coord_depart( struct thread_data *data )
++{
+     __atomic_store_n( &data->msync_in_transaction, 0, __ATOMIC_SEQ_CST );
+     if (__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST ))
+         __ulock_wake( 1 | ULF_WAKE_ALL, (void *)&data->msync_in_transaction, 0 );
+@@ -602,8 +604,8 @@
+     {
+         __atomic_store_n( &data->msync_in_transaction, 1, __ATOMIC_SEQ_CST );
+         if (!__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST )) return;
+-        coord_depart();
+-        msync_replay_controls();
++        coord_depart( data );
++        msync_replay_controls_data( data );
+         if (!__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST )) continue;
+         ret = __ulock_wait( 1 | ULF_NO_ERRNO, &coord_forking, 1, 1000 );
+         if (ret < 0 && ret != -EINTR && ret != -ETIMEDOUT && ret != -EFAULT)
+@@ -769,8 +771,9 @@
+     if (active) coord_admit();
+     else
+     {
+-        coord_depart();
+-        msync_replay_controls();
++        struct thread_data *data = get_thread_data();
++        coord_depart( data );
++        msync_replay_controls_data( data );
+     }
+ }
+ 
+@@ -778,12 +781,13 @@
+ 
+ static void coord_enter( struct msync_coord_guard *guard )
+ {
++    struct thread_data *data = get_thread_data();
+     unsigned int tid = GetCurrentThreadId();
+-    if (coord_retired || !get_thread_data()->msync_private_frames)
++    if (coord_retired || !data->msync_private_frames)
+         msync_coord_fatal( "transaction outside pinned frame" );
+     msync_coord_enter( &coord, -1, 0, guard );
+-    if (!coord_thread_epoch || (coord_thread_epoch & 1) || tid >= MSYNC_COORD_TIDS ||
+-        __atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) != coord_thread_epoch)
++    if (!data->msync_epoch || (data->msync_epoch & 1) || tid >= MSYNC_COORD_TIDS ||
++        __atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) != data->msync_epoch)
+     {
+         msync_coord_leave( guard );
+         abort_thread( STATUS_THREAD_IS_TERMINATING );
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -839,6 +839,7 @@
+ struct inproc_frame
+ {
+     struct inproc_frame *prev;
++    struct thread_data *data; /* native thread lifetime; no guest pointer */
+     struct inproc_sync *pins[MAXIMUM_WAIT_OBJECTS];
+     unsigned int count;
+     int cancel_state;
+@@ -849,19 +850,21 @@
+ {
+     msync_control_begin();
+     if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &frame->cancel_state )) _exit(1);
+-    frame->prev = inproc_frames;
++    frame->data = get_thread_data();
++    frame->prev = frame->data->msync_frames;
+     frame->count = 0;
+-    inproc_frames = frame;
+-    get_thread_data()->msync_private_frames++;
++    frame->data->msync_frames = frame;
++    frame->data->msync_private_frames++;
+ }
+ 
+ /* The caller has deferred controls since acquiring its first unrecorded pin. */
+ static void inproc_frame_leave( struct inproc_frame *frame )
+ {
+-    assert( inproc_frames == frame );
++    struct thread_data *data = frame->data;
++    assert( data->msync_frames == frame );
+     while (frame->count) release_inproc_sync( frame->pins[--frame->count] );
+-    inproc_frames = frame->prev;
+-    get_thread_data()->msync_private_frames--;
++    data->msync_frames = frame->prev;
++    data->msync_private_frames--;
+     if (pthread_setcancelstate( frame->cancel_state, NULL )) _exit(1);
+     msync_control_end();
+ }
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -368,6 +368,7 @@
+     struct msync_coord_header *header = coord->header;
+     unsigned int i, actual = 0;
+     struct msync_coord_entry changes[MSYNC_COORD_ENTRIES];
++    void *slots[MSYNC_COORD_ENTRIES];
+     if (!count) return;
+     if (count > MSYNC_COORD_ENTRIES || header->state != MSYNC_COORD_CLEAN || header->sequence == UINT64_MAX)
+         msync_coord_fatal( "commit bounds" );
+@@ -376,7 +377,12 @@
+         void *shm = coord->slot( entries[i].idx, 0 );
+         if (!shm) msync_coord_fatal( "unmapped preparation" );
+         if (entries[i].notify || __atomic_load_n( (uint64_t *)shm, __ATOMIC_ACQUIRE ) != entries[i].value)
++        {
++            /* The caller pins these slots until commit/finish returns. Cache
++             * only this owner-held invocation, never across leave/recovery. */
++            slots[actual] = shm;
+             changes[actual++] = entries[i];
++        }
+     }
+     if (!actual) return;
+     entries = changes;
+@@ -388,16 +394,12 @@
+     /* No state word changes until this one recoverable decision is published. */
+     __atomic_store_n( &header->state, MSYNC_COORD_COMMITTED, __ATOMIC_RELEASE );
+     for (i = 0; i < count; ++i)
+-    {
+-        void *slot = coord->slot( entries[i].idx, 0 );
+-        if (!slot) msync_coord_fatal( "unmapped commit" );
+-        __atomic_store_n( (uint64_t *)slot, entries[i].value, __ATOMIC_RELEASE );
+-    }
++        __atomic_store_n( (uint64_t *)slots[i], entries[i].value, __ATOMIC_RELEASE );
+     __atomic_store_n( &header->state, MSYNC_COORD_APPLIED, __ATOMIC_RELEASE );
+     /* Usual path: no extra lock round trips. The pump never takes this gate,
+      * and a zero-timeout send cannot wait for its queue to drain. */
+     for (i = 0; i < count; ++i)
+-        if (entries[i].notify && !coord->notify( entries[i].idx, coord->slot( entries[i].idx, 0 ), 0 )) return;
++        if (entries[i].notify && !coord->notify( entries[i].idx, slots[i], 0 )) return;
+     __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
+ }
+ 

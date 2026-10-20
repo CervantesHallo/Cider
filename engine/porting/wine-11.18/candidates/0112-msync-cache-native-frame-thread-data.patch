@@ -1,0 +1,48 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [PATCH] ntdll: retain native thread data in each inproc call frame
+
+Requires0104; excludes0105-0111. A frame never migrates between native
+threads and is unwound before that thread_data is freed. Save its current
+thread_data once after controls/cancellation are deferred, reuse it while
+publishing and unwinding pins. Cancellation save/restore, control nesting,
+release order, termination and journal semantics stay intact. One pointer
+is added only to private native stack frames; no shared ABI changes.
+
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -839,6 +839,7 @@
+ struct inproc_frame
+ {
+     struct inproc_frame *prev;
++    struct thread_data *data; /* native thread lifetime; no guest pointer */
+     struct inproc_sync *pins[MAXIMUM_WAIT_OBJECTS];
+     unsigned int count;
+     int cancel_state;
+@@ -849,19 +850,21 @@
+ {
+     msync_control_begin();
+     if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &frame->cancel_state )) _exit(1);
+-    frame->prev = inproc_frames;
++    frame->data = get_thread_data();
++    frame->prev = frame->data->msync_frames;
+     frame->count = 0;
+-    inproc_frames = frame;
+-    get_thread_data()->msync_private_frames++;
++    frame->data->msync_frames = frame;
++    frame->data->msync_private_frames++;
+ }
+ 
+ /* The caller has deferred controls since acquiring its first unrecorded pin. */
+ static void inproc_frame_leave( struct inproc_frame *frame )
+ {
+-    assert( inproc_frames == frame );
++    struct thread_data *data = frame->data;
++    assert( data->msync_frames == frame );
+     while (frame->count) release_inproc_sync( frame->pins[--frame->count] );
+-    inproc_frames = frame->prev;
+-    get_thread_data()->msync_private_frames--;
++    data->msync_frames = frame->prev;
++    data->msync_private_frames--;
+     if (pthread_setcancelstate( frame->cancel_state, NULL )) _exit(1);
+     msync_control_end();
+ }
