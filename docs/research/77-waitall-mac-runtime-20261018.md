@@ -258,3 +258,15 @@ v4-original-gates-v1完整12次结束：F17单事件10100/2400ns=4.2083倍，RTT
 F21/0117从F19分支、不含F20：只复用本帧当前native thread_data供原control begin/end使用，旧通用wrapper保留。获取data早于control depth发布不是新增窗口，旧begin本来也先取data；原原子操作/fence、pthread取消顺序、资源发布、失败goto、对象pins和事务/恢复/header/server/PE均不改。独立限定源码复审无具体P1/P2，三文件zero-fuzz/offset重建；SDK15.4/O2两组件零警告构建，300导出相等，自己的11阶段实际功能及9份native/双PE/UUID身份核对通过（6b52df80…/1798e22d…）。实际clang21.0.0/2100.3.34.2及25个当前链接输入另记；不追认未记录的历史编译器输入。
 
 准备F21单独固定6轮v4比较：同一个native pair的server/候选、候选/server、server/候选，每角色3次，旧F19或其他样本不混入。仍250k/4worker、16m控制warmup/256m控制/3906 wake与RTT样本、原5倍和CS±3%、电池/LPM0同条件，无额外CPU门槛、自动重试或剔除。潜在收益仅减少重复本机数据查询，成本为两个内部函数声明与独立验收；失败即不采用，保持F19/用户引擎不动。自己的性能/小时尚未通过；F20原超时仍未定位，不因F21通过短功能而撤销它。
+
+F21固定6轮完整结束：server wake p50中位9900ns，候选2200ns，4.50倍；RTT20400/4300ns。控制中位0.884/1.248ns/op，+41.1765%，两项均失败，不采用/没有自己的小时。每次来源、电源、EXE、样本数、native/PE身份及背景窗口均保留；旧AC及电池文件、25个链接输入摘要未变。protocol的benchmarkFixture一处“both families”沿用模板，实际families、scope、固定order和所有6轮均只有F21自身同pair的server/候选；不改原protocol字节，不混用F19数据。
+
+多轮局部调用优化未取得主要延迟收益，下一项先对照上游协调锁与恢复设计，再选择有依据的实现；现有原子性、死者证明、SC发布/唤醒关系及原门槛保持。不能直接把owner释放改为无屏障release store：其后wait_hint读与等待方发布/owner复查的序关系需要单独证明，不能把“owner唯一”当成通知序也已证明。此处是审查约束，未实施该改动。
+
+### 成本诊断与取消契约（未采用策略变更）
+
+外部Web/GitHub通道及官方站点HTTPS本轮均连接失败，未取得新Linux源码，不将记忆中的上游锁设计当已核对事实。先用现有header做独立x86_64/Rosetta单线程原生成本诊断，每项250k/批、9批及固定warmup。取消disable+restore中位337.363ns、pthread_getspecific 3.031ns、无等待者ulock_wake 460.358ns、sched_yield 179.784ns；原header无竞争take/give 1.973ns，空循环0.293ns。全部是包含循环开销的原始批次，未相减；反汇编确认调用与原子指令保留。无竞争/没有其他owner，也未行使内核lease恢复，不能将此归因给真实Wine竞争路径或证明任何5倍门槛。
+
+本地Apple SDK的pthread_setcancelstate(3)确认新线程默认ENABLE/DEFERRED，DISABLE会保留取消请求，返回调用者须恢复状态。Wine当前dlls/server源码扫描未找到pthread_cancel或pthread_setcanceltype调用，但这不覆盖外部库。独立源码审查只对server_init_thread的teb非NULL、进入noreturn signal_start_thread分支给出有前提的可行性；Apple主runloop的teb=NULL/start=NULL路径会返回、GStreamer/CoreMIDI另有外部回调线程，不能从注册epoch推定线程归属。永久DISABLE还会改变frame外POSIX取消行为，不能宣称与原来完全等价，**未采用或实施该策略**。
+
+下一项先做F21独立诊断overlay：原disable/save/restore一行不去掉，利用现有返回的old state在线程局部计数，只在原退出清理后报告请求QoS/线程身份；未知或未报告线程不填零冒充证据。此为取得真实Wine状态，非性能候选/验收；用户引擎、线程取消策略及Windows不改。只有数据和保留原语义的证明足够，才选择下一项实现。

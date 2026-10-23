@@ -41985,7 +41985,7 @@
     },
     "functionalPassed": true,
     "performanceAccepted": false,
-    "performanceState": "fixed six-run own-pair comparison prepared; not yet run",
+    "performanceState": "complete six-run own-pair comparison:4.5x/CS+41.1765percent, both fail; no own hour/adoption",
     "ownContinuousHourAccepted": false,
     "defaultSelected": false,
     "runtimeTests": [
@@ -43110,7 +43110,1444 @@
         "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-controldata-62a74959-cabf-4605-b17b-d789679ee857/20261023T111245-waitall-x86_64-42BB3E11-472E-4A21-BCBD-33752978E887/wine.log",
         "rawLogSHA256": "da134482de2d6a66dd13a1570d8a100cc21972974a959c925257bc6d9bafb749"
       }
-    ]
+    ],
+    "performance": {
+      "state": "complete",
+      "protocol": {
+        "schema": "cider.waitall-original-gates-comparison/v1",
+        "declaredUTC": "2026-10-23T11:16:45.337971+00:00",
+        "declaredBeforeRuns": true,
+        "scope": "first fixed six-run F21 same-native-pair server/candidate comparison, no F19 rows reused; original gates, background observed; not quiet or Windows/game acceptance",
+        "methodDecision": "agent-added quiet/CPU cap preparation proposals are not adopted acceptance gates; all failed probes/two partial cohorts retained; no old row reused",
+        "powerCondition": "Battery Power/LPM0 throughout, no sleep",
+        "iterations": 250000,
+        "threads": 4,
+        "controlWarmupPerWorker": 16000000,
+        "controlMultiplier": 1024,
+        "primary": "senderQPC before arm/SetEvent to peerQPC afterWait/disarm, overhead not subtracted, receiver not guaranteed parked",
+        "speedGate": 5,
+        "controlRelativeGate": 0.03,
+        "orders": [
+          [
+            "WaitAll ControlData Server",
+            "WaitAll ControlData"
+          ],
+          [
+            "WaitAll ControlData",
+            "WaitAll ControlData Server"
+          ],
+          [
+            "WaitAll ControlData Server",
+            "WaitAll ControlData"
+          ]
+        ],
+        "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+        "peSHA256": {
+          "i386-windows": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "x86_64-windows": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "families": {
+          "F21": {
+            "nativePair": {
+              "ntdll.so": "6b52df80fedd5780b285531b4a9974c10961d8b8788b636e26443c5235fc0e35",
+              "wineserver": "1798e22dc9821ac1327f5d9a8c03abb145ba31cfa750defe1b706c391d9740a4"
+            },
+            "source": {
+              "scope": "F21 source candidate only; no runtime or performance acceptance",
+              "requires": "F19/0115 original O2; excludes F20/0116",
+              "changes": "Reuse native frame thread_data for existing control begin/end; no inlining, no cancellation or signal boundary removal",
+              "unchanged": [
+                "coordinator header/layout/journal/death recovery",
+                "server and guest PE components",
+                "pthread_setcancelstate ordering and existing generic wrappers",
+                "native transaction admission and object pins"
+              ],
+              "costs": "Two internal data-taking declarations; caller must remain on the same native thread; speed gain not yet measured",
+              "sourceSHA256": {
+                "msync.c": "bfa5a8d415e68edf5e817fcb12207ee866731d66d0fe30a3a554319f21fbbc3a",
+                "sync.c": "d1434d358015bb08e61dacf34bb9f13dad132e0628e6898a9cd8e5e55b9d593c",
+                "msync.h": "8caa9568ffdee09efad1c7b3842c9e4189094c89ed81d0fc50e4c9a0130fbacf",
+                "include/wine/msync_coord.h": "207813d1c842f469f1756d7ffe90da48b6ed8c5ca895f77bdd9c0db4561a808f",
+                "server-msync.c": "db821b2d387be4ad8da7a8f08b52d409ffa2e965ad7305e697ebb22b1105a974"
+              },
+              "patch": "engine/porting/wine-11.18/candidates/0117-msync-reuse-native-frame-control-data.patch",
+              "patchSHA256": "2ee04252150123988f6fd937ea890eccd6b2ffa6ef5c0e6fddc5acbc606e31de",
+              "selectedByRecipe": false,
+              "nativeSHA256": {
+                "ntdll.so": "6b52df80fedd5780b285531b4a9974c10961d8b8788b636e26443c5235fc0e35",
+                "wineserver": "1798e22dc9821ac1327f5d9a8c03abb145ba31cfa750defe1b706c391d9740a4"
+              }
+            }
+          }
+        },
+        "legacyACSHA256": "4b3311654891a5567edc2a69ee932b051ad4e36a48721c6aa3f3e6fcd03997e6",
+        "previousBatterySHA256": "7c966ee9f039510d19005b0567e196f0ca36d5d43bd1c0c315a3962f39856143",
+        "previousPartialCohorts": [
+          {
+            "path": "/Users/cervantes/Cider/out/waitall-mechanical-combination/paired-perf-background-matched-v1.json",
+            "sha256": "09bfe3970e4358322a4a9e940c861611bccbb662b59ed7a9feb74efec014b5c4"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/waitall-mechanical-combination/paired-perf-background-matched-silent-v2.json",
+            "sha256": "614cb810d2274df6e1b23fe2957cbf3f3d4d67c8c17657db5bc8e1cd357ace08"
+          }
+        ],
+        "benchmarkFixture": "v4 only for both families: cancellation load is acquire read, not shared CAS; no old v3 sample pooled",
+        "cpuAndPageouts": "same5second observer for both; context only; unavailable is unavailable; CS3percent remains compulsory",
+        "noConcurrentBuildsOrProfiles": true,
+        "noAutomaticRetry": true,
+        "fullM1Accepted": false,
+        "defaultSelected": false
+      },
+      "rows": [
+        {
+          "rep": 0,
+          "bottle": "WaitAll ControlData Server",
+          "family": "F21",
+          "role": "server",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754205492589000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json",
+          "rawResultSHA256": "cff4a2577306a9241cb3274560be57b0e608169681c3ebaf29b19efe885518fe",
+          "nativeSHA256": {
+            "bin/wineserver": "1798e22dc9821ac1327f5d9a8c03abb145ba31cfa750defe1b706c391d9740a4",
+            "lib/wine/x86_64-unix/ntdll.so": "6b52df80fedd5780b285531b4a9974c10961d8b8788b636e26443c5235fc0e35",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t59%; discharging; 5:31 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "after": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t59%; discharging; 5:21 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.032555374999999,
+                "cpuPercent": {
+                  "Codex": 80.27730842405099,
+                  "WindowServer": 27.4214568379167
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.034111375000001,
+                "cpuPercent": {
+                  "Codex": 51.25035597767735,
+                  "WindowServer": 25.22788840761358
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.032534708999998,
+                "cpuPercent": {
+                  "Codex": 116.04490257276822,
+                  "WindowServer": 43.11942441488432
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.03247425,
+                "cpuPercent": {
+                  "Codex": 72.33022603145943,
+                  "WindowServer": 44.90832715140054
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.030367208000001,
+                "cpuPercent": {
+                  "Codex": 63.61364623463403,
+                  "WindowServer": 26.8370070052331
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.040024542000001,
+                "cpuPercent": {
+                  "Codex": 53.17434424508795,
+                  "WindowServer": 25.1982899967391
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 1.3562464999999975,
+                "cpuPercent": {
+                  "Codex": 67.83427643868508,
+                  "WindowServer": 33.91713821934562
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 214
+          },
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 9900.0,
+            "p95_ns": 13900.0,
+            "p99_ns": 18500.0,
+            "p99_9_ns": 35400.0,
+            "max_ns": 143500.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 20200.0,
+            "p95_ns": 24500.0,
+            "p99_ns": 31000.0,
+            "p99_9_ns": 71700.0,
+            "max_ns": 151400.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 27719790,
+            "qpc_batch_ticks_sum": 110366907,
+            "wall_ns": 2771979000.0,
+            "ns_per_op": 1.354,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 83800750.0,
+            "batch_p95_ns": 97213400.0,
+            "batch_p99_ns": 118082800.0,
+            "batch_max_ns": 127527100.0
+          },
+          "preCleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 0,
+          "bottle": "WaitAll ControlData",
+          "family": "F21",
+          "role": "candidate",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754237262119000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json",
+          "rawResultSHA256": "7a6aa61a25227a2077e918e9de2bdb975fe69dc247569e5c5eacc6996f2a468f",
+          "nativeSHA256": {
+            "bin/wineserver": "1798e22dc9821ac1327f5d9a8c03abb145ba31cfa750defe1b706c391d9740a4",
+            "lib/wine/x86_64-unix/ntdll.so": "6b52df80fedd5780b285531b4a9974c10961d8b8788b636e26443c5235fc0e35",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t59%; discharging; 5:21 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "after": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t59%; discharging; 5:21 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.031908040999998,
+                "cpuPercent": {
+                  "Codex": 47.69562520707208,
+                  "WindowServer": 23.25161728844571
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.044376834000005,
+                "cpuPercent": {
+                  "Codex": 54.5161491795123,
+                  "WindowServer": 33.89913276253133
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 2.0699172079999997,
+                "cpuPercent": {
+                  "Codex": 48.79422211170478,
+                  "WindowServer": 30.43599993107112
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 119
+          },
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 4400.0,
+            "p99_ns": 7500.0,
+            "p99_9_ns": 10000.0,
+            "max_ns": 11000.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4300.0,
+            "p95_ns": 8500.0,
+            "p99_ns": 11600.0,
+            "p99_9_ns": 21300.0,
+            "max_ns": 66500.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 28100922,
+            "qpc_batch_ticks_sum": 111625837,
+            "wall_ns": 2810092200.0,
+            "ns_per_op": 1.372,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 86039700.0,
+            "batch_p95_ns": 95258100.0,
+            "batch_p99_ns": 112089900.0,
+            "batch_max_ns": 113542700.0
+          },
+          "preCleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 1,
+          "bottle": "WaitAll ControlData",
+          "family": "F21",
+          "role": "candidate",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754249503879000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json",
+          "rawResultSHA256": "7caab80e36efe1506f02541f5361d039c270c79aeb43b5db981473ee334ac8cb",
+          "nativeSHA256": {
+            "bin/wineserver": "1798e22dc9821ac1327f5d9a8c03abb145ba31cfa750defe1b706c391d9740a4",
+            "lib/wine/x86_64-unix/ntdll.so": "6b52df80fedd5780b285531b4a9974c10961d8b8788b636e26443c5235fc0e35",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t59%; discharging; 5:21 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "after": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t58%; discharging; 5:11 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.037283375000001,
+                "cpuPercent": {
+                  "Codex": 48.63732725777248,
+                  "WindowServer": 25.212002292802943
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.050965583,
+                "cpuPercent": {
+                  "Codex": 89.28985806554144,
+                  "WindowServer": 23.559851684700234
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 1.379170166999998,
+                "cpuPercent": {
+                  "Codex": 45.67964237293805,
+                  "WindowServer": 29.728021226829153
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 52
+          },
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 4100.0,
+            "p99_ns": 7300.0,
+            "p99_9_ns": 10300.0,
+            "max_ns": 120700.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4300.0,
+            "p95_ns": 8300.0,
+            "p99_ns": 11500.0,
+            "p99_9_ns": 23300.0,
+            "max_ns": 126300.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 20824954,
+            "qpc_batch_ticks_sum": 82612002,
+            "wall_ns": 2082495400.0,
+            "ns_per_op": 1.017,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 54491900.0,
+            "batch_p95_ns": 96304200.0,
+            "batch_p99_ns": 311469400.0,
+            "batch_max_ns": 356375200.0
+          },
+          "preCleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 1,
+          "bottle": "WaitAll ControlData Server",
+          "family": "F21",
+          "role": "server",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754261103506000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json",
+          "rawResultSHA256": "3be0e613275fd060109a6fefc12139cdedfbc6bdf451c448e3afe159909e0c76",
+          "nativeSHA256": {
+            "bin/wineserver": "1798e22dc9821ac1327f5d9a8c03abb145ba31cfa750defe1b706c391d9740a4",
+            "lib/wine/x86_64-unix/ntdll.so": "6b52df80fedd5780b285531b4a9974c10961d8b8788b636e26443c5235fc0e35",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t58%; discharging; 5:11 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "after": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t58%; discharging; 5:11 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.031216042000004,
+                "cpuPercent": {
+                  "Codex": 48.099703526904214,
+                  "WindowServer": 26.434961029251575
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.026448375000001,
+                "cpuPercent": {
+                  "Codex": 57.69481318904583,
+                  "WindowServer": 24.66950632910875
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.028638582999989,
+                "cpuPercent": {
+                  "Codex": 47.1300524164129,
+                  "WindowServer": 21.87470787259621
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.025673084000005,
+                "cpuPercent": {
+                  "Codex": 57.30575689789839,
+                  "WindowServer": 21.688637159271245
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.043564458000006,
+                "cpuPercent": {
+                  "Codex": 49.171573411067484,
+                  "WindowServer": 25.180604125828747
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 2.490461874999994,
+                "cpuPercent": {
+                  "Codex": 53.40374865203573,
+                  "WindowServer": 28.91030002216984
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 127
+          },
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 10000.0,
+            "p95_ns": 14100.0,
+            "p99_ns": 16800.0,
+            "p99_9_ns": 44900.0,
+            "max_ns": 107800.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 20400.0,
+            "p95_ns": 24300.0,
+            "p99_ns": 28600.0,
+            "p99_9_ns": 54900.0,
+            "max_ns": 116100.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 18102202,
+            "qpc_batch_ticks_sum": 72140769,
+            "wall_ns": 1810220200.0,
+            "ns_per_op": 0.884,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 54149800.0,
+            "batch_p95_ns": 59222500.0,
+            "batch_p99_ns": 108708700.0,
+            "batch_max_ns": 111874200.0
+          },
+          "preCleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 2,
+          "bottle": "WaitAll ControlData Server",
+          "family": "F21",
+          "role": "server",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754288885138000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json",
+          "rawResultSHA256": "873fad6721f7980aee78dfa210ae35206f2c08676f5d42b367a4637f4febcfb8",
+          "nativeSHA256": {
+            "bin/wineserver": "1798e22dc9821ac1327f5d9a8c03abb145ba31cfa750defe1b706c391d9740a4",
+            "lib/wine/x86_64-unix/ntdll.so": "6b52df80fedd5780b285531b4a9974c10961d8b8788b636e26443c5235fc0e35",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t58%; discharging; 5:11 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "after": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t58%; discharging; 5:01 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.025491083999995,
+                "cpuPercent": {
+                  "Codex": 49.348411101465985,
+                  "WindowServer": 30.84275693841284
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.028380166000005,
+                "cpuPercent": {
+                  "Codex": 67.61620815763875,
+                  "WindowServer": 36.39342968484546
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.035084041999994,
+                "cpuPercent": {
+                  "Codex": 49.452997789705236,
+                  "WindowServer": 29.39374969026624
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.033108208000002,
+                "cpuPercent": {
+                  "Codex": 54.439521003040454,
+                  "WindowServer": 27.61712926797315
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.034156834000001,
+                "cpuPercent": {
+                  "Codex": 52.83903715582917,
+                  "WindowServer": 28.405948546175868
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.043152415999998,
+                "cpuPercent": {
+                  "Codex": 54.52938505835101,
+                  "WindowServer": 36.88169316673946
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 204
+          },
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 9900.0,
+            "p95_ns": 13700.0,
+            "p99_ns": 18400.0,
+            "p99_9_ns": 63200.0,
+            "max_ns": 111700.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 20500.0,
+            "p95_ns": 24700.0,
+            "p99_ns": 29500.0,
+            "p99_9_ns": 85800.0,
+            "max_ns": 122400.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 17508274,
+            "qpc_batch_ticks_sum": 69767805,
+            "wall_ns": 1750827400.0,
+            "ns_per_op": 0.855,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 54152750.0,
+            "batch_p95_ns": 56776100.0,
+            "batch_p99_ns": 58869000.0,
+            "batch_max_ns": 59973700.0
+          },
+          "preCleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        },
+        {
+          "rep": 2,
+          "bottle": "WaitAll ControlData",
+          "family": "F21",
+          "role": "candidate",
+          "result": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754319554519000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json",
+          "rawResultSHA256": "fcb5d0cd06e01d162257e0af05858261f158888e6f5029ee34e135998b624d6b",
+          "nativeSHA256": {
+            "bin/wineserver": "1798e22dc9821ac1327f5d9a8c03abb145ba31cfa750defe1b706c391d9740a4",
+            "lib/wine/x86_64-unix/ntdll.so": "6b52df80fedd5780b285531b4a9974c10961d8b8788b636e26443c5235fc0e35",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "exeSHA256": "0ec427ff6067bad92fa065f54dec68e85f7d6849c241d9d09655ba2f27aa8cc9",
+          "before": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t58%; discharging; 5:01 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "after": {
+            "text": "Now drawing from 'Battery Power'\n -InternalBattery-0 (id=21561443)\t58%; discharging; 5:01 remaining present: true\n",
+            "lowPowerMode": 0
+          },
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.027781875000002,
+                "cpuPercent": {
+                  "Codex": 48.3314523265775,
+                  "WindowServer": 35.00549633530427
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.0434081669999955,
+                "cpuPercent": {
+                  "Codex": 50.7593261388313,
+                  "WindowServer": 28.94867818855316
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 1.5418857909999986,
+                "cpuPercent": {
+                  "Codex": 51.88451730145951,
+                  "WindowServer": 24.64514571816654
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 53
+          },
+          "wakeup": {
+            "type": "wakeup",
+            "name": "auto_event_single_wake",
+            "scope": "sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm",
+            "measurement_overhead": "two_Interlocked_ops_and_QPC_not_subtracted",
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 2200.0,
+            "p95_ns": 4200.0,
+            "p99_ns": 7500.0,
+            "p99_9_ns": 10000.0,
+            "max_ns": 12100.0
+          },
+          "roundtrip": {
+            "type": "roundtrip",
+            "name": "two_thread_event_pingpong",
+            "scope": "roundtrip4APIcalls",
+            "roundtrip_api_calls": 4,
+            "sampleCount": 3906,
+            "sample_every_outgoing": 64,
+            "sample_limit": 4096,
+            "sampling": "prefix_capped",
+            "measured_outgoing": 250000,
+            "unfinished_sample_discarded": false,
+            "percentile_method": "nearest_rank",
+            "qpc_frequency": 10000000,
+            "p50_ns": 4300.0,
+            "p95_ns": 8300.0,
+            "p99_ns": 11300.0,
+            "p99_9_ns": 16300.0,
+            "max_ns": 124200.0
+          },
+          "control": {
+            "type": "bench",
+            "name": "uncontended_private_critical_section",
+            "threads": 4,
+            "iterations_per_worker": 256000000,
+            "warmup_iterations_per_worker": 16000000,
+            "operation_count": 2048000000,
+            "operations_per_worker_iteration": 2,
+            "qpc_frequency": 10000000,
+            "qpc_wall_ticks": 25555257,
+            "qpc_batch_ticks_sum": 101871751,
+            "wall_ns": 2555525700.0,
+            "ns_per_op": 1.248,
+            "timing_scope": "gate_to_join",
+            "batch_count": 128,
+            "batch_iterations_min": 8000000,
+            "batch_iterations_max": 8000000,
+            "batch_median_ns": 78634700.0,
+            "batch_p95_ns": 85478900.0,
+            "batch_p99_ns": 93687200.0,
+            "batch_max_ns": 96071700.0
+          },
+          "preCleanup": [
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+              }
+            },
+            {
+              "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "mode": "stop",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            }
+          ]
+        }
+      ],
+      "attempts": [
+        {
+          "rep": 0,
+          "bottle": "WaitAll ControlData Server",
+          "family": "F21",
+          "driverExitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754205492589000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 31.49130525, \"failedChecks\": [], \"measurements\": [{\"type\": \"bench\", \"name\": \"sem_wait1_release\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 500000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 37184938, \"qpc_batch_ticks_sum\": 37180689, \"wall_ns\": 3718493800.0, \"ns_per_op\": 7436.988, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 117026950.0, \"batch_p95_ns\": 119013000.0, \"batch_p99_ns\": 122277500.0, \"batch_max_ns\": 122277500.0}, {\"type\": \"bench\", \"name\": \"ready_WaitAll2_manual\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 250000, \"operations_per_worker_iteration\": 1, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 20666795, \"qpc_batch_ticks_sum\": 20665476, \"wall_ns\": 2066679500.0, \"ns_per_op\": 8266.718, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 64497400.0, \"batch_p95_ns\": 65303700.0, \"batch_p99_ns\": 65335100.0, \"batch_max_ns\": 65335100.0}, {\"type\": \"bench\", \"name\": \"WaitAll2_semaphores_releases\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 750000, \"operations_per_worker_iteration\": 3, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 57603178, \"qpc_batch_ticks_sum\": 57601031, \"wall_ns\": 5760317800.0, \"ns_per_op\": 7680.424, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 170765900.0, \"batch_p95_ns\": 208795500.0, \"batch_p99_ns\": 433306700.0, \"batch_max_ns\": 433306700.0}, {\"type\": \"bench\", \"name\": \"independent_per_thread_semaphore\", \"threads\": 4, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 2000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 44280591, \"qpc_batch_ticks_sum\": 176869433, \"wall_ns\": 4428059100.0, \"ns_per_op\": 2214.03, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 135386500.0, \"batch_p95_ns\": 159068400.0, \"batch_p99_ns\": 164206600.0, \"batch_max_ns\": 165243700.0}, {\"type\": \"bench\", \"name\": \"uncontended_private_critical_section\", \"threads\": 4, \"iterations_per_worker\": 256000000, \"warmup_iterations_per_worker\": 16000000, \"operation_count\": 2048000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 27719790, \"qpc_batch_ticks_sum\": 110366907, \"wall_ns\": 2771979000.0, \"ns_per_op\": 1.354, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 8000000, \"batch_iterations_max\": 8000000, \"batch_median_ns\": 83800750.0, \"batch_p95_ns\": 97213400.0, \"batch_p99_ns\": 118082800.0, \"batch_max_ns\": 127527100.0}, {\"type\": \"bench\", \"name\": \"two_thread_event_pingpong\", \"threads\": 2, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 1000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 50627190, \"qpc_batch_ticks_sum\": 101243763, \"wall_ns\": 5062719000.0, \"ns_per_op\": 5062.719, \"timing_scope\": \"gate_to_join\", \"batch_count\": 64, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 157533150.0, \"batch_p95_ns\": 160121400.0, \"batch_p99_ns\": 185730600.0, \"batch_max_ns\": 185730600.0}, {\"type\": \"wakeup\", \"name\": \"auto_event_single_wake\", \"scope\": \"sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm\", \"measurement_overhead\": \"two_Interlocked_ops_and_QPC_not_subtracted\", \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 9900.0, \"p95_ns\": 13900.0, \"p99_ns\": 18500.0, \"p99_9_ns\": 35400.0, \"max_ns\": 143500.0}, {\"type\": \"roundtrip\", \"name\": \"two_thread_event_pingpong\", \"scope\": \"roundtrip4APIcalls\", \"roundtrip_api_calls\": 4, \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"sampling\": \"prefix_capped\", \"measured_outgoing\": 250000, \"unfinished_sample_discarded\": false, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 20200.0, \"p95_ns\": 24500.0, \"p99_ns\": 31000.0, \"p99_9_ns\": 71700.0, \"max_ns\": 151400.0}]}\n",
+          "stderr": "",
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.032555374999999,
+                "cpuPercent": {
+                  "Codex": 80.27730842405099,
+                  "WindowServer": 27.4214568379167
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.034111375000001,
+                "cpuPercent": {
+                  "Codex": 51.25035597767735,
+                  "WindowServer": 25.22788840761358
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.032534708999998,
+                "cpuPercent": {
+                  "Codex": 116.04490257276822,
+                  "WindowServer": 43.11942441488432
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.03247425,
+                "cpuPercent": {
+                  "Codex": 72.33022603145943,
+                  "WindowServer": 44.90832715140054
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.030367208000001,
+                "cpuPercent": {
+                  "Codex": 63.61364623463403,
+                  "WindowServer": 26.8370070052331
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.040024542000001,
+                "cpuPercent": {
+                  "Codex": 53.17434424508795,
+                  "WindowServer": 25.1982899967391
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 1.3562464999999975,
+                "cpuPercent": {
+                  "Codex": 67.83427643868508,
+                  "WindowServer": 33.91713821934562
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 214
+          }
+        },
+        {
+          "rep": 0,
+          "bottle": "WaitAll ControlData",
+          "family": "F21",
+          "driverExitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754237262119000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 12.033445583, \"failedChecks\": [], \"measurements\": [{\"type\": \"bench\", \"name\": \"sem_wait1_release\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 500000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 5545215, \"qpc_batch_ticks_sum\": 5541454, \"wall_ns\": 554521500.0, \"ns_per_op\": 1109.043, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 17286000.0, \"batch_p95_ns\": 17871600.0, \"batch_p99_ns\": 18447100.0, \"batch_max_ns\": 18447100.0}, {\"type\": \"bench\", \"name\": \"ready_WaitAll2_manual\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 250000, \"operations_per_worker_iteration\": 1, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 2203698, \"qpc_batch_ticks_sum\": 2202119, \"wall_ns\": 220369800.0, \"ns_per_op\": 881.479, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 6896400.0, \"batch_p95_ns\": 7266800.0, \"batch_p99_ns\": 7302000.0, \"batch_max_ns\": 7302000.0}, {\"type\": \"bench\", \"name\": \"WaitAll2_semaphores_releases\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 750000, \"operations_per_worker_iteration\": 3, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 8896122, \"qpc_batch_ticks_sum\": 8894651, \"wall_ns\": 889612200.0, \"ns_per_op\": 1186.15, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 27748750.0, \"batch_p95_ns\": 29650900.0, \"batch_p99_ns\": 30040500.0, \"batch_max_ns\": 30040500.0}, {\"type\": \"bench\", \"name\": \"independent_per_thread_semaphore\", \"threads\": 4, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 2000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 12474447, \"qpc_batch_ticks_sum\": 49640469, \"wall_ns\": 1247444700.0, \"ns_per_op\": 623.722, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 38656300.0, \"batch_p95_ns\": 42421800.0, \"batch_p99_ns\": 43893300.0, \"batch_max_ns\": 44844600.0}, {\"type\": \"bench\", \"name\": \"uncontended_private_critical_section\", \"threads\": 4, \"iterations_per_worker\": 256000000, \"warmup_iterations_per_worker\": 16000000, \"operation_count\": 2048000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 28100922, \"qpc_batch_ticks_sum\": 111625837, \"wall_ns\": 2810092200.0, \"ns_per_op\": 1.372, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 8000000, \"batch_iterations_max\": 8000000, \"batch_median_ns\": 86039700.0, \"batch_p95_ns\": 95258100.0, \"batch_p99_ns\": 112089900.0, \"batch_max_ns\": 113542700.0}, {\"type\": \"bench\", \"name\": \"two_thread_event_pingpong\", \"threads\": 2, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 1000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 10952147, \"qpc_batch_ticks_sum\": 21895821, \"wall_ns\": 1095214700.0, \"ns_per_op\": 1095.215, \"timing_scope\": \"gate_to_join\", \"batch_count\": 64, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 33915100.0, \"batch_p95_ns\": 36076200.0, \"batch_p99_ns\": 36143900.0, \"batch_max_ns\": 36143900.0}, {\"type\": \"wakeup\", \"name\": \"auto_event_single_wake\", \"scope\": \"sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm\", \"measurement_overhead\": \"two_Interlocked_ops_and_QPC_not_subtracted\", \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 2200.0, \"p95_ns\": 4400.0, \"p99_ns\": 7500.0, \"p99_9_ns\": 10000.0, \"max_ns\": 11000.0}, {\"type\": \"roundtrip\", \"name\": \"two_thread_event_pingpong\", \"scope\": \"roundtrip4APIcalls\", \"roundtrip_api_calls\": 4, \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"sampling\": \"prefix_capped\", \"measured_outgoing\": 250000, \"unfinished_sample_discarded\": false, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 4300.0, \"p95_ns\": 8500.0, \"p99_ns\": 11600.0, \"p99_9_ns\": 21300.0, \"max_ns\": 66500.0}]}\n",
+          "stderr": "",
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.031908040999998,
+                "cpuPercent": {
+                  "Codex": 47.69562520707208,
+                  "WindowServer": 23.25161728844571
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.044376834000005,
+                "cpuPercent": {
+                  "Codex": 54.5161491795123,
+                  "WindowServer": 33.89913276253133
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 2.0699172079999997,
+                "cpuPercent": {
+                  "Codex": 48.79422211170478,
+                  "WindowServer": 30.43599993107112
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 119
+          }
+        },
+        {
+          "rep": 1,
+          "bottle": "WaitAll ControlData",
+          "family": "F21",
+          "driverExitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754249503879000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 11.387308708, \"failedChecks\": [], \"measurements\": [{\"type\": \"bench\", \"name\": \"sem_wait1_release\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 500000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 5469429, \"qpc_batch_ticks_sum\": 5465779, \"wall_ns\": 546942900.0, \"ns_per_op\": 1093.886, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 17085800.0, \"batch_p95_ns\": 17248200.0, \"batch_p99_ns\": 17251700.0, \"batch_max_ns\": 17251700.0}, {\"type\": \"bench\", \"name\": \"ready_WaitAll2_manual\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 250000, \"operations_per_worker_iteration\": 1, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 2175819, \"qpc_batch_ticks_sum\": 2174054, \"wall_ns\": 217581900.0, \"ns_per_op\": 870.328, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 6845700.0, \"batch_p95_ns\": 6944500.0, \"batch_p99_ns\": 6946900.0, \"batch_max_ns\": 6946900.0}, {\"type\": \"bench\", \"name\": \"WaitAll2_semaphores_releases\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 750000, \"operations_per_worker_iteration\": 3, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 8909280, \"qpc_batch_ticks_sum\": 8907768, \"wall_ns\": 890928000.0, \"ns_per_op\": 1187.904, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 27867000.0, \"batch_p95_ns\": 28212700.0, \"batch_p99_ns\": 28748100.0, \"batch_max_ns\": 28748100.0}, {\"type\": \"bench\", \"name\": \"independent_per_thread_semaphore\", \"threads\": 4, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 2000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 11859334, \"qpc_batch_ticks_sum\": 47207825, \"wall_ns\": 1185933400.0, \"ns_per_op\": 592.967, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 36874450.0, \"batch_p95_ns\": 38967700.0, \"batch_p99_ns\": 40352800.0, \"batch_max_ns\": 40483800.0}, {\"type\": \"bench\", \"name\": \"uncontended_private_critical_section\", \"threads\": 4, \"iterations_per_worker\": 256000000, \"warmup_iterations_per_worker\": 16000000, \"operation_count\": 2048000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 20824954, \"qpc_batch_ticks_sum\": 82612002, \"wall_ns\": 2082495400.0, \"ns_per_op\": 1.017, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 8000000, \"batch_iterations_max\": 8000000, \"batch_median_ns\": 54491900.0, \"batch_p95_ns\": 96304200.0, \"batch_p99_ns\": 311469400.0, \"batch_max_ns\": 356375200.0}, {\"type\": \"bench\", \"name\": \"two_thread_event_pingpong\", \"threads\": 2, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 1000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 10989136, \"qpc_batch_ticks_sum\": 21969430, \"wall_ns\": 1098913600.0, \"ns_per_op\": 1098.914, \"timing_scope\": \"gate_to_join\", \"batch_count\": 64, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 34303550.0, \"batch_p95_ns\": 35749600.0, \"batch_p99_ns\": 35822300.0, \"batch_max_ns\": 35822300.0}, {\"type\": \"wakeup\", \"name\": \"auto_event_single_wake\", \"scope\": \"sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm\", \"measurement_overhead\": \"two_Interlocked_ops_and_QPC_not_subtracted\", \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 2200.0, \"p95_ns\": 4100.0, \"p99_ns\": 7300.0, \"p99_9_ns\": 10300.0, \"max_ns\": 120700.0}, {\"type\": \"roundtrip\", \"name\": \"two_thread_event_pingpong\", \"scope\": \"roundtrip4APIcalls\", \"roundtrip_api_calls\": 4, \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"sampling\": \"prefix_capped\", \"measured_outgoing\": 250000, \"unfinished_sample_discarded\": false, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 4300.0, \"p95_ns\": 8300.0, \"p99_ns\": 11500.0, \"p99_9_ns\": 23300.0, \"max_ns\": 126300.0}]}\n",
+          "stderr": "",
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.037283375000001,
+                "cpuPercent": {
+                  "Codex": 48.63732725777248,
+                  "WindowServer": 25.212002292802943
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.050965583,
+                "cpuPercent": {
+                  "Codex": 89.28985806554144,
+                  "WindowServer": 23.559851684700234
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 1.379170166999998,
+                "cpuPercent": {
+                  "Codex": 45.67964237293805,
+                  "WindowServer": 29.728021226829153
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 52
+          }
+        },
+        {
+          "rep": 1,
+          "bottle": "WaitAll ControlData Server",
+          "family": "F21",
+          "driverExitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754261103506000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 27.567210375, \"failedChecks\": [], \"measurements\": [{\"type\": \"bench\", \"name\": \"sem_wait1_release\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 500000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 38428257, \"qpc_batch_ticks_sum\": 38424990, \"wall_ns\": 3842825700.0, \"ns_per_op\": 7685.651, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 118675300.0, \"batch_p95_ns\": 120554600.0, \"batch_p99_ns\": 181525000.0, \"batch_max_ns\": 181525000.0}, {\"type\": \"bench\", \"name\": \"ready_WaitAll2_manual\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 250000, \"operations_per_worker_iteration\": 1, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 20607978, \"qpc_batch_ticks_sum\": 20606716, \"wall_ns\": 2060797800.0, \"ns_per_op\": 8243.191, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 64369450.0, \"batch_p95_ns\": 65262100.0, \"batch_p99_ns\": 65381100.0, \"batch_max_ns\": 65381100.0}, {\"type\": \"bench\", \"name\": \"WaitAll2_semaphores_releases\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 750000, \"operations_per_worker_iteration\": 3, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 54029801, \"qpc_batch_ticks_sum\": 54026632, \"wall_ns\": 5402980100.0, \"ns_per_op\": 7203.973, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 170731250.0, \"batch_p95_ns\": 172764700.0, \"batch_p99_ns\": 174804600.0, \"batch_max_ns\": 174804600.0}, {\"type\": \"bench\", \"name\": \"independent_per_thread_semaphore\", \"threads\": 4, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 2000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 41760461, \"qpc_batch_ticks_sum\": 166859838, \"wall_ns\": 4176046100.0, \"ns_per_op\": 2088.023, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 128222600.0, \"batch_p95_ns\": 152372300.0, \"batch_p99_ns\": 159080500.0, \"batch_max_ns\": 159104600.0}, {\"type\": \"bench\", \"name\": \"uncontended_private_critical_section\", \"threads\": 4, \"iterations_per_worker\": 256000000, \"warmup_iterations_per_worker\": 16000000, \"operation_count\": 2048000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 18102202, \"qpc_batch_ticks_sum\": 72140769, \"wall_ns\": 1810220200.0, \"ns_per_op\": 0.884, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 8000000, \"batch_iterations_max\": 8000000, \"batch_median_ns\": 54149800.0, \"batch_p95_ns\": 59222500.0, \"batch_p99_ns\": 108708700.0, \"batch_max_ns\": 111874200.0}, {\"type\": \"bench\", \"name\": \"two_thread_event_pingpong\", \"threads\": 2, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 1000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 50751592, \"qpc_batch_ticks_sum\": 101494554, \"wall_ns\": 5075159200.0, \"ns_per_op\": 5075.159, \"timing_scope\": \"gate_to_join\", \"batch_count\": 64, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 158543850.0, \"batch_p95_ns\": 160188500.0, \"batch_p99_ns\": 160795700.0, \"batch_max_ns\": 160795700.0}, {\"type\": \"wakeup\", \"name\": \"auto_event_single_wake\", \"scope\": \"sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm\", \"measurement_overhead\": \"two_Interlocked_ops_and_QPC_not_subtracted\", \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 10000.0, \"p95_ns\": 14100.0, \"p99_ns\": 16800.0, \"p99_9_ns\": 44900.0, \"max_ns\": 107800.0}, {\"type\": \"roundtrip\", \"name\": \"two_thread_event_pingpong\", \"scope\": \"roundtrip4APIcalls\", \"roundtrip_api_calls\": 4, \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"sampling\": \"prefix_capped\", \"measured_outgoing\": 250000, \"unfinished_sample_discarded\": false, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 20400.0, \"p95_ns\": 24300.0, \"p99_ns\": 28600.0, \"p99_9_ns\": 54900.0, \"max_ns\": 116100.0}]}\n",
+          "stderr": "",
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.031216042000004,
+                "cpuPercent": {
+                  "Codex": 48.099703526904214,
+                  "WindowServer": 26.434961029251575
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.026448375000001,
+                "cpuPercent": {
+                  "Codex": 57.69481318904583,
+                  "WindowServer": 24.66950632910875
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.028638582999989,
+                "cpuPercent": {
+                  "Codex": 47.1300524164129,
+                  "WindowServer": 21.87470787259621
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.025673084000005,
+                "cpuPercent": {
+                  "Codex": 57.30575689789839,
+                  "WindowServer": 21.688637159271245
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.043564458000006,
+                "cpuPercent": {
+                  "Codex": 49.171573411067484,
+                  "WindowServer": 25.180604125828747
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 2.490461874999994,
+                "cpuPercent": {
+                  "Codex": 53.40374865203573,
+                  "WindowServer": 28.91030002216984
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 127
+          }
+        },
+        {
+          "rep": 2,
+          "bottle": "WaitAll ControlData Server",
+          "family": "F21",
+          "driverExitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754288885138000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 30.459256084, \"failedChecks\": [], \"measurements\": [{\"type\": \"bench\", \"name\": \"sem_wait1_release\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 500000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 36818576, \"qpc_batch_ticks_sum\": 36812322, \"wall_ns\": 3681857600.0, \"ns_per_op\": 7363.715, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 115901750.0, \"batch_p95_ns\": 120103300.0, \"batch_p99_ns\": 120761800.0, \"batch_max_ns\": 120761800.0}, {\"type\": \"bench\", \"name\": \"ready_WaitAll2_manual\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 250000, \"operations_per_worker_iteration\": 1, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 20376026, \"qpc_batch_ticks_sum\": 20374340, \"wall_ns\": 2037602600.0, \"ns_per_op\": 8150.41, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 63716100.0, \"batch_p95_ns\": 67918700.0, \"batch_p99_ns\": 87539700.0, \"batch_max_ns\": 87539700.0}, {\"type\": \"bench\", \"name\": \"WaitAll2_semaphores_releases\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 750000, \"operations_per_worker_iteration\": 3, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 54127019, \"qpc_batch_ticks_sum\": 54124714, \"wall_ns\": 5412701900.0, \"ns_per_op\": 7216.936, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 169644050.0, \"batch_p95_ns\": 172283400.0, \"batch_p99_ns\": 173111800.0, \"batch_max_ns\": 173111800.0}, {\"type\": \"bench\", \"name\": \"independent_per_thread_semaphore\", \"threads\": 4, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 2000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 43594148, \"qpc_batch_ticks_sum\": 174214480, \"wall_ns\": 4359414800.0, \"ns_per_op\": 2179.707, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 131968400.0, \"batch_p95_ns\": 169618200.0, \"batch_p99_ns\": 177874000.0, \"batch_max_ns\": 177970600.0}, {\"type\": \"bench\", \"name\": \"uncontended_private_critical_section\", \"threads\": 4, \"iterations_per_worker\": 256000000, \"warmup_iterations_per_worker\": 16000000, \"operation_count\": 2048000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 17508274, \"qpc_batch_ticks_sum\": 69767805, \"wall_ns\": 1750827400.0, \"ns_per_op\": 0.855, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 8000000, \"batch_iterations_max\": 8000000, \"batch_median_ns\": 54152750.0, \"batch_p95_ns\": 56776100.0, \"batch_p99_ns\": 58869000.0, \"batch_max_ns\": 59973700.0}, {\"type\": \"bench\", \"name\": \"two_thread_event_pingpong\", \"threads\": 2, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 1000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 51418031, \"qpc_batch_ticks_sum\": 102826945, \"wall_ns\": 5141803100.0, \"ns_per_op\": 5141.803, \"timing_scope\": \"gate_to_join\", \"batch_count\": 64, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 160533250.0, \"batch_p95_ns\": 161872200.0, \"batch_p99_ns\": 169152900.0, \"batch_max_ns\": 169152900.0}, {\"type\": \"wakeup\", \"name\": \"auto_event_single_wake\", \"scope\": \"sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm\", \"measurement_overhead\": \"two_Interlocked_ops_and_QPC_not_subtracted\", \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 9900.0, \"p95_ns\": 13700.0, \"p99_ns\": 18400.0, \"p99_9_ns\": 63200.0, \"max_ns\": 111700.0}, {\"type\": \"roundtrip\", \"name\": \"two_thread_event_pingpong\", \"scope\": \"roundtrip4APIcalls\", \"roundtrip_api_calls\": 4, \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"sampling\": \"prefix_capped\", \"measured_outgoing\": 250000, \"unfinished_sample_discarded\": false, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 20500.0, \"p95_ns\": 24700.0, \"p99_ns\": 29500.0, \"p99_9_ns\": 85800.0, \"max_ns\": 122400.0}]}\n",
+          "stderr": "",
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.025491083999995,
+                "cpuPercent": {
+                  "Codex": 49.348411101465985,
+                  "WindowServer": 30.84275693841284
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.028380166000005,
+                "cpuPercent": {
+                  "Codex": 67.61620815763875,
+                  "WindowServer": 36.39342968484546
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.035084041999994,
+                "cpuPercent": {
+                  "Codex": 49.452997789705236,
+                  "WindowServer": 29.39374969026624
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.033108208000002,
+                "cpuPercent": {
+                  "Codex": 54.439521003040454,
+                  "WindowServer": 27.61712926797315
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.034156834000001,
+                "cpuPercent": {
+                  "Codex": 52.83903715582917,
+                  "WindowServer": 28.405948546175868
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.043152415999998,
+                "cpuPercent": {
+                  "Codex": 54.52938505835101,
+                  "WindowServer": 36.88169316673946
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 204
+          }
+        },
+        {
+          "rep": 2,
+          "bottle": "WaitAll ControlData",
+          "family": "F21",
+          "driverExitCode": 0,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792754319554519000-cider-lab-wine11.18-waitall-controldata-x86_64-x86_64-bench.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 11.529513625, \"failedChecks\": [], \"measurements\": [{\"type\": \"bench\", \"name\": \"sem_wait1_release\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 500000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 5698862, \"qpc_batch_ticks_sum\": 5695073, \"wall_ns\": 569886200.0, \"ns_per_op\": 1139.772, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 17651900.0, \"batch_p95_ns\": 18271500.0, \"batch_p99_ns\": 20457800.0, \"batch_max_ns\": 20457800.0}, {\"type\": \"bench\", \"name\": \"ready_WaitAll2_manual\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 250000, \"operations_per_worker_iteration\": 1, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 2262492, \"qpc_batch_ticks_sum\": 2260939, \"wall_ns\": 226249200.0, \"ns_per_op\": 904.997, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 7033850.0, \"batch_p95_ns\": 7290800.0, \"batch_p99_ns\": 7302900.0, \"batch_max_ns\": 7302900.0}, {\"type\": \"bench\", \"name\": \"WaitAll2_semaphores_releases\", \"threads\": 1, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 750000, \"operations_per_worker_iteration\": 3, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 9226716, \"qpc_batch_ticks_sum\": 9224705, \"wall_ns\": 922671600.0, \"ns_per_op\": 1230.229, \"timing_scope\": \"gate_to_join\", \"batch_count\": 32, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 28781950.0, \"batch_p95_ns\": 30071800.0, \"batch_p99_ns\": 30447100.0, \"batch_max_ns\": 30447100.0}, {\"type\": \"bench\", \"name\": \"independent_per_thread_semaphore\", \"threads\": 4, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 2000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 12821934, \"qpc_batch_ticks_sum\": 50670933, \"wall_ns\": 1282193400.0, \"ns_per_op\": 641.097, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 39252200.0, \"batch_p95_ns\": 48970700.0, \"batch_p99_ns\": 52294400.0, \"batch_max_ns\": 53079900.0}, {\"type\": \"bench\", \"name\": \"uncontended_private_critical_section\", \"threads\": 4, \"iterations_per_worker\": 256000000, \"warmup_iterations_per_worker\": 16000000, \"operation_count\": 2048000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 25555257, \"qpc_batch_ticks_sum\": 101871751, \"wall_ns\": 2555525700.0, \"ns_per_op\": 1.248, \"timing_scope\": \"gate_to_join\", \"batch_count\": 128, \"batch_iterations_min\": 8000000, \"batch_iterations_max\": 8000000, \"batch_median_ns\": 78634700.0, \"batch_p95_ns\": 85478900.0, \"batch_p99_ns\": 93687200.0, \"batch_max_ns\": 96071700.0}, {\"type\": \"bench\", \"name\": \"two_thread_event_pingpong\", \"threads\": 2, \"iterations_per_worker\": 250000, \"warmup_iterations_per_worker\": 1024, \"operation_count\": 1000000, \"operations_per_worker_iteration\": 2, \"qpc_frequency\": 10000000, \"qpc_wall_ticks\": 10900300, \"qpc_batch_ticks_sum\": 21792242, \"wall_ns\": 1090030000.0, \"ns_per_op\": 1090.03, \"timing_scope\": \"gate_to_join\", \"batch_count\": 64, \"batch_iterations_min\": 7812, \"batch_iterations_max\": 7813, \"batch_median_ns\": 33860300.0, \"batch_p95_ns\": 35586800.0, \"batch_p99_ns\": 35618000.0, \"batch_max_ns\": 35618000.0}, {\"type\": \"wakeup\", \"name\": \"auto_event_single_wake\", \"scope\": \"sender_QPC_before_arm_and_SetEvent_to_peer_QPC_after_Wait_and_disarm\", \"measurement_overhead\": \"two_Interlocked_ops_and_QPC_not_subtracted\", \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 2200.0, \"p95_ns\": 4200.0, \"p99_ns\": 7500.0, \"p99_9_ns\": 10000.0, \"max_ns\": 12100.0}, {\"type\": \"roundtrip\", \"name\": \"two_thread_event_pingpong\", \"scope\": \"roundtrip4APIcalls\", \"roundtrip_api_calls\": 4, \"sampleCount\": 3906, \"sample_every_outgoing\": 64, \"sample_limit\": 4096, \"sampling\": \"prefix_capped\", \"measured_outgoing\": 250000, \"unfinished_sample_discarded\": false, \"percentile_method\": \"nearest_rank\", \"qpc_frequency\": 10000000, \"p50_ns\": 4300.0, \"p95_ns\": 8300.0, \"p99_ns\": 11300.0, \"p99_9_ns\": 16300.0, \"max_ns\": 124200.0}]}\n",
+          "stderr": "",
+          "background": {
+            "scope": "observed background only, never zero-filled or treated as a quiet-machine claim",
+            "windows": [
+              {
+                "seconds": 5.027781875000002,
+                "cpuPercent": {
+                  "Codex": 48.3314523265775,
+                  "WindowServer": 35.00549633530427
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 5.0434081669999955,
+                "cpuPercent": {
+                  "Codex": 50.7593261388313,
+                  "WindowServer": 28.94867818855316
+                },
+                "processSetStable": true
+              },
+              {
+                "seconds": 1.5418857909999986,
+                "cpuPercent": {
+                  "Codex": 51.88451730145951,
+                  "WindowServer": 24.64514571816654
+                },
+                "processSetStable": true
+              }
+            ],
+            "error": null,
+            "pageoutDelta": 53
+          }
+        }
+      ],
+      "families": {
+        "F21": {
+          "medians": {
+            "server": {
+              "wakeupP50Ns": 9900.0,
+              "roundtripP50Ns": 20400.0,
+              "controlNsPerOp": 0.884
+            },
+            "candidate": {
+              "wakeupP50Ns": 2200.0,
+              "roundtripP50Ns": 4300.0,
+              "controlNsPerOp": 1.248
+            }
+          },
+          "singleEventSpeedup": 4.5,
+          "singleEvent5xMet": false,
+          "controlRelativeChange": 0.41176470588235303,
+          "controlWithin3Percent": false,
+          "performanceAccepted": false,
+          "ownContinuousHourAccepted": false
+        }
+      },
+      "fullM1Accepted": false,
+      "finalCleanup": [
+        {
+          "root": "/Users/cervantes/Cider/out/waitall-mac-20261018",
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "mode": "stop",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018"
+          }
+        },
+        {
+          "root": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "mode": "stop",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          }
+        }
+      ],
+      "legacyACUnchanged": true,
+      "previousBatteryUnchanged": true,
+      "linkInputsUnchanged": true
+    }
+  },
+  "nativeComponentCostDiagnostic": {
+    "build": {
+      "args": [
+        "clang",
+        "-arch",
+        "x86_64",
+        "-mmacosx-version-min=14.0",
+        "-O2",
+        "-g",
+        "-Wall",
+        "-Wextra",
+        "-Werror",
+        "-I",
+        "/Users/cervantes/Cider/out/waitall-control-data-prototype/include",
+        "/Users/cervantes/Cider/out/waitall-control-data-prototype/native-cost.c",
+        "-o",
+        "/Users/cervantes/Cider/out/waitall-control-data-prototype/native-cost"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "",
+      "sourceSHA256": "8eb8d8c6d68adb638cd16691c30e7b57b37b501696d7b92555cca7b75535a03f",
+      "headerSHA256": "207813d1c842f469f1756d7ffe90da48b6ed8c5ca895f77bdd9c0db4561a808f"
+    },
+    "result": {
+      "scope": "component diagnosis only; no cost subtraction, no Wine/performance acceptance; single thread/no competing owner; no kernel lease recovery tested",
+      "exitCode": 0,
+      "stderr": "",
+      "rawSHA256": "f183bc693ef16a36ba7e819ae3bab3182f206efe50c949af3a8380035a4b9aa7",
+      "binarySHA256": "29bd8a82a995ce241fdf6ce622503bf35cceb40c441b9e3746948dad214aae01",
+      "activeSeconds": 3.343655,
+      "wallSeconds": 3.3435769081115723,
+      "timingValid": true,
+      "metadata": {
+        "type": "begin",
+        "scope": "isolated single-thread native components only; not Wine or performance acceptance",
+        "qos": 33,
+        "relative_priority": 0,
+        "iterations_per_batch": 250000,
+        "batches": 9,
+        "header_magic": "43494445524d5303"
+      },
+      "complete": {
+        "type": "complete",
+        "active_seconds": 2.46340075,
+        "wall_seconds": 2.463262,
+        "no_other_gate_owner_or_waiter": true,
+        "kernel_lease_recovery_exercised": false
+      },
+      "mediansInclusiveNs": {
+        "loop": 0.293168,
+        "pthread_getspecific": 3.0305,
+        "cancel_disable_restore": 337.363332,
+        "exact_header_take_give_uncontended": 1.9725,
+        "no_waiter_ulock_wake": 460.358336,
+        "sched_yield": 179.783832
+      },
+      "assemblySHA256": "82257c0794b6a5d6d644654bdd741c6612770c7297dc7a8af275bdb8ad45c785",
+      "assemblyObservation": "pthread_getspecific, both pthread_setcancelstate calls, ulock wake, sched_yield and coordinator atomics appear in binary; no subtraction or Wine-path attribution"
+    },
+    "cancellationContract": {
+      "scope": "local Apple SDK manual and pinned local Wine source; external kernel.org/GitHub/Web transports unavailable, no unobserved upstream claims",
+      "manualPath": "/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk/usr/share/man/man3/pthread_setcancelstate.3",
+      "manualSHA256": "a86cbcb75fc23f6501339b51a1d9949b0e72b27aa427f029135f565583746a58",
+      "wineSourceRoot": "out/engine-r-v1/msync-source",
+      "facts": [
+        "new native threads ENABLE/DEFERRED per manual",
+        "disable holds cancellation pending; restore previous state when returning to caller",
+        "server_init_thread teb-present branch reaches noreturn signal_start_thread",
+        "teb-null/start-null path returns, so epoch registration alone is not guest ownership",
+        "no pthread_cancel or pthread_setcanceltype call found in current Wine dlls/server source scan"
+      ],
+      "proposalAdopted": false
+    },
+    "scopedSourceReview": {
+      "reviewer": "Singer",
+      "scope": "read-only conditional source proof; no execution",
+      "decision": "conditional GO for a separate candidate, not adopted",
+      "eligibleBranch": "server_init_thread data->teb present then noreturn signal_start_thread only",
+      "excluded": [
+        "init_first_thread/bootstrap",
+        "teb-null/start-null returning Cocoa callback",
+        "foreign native callback threads",
+        "epoch registration alone"
+      ],
+      "required": [
+        "DISABLE must succeed before publishing eligibility",
+        "unknown threads retain existing paired per-frame save/restore",
+        "preserve SIGQUIT controls, pins/unwinds, lease recovery and teardown",
+        "pause eligibility around fork; parent restore, child clear/retired",
+        "native callees preserve caller cancellation state as documented by local man page"
+      ],
+      "risks": [
+        "thread-lifetime DISABLE changes POSIX cancellation outside frames, unlike original per-frame restore",
+        "components relying on pthread_cancel of these native executors may wait forever; no concrete repository path found",
+        "not an equivalence claim for arbitrary host libraries"
+      ],
+      "strictSemanticsAlternative": "retain outermost save/disable/restore; only omit nested same-protected-region redundant toggles with no unknown callee",
+      "proposalAdopted": false,
+      "next": "first observe actual Wine native cancellation/QoS without changing guards"
+    },
+    "proposedPolicyAdopted": false,
+    "boundary": "isolated single-thread inclusive costs, not Wine attribution or performance acceptance; observe real Wine state before proposing a change"
   },
   "runnerInterruptionFix": {
     "scopedReview": {

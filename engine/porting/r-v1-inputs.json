@@ -683,7 +683,7 @@
       "sha256": "2ee04252150123988f6fd937ea890eccd6b2ffa6ef5c0e6fddc5acbc606e31de",
       "requires": "0115; original O2; excludes0116",
       "sharedCoordMagicVersion": 3,
-      "status": "source proof/reconstruction/300 exports/SDK15.4 components and own11 short runtime stages/nine identities passed; fixed six-run same-pair v4 comparison prepared; no performance/hour/adoption",
+      "status": "own11 short runtime stages/nine identities passed; complete six-run same-pair v4 speed4.5x/CS+41.1765percent failed; no own hour/adoption",
       "selectedByRecipe": false,
       "productionPolicyBound": false
     }
