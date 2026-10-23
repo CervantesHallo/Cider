@@ -1,0 +1,128 @@
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -240,9 +240,8 @@
+ /* Only short publication/release regions defer Wine control signals. Blocking
+  * waits and Mach map exchanges remain interruptible. No kernel signal-mask
+  * operation is needed on the hot path. */
+-void msync_control_begin(void)
+-{
+-    struct thread_data *data = get_thread_data();
++void msync_control_begin_data( struct thread_data *data )
++{
+     /* Only this executor writes depth; signal handlers read/defer. A signal
+      * before publication sees the old safe region; after it sees the new one.
+      * Keep atomic stores and the compiler fence, without a shared RMW. */
+@@ -251,14 +250,25 @@
+     __atomic_signal_fence( __ATOMIC_SEQ_CST );
+ }
+ 
+-void msync_control_end(void)
+-{
+-    struct thread_data *data = get_thread_data();
++void msync_control_end_data( struct thread_data *data )
++{
+     unsigned int depth;
+     __atomic_signal_fence( __ATOMIC_SEQ_CST );
+     depth = (unsigned int)__atomic_load_n( &data->msync_control_depth, __ATOMIC_RELAXED ) - 1;
+     __atomic_store_n( &data->msync_control_depth, (sig_atomic_t)depth, __ATOMIC_RELAXED );
+     if (!depth) msync_replay_controls_data( data );
++}
++
++/* General callers retain the original lookup; native frames may reuse their
++ * already pinned same-thread record without changing control boundaries. */
++void msync_control_begin(void)
++{
++    msync_control_begin_data( get_thread_data() );
++}
++
++void msync_control_end(void)
++{
++    msync_control_end_data( get_thread_data() );
+ }
+ 
+ void msync_begin_thread_exit(void)
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -848,9 +848,10 @@
+ 
+ static void inproc_frame_enter( struct inproc_frame *frame )
+ {
+-    msync_control_begin();
++    struct thread_data *data = get_thread_data();
++    msync_control_begin_data( data );
+     if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &frame->cancel_state )) _exit(1);
+-    frame->data = get_thread_data();
++    frame->data = data;
+     frame->prev = frame->data->msync_frames;
+     frame->count = 0;
+     frame->data->msync_frames = frame;
+@@ -866,7 +867,7 @@
+     data->msync_frames = frame->prev;
+     data->msync_private_frames--;
+     if (pthread_setcancelstate( frame->cancel_state, NULL )) _exit(1);
+-    msync_control_end();
++    msync_control_end_data( data );
+ }
+ 
+ void inproc_thread_cleanup(void)
+@@ -916,7 +917,7 @@
+     if (!(ret = get_inproc_sync( handle, types[op], access[op], &stack, &sync )))
+     {
+         frame.pins[frame.count++] = sync;
+-        msync_control_end();
++        msync_control_end_data( frame.data );
+         switch (op)
+         {
+         case INPROC_RELEASE_SEMAPHORE: ret = linux_release_semaphore_obj( sync->fd, count, (ULONG *)&result->previous ); break;
+@@ -929,7 +930,7 @@
+         case INPROC_QUERY_MUTEX: ret = linux_query_mutex_obj( sync->fd, &result->mutex ); break;
+         default: assert( 0 ); ret = STATUS_INVALID_PARAMETER;
+         }
+-        msync_control_begin();
++        msync_control_begin_data( frame.data );
+     }
+     inproc_frame_leave( &frame );
+     return ret;
+@@ -1146,9 +1147,9 @@
+         objs[i] = sync->fd;
+     }
+     if (alertable) alert_fd = get_inproc_alert_fd();
+-    msync_control_end();
++    msync_control_end_data( frame.data );
+     ret = linux_wait_objs( inproc_device_fd, count, objs, type, alert_fd, timeout ? &local_timeout : NULL );
+-    msync_control_begin();
++    msync_control_begin_data( frame.data );
+ done:
+     inproc_frame_leave( &frame );
+     if (ret == STATUS_USER_APC)
+@@ -1177,7 +1178,7 @@
+     if ((ret = get_inproc_sync( wait, INPROC_SYNC_UNKNOWN, SYNCHRONIZE, &stack_wait, &wait_sync ))) goto done;
+     frame.pins[frame.count++] = wait_sync;
+     if (alertable) alert_fd = get_inproc_alert_fd();
+-    msync_control_end();
++    msync_control_end_data( frame.data );
+     switch (signal_sync->type)
+     {
+     case INPROC_SYNC_EVENT: ret = linux_set_event_obj( signal_sync->fd, NULL ); break;
+@@ -1187,7 +1188,7 @@
+     }
+     if (!ret) ret = linux_wait_objs( inproc_device_fd, 1, &wait_sync->fd, WaitAny, alert_fd,
+                                     timeout ? &local_timeout : NULL );
+-    msync_control_begin();
++    msync_control_begin_data( frame.data );
+ done:
+     inproc_frame_leave( &frame );
+     if (ret == STATUS_USER_APC)
+--- a/dlls/ntdll/unix/msync.h
++++ b/dlls/ntdll/unix/msync.h
+@@ -27,6 +27,10 @@
+ 
+ #ifdef __APPLE__
+ 
++struct thread_data;
++/* Only the current executor's native record, valid for this entire frame. */
++extern void msync_control_begin_data( struct thread_data *data );
++extern void msync_control_end_data( struct thread_data *data );
+ extern void msync_control_begin(void);
+ extern void msync_control_end(void);
+ extern void msync_begin_thread_exit(void);

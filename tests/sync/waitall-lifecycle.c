@@ -429,6 +429,39 @@ static void cleanup_process(PROCESS_INFORMATION *process, int assigned)
     close_handle(&process->hProcess);
 }
 
+/* Opt-in failure capture only. The original wait has already failed and stays
+ * failed. A short grace leaves the exact owned child available to an external
+ * native sampler; it never extends or retries the acceptance deadline. */
+static void diagnose_child_timeout(HANDLE process, HANDLE ready, DWORD child_pid)
+{
+    const char *enabled=getenv("WAITALL_DIAGNOSTIC_HOLD_FAILURE");
+    DWORD code=0, code_error=0, late;
+    BOOL code_ok;
+    if (!enabled || strcmp(enabled,"1")) return;
+    if (printf("{\"type\":\"lifecycle-timeout-capture\",\"phase\":\"begin\","
+               "\"iteration\":%u,\"child_windows_pid\":%lu,\"failed_wait_ms\":%u,"
+               "\"grace_ms\":10000,\"acceptance_already_failed\":true}\n",
+               round_number,(unsigned long)child_pid,WAIT_MS)<0) output_failed=1;
+    flush_output();
+    code_ok=GetExitCodeProcess(process,&code);
+    if (!code_ok) code_error=GetLastError();
+    if (printf("{\"type\":\"lifecycle-timeout-capture\",\"phase\":\"child-state\","
+               "\"iteration\":%u,\"exit_code_available\":%s,\"exit_code\":%lu,"
+               "\"error\":%lu}\n",round_number,code_ok?"true":"false",
+               (unsigned long)code,(unsigned long)code_error)<0) output_failed=1;
+    flush_output();
+    Sleep(10000);
+    late=WaitForSingleObject(ready,0);
+    code_ok=GetExitCodeProcess(process,&code);
+    code_error=code_ok ? 0 : GetLastError();
+    if (printf("{\"type\":\"lifecycle-timeout-capture\",\"phase\":\"end\","
+               "\"iteration\":%u,\"ready_poll_result\":%lu,\"exit_code_available\":%s,"
+               "\"exit_code\":%lu,\"error\":%lu,\"acceptance_already_failed\":true}\n",
+               round_number,(unsigned long)late,code_ok?"true":"false",
+               (unsigned long)code,(unsigned long)code_error)<0) output_failed=1;
+    flush_output();
+}
+
 static void process_case(void)
 {
     LARGE_INTEGER begin;
@@ -489,7 +522,11 @@ static void process_case(void)
         if (!api("process.assign_before_resume", assigned)) goto done;
         result = ResumeThread(process.hThread);
         if (!equal("process.ResumeThread.previous_count", result, 1)) goto done;
-        if (!equal("process.child_ready", WaitForSingleObject(child_ready, WAIT_MS), WAIT_OBJECT_0)) goto done;
+        result=WaitForSingleObject(child_ready, WAIT_MS);
+        if (!equal("process.child_ready", result, WAIT_OBJECT_0)) {
+            diagnose_child_timeout(process.hProcess,child_ready,process.dwProcessId);
+            goto done;
+        }
         if (!progress_after(&w, thread, previous)) goto done;
         previous = read_long(&w.progress);
         if (!api("process.release_child_gate", SetEvent(child_go))) goto done;

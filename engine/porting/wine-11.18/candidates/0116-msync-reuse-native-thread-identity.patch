@@ -1,0 +1,90 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [PATCH] msync: reuse already resolved native thread data
+
+Requires0115, original O2. The Unix GetCurrentThreadId macro already calls
+PsGetCurrentThreadId, which returns get_thread_data()->tid. Reuse exactly
+that value and the current native thread's live data pointer. No TEB identity
+bug, public ID change, ABI bridge or measured speedup is claimed. Keep every
+retirement/epoch/lease/private-frame check, all commit paths and cleanup.
+
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -779,10 +779,9 @@
+ 
+ static int coord_notify( unsigned int idx, void *shm, int blocking );
+ 
+-static void coord_enter( struct msync_coord_guard *guard )
+-{
+-    struct thread_data *data = get_thread_data();
+-    unsigned int tid = GetCurrentThreadId();
++static void coord_enter_data( struct thread_data *data, struct msync_coord_guard *guard )
++{
++    unsigned int tid = data->tid;
+     if (coord_retired || !data->msync_private_frames)
+         msync_coord_fatal( "transaction outside pinned frame" );
+     msync_coord_enter( &coord, -1, 0, guard );
+@@ -792,6 +791,13 @@
+         msync_coord_leave( guard );
+         abort_thread( STATUS_THREAD_IS_TERMINATING );
+     }
++}
++
++static struct thread_data *coord_enter( struct msync_coord_guard *guard )
++{
++    struct thread_data *data = get_thread_data();
++    coord_enter_data( data, guard );
++    return data;
+ }
+ 
+ static void coord_finish( struct msync_coord_guard *guard )
+@@ -1044,12 +1050,13 @@
+ {
+     struct mutex *mutex;
+     struct msync_coord_guard guard;
++    struct thread_data *data;
+     struct msync_coord_entry entry;
+     ULONG current;
+     if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
+     mutex = get_shm( obj );
+-    coord_enter( &guard );
+-    if (mutex->tid != GetCurrentThreadId())
++    data = coord_enter( &guard );
++    if (mutex->tid != data->tid)
+     {
+         msync_coord_leave( &guard );
+         return STATUS_MUTANT_NOT_OWNED;
+@@ -1067,12 +1074,13 @@
+ {
+     struct mutex *mutex;
+     struct msync_coord_guard guard;
++    struct thread_data *data;
+     MUTANT_BASIC_INFORMATION result = {0};
+     if (coord_retired) return STATUS_THREAD_IS_TERMINATING;
+     mutex = get_shm( obj );
+-    coord_enter( &guard );
++    data = coord_enter( &guard );
+     result.CurrentCount = (LONG)(1u - mutex->count);
+-    result.OwnedByCaller = mutex->tid == GetCurrentThreadId();
++    result.OwnedByCaller = mutex->tid == data->tid;
+     result.AbandonedState = mutex->tid == ~0;
+     msync_coord_leave( &guard );
+     *info = result;
+@@ -1140,7 +1148,8 @@
+     struct msync_coord_entry entries[MAXIMUM_WAIT_OBJECTS];
+     struct msync_coord_guard guard;
+     void *objs_shm[MAXIMUM_WAIT_OBJECTS], *alert_obj_shm = NULL;
+-    unsigned int tid = GetCurrentThreadId();
++    struct thread_data *data = get_thread_data();
++    unsigned int tid = data->tid;
+     LARGE_INTEGER now;
+     ULONGLONG end = 0;
+     NTSTATUS ret;
+@@ -1170,7 +1179,7 @@
+     {
+         abandoned = 0;
+         blocked = count;
+-        coord_enter( &guard );
++        coord_enter_data( data, &guard );
+         /* APC priority is decided with the same state view as acquisition. */
+         if (alert_obj && *(int *)alert_obj_shm)
+         {

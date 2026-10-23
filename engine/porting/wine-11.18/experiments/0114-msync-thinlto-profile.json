@@ -1,0 +1,41 @@
+{
+  "schema": "cider.engine-r-compiler-profile/v1",
+  "id": "waitall-msync-native-thinlto-o3",
+  "requires": "candidates/0113-msync-combine-local-data-and-slot-reuse.patch",
+  "sourceChanges": false,
+  "sourceSHA256": {
+    "msync.c": "23137b5aaa5333d261752a6604d33562f291acd15cbef668648c379e612919b0",
+    "sync.c": "4a2934bf57f565d7d95dd86da2241e57a2e0e23e14db7098d82abc9894277bd6",
+    "include/wine/msync_coord.h": "f764b317e09a8d37cb146fa267fd6f7f5b0d174a0595c58a3193c9851f464565",
+    "server-msync.c": "db821b2d387be4ad8da7a8f08b52d409ffa2e965ad7305e697ebb22b1105a974"
+  },
+  "compileOverrides": {
+    "dlls/ntdll/unix/msync.c": [
+      "replace -O2 with -O3",
+      "-flto=thin"
+    ],
+    "dlls/ntdll/unix/sync.c": [
+      "replace -O2 with -O3",
+      "-flto=thin"
+    ]
+  },
+  "linkAdditionalFlags": [
+    "-O3",
+    "-flto=thin",
+    "-Wl,-mllvm,-threads=1"
+  ],
+  "unchanged": [
+    "SDK15.4/deployment14",
+    "x86_64/Rosetta ABI flags",
+    "server and both PE ntdll binaries",
+    "all source bytes and atomics/control/pin semantics"
+  ],
+  "fastMath": false,
+  "selectedByRecipe": false,
+  "productionPolicyBound": false,
+  "primaryReference": "https://clang.llvm.org/docs/ThinLTO.html",
+  "benefit": "possible cross-unit inlining/optimization of native frame and control helpers; must measure",
+  "cost": "LLVM bitcode/link processing, different native codegen/code size; own runtime/performance/hour required",
+  "acceptance": "exact exports and source identity, two-architecture lifecycle/concurrency, fixed same-pair5x/CS3percent, own continuous hour before adoption",
+  "rollback": "use original F17 native module; retain experiment evidence"
+}

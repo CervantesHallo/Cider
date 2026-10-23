@@ -110,9 +110,12 @@ python3 tests/sync/run-mac.py --root "$LAB" --bottle "$BOTTLE" --arch x86_64 --m
 python3 tests/sync/run-mac.py --root "$LAB" --bottle "$BOTTLE" --arch x86_64 --mode bench --iterations 250000 --threads 4
 ```
 
-The duration driver compares the host activity clock with wall time. Sleep or
-an unexplained clock gap invalidates the continuous run and stops only the owned
-laboratory; an elapsed guest hour alone is insufficient. Locking the screen is
+Every run compares the host activity clock with wall time. Sleep or an
+unexplained clock gap in either direction invalidates the run and stops only the
+owned laboratory, including short lifecycle runs whose guest checks passed.
+The record preserves guest checks separately from timing validity; a clock gap
+does not establish an engine deadlock. An elapsed guest hour alone is
+insufficient for continuous pressure. Locking the screen is
 compatible with this command path. Closing a MacBook lid can suspend it despite
 an idle-sleep assertion, so a continuous run requires an awake Mac.
 
@@ -165,3 +168,36 @@ new journal serial for an entirely unchanged non-notifying commit. Candidate0111
 only caches normally pinned slot addresses inside one owner-held commit;
 recovery resolves its own mappings. Native checks do not replace Wine runtime,
 continuous-pressure, or performance acceptance. The candidate remains optional.
+
+The count1 fixtures protect slot1 for a real payload-store fault and kill at
+notification entry. They also construct an unpublished CLEAN metadata input
+(explicitly not an observed interrupted copy), exercise queued delivery, and
+check unchanged/empty/same-value-notifying commits. Both COMMITTED and APPLIED
+recovery are permitted at notification interruption; required effects/wakes
+must actually complete. Candidate0115 keeps the multi-entry implementation and
+recovery unchanged. Candidate0116 reuses the existing native thread identity;
+its header is identical, so header evidence can be reused only with that exact
+hash, while its actual caller/runtime validation remains separate.
+
+For failure diagnosis only, compile `waitall-lifecycle.c` into the separate
+`waitall-lifecycle-diag-{arch}.exe` slot and select
+`--suite lifecycle --mode correctness --lifecycle-fixture timeout-diagnostic`.
+The original 5000 ms child-readiness check fails before an optional 10 second
+capture window begins. Late readiness never changes that failed check; the
+standard fixture and its frozen executable remain unchanged. Diagnostic marker
+rows are retained in the run record. Neither a diagnostic pass nor a later
+retry replaces an earlier acceptance failure.
+
+The monitor only reports interruption; the main thread owns submission and
+cleanup. On a timeout or clock gap it first reaps the CLI, then uses the
+helper's `stop-runtime` mode: confirm the exact private laboratory GUI has
+terminated, drain its Wine processes, and require two empty observations. This
+prevents a request paused in the GUI from spawning after a cleanup snapshot.
+The helper only accepts the owned app path and a laboratory bundle identifier;
+it does not stop the user's normal Cider app. Check
+`interruptionCleanup.confirmed`; errors do not establish that cleanup finished.
+Each request has a fresh `WAITALL_RUN_ID`, matched against the exact bottle and
+engine in its session manifest. This binds the log even if the interrupted
+`--wait` client never printed its final log path. Partial client output and
+failure markers remain available; a missing end marker is explicitly recorded
+as an incomplete diagnostic capture.

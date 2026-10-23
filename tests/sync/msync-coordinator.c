@@ -73,6 +73,7 @@ static size_t slot_page_size, slot_memory_size;
 #define SLOT(i) (*(uint64_t *)((char *)slot_memory + (size_t)(i) * slot_page_size))
 static int identity_fd = -1, failures, output_error, injection;
 static int notify_block_fd = -1, notify_ready_fd = -1;
+static volatile sig_atomic_t protected_slot = 2;
 static int watchdog_pipe[2] = {-1,-1};
 static pid_t session_owner, watchdog_pid = -1, children[MAX_CHILDREN];
 static __thread int work_fd = -1;
@@ -457,7 +458,7 @@ static void report(int before)
  * Only async-signal-safe operations are used at this deliberate fault boundary. */
 static void payload_fault(int signal_number, siginfo_t *info, void *context)
 {
-    uintptr_t address=(uintptr_t)info->si_addr, first=(uintptr_t)&SLOT(2);
+    uintptr_t address=(uintptr_t)info->si_addr, first=(uintptr_t)&SLOT(protected_slot);
     char marker='S';
     (void)signal_number; (void)context;
     if (address < first || address >= first+slot_page_size ||
@@ -471,13 +472,75 @@ static void payload_fault(int signal_number, siginfo_t *info, void *context)
     }
     _exit(90);
 }
-static void arm_payload_fault(void)
+static void arm_payload_fault_at(unsigned int index)
 {
     struct sigaction action;
+    if (!index || index >= SLOT_COUNT) _exit(88);
+    protected_slot=(sig_atomic_t)index;
     memset(&action,0,sizeof(action)); sigemptyset(&action.sa_mask);
     action.sa_sigaction=payload_fault; action.sa_flags=SA_SIGINFO;
     if (sigaction(SIGSEGV,&action,NULL) || sigaction(SIGBUS,&action,NULL) ||
-        mprotect(&SLOT(2),slot_page_size,PROT_READ)) _exit(89);
+        mprotect(&SLOT(index),slot_page_size,PROT_READ)) _exit(89);
+}
+static void arm_payload_fault(void) { arm_payload_fault_at(2); }
+
+/* All three boundaries use the real production count1 path. The first is a
+ * constructed unpublished metadata input, not an observed interrupted copy. */
+static void single_recovery_case(int kind)
+{
+    struct msync_coord_guard guard;
+    struct msync_coord_entry entry={1,1,4};
+    pid_t child=-1;
+    int before=failures,expected=kind==0 ? 36 : kind==1 ? 37 : 38;
+    test_name=kind==0 ? "single-unpublished-CLEAN-metadata-input" : kind==1 ?
+              "single-death-before-payload-store" : "single-death-before-notify";
+    reset(); child=fork_owned(); if(child<0)goto done;
+    if(!child)
+    {
+        if(kind==0)
+        {
+            enter(&guard);
+            /* CLEAN metadata is not a published decision, even if an entry
+             * would be invalid if a helper incorrectly tried to replay it. */
+            coord.header->count=1;
+            coord.header->entries[0]=(struct msync_coord_entry){0,1,99};
+            _exit(36);
+        }
+        injection=kind==1 ? 1 : 3;
+        if(kind==1)arm_payload_fault_at(1);
+        enter(&guard); msync_coord_commit(&coord,&entry,1); finish(&guard); _exit(99);
+    }
+    if(!wait_child(child,expected))goto done;
+    CHECK(SLOT(1)==(kind==2 ? 4u : 1u),"single pre-recovery payload boundary");
+    CHECK(notices(1)==0,"single notification must not precede injected boundary");
+    enter(&guard);
+    CHECK(SLOT(1)==(kind==0 ? 1u : 4u),"single committed decision recovery");
+    CHECK(journal_phase()==MSYNC_COORD_CLEAN,"single recovered journal not clean");
+    msync_coord_leave(&guard);
+    if(kind)CHECK(notices(1)>=1,"single committed notification obligation lost");
+    CHECK(SLOT(2)==1,"single recovery changed a different slot");
+ done:
+    stop_child(&child); report(before);
+}
+static void single_noop_and_queued_wake_case(void)
+{
+    struct msync_coord_guard guard;
+    struct msync_coord_entry entry={1,1,4};
+    uint64_t serial;
+    int before=failures;
+    test_name="single-noop-and-queued-wake";reset();
+    enter(&guard);injection=2;msync_coord_commit(&coord,&entry,1);injection=0;
+    CHECK(SLOT(1)==4 && journal_phase()!=MSYNC_COORD_CLEAN,"single failed delivery lost committed decision");
+    finish(&guard);CHECK(notices(1)>=1,"single queued wake not delivered");
+    serial=journal_serial();entry.notify=0;
+    enter(&guard);msync_coord_commit(&coord,&entry,1);finish(&guard);
+    CHECK(journal_serial()==serial,"single no-op created a decision");
+    enter(&guard);msync_coord_commit(&coord,NULL,0);finish(&guard);
+    CHECK(journal_serial()==serial,"empty commit created a decision");
+    entry.notify=1;
+    enter(&guard);msync_coord_commit(&coord,&entry,1);finish(&guard);
+    CHECK(journal_serial()>serial && notices(1)>=2,"single same-value wake obligation omitted");
+    report(before);
 }
 static void filtered_commit_case(void)
 {
@@ -1076,6 +1139,8 @@ int main(int argc,char **argv)
     snapshot_contract_case();
 #endif
     filtered_commit_case();
+    single_recovery_case(0); single_recovery_case(1); single_recovery_case(2);
+    single_noop_and_queued_wake_case();
     simple_recovery(0); simple_recovery(1); killed_owner_case(); simple_recovery(2); stale_helper_case();
     stopped_live_owner_case(); killed_contending_waiter_case();
     stress_case(4,10000); stress_case(8,10000); process_stress_case(); bench();

@@ -16,6 +16,7 @@ import subprocess
 import sys
 import threading
 import time
+import uuid
 
 def valid_metadata(suite, arch, iterations, mode, begins, completes):
     if len(begins) != 1 or len(completes) != 1:
@@ -38,6 +39,12 @@ def valid_metadata(suite, arch, iterations, mode, begins, completes):
     return complete.get('mode') == mode
 
 
+def clock_discontinuity(active_delta, wall_delta):
+    # mach_absolute_time stops during macOS sleep; wall time can also jump in
+    # either direction. Neither establishes an uninterrupted bounded test.
+    return abs(wall_delta - active_delta) > 2
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--root', type=Path, required=True)
 parser.add_argument('--bottle', required=True)
@@ -46,6 +53,7 @@ parser.add_argument('--mode', choices=['correctness', 'stress', 'duration', 'ben
 parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes'], default='waitall')
 parser.add_argument('--stats', action='store_true')
 parser.add_argument('--benchmark-fixture', choices=['v3', 'v4'], default='v3')
+parser.add_argument('--lifecycle-fixture', choices=['standard', 'timeout-diagnostic'], default='standard')
 parser.add_argument('--iterations', type=int, default=10000)
 parser.add_argument('--threads', type=int, default=4)
 parser.add_argument('--timeout', type=int, default=150)
@@ -73,10 +81,14 @@ lock = os.open(root / 'wine-runtime.lock', os.O_RDWR | os.O_CREAT | os.O_NOFOLLO
 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
 if args.benchmark_fixture != 'v3' and (args.suite != 'waitall' or args.mode != 'bench'):
     raise SystemExit('The alternative benchmark fixture is only valid for waitall bench mode')
+if args.lifecycle_fixture != 'standard' and (args.suite != 'lifecycle' or args.mode != 'correctness'):
+    raise SystemExit('The timeout diagnostic is only valid for lifecycle correctness mode')
 source = root / ({'waitall': 'waitall-', 'lifecycle': 'waitall-lifecycle-',
                   'processes': 'waitall-processes-'}[args.suite] + args.arch + '.exe')
 if args.benchmark_fixture == 'v4':
     source = root / ('waitall-bench-v4-' + args.arch + '.exe')
+if args.lifecycle_fixture == 'timeout-diagnostic':
+    source = root / ('waitall-lifecycle-diag-' + args.arch + '.exe')
 destination = prefix / 'drive_c/CiderTests' / source.name
 destination.parent.mkdir(exist_ok=True)
 shutil.copy2(source, destination)
@@ -93,9 +105,13 @@ elif args.mode != 'correctness':
     arguments += [str(args.iterations), str(args.threads)]
 environment = {k: os.environ[k] for k in ['HOME', 'USER', 'LOGNAME', 'TMPDIR', 'PATH'] if k in os.environ}
 environment.update(CIDER_HOME=str(home), CIDER_APP=str(app))
-command = [str(cli), 'run', '-b', args.bottle, '--wait', '--debug', 'quiet']
+run_id = str(uuid.uuid4())
+command = [str(cli), 'run', '-b', args.bottle, '--wait', '--debug', 'quiet',
+           '--env', 'WAITALL_RUN_ID=' + run_id]
 if args.stats:
     command += ['--env', 'WINEMSYNC_STATS=1']
+if args.lifecycle_fixture == 'timeout-diagnostic':
+    command += ['--env', 'WAITALL_DIAGNOSTIC_HOLD_FAILURE=1']
 command += ['C:\\CiderTests\\' + source.name, '--'] + arguments
 runs = root / 'runs'
 runs.mkdir(exist_ok=True)
@@ -106,6 +122,11 @@ record = {'schema': 'cider.waitall-mac-run/v1', 'state': 'running', 'bottle': co
           'arch': args.arch, 'arguments': arguments, 'prefix': str(prefix),
           'suite': args.suite, 'statisticsRequested': args.stats,
           'benchmarkFixture': args.benchmark_fixture if args.mode == 'bench' else None,
+          'lifecycleFixture': args.lifecycle_fixture if args.suite == 'lifecycle' else None,
+          'diagnosticFailureGraceSeconds': 10 if args.lifecycle_fixture == 'timeout-diagnostic' else 0,
+          'runnerSHA256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+          'cleanupHelperSHA256': hashlib.sha256((root / 'owned-processes').read_bytes()).hexdigest(),
+          'runID': run_id,
           'exeSHA256': hashlib.sha256(source.read_bytes()).hexdigest(), 'timeoutSeconds': args.timeout,
           'windowsOperations': 0, 'loadAverageBefore': os.getloadavg()}
 engine_root = home / 'AppSupport/Engines' / config['engine']['id'] / 'engine'
@@ -122,24 +143,20 @@ record['monotonicClock'] = time.get_clock_info('monotonic').implementation
 snapshots = []
 system_pauses = []
 sampling_done = threading.Event()
+clock_failed = threading.Event()
 def sample_statistics():
     last_monotonic, last_wall = start, wall_start
     while not sampling_done.is_set():
         now_monotonic, now_wall = time.monotonic(), time.time()
         gap = (now_wall - last_wall) - (now_monotonic - last_monotonic)
-        if args.mode == 'duration' and gap > 2:
-            # mach_absolute_time stops in macOS sleep. Preserve a failed attempt
-            # rather than count sleep as sustained pressure. A wall-clock jump
-            # is likewise ambiguous and cannot establish a continuous run.
-            pause = {'wallGapSeconds': gap, 'elapsedActiveSeconds': now_monotonic - start}
-            try:
-                cleanup = subprocess.run([str(root / 'owned-processes'), 'stop', str(root)],
-                                         text=True, capture_output=True, timeout=20)
-                pause['cleanup'] = {'exitCode': cleanup.returncode, 'stdout': cleanup.stdout, 'stderr': cleanup.stderr}
-            except (OSError, subprocess.TimeoutExpired) as error:
-                pause['cleanupError'] = str(error)
+        if clock_discontinuity(now_monotonic - last_monotonic, now_wall - last_wall):
+            # Lifecycle deadlines are invalidated too, even when the guest
+            # happens to exit 0. Preserve its original checks and stop only
+            # this laboratory; do not infer a lock failure from a clock gap.
+            pause = {'wallGapSeconds': gap, 'elapsedActiveSeconds': now_monotonic - start,
+                     'cause': 'sleep-or-wall-clock-discontinuity-not-distinguished'}
             system_pauses.append(pause)
-            sampling_done.set()
+            clock_failed.set()
             break
         last_monotonic, last_wall = now_monotonic, now_wall
         files = []
@@ -162,21 +179,61 @@ def sample_statistics():
                 row['error'] = str(error)
             snapshots.append(row)
         sampling_done.wait(1)
-sampler = threading.Thread(target=sample_statistics, daemon=True) if args.stats or args.mode == 'duration' else None
-if sampler:
-    sampler.start()
+sampler = threading.Thread(target=sample_statistics, daemon=True)
+sampler.start()
+process = None
 try:
-    process = subprocess.run(command, env=environment, text=True, capture_output=True, timeout=args.timeout)
-    record.update(cliExitCode=process.returncode, stdout=process.stdout, stderr=process.stderr)
-except subprocess.TimeoutExpired:
-    record.update(cliExitCode=124, timeout=True)
-    try:
-        cleanup = subprocess.run([str(root / 'owned-processes'), 'stop', str(root)],
-                                 text=True, capture_output=True, timeout=20)
-        record['timeoutCleanup'] = {'exitCode': cleanup.returncode, 'stdout': cleanup.stdout, 'stderr': cleanup.stderr}
-    except (OSError, subprocess.TimeoutExpired) as error:
-        record['timeoutCleanupError'] = str(error)
+    # Only this thread may submit or stop a run. The sampler merely reports a
+    # clock failure, so it cannot finish cleanup before a delayed submission.
+    if clock_failed.is_set() or clock_discontinuity(time.monotonic() - start, time.time() - wall_start):
+        record.update(cliExitCode=125, launchSkipped=True, stdout='', stderr='')
+        clock_failed.set()
+    else:
+        process = subprocess.Popen(command, env=environment, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        while True:
+            elapsed = time.monotonic() - start
+            if clock_failed.is_set() or clock_discontinuity(elapsed, time.time() - wall_start):
+                clock_failed.set()
+                record['cliExitCode'] = 125
+                break
+            if elapsed >= args.timeout:
+                record.update(cliExitCode=124, timeout=True)
+                break
+            try:
+                stdout, stderr = process.communicate(timeout=min(.25, args.timeout - elapsed))
+                record.update(cliExitCode=process.returncode, stdout=stdout, stderr=stderr)
+                break
+            except subprocess.TimeoutExpired:
+                # communicate() retains its partial output across calls. Drain
+                # it after termination too; do not discard TimeoutExpired data.
+                continue
+except OSError as error:
+    record.update(cliExitCode=126, launchError=str(error))
 finally:
+    if process is not None and (process.poll() is None or 'stdout' not in record):
+        if process.poll() is None:
+            process.terminate()
+        try:
+            stdout, stderr = process.communicate(timeout=5)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            try:
+                stdout, stderr = process.communicate(timeout=5)
+            except subprocess.TimeoutExpired as error:
+                # Another process may retain a pipe after the client dies.
+                # EOF is not a prerequisite for cleanup or the result record.
+                def partial(value):
+                    return value.decode('utf-8', 'replace') if isinstance(value, bytes) else value or ''
+                stdout, stderr = partial(error.output), partial(error.stderr)
+                record['clientOutputDrainIncomplete'] = True
+                for stream in (process.stdout, process.stderr):
+                    if stream is not None:
+                        stream.close()
+                try:
+                    process.wait(timeout=1)
+                except subprocess.TimeoutExpired:
+                    record['clientReapUnconfirmed'] = True
+        record.update(stdout=stdout, stderr=stderr, clientExitCodeAfterStop=process.returncode)
     sampling_done.set()
     if sampler:
         sampler.join(timeout=25)
@@ -185,28 +242,67 @@ finally:
 record['pumpSnapshots'] = snapshots
 record['systemPauses'] = system_pauses
 record.update(seconds=time.monotonic() - start, wallElapsedSeconds=time.time() - wall_start, loadAverageAfter=os.getloadavg())
+record['timingDiscontinuity'] = clock_failed.is_set() or bool(system_pauses) or clock_discontinuity(record['seconds'], record['wallElapsedSeconds'])
+if record['timingDiscontinuity'] or record.get('timeout') or record.get('launchError'):
+    # Includes gaps only discovered after the last sampler tick. Reap the
+    # laboratory GUI (the only Wine spawner), then drain its owned processes;
+    # an empty snapshot alone cannot exclude a queued or paused launch.
+    cleanup_record = {}
+    try:
+        cleanup = subprocess.run([str(root / 'owned-processes'), 'stop-runtime', str(root)],
+                                 text=True, capture_output=True, timeout=20)
+        receipt = json.loads(cleanup.stdout)
+        cleanup_record['ownedRoot'] = {'exitCode': cleanup.returncode, 'receipt': receipt}
+        cleanup_record['confirmed'] = (cleanup.returncode == 0 and not record.get('clientReapUnconfirmed')
+                                       and receipt.get('mode') == 'stop-runtime'
+                                       and receipt.get('hostShutdown', {}).get('confirmed') is True
+                                       and not receipt.get('pending', [None]))
+    except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+        cleanup_record.update(confirmed=False, ownedRootError=str(error))
+    record['interruptionCleanup'] = cleanup_record
 if args.mode == 'duration' and (record['seconds'] < args.iterations or
-        record['wallElapsedSeconds'] - record['seconds'] > 2):
+        record['timingDiscontinuity']):
     record['continuousDurationNotEstablished'] = True
 match = re.search(r'\blog (/.+)', record.get('stdout', ''))
+session_logs = []
+session_root = home / 'Logs/sessions' / config['id']
+for manifest in session_root.glob('*/session.json'):
+    if manifest.stat().st_size > 1024 * 1024:
+        continue
+    try:
+        plan = json.loads(manifest.read_text())
+        if (plan.get('env', {}).get('WAITALL_RUN_ID') == run_id
+                and plan.get('bottleID') == config['id'] and plan.get('engineID') == config['engine']['id']):
+            session_logs.append(manifest.with_name('wine.log'))
+    except (OSError, ValueError):
+        continue
+if len(session_logs) != 1:
+    record['sessionBindingNotEstablished'] = True
 rows = []
-if match:
-    log = Path(match.group(1).strip())
+if len(session_logs) == 1:
+    log = session_logs[0]
+    if match and Path(match.group(1).strip()) != log:
+        record['sessionBindingNotEstablished'] = True
     if not log.resolve().is_relative_to(home / 'Logs/sessions'):
         raise SystemExit('Foreign session log')
     record['log'] = str(log)
-    if log.stat().st_size <= 4 * 1024 * 1024:
+    if not log.exists():
+        record['sessionLogMissing'] = True
+    elif log.stat().st_size <= 4 * 1024 * 1024:
         for line in log.read_text(errors='replace').splitlines():
             if line.startswith('{'):
                 try:
                     row = json.loads(line)
-                    if row.get('type') in ['begin', 'check', 'complete', 'stress', 'worker', 'resources', 'bench', 'roundtrip', 'wakeup', 'progress', 'layout', 'limits', 'case', 'result', 'error']:
+                    if row.get('type') in ['begin', 'check', 'complete', 'stress', 'worker', 'resources', 'bench', 'roundtrip', 'wakeup', 'progress', 'layout', 'limits', 'case', 'result', 'error', 'lifecycle-timeout-capture']:
                         rows.append(row)
                 except json.JSONDecodeError:
                     record['invalidJSONLine'] = True
     else:
         record['logTooLargeForAcceptance'] = True
 record['rows'] = rows
+if args.lifecycle_fixture == 'timeout-diagnostic':
+    phases = [r.get('phase') for r in rows if r.get('type') == 'lifecycle-timeout-capture']
+    record['diagnosticCaptureIncomplete'] = 'begin' in phases and 'end' not in phases
 reported_errors = [r for r in rows if r.get('type') == 'error']
 record['reportedErrors'] = reported_errors
 begins = [r for r in rows if r.get('type') == 'begin']
@@ -218,7 +314,8 @@ metadata_ok = valid_metadata(args.suite, args.arch, args.iterations, args.mode, 
 record['passed'] = (record['cliExitCode'] == 0 and metadata_ok and completes[0].get('ok') is True
                     and not failed and not reported_errors and not record.get('invalidJSONLine') and not record.get('logTooLargeForAcceptance')
                     and not record.get('statisticsSamplerDidNotStop')
-                    and not record.get('continuousDurationNotEstablished') and not system_pauses)
+                    and not record.get('sessionBindingNotEstablished')
+                    and not record.get('continuousDurationNotEstablished') and not record['timingDiscontinuity'])
 record['state'] = 'complete'
 result_path.write_text(json.dumps(record, indent=2) + '\n')
 print(json.dumps({'result': str(result_path), 'passed': record['passed'], 'cliExitCode': record['cliExitCode'],

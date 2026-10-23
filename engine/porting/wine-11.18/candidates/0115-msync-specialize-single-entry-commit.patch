@@ -1,0 +1,65 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [PATCH] msync: specialize owner-held single-entry commits
+
+Requires0113, original O2 (not the optional0114 compiler profile). Preserve
+owner/lease, sequence, recovery and the generic multi-object path. Unpublished
+single-entry metadata stays CLEAN until COMMITTED; no payload changes first.
+Normal wake callbacks retain ownership, so APPLIED is only needed on their
+nonblocking delivery failure. COMMITTED recovery remains safe until CLEAN.
+Old version3 helpers remain compatible. This is not an API success stub or
+an atomicity reduction. Performance and own-hour acceptance remain required.
+
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -362,7 +362,36 @@
+ 
+ /* All target slots must be prefetched and pinned by their normal handle cache
+  * (or the server object). The allocator also enters this gate before reuse. */
+-static inline void msync_coord_commit( struct msync_coord *coord, const struct msync_coord_entry *entries,
++/* Single-entry updates need no vector filtering/copying. Preparation is
++ * unpublished while CLEAN and owner-held: no payload write precedes COMMITTED.
++ * Normal notifications retain that same owner, so recovery can replay the
++ * committed value until all wake obligations have actually been discharged. */
++static inline void msync_coord_commit_one( struct msync_coord *coord,
++                                          const struct msync_coord_entry *input )
++{
++    struct msync_coord_header *header = coord->header;
++    struct msync_coord_entry entry = *input;
++    void *slot;
++    if (header->state != MSYNC_COORD_CLEAN || header->sequence == UINT64_MAX)
++        msync_coord_fatal( "commit bounds" );
++    slot = coord->slot( entry.idx, 0 );
++    if (!slot) msync_coord_fatal( "unmapped preparation" );
++    if (!entry.notify && __atomic_load_n( (uint64_t *)slot, __ATOMIC_ACQUIRE ) == entry.value)
++        return;
++    ++header->sequence;
++    header->count = 1;
++    header->entries[0] = entry;
++    __atomic_store_n( &header->state, MSYNC_COORD_COMMITTED, __ATOMIC_RELEASE );
++    __atomic_store_n( (uint64_t *)slot, entry.value, __ATOMIC_RELEASE );
++    if (entry.notify && !coord->notify( entry.idx, slot, 0 ))
++    {
++        __atomic_store_n( &header->state, MSYNC_COORD_APPLIED, __ATOMIC_RELEASE );
++        return;
++    }
++    __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
++}
++
++static inline void msync_coord_commit_many( struct msync_coord *coord, const struct msync_coord_entry *entries,
+                                 unsigned int count )
+ {
+     struct msync_coord_header *header = coord->header;
+@@ -403,6 +432,13 @@
+     __atomic_store_n( &header->state, MSYNC_COORD_CLEAN, __ATOMIC_RELEASE );
+ }
+ 
++static inline void msync_coord_commit( struct msync_coord *coord,
++                                       const struct msync_coord_entry *entries, unsigned int count )
++{
++    if (count == 1) msync_coord_commit_one( coord, entries );
++    else msync_coord_commit_many( coord, entries, count );
++}
++
+ static inline uint64_t msync_coord_value( unsigned int low, unsigned int high )
+ {
+     return ((uint64_t)high << 32) | low;

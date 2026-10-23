@@ -647,7 +647,43 @@
         "0110"
       ],
       "sharedCoordMagicVersion": 3,
-      "status": "components/parent composition review and PE32/64 eleven-phase short runtime/exact pair passed; identical coordinator-header native guards reused explicitly; quiet-host readiness failed, new performance/hour not started",
+      "status": "short runtime passed; two preparation-cap partial failures retained; complete original-gate v3 speed4.6364x/CS-15.645percent and v4 speed4.2083x/CS-17.1218percent fail; no own hour/adoption",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalThinLTOProfile": {
+      "input": "engine/porting/wine-11.18/experiments/0114-msync-thinlto-profile.json",
+      "sha256": "8126a87ce08de920053c282f8a9889ff814b622ae31fac470fd635a9139de733",
+      "requires": "0113",
+      "sharedCoordMagicVersion": 3,
+      "status": "same-source O3/ThinLTO/300 exports/review and short runtime passed; complete v3 speed4.4348x/CS+22.3094percent fail; no own hour/adoption",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalSingleCommitCandidate": {
+      "input": "engine/porting/wine-11.18/candidates/0115-msync-specialize-single-entry-commit.patch",
+      "sha256": "14d5289971b470bd906a153f513e73777b60487be3e8186d8a7efb52a53f7ba1",
+      "requires": "0113; original O2, not0114 profile",
+      "sharedCoordMagicVersion": 3,
+      "status": "single-entry source proof/native death-and-negatives and short runtime passed; complete v4 speed4.3913x/CS+4.9340percent fail; no own hour/adoption",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalNativeIDCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0116-msync-reuse-native-thread-identity.patch",
+      "sha256": "d02b400d7cf8b7fcb035d84b8857ba2d25c6b4de72be411c18bbf01dbabb40aa",
+      "requires": "0115; original O2",
+      "sharedCoordMagicVersion": 3,
+      "status": "original PE64 lifecycle readiness timeout failed; six previously unrun phases passed; nine identities matched but only eight accepted runs; diagnosis not reproduced, oversized512 logs remain rejected; no performance/hour/adoption",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
+    },
+    "optionalNativeFrameControlCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0117-msync-reuse-native-frame-control-data.patch",
+      "sha256": "2ee04252150123988f6fd937ea890eccd6b2ffa6ef5c0e6fddc5acbc606e31de",
+      "requires": "0115; original O2; excludes0116",
+      "sharedCoordMagicVersion": 3,
+      "status": "source proof/reconstruction/300 exports/SDK15.4 components and own11 short runtime stages/nine identities passed; fixed six-run same-pair v4 comparison prepared; no performance/hour/adoption",
       "selectedByRecipe": false,
       "productionPolicyBound": false
     }
