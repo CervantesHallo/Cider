@@ -20,8 +20,10 @@ separate from Wine/Windows API equivalence and the candidate's own runtime hour.
 | --- | --- |
 | `waitall.c` | Actual Win32 calls in PE32/PE32+: not-ready/ready mixed objects, 8/64-object waits, APC priority, abandoned mutexes, named and duplicated handles, concurrent permit accounting, fixed-duration random pressure, and benchmarks. |
 | `waitall-lifecycle.c` | Actual suspend/context/resume/terminate, owned child creation/reaping, and repeated killed WaitAny waiters. |
+| `event-lifecycle.c` | Reuses one manual-reset event across bounded owned-thread termination and fresh-worker wake rounds. Confirms reaping and closes owned handles; ready/live does not prove internal wait registration. |
 | `waitall-processes.c` | Four actual self child Wine processes with four role threads each, named shared objects, atomic counters and final permit accounting; bounded owned Job cleanup. |
 | `msync-coordinator.c` | Includes the **production** Darwin coordinator header. Tests interrupted commits, notification recovery, stale helpers, stopped live owners, killed contenders and thread/process concurrency. This is not Wine API or Windows equivalence evidence. |
+| `msync-single-waiter.c` | Candidate0118's exact production hint helpers: collision, saturation, fork, conservative process-death residue, owned cleanup and a real Darwin ulock payload ABA. Native helper evidence, separate from Wine and Windows equivalence. |
 | `stats-snapshot.c` | Reads the actual pump's seqlock counters and kernel process resource observations. A missing/disabled snapshot is unavailable, not zero occupancy. |
 | `owned-processes.swift` | Uses production process identity and prefix checks to observe/stop only the owned laboratory. Never spawns Wine. |
 | `policy-probe.c` | Negative child-launch check using a copy of this harmless fixture named `C:\CiderTests\yuanshen.exe` in an otherwise empty laboratory. Never point it at an installed game. |
@@ -33,6 +35,21 @@ Use the project's existing GCC mingw-w64 frontends, separately for `i686` and
 `x86_64`, with `-O2 -g -Wall -Wextra -Werror`. Output names expected by the driver
 are `waitall-{arch}.exe` and `waitall-lifecycle-{arch}.exe`. No new compiler is
 required. `policy-probe.c` is an independent PE executable.
+
+Compile `event-lifecycle.c` with those same per-architecture flags into
+`event-lifecycle-{arch}.exe`. Select `--suite single-event --mode correctness
+--iterations 64 --stats`. The supported bound is 1..256 rounds. The driver
+requires all requested terminate/wake/context rounds, exact created/reaped counts
+and no emergency cleanup termination. Each API join retains its 5000 ms bound.
+
+For optional candidate0118, build `msync-single-waiter.c` against its exact
+magic7 `wine/msync_coord.h`, separately for native arm64 and x86_64. Like the
+coordinator it needs a fresh owned directory and process session, plus an outer
+deadline; its own watchdog is 120 seconds. Usage is `fixture <owned-dir> all`.
+Never test mutations in an installed engine. The additional hash buckets are
+conservative hints, not kernel waiters or object references. `stats-snapshot.c`
+compiled with this header explicitly marks its bucket aggregates as noncoherent;
+a missing mapping is unavailable. An old-format reader must reject this layout.
 
 Build `waitall-processes.c` with the same per-architecture C flags into
 `waitall-processes-{arch}.exe`. Invoke it through the driver with

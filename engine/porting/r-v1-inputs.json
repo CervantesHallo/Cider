@@ -686,6 +686,17 @@
       "status": "own11 short runtime stages/nine identities passed; complete six-run same-pair v4 speed4.5x/CS+41.1765percent failed; no own hour/adoption",
       "selectedByRecipe": false,
       "productionPolicyBound": false
+    },
+    "optionalEmptyEventWakeCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0118-msync-skip-empty-event-wakes.patch",
+      "sha256": "3851265fd88209f84e20187da8301c47c2814c3d29db56f8edf10adc4718f6a0",
+      "requires": "0117; original O2; excludes0116",
+      "sharedCoordMagicVersion": 7,
+      "hintBuckets": 65536,
+      "additionalSharedBytes": 262144,
+      "status": "independent review, exact native fixtures, own11 runtime stages/nine identities and both single-event lifecycles passed; fixed six-run v4 speed3.607142857x/CS-9.209572percent fail; no own hour/adoption",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
     }
   }
 }

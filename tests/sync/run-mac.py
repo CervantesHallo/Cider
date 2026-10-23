@@ -25,6 +25,22 @@ def valid_metadata(suite, arch, iterations, mode, begins, completes):
     bits = 32 if arch == 'i686' else 64
     if begin.get('pointer_bits') != bits:
         return False
+    if suite == 'single-event':
+        expected = {'requested_per_case': iterations, 'created': iterations * 2,
+                    'reaped': iterations * 2, 'completed_rounds': iterations,
+                    'terminated': iterations, 'woken': iterations,
+                    'termination_requests': iterations, 'suspended': iterations,
+                    'contexts': iterations, 'resumed': iterations,
+                    'cleanup_terminations': 0}
+        return (begin.get('iterations') == iterations
+                and begin.get('subject_reused') is True
+                and all(type(complete.get(key)) is int and complete[key] == value
+                        for key, value in expected.items())
+                and complete.get('passed') is True
+                and complete.get('failures') == 0
+                and complete.get('output_error') is False
+                and complete.get('all_owned_threads_reaped') is True
+                and complete.get('cleanupChecked') is True)
     if suite == 'lifecycle':
         return complete.get('requested_per_case') == iterations
     if suite == 'processes':
@@ -50,7 +66,7 @@ parser.add_argument('--root', type=Path, required=True)
 parser.add_argument('--bottle', required=True)
 parser.add_argument('--arch', choices=['i686', 'x86_64'], required=True)
 parser.add_argument('--mode', choices=['correctness', 'stress', 'duration', 'bench'], required=True)
-parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes'], default='waitall')
+parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event'], default='waitall')
 parser.add_argument('--stats', action='store_true')
 parser.add_argument('--benchmark-fixture', choices=['v3', 'v4'], default='v3')
 parser.add_argument('--lifecycle-fixture', choices=['standard', 'timeout-diagnostic'], default='standard')
@@ -84,7 +100,7 @@ if args.benchmark_fixture != 'v3' and (args.suite != 'waitall' or args.mode != '
 if args.lifecycle_fixture != 'standard' and (args.suite != 'lifecycle' or args.mode != 'correctness'):
     raise SystemExit('The timeout diagnostic is only valid for lifecycle correctness mode')
 source = root / ({'waitall': 'waitall-', 'lifecycle': 'waitall-lifecycle-',
-                  'processes': 'waitall-processes-'}[args.suite] + args.arch + '.exe')
+                  'processes': 'waitall-processes-', 'single-event': 'event-lifecycle-'}[args.suite] + args.arch + '.exe')
 if args.benchmark_fixture == 'v4':
     source = root / ('waitall-bench-v4-' + args.arch + '.exe')
 if args.lifecycle_fixture == 'timeout-diagnostic':
@@ -93,8 +109,9 @@ destination = prefix / 'drive_c/CiderTests' / source.name
 destination.parent.mkdir(exist_ok=True)
 shutil.copy2(source, destination)
 arguments = ['--' + args.mode]
-if args.suite == 'lifecycle':
-    if args.mode != 'correctness' or args.iterations > 4096:
+if args.suite in ['lifecycle', 'single-event']:
+    maximum = 256 if args.suite == 'single-event' else 4096
+    if args.mode != 'correctness' or args.iterations > maximum:
         raise SystemExit('Lifecycle requires a bounded correctness run')
     arguments = ['--iterations', str(args.iterations)]
 elif args.suite == 'processes':
@@ -293,7 +310,7 @@ if len(session_logs) == 1:
             if line.startswith('{'):
                 try:
                     row = json.loads(line)
-                    if row.get('type') in ['begin', 'check', 'complete', 'stress', 'worker', 'resources', 'bench', 'roundtrip', 'wakeup', 'progress', 'layout', 'limits', 'case', 'result', 'error', 'lifecycle-timeout-capture']:
+                    if row.get('type') in ['begin', 'check', 'complete', 'stress', 'worker', 'resources', 'bench', 'roundtrip', 'wakeup', 'progress', 'layout', 'limits', 'case', 'result', 'error', 'idle', 'lifecycle-timeout-capture']:
                         rows.append(row)
                 except json.JSONDecodeError:
                     record['invalidJSONLine'] = True
@@ -308,7 +325,7 @@ record['reportedErrors'] = reported_errors
 begins = [r for r in rows if r.get('type') == 'begin']
 completes = [r for r in rows if r.get('type') == 'complete']
 failed = [r for r in rows if r.get('type') == 'check' and not r.get('ok')]
-if args.suite == 'lifecycle':
+if args.suite in ['lifecycle', 'single-event']:
     begins = [r for r in rows if r.get('type') == 'limits']
 metadata_ok = valid_metadata(args.suite, args.arch, args.iterations, args.mode, begins, completes)
 record['passed'] = (record['cliExitCode'] == 0 and metadata_ok and completes[0].get('ok') is True
