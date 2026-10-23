@@ -697,6 +697,16 @@
       "status": "independent review, exact native fixtures, own11 runtime stages/nine identities and both single-event lifecycles passed; fixed six-run v4 speed3.607142857x/CS-9.209572percent fail; no own hour/adoption",
       "selectedByRecipe": false,
       "productionPolicyBound": false
+    },
+    "optionalBoundedEventSpinCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0119-msync-bound-plain-event-prewait-spin.patch",
+      "sha256": "bc28a7e1fb9f60cea396e821eead6519e73aa28d86bcf28e069912cfc8638733",
+      "requires": "0117; original O2; excludes0116/0118",
+      "sharedCoordMagicVersion": 3,
+      "spinIterations": 64,
+      "status": "13 stages/11 actual pair records passed; six-run v4 speed4.5x/CS+33.2061percent both fail; no own hour/adoption",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
     }
   }
 }

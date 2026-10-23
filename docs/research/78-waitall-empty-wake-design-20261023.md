@@ -71,3 +71,13 @@ W1 登记后尚未 park；SetEvent 置 1，W2 消耗成 0；W1 迟到进入 uloc
 后续拟从F21原保护边界尝试普通事件的有界预等待轮询：固定最多64次，只读状态、不持owner、不消费许可，变化后仍重入原事务检查/获取，耗尽后保留原ulock与超时处理。它不包含F22提示桶，不改变Mach泵或POSIX取消。收益尚未测量；代价是短暂CPU轮询与可能的有限超时超调，不能承诺减少实际kernel wake成本。必须独立审查、运行和同门槛对照，不据此提升M1。
 
 补充来源：后续网络读取已恢复，Apple的公开[取消实现](https://github.com/apple-oss-distributions/libpthread/blob/libpthread-539.100.4/src/pthread_cancelable.c)显示state更新会调用内核取消状态接口；[公开清理宏](https://github.com/apple-oss-distributions/libpthread/blob/main/include/pthread/pthread.h)只管理清理栈。公开版本不是本机已加载libpthread的二进制身份证明；原生成本和真实帧状态仍以本机原始记录为准。未读取或修改私有pthread取消字段。
+
+## F23：有界轮询的实施
+
+0119基于F21/0117，不含F22/0118。只有 `msync_wait_single` 对普通事件在原ulock之前最多做64次YieldProcessor/只读重查；不消耗对象、不持owner，观察到变化返回原STATUS_PENDING重新执行协调获取。预算在一次调用中只使用一次，不因EINTR/EFAULT补充；原绝对期限在进入ulock前重新计算。64次是迭代上界，不是墙钟期限保证；不保证公平性、零CPU成本或减少kernel wake。
+
+独立限定差异/直接调用者复审无具体P1/P2；原control/取消/pins/准入/恢复/Mach和共享header字节不变。SDK15.4/O2组件零警告，300导出集合相同，单文件补丁精确重建。最终native为 `602d49b5181e6c4e2a2e394180bf047472f3d7bb0631e4889c8d91ad006c64a2` / `1798e22dc9821ac1327f5d9a8c03abb145ba31cfa750defe1b706c391d9740a4`。
+
+自己的13阶段全部通过：原11阶段加两位宽各64轮单事件生命周期，11份driver逐一核对实际native/两PE身份及宿主时钟。原wrapper的scope文字沿用F21，实际命令和原始哈希明确为F23；标签错误另作注记，未修改或重跑旧回执。固定六轮v4完整结束：server9900/candidate2200ns=4.50倍，CS0.786/1.047ns/op=+33.2061%，两项失败，不接受、不跑自己的小时、不借其他候选结果。该次有界轮询没有带来接受所需的实测收益。
+
+重新使用既有F8采样记录而未重跑：SetEvent的yield阶段p50为200–250ns，但这是包含观察开销的历史诊断，不是F23归因。Highball0005明确为旧游戏交接调度增加该hint，原02已采纳，不能为了门槛直接删掉。继续保留yield及原取消边界；后续只调查可证明等价的帧内取消实现，不将未证明的改变作为新候选运行。

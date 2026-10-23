@@ -1,0 +1,41 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [Cider candidate] Bound plain event pre-wait reads without changing acquisition
+
+Requires 0117; excludes 0116 and 0118. Experimental, never selected by a recipe.
+Preserves cancellation, object pins, absolute deadlines and coordinated commits.
+
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -319,7 +319,15 @@
+                                           ULONGLONG *end, int tid )
+ {
+     int ret, val = 0;
++    unsigned int spins = 0;
+     ULONGLONG ns_timeleft = 0;
++
++    /* A bounded scheduling hint, never an acquisition. No owner is held here.
++     * Only plain events use it; APC/Mach, mutex and server-object paths stay
++     * unchanged. Retry the original transaction after observing readiness. */
++    if (((struct event *)obj_shm)->msync_type == MSYNC_AUTO_EVENT ||
++        ((struct event *)obj_shm)->msync_type == MSYNC_MANUAL_EVENT)
++        spins = 64;
+ 
+     do 
+     {
+@@ -333,6 +341,16 @@
+         if (__atomic_load_n( (int *)obj_shm, __ATOMIC_ACQUIRE ) != val)
+             return STATUS_PENDING;
+ 
++        /* Spend this budget once per call, not again after EINTR/EFAULT.
++         * Nothing is consumed and the caller's pins/cancellation guard remain.
++         * The absolute timeout is recomputed after spinning, before sleeping. */
++        while (spins)
++        {
++            --spins;
++            YieldProcessor();
++            if (__atomic_load_n( (int *)obj_shm, __ATOMIC_ACQUIRE ) != val)
++                return STATUS_PENDING;
++        }
+         if (end)
+         {
+             ns_timeleft = update_timeout( *end ) * 100;
