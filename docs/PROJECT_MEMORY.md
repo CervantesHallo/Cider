@@ -4,6 +4,16 @@
 
 ## 最新实际运行接续（2026-10-25）
 
+最新[93](research/93-r-v1-gpu-shared-and-window-foundation-20261025.md)：原DXMT0.80 keyed接口E_NOINTERFACE失败保留；固定现用Highball7421db2成组组件在F27/MF新base上双PE各39项，再补错误key/持有/递归/未持有释放及交回后双PE各46项通过。全部私有实验，finally普通MF R3配置/DLL恢复、GUI退出/两空和四摘要确认。0011窗口基础补真实设备retain/匹配与分配失败清理；缓存设备P2修后限定复审闭合、两native单元/链接与四文件重建过，11条SDK原行警告保留。legacy table/foreign-child/CEF和窗口运行仍未完成。
+
+93后续：DXMT顺序补丁独立源审无新P1/P2，完整PE依赖闭包双架构各4DLL已编译/链接/builtin处理，native/Metallib/MF/F27核心保持。新候选id cider-lab-wine11.18-mf-dxmt-device-r1-x86_64，staging-device-order-v1.json。首次实际PE64不再有BAADF设备NS异常，但4th分享不匹配case执行AV、CLI5；新批次仍拒绝，没跑PE32。加观察VEH/loaddll的fault-v2同断言575过且没复现，**不当修复证明**。当前继续定向heap/生命周期取证，勿反复原样跑到通过。handler原v1生成器误命中注释、编译拒绝/无运行，v2正确定位函数；保留旧源。GCC新组件每架构有一条原unsupported callback no-return告警，未来采用前仍要处理。原Windowsbusy/用户数据/U8/15/门禁不动。
+
+最新heap-v1四case575完成后在DXGI detach有读AV，VEH帧+实际nm/objdump定位std::uncaught_exception+9→ostreamflush→ios_base::Init析构，__cxa_get_globals经__emutls_get_address返回FEEEFEEE释放指针；不能拿测试CLI0当通过。已在普通MF R3运行独立cxx-tls-probe（不调用DXGI/MF），真实FreeLibrary同样fault1/CLI1，证明该TLS退出缺陷独立存在。GCC15.2 emutls_destroy不清key；本机固定MinGW-w64 v14 tlsthrd.c __mingwthr_run_key_dtors也未在调用dtor前清值，准备最小修复/对照，未改用户工具链。另gpu-lifetime-review-v1提出MFallocator先release最后manager再destroy缓存共享纹理，Highball weak parent析构GetLocalD3DKMT的条件性UAF；父代理读源码确认顺序/引用模型，尚未把早前执行AV归因给此处。下一步修allocator销毁次序及私有CRT TLS清理，不加fixture额外pin/sleep掩盖；当前无活跃子代理，Windows/定时/Goal仍零操作。
+
+新gpu-forward真实样本四case：PE64身份/元数据/256BGR像素共575项通过；PE32首轮第四case退出5未完成，准确原因未知。仅失败PE32加SEH诊断虽575/CLI0，却有40次native NSInvalidArgumentException，device=baadf00dbaadf00d，**整个PE32批次拒绝**；raw false-pass不改，mf-forward-acceptance-correction-v1.json纠正。独立源码调查确认ClearUAV构造10次getComputePipeline回调读取未初始化外层device_；不能据此追认无trace首次退出5。DXMT0001源候选同时移动成员声明/initializer，保留真实管线及Unix ABI，必须成组重建内部布局；构建/修后运行以本批out回执和后续检查点为准，不重复旧offscreen通过组。原宽d3d11范围146普通项+13TODO/格式错误未计完整通过。
+
+本批构建仅out私有：现有GCC15.2 frontend补目标libstdc++；首次standalone缺真实gthr-default.h而误禁线程、保留编译失败，新配置提供固定Win32实现header并重新检测yes，不强设缓存结果。Meson1.8.5/Ninja1.13.0私有wheel约1.3MB，系统工具/Wine核心不改。本机Metal toolchain缺席，PE-only复用同归档两PE逐字相同的161070字节Metallib(0cb052fa…)，native/shader源不变，不称完整DXMT源码构建。早期拒绝的in-source GCC缓存已逐成员核对后压为601125218字节可恢复归档，147166文件均核对，原目录移除，pinned-build/装好工具/Wine冻结输入不动。公开MF构建器可选--gpu-forward，默认v9保持，prepare-only重建新源295181…一致。Windows仍busy/待重启、零操作，用户数据/Actions/定时/Goal不动；U8/15原结论保持。
+
 最新MF已归档[92](research/92-r-v1-mf-allocator-20261025.md)：Highball0010语义迁移保留原上传及工作队列生命周期，只转交满足sharing的transform实际D3D11纹理；用保守output_pending先取已有输出、保留EOS排队帧，processor真正Flush并回收内部复制存储。最终reader v7/provider v6双PE完整Werror编译/四模块链接、三文件zero-fuzz重建通过，加入静态dxguid依赖。普通SourceReader的sync/async EMPTY/重试/Flush/Release实际双PE各300检查0失败；实际CPU processor复制输入、两次Flush、无重新协商新亮帧双PE各63过，64字节首RGB253/253/253。原base一次EMPTY后20s125、原processor后续input失败的负例均保留。均不是GPU/完整MF/游戏或默认采用。
 
 独立审查v1/v3/v4的P2已逐项修；最后review-v6.json指出undo当前admission后取Q会偷走既有SAMPLE_READY预约，父代理v7改为当前native错误自己回调、旧Q保持原预约。真实同故障DIAG对照已闭合：source6负例双PE各仅1sample回调/0OOM、5断言失败；source7诊断双PE各99检查0失败，2回调=1sample+1nativeOOM。两次真实error-node故障日志均index1/2 requests1，没把fake EMPTY数当注入证明。只证明精确reservation反例，不推定任意OOM/并发Flush/Windows契约。第一次默认日志未交付故障标记而被控制器拒绝，旧oom-runtime-v1保持失败；明确warn+mfplat后另建v2四运行通过。每轮GUI/两空清理确认，最后普通实验瓶MF Allocator R3配置及DLL逐字恢复，四保护摘要一致；诊断引擎从不作普通采用。所有子代理已关闭。

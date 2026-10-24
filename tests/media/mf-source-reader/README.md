@@ -16,6 +16,9 @@ python3 tests/media/mf-source-reader/build.py \
 | `allocator` | fake MFT 的真实 SourceReader 同步/异步 EMPTY 完成、显式重试、Flush、Release；不是物理 GPU 池 |
 | `processor` | 实际软件视频 processor 的复制后备、Flush、重复 Flush、无重新协商的新亮帧 |
 | `oom-pair` | 两个已接受的异步请求，在专用分配失败诊断模块下各完成一次；不要求跨线程回调的全局顺序 |
+| `gpu-forward`（需 `--gpu-forward` 构建） | 自有 MFT 提供真实 D3D11 样本；共享属性匹配时保留身份，不匹配时检查上传后备、元数据及实际像素 |
+
+`--gpu-forward` 只追加 `gpu-forward.patch`，默认构建仍产生原固定 v9 字节。GPU 夹具首轮 PE64 575 项普通检查通过；PE32 诊断出现 native Objective-C 异常，即使主线程报告通过也拒绝验收。详见研究 93；修后须检查完整 native 日志、四种情况及清理，不能靠重试挑一个通过轮次。
 
 运行只使用已登记的私有实验引擎和独立瓶子，经签名 GUI/XPC 启动；正常用户瓶子不替换。示例执行形式：
 

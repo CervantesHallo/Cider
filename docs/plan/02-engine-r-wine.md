@@ -1,5 +1,7 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+GPU/窗口最新接续见[93](../research/93-r-v1-gpu-shared-and-window-foundation-20261025.md)：固定Highball7421共享/keyed/所有权边界双PE各46项通过；MF真实GPU样本PE64四case575项过，PE32 native异常使整批仍未通过。已定位DXMT设备成员初始化顺序，保留管线的两文件候选正成组重建，不默认采用。0011窗口设备/分配基础经修复复审、编译链接及重建通过，完整legacy ABI/foreign-child/CEF运行仍待。原U8/15、HY顺序和Windows待重启条件保持。
+
 MF主题接续（2026-10-25）见[92](../research/92-r-v1-mf-allocator-20261025.md)：0010已按新base语义迁移，保留原上传/queue生命周期，补有限池完成/输出pending/EOS及processor真实Flush。双PE各300 SourceReader和各63真实CPU帧检查通过；最后异步reservation反例用同故障DIAG双PE各99检查闭合，原负例与失败保留。源码/组件与三文件重建已核，候选不默认采用，GPU/共享纹理和完整MF仍待。此工作属于原媒体迁移，U8/15不变，原HY顺序及Windows待重启条件保持。
 
 

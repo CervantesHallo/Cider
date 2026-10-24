@@ -1,0 +1,561 @@
+Optional actual-texture SourceReader scope over the pinned base fixture.
+No existing assertions or TODOs removed; requires explicit gpu-forward scope.
+
+--- a/dlls/mfreadwrite/tests/mfplat.c
++++ b/dlls/mfreadwrite/tests/mfplat.c
+@@ -2996,6 +2996,8 @@
+ static BOOL test_decoder_d3d11_aware;
+ static BOOL test_decoder_got_d3d_manager;
+ static BOOL test_decoder_allocate_samples;
++/* Set only by the new gpu-forward worker; original scopes remain unchanged. */
++static BOOL cider_gpu_forward_scope;
+ static IDirect3DDeviceManager9 *expect_d3d9_manager;
+ static IMFDXGIDeviceManager *expect_dxgi_manager;
+ 
+@@ -3017,6 +3019,9 @@
+     HANDLE cider_empty_event; /* Borrowed; fixture owns until decoder teardown. */
+     BOOL cider_reblock_after_success;
+     LONG cider_success_count;
++    BOOL cider_gpu_mode, cider_gpu_ready;
++    IMFSample *cider_gpu_sample;
++    LONG cider_gpu_inputs, cider_gpu_outputs;
+ };
+ 
+ static struct test_decoder *test_decoder_from_IMFTransform(IMFTransform *iface)
+@@ -3058,6 +3063,11 @@
+             IMFMediaType_Release(decoder->input_type);
+         if (decoder->output_type)
+             IMFMediaType_Release(decoder->output_type);
++        if (decoder->cider_gpu_mode)
++        {
++            if (decoder->cider_gpu_sample) IMFSample_Release(decoder->cider_gpu_sample);
++            if (decoder->attributes) IMFAttributes_Release(decoder->attributes);
++        }
+         free(decoder);
+     }
+ 
+@@ -3101,7 +3111,7 @@
+         subtype = MFVideoFormat_YUY2;
+ 
+     memset(info, 0, sizeof(*info));
+-    if (test_decoder_allocate_samples)
++    if (test_decoder_allocate_samples || decoder->cider_gpu_mode)
+         info->dwFlags |= MFT_OUTPUT_STREAM_PROVIDES_SAMPLES;
+     return MFCalculateImageSize(&MFVideoFormat_RGB32, (UINT32)frame_size, frame_size >> 32, (UINT32 *)&info->cbSize);
+ }
+@@ -3176,7 +3186,13 @@
+ 
+     if (decoder->output_format.dwSize)
+         format = decoder->output_format;
+-    format.guidFormat = subtypes[index];
++    if (decoder->cider_gpu_mode)
++    {
++        format.videoInfo.dwWidth = format.videoInfo.dwHeight = 16;
++        format.guidFormat = index ? MFVideoFormat_ABGR32 : MFVideoFormat_RGB32;
++    }
++    else
++        format.guidFormat = subtypes[index];
+ 
+     hr = MFCreateMediaType(type);
+     ok(hr == S_OK, "Unexpected hr %#lx.\n", hr);
+@@ -3203,7 +3219,7 @@
+     GUID subtype;
+     HRESULT hr;
+ 
+-    if (type && SUCCEEDED(hr = IMFMediaType_GetGUID(type, &MF_MT_SUBTYPE, &subtype))
++    if (!decoder->cider_gpu_mode && type && SUCCEEDED(hr = IMFMediaType_GetGUID(type, &MF_MT_SUBTYPE, &subtype))
+             && (IsEqualGUID(&subtype, &MFVideoFormat_RGB32)
+             || IsEqualGUID(&subtype, &MFVideoFormat_ABGR32)))
+         return MF_E_INVALIDMEDIATYPE;
+@@ -3311,6 +3327,18 @@
+ {
+     struct test_decoder *decoder = test_decoder_from_IMFTransform(iface);
+ 
++    if (decoder->cider_gpu_mode)
++    {
++        LONG inputs;
++        ok(id == 0 && !!sample && flags == 0, "Unexpected gpu-forward input arguments.\n");
++        ok(!!decoder->cider_gpu_sample, "No prepared GPU output sample.\n");
++        if (!decoder->cider_gpu_sample) return E_UNEXPECTED;
++        inputs = InterlockedIncrement(&decoder->cider_gpu_inputs);
++        ok(inputs == 1, "gpu-forward received %ld inputs.\n", inputs);
++        if (inputs != 1) return MF_E_NOTACCEPTING;
++        decoder->cider_gpu_ready = TRUE;
++        return S_OK;
++    }
+     if (decoder->cider_allocator_gate)
+         InterlockedIncrement(&decoder->cider_input_count);
+     return S_OK;
+@@ -3330,6 +3358,24 @@
+     IUnknown *unknown;
+     HRESULT hr;
+ 
++    if (decoder->cider_gpu_mode)
++    {
++        ok(flags == 0 && count == 1 && !!data && !!status, "Unexpected gpu-forward output arguments.\n");
++        if (flags || count != 1 || !data || !status) return E_INVALIDARG;
++        *status = 0;
++        data[0].dwStatus = 0;
++        data[0].pEvents = NULL;
++        ok(!data[0].pSample, "gpu-forward unexpectedly received a caller sample.\n");
++        if (data[0].pSample) return E_UNEXPECTED;
++        if (!decoder->cider_gpu_ready) return MF_E_TRANSFORM_NEED_MORE_INPUT;
++        ok(!!decoder->cider_gpu_sample, "Missing owned DXGI sample.\n");
++        if (!decoder->cider_gpu_sample) return E_UNEXPECTED;
++        decoder->cider_gpu_ready = FALSE;
++        data[0].pSample = decoder->cider_gpu_sample;
++        IMFSample_AddRef(data[0].pSample);
++        InterlockedIncrement(&decoder->cider_gpu_outputs);
++        return S_OK;
++    }
+     if (decoder->cider_allocator_gate)
+     {
+         if (!InterlockedCompareExchange(&decoder->cider_input_count, 0, 0))
+@@ -3459,6 +3505,7 @@
+         return E_OUTOFMEMORY;
+     decoder->IMFTransform_iface.lpVtbl = &test_decoder_vtbl;
+     decoder->refcount = 1;
++    decoder->cider_gpu_mode = cider_gpu_forward_scope;
+ 
+     if (test_decoder_d3d_aware || test_decoder_d3d11_aware)
+     {
+@@ -5115,6 +5162,431 @@
+     CloseHandle(thread);
+ }
+ 
++/* gpu-forward: real D3D11 resources, test-owned single-output MFT only.
++ * MF_FIXTURE_SCOPE=gpu-forward selects this fixture under the existing watchdog.
++ * No keyed ownership crosses ReadSample or an MF buffer copy/lock call.
++ */
++static const GUID cider_gpu_attribute =
++        {0xa51fe129, 0x42a1, 0x4acf, {0x8b, 0x01, 0x25, 0x10, 0x25, 0xc1, 0xde, 0x01}};
++
++#define CIDER_GPU_HR(call) do { hr = (call); \
++    ok(hr == S_OK, "%s returned %#lx.\n", #call, hr); \
++    if (hr != S_OK) goto done; } while (0)
++#define CIDER_GPU_DROP(pointer) do { if (pointer) IUnknown_Release((IUnknown *)(pointer)); } while (0)
++
++static BOOL cider_gpu_wait(ID3D11Device *device, ID3D11DeviceContext *context, const char *stage)
++{
++    D3D11_QUERY_DESC desc = {D3D11_QUERY_EVENT, 0};
++    ID3D11Query *query = NULL;
++    BOOL complete = FALSE, result = FALSE;
++    ULONGLONG deadline;
++    HRESULT hr;
++
++    CIDER_GPU_HR(ID3D11Device_CreateQuery(device, &desc, &query));
++    ID3D11DeviceContext_End(context, (ID3D11Asynchronous *)query);
++    ID3D11DeviceContext_Flush(context);
++    deadline = GetTickCount64() + 1500;
++    do
++    {
++        hr = ID3D11DeviceContext_GetData(context, (ID3D11Asynchronous *)query, &complete, sizeof(complete), 0);
++        if (hr != S_FALSE && !(hr == S_OK && !complete)) break;
++        Sleep(1);
++    } while (GetTickCount64() < deadline);
++    ok(hr == S_OK && complete, "%s GPU completion failed/timed out, hr %#lx, complete %u.\n", stage, hr, complete);
++    result = hr == S_OK && complete;
++done:
++    CIDER_GPU_DROP(query);
++    return result;
++}
++
++static BOOL cider_gpu_identity(IUnknown *left, IUnknown *right, BOOL same, const char *what)
++{
++    IUnknown *left_id = NULL, *right_id = NULL;
++    BOOL result = FALSE;
++    HRESULT hr;
++
++    CIDER_GPU_HR(IUnknown_QueryInterface(left, &IID_IUnknown, (void **)&left_id));
++    CIDER_GPU_HR(IUnknown_QueryInterface(right, &IID_IUnknown, (void **)&right_id));
++    ok((left_id == right_id) == same, "%s identities %p / %p, expected same=%u.\n",
++            what, left_id, right_id, same);
++    result = (left_id == right_id) == same;
++done:
++    CIDER_GPU_DROP(left_id);
++    CIDER_GPU_DROP(right_id);
++    return result;
++}
++
++static BOOL cider_gpu_clear(ID3D11Device *device, ID3D11DeviceContext *context, ID3D11Texture2D *texture)
++{
++    const float color[4] = {0.25f, 0.5f, 0.75f, 1.0f};
++    ID3D11RenderTargetView *view = NULL;
++    IDXGIKeyedMutex *mutex = NULL;
++    D3D11_TEXTURE2D_DESC desc;
++    BOOL owned = FALSE, result = FALSE;
++    HRESULT hr;
++
++    ID3D11Texture2D_GetDesc(texture, &desc);
++    CIDER_GPU_HR(ID3D11Device_CreateRenderTargetView(device, (ID3D11Resource *)texture, NULL, &view));
++    if (desc.MiscFlags & D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX)
++    {
++        CIDER_GPU_HR(ID3D11Texture2D_QueryInterface(texture, &IID_IDXGIKeyedMutex, (void **)&mutex));
++        CIDER_GPU_HR(IDXGIKeyedMutex_AcquireSync(mutex, 0, 500));
++        owned = TRUE;
++    }
++    ID3D11DeviceContext_ClearRenderTargetView(context, view, color);
++    if (!cider_gpu_wait(device, context, "producer clear")) goto done;
++    if (owned)
++    {
++        CIDER_GPU_HR(IDXGIKeyedMutex_ReleaseSync(mutex, 0));
++        owned = FALSE;
++    }
++    result = TRUE;
++done:
++    if (owned)
++    {
++        hr = IDXGIKeyedMutex_ReleaseSync(mutex, 0);
++        ok(hr == S_OK, "Producer cleanup ReleaseSync returned %#lx.\n", hr);
++    }
++    CIDER_GPU_DROP(mutex);
++    CIDER_GPU_DROP(view);
++    return result;
++}
++
++static BOOL cider_gpu_pixels(ID3D11Texture2D *texture)
++{
++    static const int expected[3] = {191, 128, 64}; /* BGR; RGB32 X byte is unused. */
++    ID3D11Device *device = NULL;
++    ID3D11DeviceContext *context = NULL;
++    ID3D11Texture2D *staging = NULL;
++    IDXGIKeyedMutex *mutex = NULL;
++    D3D11_MAPPED_SUBRESOURCE mapped = {0};
++    D3D11_TEXTURE2D_DESC desc;
++    BOOL owned = FALSE, is_mapped = FALSE, result = FALSE;
++    unsigned int x, y, channel, mismatches = 0;
++    ULONGLONG deadline;
++    HRESULT hr;
++
++    ID3D11Texture2D_GetDesc(texture, &desc);
++    ok(desc.Width == 16 && desc.Height == 16 && desc.Format == DXGI_FORMAT_B8G8R8X8_UNORM,
++            "Readback texture layout %ux%u, format %#x.\n", desc.Width, desc.Height, desc.Format);
++    if (desc.Width != 16 || desc.Height != 16 || desc.Format != DXGI_FORMAT_B8G8R8X8_UNORM) goto done;
++    ID3D11Texture2D_GetDevice(texture, &device);
++    ID3D11Device_GetImmediateContext(device, &context);
++    if (desc.MiscFlags & D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX)
++    {
++        CIDER_GPU_HR(ID3D11Texture2D_QueryInterface(texture, &IID_IDXGIKeyedMutex, (void **)&mutex));
++        CIDER_GPU_HR(IDXGIKeyedMutex_AcquireSync(mutex, 0, 500));
++        owned = TRUE;
++    }
++    desc.Usage = D3D11_USAGE_STAGING;
++    desc.BindFlags = desc.MiscFlags = 0;
++    desc.CPUAccessFlags = D3D11_CPU_ACCESS_READ;
++    CIDER_GPU_HR(ID3D11Device_CreateTexture2D(device, &desc, NULL, &staging));
++    ID3D11DeviceContext_CopyResource(context, (ID3D11Resource *)staging, (ID3D11Resource *)texture);
++    if (!cider_gpu_wait(device, context, "returned texture copy")) goto done;
++    deadline = GetTickCount64() + 1500;
++    do
++    {
++        hr = ID3D11DeviceContext_Map(context, (ID3D11Resource *)staging, 0, D3D11_MAP_READ,
++                D3D11_MAP_FLAG_DO_NOT_WAIT, &mapped);
++        if (hr != DXGI_ERROR_WAS_STILL_DRAWING) break;
++        Sleep(1);
++    } while (GetTickCount64() < deadline);
++    ok(hr == S_OK, "Nonblocking staging Map failed/timed out, hr %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    is_mapped = TRUE;
++    ok(!!mapped.pData && mapped.RowPitch >= 16 * 4, "Readback pointer %p, row pitch %u.\n",
++            mapped.pData, mapped.RowPitch);
++    if (!mapped.pData || mapped.RowPitch < 16 * 4) goto done;
++    for (y = 0; y < 16; ++y)
++        for (x = 0; x < 16; ++x)
++            for (channel = 0; channel < 3; ++channel)
++            {
++                const BYTE *pixel = (const BYTE *)mapped.pData + y * mapped.RowPitch + x * 4;
++                int delta = (int)pixel[channel] - expected[channel];
++                if (delta < -1 || delta > 1) ++mismatches;
++            }
++    ok(!mismatches, "Returned texture has %u mismatching BGR components (256 pixels).\n", mismatches);
++    result = !mismatches;
++done:
++    if (is_mapped) ID3D11DeviceContext_Unmap(context, (ID3D11Resource *)staging, 0);
++    if (owned)
++    {
++        hr = IDXGIKeyedMutex_ReleaseSync(mutex, 0);
++        ok(hr == S_OK, "Readback cleanup ReleaseSync returned %#lx.\n", hr);
++        if (hr != S_OK) result = FALSE;
++    }
++    CIDER_GPU_DROP(mutex);
++    CIDER_GPU_DROP(staging);
++    CIDER_GPU_DROP(context);
++    CIDER_GPU_DROP(device);
++    return result;
++}
++
++static BOOL cider_gpu_case(BOOL supplied_keyed, BOOL requested_keyed)
++{
++    static const struct attribute_desc input_desc[] =
++    {
++        ATTR_GUID(MF_MT_MAJOR_TYPE, MFMediaType_Video),
++        ATTR_GUID(MF_MT_SUBTYPE, MFVideoFormat_TEST),
++        ATTR_RATIO(MF_MT_FRAME_SIZE, 16, 16),
++        {0},
++    };
++    static const struct attribute_desc output_desc[] =
++    {
++        ATTR_GUID(MF_MT_MAJOR_TYPE, MFMediaType_Video),
++        ATTR_GUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32),
++        ATTR_RATIO(MF_MT_FRAME_SIZE, 16, 16),
++        ATTR_RATIO(MF_MT_FRAME_RATE, 30, 1),
++        ATTR_RATIO(MF_MT_PIXEL_ASPECT_RATIO, 1, 1),
++        ATTR_UINT32(MF_MT_INTERLACE_MODE, MFVideoInterlace_Progressive),
++        ATTR_UINT32(MF_MT_DEFAULT_STRIDE, 16 * 4),
++        ATTR_UINT32(MF_MT_SAMPLE_SIZE, 16 * 16 * 4),
++        ATTR_UINT32(MF_MT_FIXED_SIZE_SAMPLES, 1),
++        ATTR_UINT32(MF_MT_ALL_SAMPLES_INDEPENDENT, 1),
++        {0},
++    };
++    const UINT64 marker = 0x5ac1de2510250042ULL;
++    const LONGLONG expected_time = 123456789, expected_duration = 333333;
++    BOOL expected_forward = supplied_keyed == requested_keyed, result = FALSE;
++    D3D_FEATURE_LEVEL requested_level = D3D_FEATURE_LEVEL_11_0, actual_level = 0;
++    ID3D11Device *device = NULL;
++    ID3D11DeviceContext *context = NULL;
++    ID3D11Multithread *multithread = NULL;
++    ID3D11Texture2D *texture = NULL, *returned_texture = NULL;
++    IMFDXGIDeviceManager *manager = NULL;
++    IMFSourceReader *reader = NULL;
++    IMFSourceReaderEx *reader_ex = NULL;
++    IMFTransform *transform = NULL, *extra_transform = NULL;
++    IMFStreamDescriptor *descriptor = NULL;
++    IMFMediaSource *source = NULL;
++    IMFMediaType *type = NULL, *current_type = NULL;
++    IMFAttributes *attributes = NULL;
++    IMFSample *provided = NULL, *returned = NULL;
++    IMFMediaBuffer *buffer = NULL, *returned_buffer = NULL;
++    IMFDXGIBuffer *dxgi = NULL;
++    IDXGIResource *resource = NULL;
++    struct test_decoder *decoder = NULL;
++    D3D11_TEXTURE2D_DESC desc = {0}, actual_desc, returned_desc;
++    HANDLE shared_handle = NULL;
++    GUID category;
++    UINT token, subresource = ~0u;
++    DWORD index = ~0u, flags = ~0u, sample_flags = ~0u, count = 0;
++    UINT64 value = 0;
++    LONGLONG time = -1, duration = -1;
++    HRESULT hr;
++    ULONG refs;
++
++    winetest_push_context("gpu-forward supplied_keyed=%u requested_keyed=%u", supplied_keyed, requested_keyed);
++    printf("cider-mf-gpu-case supplied_keyed=%u requested_keyed=%u expected_forward=%u\n",
++            supplied_keyed, requested_keyed, expected_forward);
++    fflush(stdout);
++    ok(!!pMFCreateDXGIDeviceManager, "MFCreateDXGIDeviceManager unavailable.\n");
++    if (!pMFCreateDXGIDeviceManager) goto done;
++    CIDER_GPU_HR(D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
++            &requested_level, 1, D3D11_SDK_VERSION, &device, &actual_level, &context));
++    ok(actual_level == requested_level, "Unexpected feature level %#x.\n", actual_level);
++    CIDER_GPU_HR(ID3D11Device_QueryInterface(device, &IID_ID3D11Multithread, (void **)&multithread));
++    ID3D11Multithread_SetMultithreadProtected(multithread, TRUE);
++    CIDER_GPU_HR(pMFCreateDXGIDeviceManager(&token, &manager));
++    CIDER_GPU_HR(IMFDXGIDeviceManager_ResetDevice(manager, (IUnknown *)device, token));
++    expect_dxgi_manager = manager;
++    test_decoder_got_d3d_manager = FALSE;
++    desc.Width = desc.Height = 16;
++    desc.MipLevels = desc.ArraySize = 1;
++    desc.Format = DXGI_FORMAT_B8G8R8X8_UNORM;
++    desc.SampleDesc.Count = 1;
++    desc.Usage = D3D11_USAGE_DEFAULT;
++    desc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
++    desc.MiscFlags = supplied_keyed ? D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX : D3D11_RESOURCE_MISC_SHARED;
++    CIDER_GPU_HR(ID3D11Device_CreateTexture2D(device, &desc, NULL, &texture));
++    ID3D11Texture2D_GetDesc(texture, &actual_desc);
++    ok(actual_desc.MiscFlags == desc.MiscFlags, "Source texture flags %#x, requested creation flags %#x.\n",
++            actual_desc.MiscFlags, desc.MiscFlags);
++    if (actual_desc.MiscFlags != desc.MiscFlags) goto done;
++    if (!cider_gpu_clear(device, context, texture)) goto done;
++    /* Source texture is released at key0 here. MF fallback can now copy it. */
++    CIDER_GPU_HR(MFCreateDXGISurfaceBuffer(&IID_ID3D11Texture2D, (IUnknown *)texture, 0, FALSE, &buffer));
++    CIDER_GPU_HR(IMFMediaBuffer_SetCurrentLength(buffer, 16 * 16 * 4));
++    CIDER_GPU_HR(MFCreateSample(&provided));
++    CIDER_GPU_HR(IMFSample_AddBuffer(provided, buffer));
++    CIDER_GPU_HR(IMFSample_SetSampleTime(provided, expected_time));
++    CIDER_GPU_HR(IMFSample_SetSampleDuration(provided, expected_duration));
++    CIDER_GPU_HR(IMFSample_SetSampleFlags(provided, 1));
++    CIDER_GPU_HR(IMFSample_SetUINT64(provided, &cider_gpu_attribute, marker));
++
++    CIDER_GPU_HR(MFCreateAttributes(&attributes, 4));
++    CIDER_GPU_HR(IMFAttributes_SetUnknown(attributes, &MF_SOURCE_READER_D3D_MANAGER, (IUnknown *)manager));
++    CIDER_GPU_HR(IMFAttributes_SetUINT32(attributes, &MF_SA_D3D11_SHARED, requested_keyed));
++    CIDER_GPU_HR(IMFAttributes_SetUINT32(attributes, &MF_SA_D3D11_SHARED_WITHOUT_MUTEX, !requested_keyed));
++    CIDER_GPU_HR(MFCreateMediaType(&type));
++    init_media_type(type, input_desc, -1);
++    CIDER_GPU_HR(MFCreateStreamDescriptor(0, 1, &type, &descriptor));
++    source = create_test_source(&descriptor, 1);
++    ok(!!source, "Failed to create gpu-forward source.\n");
++    if (!source) goto done;
++    CIDER_GPU_HR(MFCreateSourceReaderFromMediaSource(source, attributes, &reader));
++    CIDER_GPU_HR(IMFSourceReader_SetStreamSelection(reader, 0, TRUE));
++    IMFMediaType_Release(type);
++    type = NULL;
++    CIDER_GPU_HR(MFCreateMediaType(&type));
++    init_media_type(type, output_desc, -1);
++    CIDER_GPU_HR(IMFSourceReader_SetCurrentMediaType(reader, 0, NULL, type));
++    CIDER_GPU_HR(IMFSourceReader_GetCurrentMediaType(reader, 0, &current_type));
++    check_media_type(current_type, output_desc, 3); /* No inherited broad-scope TODO attributes. */
++    CIDER_GPU_HR(IMFSourceReader_QueryInterface(reader, &IID_IMFSourceReaderEx, (void **)&reader_ex));
++    CIDER_GPU_HR(IMFSourceReaderEx_GetTransformForStream(reader_ex, 0, 0, &category, &transform));
++    ok(IsEqualGUID(&category, &MFT_CATEGORY_VIDEO_DECODER), "Unexpected transform category %s.\n", debugstr_guid(&category));
++    ok(transform->lpVtbl == &test_decoder_vtbl, "Expected owned fake decoder, got %p.\n", transform);
++    if (transform->lpVtbl != &test_decoder_vtbl) goto done;
++    hr = IMFSourceReaderEx_GetTransformForStream(reader_ex, 0, 1, NULL, &extra_transform);
++    ok(hr == MF_E_INVALIDINDEX, "Expected only one transform, got %#lx / %p.\n", hr, extra_transform);
++    if (hr != MF_E_INVALIDINDEX) goto done;
++    ok(test_decoder_got_d3d_manager, "Fake decoder did not receive actual DXGI manager.\n");
++    decoder = test_decoder_from_IMFTransform(transform);
++    ok(decoder->cider_gpu_mode, "gpu-forward instance guard was not set.\n");
++    if (!decoder->cider_gpu_mode) goto done;
++    decoder->cider_gpu_sample = provided;
++    IMFSample_AddRef(provided);
++    CIDER_GPU_HR(IMFSourceReader_ReadSample(reader, 0, 0, &index, &flags, &time, &returned));
++    ok(index == 0 && flags == 0, "ReadSample index %lu, flags %#lx.\n", index, flags);
++    ok(time == expected_time, "ReadSample time %I64d.\n", time);
++    ok(!!returned, "ReadSample produced no sample.\n");
++    if (!returned) goto done;
++    cider_gpu_identity((IUnknown *)provided, (IUnknown *)returned, expected_forward, "sample");
++    CIDER_GPU_HR(IMFSample_GetSampleTime(returned, &time));
++    ok(time == expected_time, "Sample time %I64d.\n", time);
++    CIDER_GPU_HR(IMFSample_GetSampleDuration(returned, &duration));
++    ok(duration == expected_duration, "Sample duration %I64d.\n", duration);
++    CIDER_GPU_HR(IMFSample_GetSampleFlags(returned, &sample_flags));
++    ok(sample_flags == 1, "Sample flags %#lx.\n", sample_flags);
++    CIDER_GPU_HR(IMFSample_GetUINT64(returned, &cider_gpu_attribute, &value));
++    ok(value == marker, "Custom attribute %#I64x.\n", value);
++    CIDER_GPU_HR(IMFSample_GetBufferCount(returned, &count));
++    ok(count == 1, "Returned sample has %lu buffers.\n", count);
++    if (count != 1) goto done;
++    CIDER_GPU_HR(IMFSample_GetBufferByIndex(returned, 0, &returned_buffer));
++    cider_gpu_identity((IUnknown *)buffer, (IUnknown *)returned_buffer, expected_forward, "buffer");
++    CIDER_GPU_HR(IMFMediaBuffer_QueryInterface(returned_buffer, &IID_IMFDXGIBuffer, (void **)&dxgi));
++    CIDER_GPU_HR(IMFDXGIBuffer_GetSubresourceIndex(dxgi, &subresource));
++    ok(subresource == 0, "Returned subresource %u.\n", subresource);
++    CIDER_GPU_HR(IMFDXGIBuffer_GetResource(dxgi, &IID_ID3D11Texture2D, (void **)&returned_texture));
++    cider_gpu_identity((IUnknown *)texture, (IUnknown *)returned_texture, expected_forward, "D3D11 resource");
++    ID3D11Texture2D_GetDesc(returned_texture, &returned_desc);
++    ok(!!(returned_desc.MiscFlags & (requested_keyed ? D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX
++            : D3D11_RESOURCE_MISC_SHARED)), "Returned sharing flags %#x do not match request.\n", returned_desc.MiscFlags);
++    CIDER_GPU_HR(ID3D11Texture2D_QueryInterface(returned_texture, &IID_IDXGIResource, (void **)&resource));
++    CIDER_GPU_HR(IDXGIResource_GetSharedHandle(resource, &shared_handle));
++    ok(!!shared_handle, "Returned texture has no legacy shared handle.\n");
++    /* A DXGI legacy handle is borrowed; never CloseHandle(shared_handle). */
++    if (!cider_gpu_pixels(returned_texture)) goto done;
++    ok(InterlockedCompareExchange(&decoder->cider_gpu_inputs, 0, 0) == 1,
++            "Expected exactly one fake input.\n");
++    ok(InterlockedCompareExchange(&decoder->cider_gpu_outputs, 0, 0) == 1,
++            "Expected exactly one actual DXGI output.\n");
++    result = TRUE;
++done:
++    CIDER_GPU_DROP(resource);
++    CIDER_GPU_DROP(returned_texture);
++    CIDER_GPU_DROP(dxgi);
++    CIDER_GPU_DROP(returned_buffer);
++    CIDER_GPU_DROP(returned);
++    CIDER_GPU_DROP(extra_transform);
++    CIDER_GPU_DROP(reader_ex);
++    if (reader)
++    {
++        refs = IMFSourceReader_Release(reader);
++        ok(!refs, "gpu-forward final public reader refs %lu.\n", refs);
++    }
++    CIDER_GPU_DROP(transform);
++    CIDER_GPU_DROP(current_type);
++    CIDER_GPU_DROP(type);
++    CIDER_GPU_DROP(source);
++    CIDER_GPU_DROP(descriptor);
++    CIDER_GPU_DROP(attributes);
++    CIDER_GPU_DROP(provided);
++    CIDER_GPU_DROP(buffer);
++    CIDER_GPU_DROP(texture);
++    expect_dxgi_manager = NULL;
++    CIDER_GPU_DROP(manager);
++    CIDER_GPU_DROP(multithread);
++    CIDER_GPU_DROP(context);
++    CIDER_GPU_DROP(device);
++    printf("cider-mf-gpu-case-end supplied_keyed=%u requested_keyed=%u reached_pixel_end=%u\n",
++            supplied_keyed, requested_keyed, result);
++    fflush(stdout);
++    winetest_pop_context();
++    return result;
++}
++
++static DWORD WINAPI cider_gpu_worker(void *unused)
++{
++    const MFT_REGISTER_TYPE_INFO input_info[] = {{MFMediaType_Video, MFVideoFormat_TEST}};
++    const MFT_REGISTER_TYPE_INFO output_info[] = {{MFMediaType_Video, MFVideoFormat_RGB32},
++            {MFMediaType_Video, MFVideoFormat_ABGR32}};
++    IClassFactory factory = {.lpVtbl = &test_mft_factory_vtbl};
++    BOOL saved_fail = fail_request_sample, saved_d3d9 = test_decoder_d3d_aware;
++    BOOL saved_d3d11 = test_decoder_d3d11_aware, saved_got_manager = test_decoder_got_d3d_manager;
++    IMFDXGIDeviceManager *saved_manager = expect_dxgi_manager;
++    unsigned int reached = 0;
++    HRESULT hr;
++
++    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
++    ok(hr == S_OK || hr == S_FALSE, "gpu-forward CoInitializeEx returned %#lx.\n", hr);
++    if (FAILED(hr)) return 1;
++    cider_gpu_forward_scope = TRUE;
++    fail_request_sample = FALSE;
++    test_decoder_d3d_aware = FALSE;
++    test_decoder_d3d11_aware = TRUE;
++    hr = MFTRegisterLocal(&factory, &MFT_CATEGORY_VIDEO_DECODER, L"Cider owned GPU forward MFT", 0,
++            ARRAY_SIZE(input_info), input_info, ARRAY_SIZE(output_info), output_info);
++    ok(hr == S_OK, "gpu-forward MFTRegisterLocal returned %#lx.\n", hr);
++    if (hr == S_OK)
++    {
++        reached += cider_gpu_case(FALSE, FALSE);
++        reached += cider_gpu_case(TRUE, TRUE);
++        reached += cider_gpu_case(FALSE, TRUE);
++        reached += cider_gpu_case(TRUE, FALSE);
++        ok(reached == 4, "Only %u/4 cases reached their pixel oracle.\n", reached);
++        hr = MFTUnregisterLocal(&factory);
++        ok(hr == S_OK, "gpu-forward MFTUnregisterLocal returned %#lx.\n", hr);
++    }
++    cider_gpu_forward_scope = FALSE;
++    fail_request_sample = saved_fail;
++    test_decoder_d3d_aware = saved_d3d9;
++    test_decoder_d3d11_aware = saved_d3d11;
++    test_decoder_got_d3d_manager = saved_got_manager;
++    expect_dxgi_manager = saved_manager;
++    CoUninitialize();
++    return reached == 4 ? 0 : 1;
++}
++
++static void test_cider_gpu_forward(void)
++{
++    HANDLE thread;
++    DWORD wait, code = ~0u;
++    BOOL ret;
++
++    thread = CreateThread(NULL, 0, cider_gpu_worker, NULL, 0, NULL);
++    ok(!!thread, "Failed to create gpu-forward worker, error %lu.\n", GetLastError());
++    if (!thread) return;
++    wait = WaitForSingleObject(thread, 25000);
++    ok(wait == WAIT_OBJECT_0, "gpu-forward worker timed out/wait failed, result %#lx.\n", wait);
++    if (wait != WAIT_OBJECT_0)
++    {
++        fputs("cider-mf-gpu-forward-worker-deadline-failed\n", stderr);
++        fflush(stderr);
++        ExitProcess(125);
++    }
++    ret = GetExitCodeThread(thread, &code);
++    ok(ret, "gpu-forward GetExitCodeThread failed, error %lu.\n", GetLastError());
++    ok(code == 0, "gpu-forward worker exit code %lu.\n", code);
++    CloseHandle(thread);
++}
++
++#undef CIDER_GPU_HR
++#undef CIDER_GPU_DROP
++
+ START_TEST(mfplat)
+ {
+     HRESULT hr;
+@@ -5153,6 +5625,7 @@
+                 test_source_reader_transform_stream_change();
+                 test_source_reader_release();
+             }
++            else if (!strcmp(scope, "gpu-forward")) test_cider_gpu_forward();
+             else if (!strcmp(scope, "processor")) test_cider_processor_flush();
+             else if (!strcmp(scope, "oom-pair")) test_cider_allocator_oom_pair();
+             else if (!strcmp(scope, "allocator")) test_cider_allocator_exhaustion();

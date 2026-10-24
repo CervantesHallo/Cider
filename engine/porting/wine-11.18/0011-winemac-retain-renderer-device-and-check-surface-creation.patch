@@ -1,0 +1,186 @@
+Wine 11.18 nondefault window-bridge foundation.
+
+Keep the existing default-device entry points for Vulkan and add constructors
+which retain the caller-supplied renderer device. Reject a cached view or an
+existing surface swapchain using another device, without altering its owner.
+Check surface/view allocation before dereferencing and release partial state.
+
+This does not publish the legacy macdrv_functions ABI or enable foreign-child
+swapchains. Full window/CEF and supplied-device runtime acceptance remain open.
+
+--- a/dlls/winemac.drv/macdrv.h
++++ b/dlls/winemac.drv/macdrv.h
+@@ -201,6 +201,7 @@
+ 
+ extern struct macdrv_client_surface *impl_from_client_surface(struct client_surface *client);
+ extern BOOL macdrv_client_surface_acquire_metal_swapchain(struct macdrv_client_surface *surface);
++extern BOOL macdrv_client_surface_acquire_metal_swapchain_with_device(struct macdrv_client_surface *surface, id_MTLDevice device);
+ 
+ extern struct macdrv_win_data *get_win_data(HWND hwnd);
+ extern void release_win_data(struct macdrv_win_data *data);
+--- a/dlls/winemac.drv/macdrv_cocoa.h
++++ b/dlls/winemac.drv/macdrv_cocoa.h
+@@ -538,7 +538,10 @@
+ extern void macdrv_view_release_metal_view(WineMetalView *view);
+ extern id_WineMetalSwapChain macdrv_create_view_swapchain(WineContentView *view);
+ extern id_WineMetalSwapChain macdrv_create_offscreen_swapchain(void* hwnd, CGRect bounds);
++extern id_WineMetalSwapChain macdrv_create_view_swapchain_with_device(WineContentView *view, id_MTLDevice device);
++extern id_WineMetalSwapChain macdrv_create_offscreen_swapchain_with_device(void* hwnd, CGRect bounds, id_MTLDevice device);
+ extern CAMetalLayer *macdrv_swapchain_get_layer(id_WineMetalSwapChain swapchain);
++extern id_MTLDevice macdrv_swapchain_get_device(id_WineMetalSwapChain swapchain);
+ extern void macdrv_destroy_swapchain(id_WineMetalSwapChain swapchain);
+ extern void macdrv_window_create_ca_layer_host_view(WineWindow *window, unsigned int context_id);
+ extern void macdrv_window_release_ca_layer_host_view(WineWindow *window, unsigned int context_id);
+--- a/dlls/winemac.drv/window.c
++++ b/dlls/winemac.drv/window.c
+@@ -1150,30 +1150,36 @@
+ {
+     struct macdrv_client_surface *surface;
+ 
+-    surface = client_surface_create(&macdrv_client_surface_funcs, hwnd, pixel_format, raw);
+-    surface->cocoa_view = macdrv_create_view(cgrect_from_rect(surface->client.monitor_rect));
++    if (!(surface = client_surface_create(&macdrv_client_surface_funcs, hwnd, pixel_format, raw))) return NULL;
++    if (!(surface->cocoa_view = macdrv_create_view(cgrect_from_rect(surface->client.monitor_rect))))
++    {
++        client_surface_release(&surface->client);
++        return NULL;
++    }
+     macdrv_set_view_hidden(surface->cocoa_view, TRUE);
+-
+-    if (surface)
+-    {
+-        macdrv_client_surface_update(&surface->client);
+-        macdrv_client_surface_present(&surface->client, 0);
+-    }
++    macdrv_client_surface_update(&surface->client);
++    macdrv_client_surface_present(&surface->client, 0);
+ 
+     return &surface->client;
+ }
+ 
+ BOOL macdrv_client_surface_acquire_metal_swapchain(struct macdrv_client_surface *surface)
++{
++    return macdrv_client_surface_acquire_metal_swapchain_with_device(surface, NULL);
++}
++
++BOOL macdrv_client_surface_acquire_metal_swapchain_with_device(struct macdrv_client_surface *surface, id_MTLDevice device)
+ {
+     HWND hwnd = surface->client.hwnd;
+     struct macdrv_win_data *data;
+ 
+-    if (surface->metal_swapchain) return TRUE;
++    if (surface->metal_swapchain)
++        return !device || macdrv_swapchain_get_device(surface->metal_swapchain) == device;
+ 
+     if ((data = get_win_data(hwnd)))
+     {
+         release_win_data(data);
+-        surface->metal_swapchain = macdrv_create_view_swapchain(surface->cocoa_view);
++        surface->metal_swapchain = macdrv_create_view_swapchain_with_device(surface->cocoa_view, device);
+     }
+     else
+     {
+@@ -1186,7 +1192,7 @@
+         }
+ 
+         if (!NtUserGetClientRect(hwnd, &rect, NtUserGetWinMonitorDpi(hwnd, MDT_RAW_DPI))) return FALSE;
+-        surface->metal_swapchain = macdrv_create_offscreen_swapchain(hwnd, cgrect_from_rect(rect));
++        surface->metal_swapchain = macdrv_create_offscreen_swapchain_with_device(hwnd, cgrect_from_rect(rect), device);
+     }
+ 
+     return surface->metal_swapchain != NULL;
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -567,7 +567,10 @@
+ 
+     - (WineMetalView*) newMetalViewWithDevice:(id<MTLDevice>)device
+     {
+-        if (_metalView) return _metalView;
++        /* A cached view belongs to its original renderer device. Reject the
++         * new caller before changing or releasing the existing user's view. */
++        if (_metalView)
++            return ((CAMetalLayer *)_metalView.layer).device == device ? _metalView : nil;
+ 
+         WineMetalView* view = [[WineMetalView alloc] initWithFrame:[self bounds] device:device];
+         [view setAutoresizingMask:NSViewWidthSizable | NSViewHeightSizable];
+@@ -3696,18 +3699,18 @@
+     WineMetalView *metal_view;
+ }
+ 
+-- (instancetype) initWithView:(WineContentView *)view;
++- (instancetype) initWithView:(WineContentView *)view device:(id<MTLDevice>)provided_device;
+ 
+ @end
+ 
+ @implementation MetalViewSwapChain
+ 
+-- (instancetype) initWithView:(WineContentView *)view
++- (instancetype) initWithView:(WineContentView *)view device:(id<MTLDevice>)provided_device
+ {
+     self = [super init];
+     if (!self) return nil;
+ 
+-    if (!(device = macdrv_create_metal_device()))
++    if (!(device = provided_device ? [provided_device retain] : macdrv_create_metal_device()))
+     {
+         [self release];
+         return nil;
+@@ -3745,19 +3748,19 @@
+     CAContextID context_id;
+ }
+ 
+-- (instancetype) initWithHwnd:(void*)hwnd bounds:(CGRect)bounds;
++- (instancetype) initWithHwnd:(void*)hwnd bounds:(CGRect)bounds device:(id<MTLDevice>)provided_device;
+ 
+ @end
+ 
+ @implementation CAContextSwapChain
+ 
+-- (instancetype) initWithHwnd:(void*)newHwnd bounds:(CGRect)bounds
++- (instancetype) initWithHwnd:(void*)newHwnd bounds:(CGRect)bounds device:(id<MTLDevice>)provided_device
+ {
+     self = [super init];
+     if (!self) return nil;
+ 
+     hwnd = newHwnd;
+-    if (!(device = macdrv_create_metal_device()))
++    if (!(device = provided_device ? [provided_device retain] : macdrv_create_metal_device()))
+     {
+         [self release];
+         return nil;
+@@ -3825,17 +3828,33 @@
+ 
+ id<WineMetalSwapChain> macdrv_create_view_swapchain(WineContentView *view)
+ {
+-    return [[MetalViewSwapChain alloc] initWithView:view];
++    return macdrv_create_view_swapchain_with_device(view, nil);
+ }
+ 
+ id<WineMetalSwapChain> macdrv_create_offscreen_swapchain(void* hwnd, CGRect bounds)
+ {
+-    return [[CAContextSwapChain alloc] initWithHwnd:hwnd bounds:bounds];
++    return macdrv_create_offscreen_swapchain_with_device(hwnd, bounds, nil);
++}
++
++id<WineMetalSwapChain> macdrv_create_view_swapchain_with_device(WineContentView *view, id<MTLDevice> device)
++{
++    return [[MetalViewSwapChain alloc] initWithView:view device:device];
++}
++
++id<WineMetalSwapChain> macdrv_create_offscreen_swapchain_with_device(void* hwnd, CGRect bounds, id<MTLDevice> device)
++{
++    return [[CAContextSwapChain alloc] initWithHwnd:hwnd bounds:bounds device:device];
+ }
+ 
+ CAMetalLayer *macdrv_swapchain_get_layer(id<WineMetalSwapChain> swapchain)
+ {
+     return [swapchain layer];
++}
++
++/* Borrowed while the caller owns the swapchain. */
++id<MTLDevice> macdrv_swapchain_get_device(id<WineMetalSwapChain> swapchain)
++{
++    return [[swapchain layer] device];
+ }
+ 
+ void macdrv_destroy_swapchain(id<WineMetalSwapChain> swapchain)

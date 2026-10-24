@@ -1,0 +1,360 @@
+{
+  "schema": "cider.r-v1-gpu-window-foundation/v1",
+  "date": "2026-10-25",
+  "sourceIdentities": [
+    {
+      "path": "engine/porting/dxmt-highball/0001-initialize-device-before-command-contexts.patch",
+      "sha256": "ec3ce11cb3f277ddb02b34f6fa0e056d41e0a4d70282ddbca29ce34d175dc2ee"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0011-winemac-retain-renderer-device-and-check-surface-creation.patch",
+      "sha256": "29eac101629cda5a1f0f2a76c436f0105ab7bd601458b928419735200e90258d"
+    },
+    {
+      "path": "tests/graphics/d3d11-shared-offscreen.c",
+      "sha256": "2cf7544079c5605b94826f27a707fc88b146c4b8c995c7d1f531d8f5d9d6c5a9"
+    },
+    {
+      "path": "tests/media/mf-source-reader/build.py",
+      "sha256": "69726a16ed4aa620f210c458b7daac18d463c9db85498e1686d7e8f6c20d3418"
+    },
+    {
+      "path": "tests/media/mf-source-reader/gpu-forward.patch",
+      "sha256": "d87de88cb83bb5b2202badcd7be75d69ae849a5512e4bccc540bf131455f68bd"
+    }
+  ],
+  "artifacts": [
+    {
+      "path": "out/engine-dxmt-bridge-20261025/staging-v1.json",
+      "sha256": "c693ee74f0339b180a33df55eed3940c731e6b3d4cb6c21c9d19a98b9a68c509",
+      "bytes": 4836
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/probe-build-v1.json",
+      "sha256": "e4fa77e6d4a4ef9752e6fbdc5fdadd50266e72dc2ec9120d2ddf6757b5ca4ba4",
+      "bytes": 1371
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/offscreen-runtime-v1.json",
+      "sha256": "f3ccc4279121271e376f16799ccc2f002da279857b3792513e6d79d0fec4f033",
+      "bytes": 20941
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/staging-highball-v1.json",
+      "sha256": "96138f77d210118c1ce19bcba54d8de0d9c58d3f9e30c67176ee8fbf78b9195f",
+      "bytes": 4802
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/offscreen-highball-runtime-v1.json",
+      "sha256": "c3a47d6d28ad06ed9ec444cfdeaabceef85ccba14a244436efbe5eaf6dc2664f",
+      "bytes": 31908
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/probe-build-v2.json",
+      "sha256": "376374e0ebfe9bab88b009aeec2f61bb402d38d4d9b20dea4eea44ba75de8565",
+      "bytes": 1371
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/offscreen-highball-runtime-v2.json",
+      "sha256": "00dfb03aa89ab29b6a03df269bd9a344ce7802b01af7454a272f5fa7d11a2ce6",
+      "bytes": 2273
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/offscreen-highball-runtime-v3.json",
+      "sha256": "1da8cc6a07ee2c35f54f8e42c7f518cc414ee4fbfa2674bf3d705b42c242708f",
+      "bytes": 34259
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/mf-gpu-highball-runtime-v1.json",
+      "sha256": "2f00aba9844fe118598cfc9a20238702f3ea5de91fbfd4df42ea321f18acd653",
+      "bytes": 12608
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/gpu-fixture/gpu-fixture-report-v1.json",
+      "sha256": "82f68ba059f9f82ce1bea8602027d5b1de7853e6ae39af74a12690e114a681d4",
+      "bytes": 28300
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/gpu-fixture/probe-build-gpu-forward-v1.json",
+      "sha256": "c6c78970992fa68cf6decf8542836f60316a8bb6b881a690c1c72065ec349e00",
+      "bytes": 22900
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/mf-forward-highball-runtime-v1.json",
+      "sha256": "88a4f2061d684cd0f931a2b752c1e4b63a6f60285809fae4b7e72fde4014ff00",
+      "bytes": 14366
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/mf-forward-highball-seh-v1.json",
+      "sha256": "5ac6e8ee90da81e5be3865602a372635c2e1a2f4873d16597347bb3de9245b0f",
+      "bytes": 394568
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/mf-forward-acceptance-correction-v1.json",
+      "sha256": "31faac758973f0197778ce596f09ad2336533cdbbb4d77a55642349de7a69650",
+      "bytes": 3773
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/gpu-fixture/pe32-exception-analysis-v1.json",
+      "sha256": "4845edf28c7c2c3eaadb0e755e1920606ba0a183cc707a63f48f61c50a099795",
+      "bytes": 53014
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/dxmt-device-order-source-v1.json",
+      "sha256": "42f9b656cba5ecc309ddda4f16e94bf0a15114e3ad0fadf18834621799f79408",
+      "bytes": 801
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/dxmt-device-order-review-v1.json",
+      "sha256": "d277ad672257b4d844db97dabcd215cd940528652208dae9296e1ac5ce9c8693",
+      "bytes": 27180
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/dxmt-device-order-reconstruction-v1.json",
+      "sha256": "d700435b37f892433e493de46356fc492d22df78d7cb6ed2b54d40ae070c9309",
+      "bytes": 239
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/window-foundation-build-v1.json",
+      "sha256": "d26be266c70e992bc2f5549a28f890a0e152175b990ffde54b5f15bb65cec739",
+      "bytes": 15983
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/window-foundation-build-v2.json",
+      "sha256": "042260317ee5a83a7d2b3b7469cccb3ee1c765629a3f1132c5b9ac0ee8f4dd3f",
+      "bytes": 13254
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/window-foundation-link-v2.json",
+      "sha256": "c59be0987ad2447529ba7cc5a073a4c6391276701de41e1529448f0a83859808",
+      "bytes": 5612
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/window-foundation-review-v1.json",
+      "sha256": "2382d566ca9fb4c5bf676b2ec8df3ff2e8d9dd7e911504728d76bf61f11a3eff",
+      "bytes": 22481
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/window-foundation-review-v2.json",
+      "sha256": "3142a1d0d085cbb66da8ebad441e80603f2474514352b36e8ce8761af4407ea0",
+      "bytes": 4218
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/window-foundation-warning-binding-v2.json",
+      "sha256": "49403a774129d1e2967ab48b4b546f67a35c278cb06978481b35c82e62e49d75",
+      "bytes": 3889
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/window-foundation-reconstruction-v1.json",
+      "sha256": "3487aa31a0da8c020cb5a0164e4f4a36e1d6bb9e0ab049a556ec5244964bf461",
+      "bytes": 1646
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/upstream-bridge-options-v1.json",
+      "sha256": "dfe3a842a53e312a80999a1fe1c3258eaa6c98089fa6754124283c3178c9a9cc",
+      "bytes": 37823
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/public-gpu-fixture-preparation-v1/build.json",
+      "sha256": "3c28ef9ebcec6cac8dbd7d7f507343602456f57751b6bc7155b040f65f5b9333",
+      "bytes": 11203
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/highball-source-extraction-v1.json",
+      "sha256": "8d4aa662519524142a0f3278b1eec1f614988ef95152ba6eb8f7b77aaf7d90d9",
+      "bytes": 347
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/dxmt-pe-configure-i686-v1.json",
+      "sha256": "e1334db8a750be3dea00946ae1a08fa5aa5ea79e2de09d8877ae76d11e04945d",
+      "bytes": 8263
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/dxmt-pe-build-i686-v1.json",
+      "sha256": "d87201e4675d5e029c4c8b097ba45d7b8ccffba2bafc256a50866331bbea4c3f",
+      "bytes": 623
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/dxmt-pe-configure-i686-v2.json",
+      "sha256": "1d96b0a6d750ff65b9d9600a0747541e4289264bcd9fdad3279d2405fea55e95",
+      "bytes": 8287
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/dxmt-pe-build-i686-v2.json",
+      "sha256": "a5f37d72ffb85660d130422f89d875424f36e5e3359d219458c013142e021765",
+      "bytes": 626
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/dxmt-pe-build-i686-v3.json",
+      "sha256": "5dec038d9050acd1a44de367818aa87bf1eb843228099e80d769ef0b40af8e95",
+      "bytes": 1612
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/dxmt-pe-configure-x86_64-v1.json",
+      "sha256": "16bb0ac074d032bd20b3a882b8ae13d06d22c7ffdedb56775630eaacab879190",
+      "bytes": 6832
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/dxmt-pe-build-x86_64-v1.json",
+      "sha256": "63714d81faf16554c487d90dc7eb30b12e769cf8c8720c4107c06aba16029fe4",
+      "bytes": 1514
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/pe-stdlib-i686-configure-v1.json",
+      "sha256": "54a2465ae19b3f3f7ada5cefd402dc70b29fb0c288b8d632382a6732f39d62f1",
+      "bytes": 29602
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/pe-stdlib-i686-configure-v2.json",
+      "sha256": "85d6080d0cead6bd19567825a9eadf22e9d483ba1558758b6e9952d77fff9e04",
+      "bytes": 29917
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/pe-stdlib-i686-build-v2.json",
+      "sha256": "4d7bc67204e8d0383e8452e35952533c0e906255f5e2fb3d140a05ba05db7ac6",
+      "bytes": 1039
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/pe-stdlib-x86_64-build-v1.json",
+      "sha256": "1e26c682377845f157472a90db5f18e1a794d28e80cf78b8bb913e4eda231aec",
+      "bytes": 1042
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/staging-device-order-v1.json",
+      "sha256": "86c699b8782d0aabec48260fe5eac0e53d3d2bb99e28b35fd63f82fc3b614113",
+      "bytes": 2324
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/mf-forward-device-order-runtime-v1.json",
+      "sha256": "d6bb08cd123b2dc5016b7cc496899bffcce736fbc3df998582a20ce290f1e7d8",
+      "bytes": 15253
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/gpu-fixture/fault-observer-insertion-failure-v1.json",
+      "sha256": "36495224a11fd9a1ac4700ea086017c11e74819c1a5aa1aee23b81d8b5dacc6d",
+      "bytes": 284
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/gpu-fixture/probe-build-gpu-forward-fault-v2.json",
+      "sha256": "32541d534eea9278ec11075553a54f1300649db160845a76e1b9454db4b19374",
+      "bytes": 3746
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/mf-forward-device-order-fault-v2.json",
+      "sha256": "55486ea748d5290d1ddd224977135930a8622064bccc844eb925a8ec1de51f9f",
+      "bytes": 33497
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/gpu-fixture/gpu-lifetime-review-v1.json",
+      "sha256": "6af82a7ee7b587f15654fb66b3a8c46d158a1e97d69a81818198e3b24beabfb9",
+      "bytes": 63521
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/mf-forward-device-order-heap-v1.json",
+      "sha256": "4c1d8f64e962378b202f227a521eecf91c77a0c837db6c13209941fc11f3ffec",
+      "bytes": 246544
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/cxx-tls-probe/build-v1.json",
+      "sha256": "c27e6aebb24ae294afe6bec5a2f4e1bf83287d0f991b1dc06695c1ded81ec95c",
+      "bytes": 1640
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/cxx-tls-probe/runtime-v1.json",
+      "sha256": "cbc1997fe30c490aa414d905aa476968e756cfe99e520fac50245736ce7635f4",
+      "bytes": 19916
+    }
+  ],
+  "offscreen": {
+    "componentSourceCommit": "7421db2076b7e4ef36be167294023feefbe7ba7e",
+    "archiveSHA256": "0b86f0c793e99ae88bb4ff5f8575403ad138598a44a90248c71d6bc3ec18923b",
+    "initialDxmt080KeyedQuery": "E_NOINTERFACE",
+    "checksPerArchitecture": 46,
+    "passedArchitectures": [
+      "i386",
+      "x86_64"
+    ],
+    "windowOrMfOrGameClaim": false
+  },
+  "mfGpu": {
+    "fixtureSourceSHA256": "295181cd48d35de4432fc48d631333edfe3cf0f6367c75f0c08f067797810700",
+    "x86_64": {
+      "checks": 575,
+      "ordinaryFailures": 0,
+      "todo": 0,
+      "skipped": 0,
+      "nativeExceptionObserved": false,
+      "acceptedBoundedFourCases": true
+    },
+    "i386": {
+      "firstExit": 5,
+      "firstCompleted": false,
+      "tracedRepeatCliExit": 0,
+      "tracedRepeatThreadChecks": 575,
+      "tracedRepeatNativeExceptionCount": 40,
+      "accepted": false
+    },
+    "wholeBatchAccepted": false,
+    "rawFalsePassOverriddenBy": "mf-forward-acceptance-correction-v1.json"
+  },
+  "dxmtDeviceOrderFix": {
+    "sourceReconstructionPassed": true,
+    "limitedSourceReviewNewP1P2": 0,
+    "coherentPeRebuildRequired": true,
+    "runtimeAccepted": false,
+    "defaultAdopted": false,
+    "peArchitecturesCompiled": [
+      "i386",
+      "x86_64"
+    ],
+    "modulesPerArchitecture": 4,
+    "nativeRebuilt": false,
+    "shaderRecompiled": false,
+    "wireChanged": false,
+    "firstFixedCandidateRun": {
+      "arch": "x86_64",
+      "exit": 5,
+      "completedCases": 3,
+      "newNativeInvalidDeviceExceptions": 0,
+      "accepted": false
+    },
+    "instrumentedFollowup": {
+      "checks": 575,
+      "ordinaryFailures": 0,
+      "observedFault": false,
+      "provesFix": false
+    },
+    "inheritedMissingReturnWarningsPerArchitecture": 1
+  },
+  "windowFoundation": {
+    "fourFileReconstruction": true,
+    "nativeTranslationUnitsCompiled": 2,
+    "privateModuleLinked": true,
+    "baselineWarningsRetained": 11,
+    "reviewP2Fixed": "cached view/device mismatch",
+    "postFixReviewNewP1P2": 0,
+    "runtimeAccepted": false,
+    "completeLegacyBridge": false,
+    "foreignChildEnabled": false
+  },
+  "boundaries": {
+    "productionModified": false,
+    "windowsOperations": 0,
+    "actionsTriggered": 0,
+    "automationsChanged": false,
+    "goalChanged": false,
+    "fullMfOrGamePassed": false,
+    "defaultAdopted": false,
+    "UOutside3PercentUnchanged": 8
+  },
+  "remainingObservedFailures": {
+    "fixedCandidateAccepted": false,
+    "initialExecutionAVAttributed": false,
+    "independentCppTlsUnloadReproduced": true,
+    "cppTlsProbeCliExit": 1,
+    "cppTlsProbeObservedFaults": 1,
+    "conditionalAllocatorParentLifetimeSourceCounterexample": true,
+    "allocatorLifetimeSourceFixed": false,
+    "cppTlsSourceFixed": false
+  }
+}

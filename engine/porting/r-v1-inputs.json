@@ -893,5 +893,23 @@
     "fullMfGamePassed": false,
     "defaultAdopted": false,
     "faultDiagnosticsOrdinaryUse": false
+  },
+  "graphicsGpuWindowCandidate": {
+    "research": "docs/research/93-r-v1-gpu-shared-and-window-foundation-20261025.md",
+    "evidence": "docs/research/evidence/r-v1-gpu-window-foundation-20261025.json",
+    "qualifiedOffscreenBackend": "Highball7421db2",
+    "offscreenChecksPerArchitecture": 46,
+    "mfFourCasePe64Checks": 575,
+    "mfPe32Accepted": false,
+    "deviceOrderPatch": "engine/porting/dxmt-highball/0001-initialize-device-before-command-contexts.patch",
+    "windowFoundationPatch": "engine/porting/wine-11.18/0011-winemac-retain-renderer-device-and-check-surface-creation.patch",
+    "windowFoundationCompiledLinked": true,
+    "windowRuntimeAccepted": false,
+    "completeLegacyBridge": false,
+    "defaultAdopted": false,
+    "peDependencyClosureCompiled": true,
+    "peModulesPerArchitecture": 4,
+    "fixedCandidateRuntimeAccepted": false,
+    "unexplainedExecutionAccessViolation": true
   }
 }

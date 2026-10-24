@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新图形接续（2026-10-25）见[93](../research/93-r-v1-gpu-shared-and-window-foundation-20261025.md)：固定Highball共享/keyed边界双PE各46项过；真实MF样本PE64四case575项过，PE32 native异常仍拒绝，不能按主线程零失败放行。设备初始化顺序源修正成组重建，窗口0011基础已编译/修后复审，完整桥接/窗口运行仍待。继续此真实缺口再接原CEF主题，原HY顺序/Windows忙与待重启/U8/15/门禁不变。
+
 最新MF接续（2026-10-25）见[92](../research/92-r-v1-mf-allocator-20261025.md)：Highball0010按新base保留上传后备/队列，补输出pending、真实Flush/复制存储和异步reservation错误。reader v7/provider v6双PE完整编译/四模块链接/三文件精确重建；真实SourceReader双PE各300、实际CPU processor各63通过，旧base及旧Flush负例拒绝。两次分配失败的同故障对照中，source6各丢1回调，source7诊断各99检查并分别完成sample/nativeOOM；原失败及未交付标记的首轮保持，最后恢复普通实验候选并确认清理/四摘要。不是GPU共享纹理、完整MF、Windows或游戏验收，不默认采用。接续原GPU/CEF窗口与U归因，原HY顺序和Windows待重启条件保持。
 
 

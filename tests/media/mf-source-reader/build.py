@@ -10,6 +10,7 @@ import subprocess
 
 ORIGINAL = 'd0eeffaef25d80232da52780094da328a4aa08cc90bdb4426ca1172ec5b38b85'
 PREPARED = 'd666d6457508d3ebfc73131ac9a1e8e753dba999f884692d75f28a80e902c1c8'
+GPU_PREPARED = '295181cd48d35de4432fc48d631333edfe3cf0f6367c75f0c08f067797810700'
 
 
 def sha(file):
@@ -22,6 +23,7 @@ def main():
     parser.add_argument('--wine-build', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True, help='A new directory; never overwritten.')
     parser.add_argument('--prepare-only', action='store_true', help='Verify reconstruction and record commands without compiling.')
+    parser.add_argument('--gpu-forward', action='store_true', help='Also build the explicit real-texture forwarding/fallback scope.')
     args = parser.parse_args()
     source_tree, build = args.wine_source.resolve(), args.wine_build.resolve()
     original = source_tree / 'dlls/mfreadwrite/tests/mfplat.c'
@@ -37,12 +39,23 @@ def main():
                              cwd=output / 'source', capture_output=True, text=True, timeout=20)
     if applied.returncode or 'offset' in applied.stdout or 'fuzz' in applied.stdout or sha(staged) != PREPARED:
         raise SystemExit('Fixture reconstruction failed: ' + applied.stdout + applied.stderr)
+    patches = [dict(path=patch.name, sha256=sha(patch))]
+    expected = PREPARED
+    if args.gpu_forward:
+        gpu_patch = Path(__file__).with_name('gpu-forward.patch').resolve()
+        applied = subprocess.run(['/usr/bin/patch', '-p1', '--batch', '--fuzz=0', '-i', str(gpu_patch)],
+                                 cwd=output / 'source', capture_output=True, text=True, timeout=20)
+        if applied.returncode or 'offset' in applied.stdout or 'fuzz' in applied.stdout or sha(staged) != GPU_PREPARED:
+            raise SystemExit('GPU fixture reconstruction failed: ' + applied.stdout + applied.stderr)
+        patches.append(dict(path=gpu_patch.name, sha256=sha(gpu_patch)))
+        expected = GPU_PREPARED
     testlist = output / 'testlist.c'
     testlist.write_text('#define STANDALONE\n#include "windows.h"\n#include "wine/test.h"\n'
                         'extern void func_mfplat(void);\n'
                         'const struct test winetest_testlist[] = {{"mfplat",func_mfplat},{0,0}};\n')
     report = dict(schema='cider.mf-source-reader-probe-build/v1', originalSHA256=ORIGINAL,
-                  sourceSHA256=PREPARED, patchSHA256=sha(patch), runnerSHA256=sha(Path(__file__)),
+                  sourceSHA256=expected, patchSHA256=sha(patch), patches=patches,
+                  gpuForwardIncluded=args.gpu_forward, runnerSHA256=sha(Path(__file__)),
                   makefileSHA256=sha(build / 'Makefile'), preparedOnly=args.prepare_only,
                   runtimePassed=False, rows=[])
     manifest = output / 'build.json'
