@@ -28,12 +28,21 @@ separate from Wine/Windows API equivalence and the candidate's own runtime hour.
 | `msync-ready-frame.c` | Exact extracted native frame functions, explicit Wine/reference/control doubles and 28 owned pthread cases including pending cancellation. |
 | `msync-ready-event.c` | Exact extracted ready-event function with explicit doubles and a constructed epoch-retirement interleaving. |
 | `extract-ready-source.py` | Reads an explicitly selected applied Wine source, extracts exact function bytes and records source/header/harness hashes. Does not build or run code. |
+| `darwin-cancel-boundary.c` | Self-owned native queued-cancellation observations around pre-resolved raw ulock wake and sched_yield, with a known read cancellation-point control. Not Wine, signal-safety or release-wide proof. |
 | `stats-snapshot.c` | Reads the actual pump's seqlock counters and kernel process resource observations. A missing/disabled snapshot is unavailable, not zero occupancy. |
 | `owned-processes.swift` | Uses production process identity and prefix checks to observe/stop only the owned laboratory. Never spawns Wine. |
 | `policy-probe.c` | Negative child-launch check using a copy of this harmless fixture named `C:\CiderTests\yuanshen.exe` in an otherwise empty laboratory. Never point it at an installed game. |
 | `run-mac.py` | Invokes the laboratory's packaged `ciderctl` through its actual GUI/XPC spawner, records exact native-module and EXE hashes, validates completion, and performs bounded timeout cleanup. |
 
 ## Build
+
+For `darwin-cancel-boundary.c`, use the existing macOS15.4 SDK, deployment14,
+`-std=c11 -O2 -g -Wall -Wextra -Werror`, separately for arm64 and x86_64.
+It requires a fresh owned session/process group (`Popen(start_new_session=True)`),
+has a 25-second self alarm, and needs an outer deadline of 35 seconds with owned
+group termination/reaping. The real-waiter case requires the target wake and
+waiter to return successfully before any rescue wake. Resolve/prewarm observations
+do not establish first-binding behavior or the safety of surrounding Wine code.
 
 Use the project's existing GCC mingw-w64 frontends, separately for `i686` and
 `x86_64`, with `-O2 -g -Wall -Wextra -Werror`. Output names expected by the driver
@@ -74,6 +83,13 @@ Nested cases have no pending request; pending nonterminal cases are separate.
 These tests exercise real pthread cancellation and exact selected functions,
 with clearly declared native test doubles. They do not establish actual Wine
 signal dispatch, full API/Windows equivalence, or performance acceptance.
+
+Candidate0121 additionally supplies a bounded owner helper (1..512 attempts).
+The extractor recognizes its native ready-function budget argument while still
+supporting0120's one-argument function. Native clean/event cases check zero and
+oversize budgets and real acquisition; the original single-attempt helper stays
+available. The Wine zero-timeout caller must still request one attempt. A spin
+count is an instruction-attempt bound, not a wall-clock timeout guarantee.
 
 Build `waitall-processes.c` with the same per-architecture C flags into
 `waitall-processes-{arch}.exe`. Invoke it through the driver with

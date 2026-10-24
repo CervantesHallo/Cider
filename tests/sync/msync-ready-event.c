@@ -31,6 +31,15 @@ static void coord_depart(struct thread_data *d) {
  if(__atomic_load_n(&coord_forking,__ATOMIC_SEQ_CST)) { before_wake();__ulock_wake(1|MSYNC_COORD_UL_WAKE_ALL,&d->msync_in_transaction,0); }
 }
 #include "ready-event-extracted.h"
+static NTSTATUS try_ready_once(int obj)
+{
+#if defined(READY_FIXTURE_HAS_SPIN_BUDGET) && READY_FIXTURE_HAS_SPIN_BUDGET
+ return msync_try_wait_ready_event(obj,1);
+#else
+ return msync_try_wait_ready_event(obj);
+#endif
+}
+
 static void check(const char *name,int ok) { checks++;failures+=!ok;printf("{\"type\":\"check\",\"name\":\"%s\",\"ok\":%s}\n",name,ok?"true":"false"); }
 static void reset(void) {
  coord.header->owner=0;coord.header->state=MSYNC_COORD_CLEAN;coord.header->sequence=0;coord.header->wait_hint=0;
@@ -42,21 +51,26 @@ int main(void) {
  coord.header=mmap(NULL,MSYNC_COORD_SIZE,PROT_READ|PROT_WRITE,MAP_PRIVATE|MAP_ANON,-1,0);if(coord.header==MAP_FAILED)return 65;
  coord.slot=coord_slot;coord.before_wake=before_wake;
  if(pthread_key_create(&coord_fd_key,NULL))return 66;
- reset();check("uninitialized_key_falls_back",msync_try_wait_ready_event(1)==STATUS_PENDING&&event.signaled==1);
- coord_fd_key_ready=1;check("cold_thread_key_falls_back",msync_try_wait_ready_event(1)==STATUS_PENDING&&event.signaled==1);
+ reset();check("uninitialized_key_falls_back",try_ready_once(1)==STATUS_PENDING&&event.signaled==1);
+ coord_fd_key_ready=1;check("cold_thread_key_falls_back",try_ready_once(1)==STATUS_PENDING&&event.signaled==1);
  if(pthread_setspecific(coord_fd_key,&record))return 67;
- reset();status=msync_try_wait_ready_event(1);check("auto_actual_commit",status==STATUS_SUCCESS&&event.signaled==0&&coord.header->sequence==1&&coord.header->state==MSYNC_COORD_CLEAN&&coord.header->owner==0&&data.msync_in_transaction==0);
- reset();event.msync_type=MSYNC_MANUAL_EVENT;check("manual_retains_signal",msync_try_wait_ready_event(1)==STATUS_SUCCESS&&event.signaled==1&&coord.header->sequence==0);
- reset();event.signaled=0;check("unready_has_no_effect",msync_try_wait_ready_event(1)==STATUS_PENDING&&event.signaled==0&&coord.header->sequence==0&&data.msync_in_transaction==0);
- reset();event.msync_type=MSYNC_AUTO_SERVER;check("server_event_falls_back",msync_try_wait_ready_event(1)==STATUS_PENDING&&event.signaled==1);
- reset();coord.header->owner=9;check("busy_owner_has_no_effect",msync_try_wait_ready_event(1)==STATUS_PENDING&&event.signaled==1&&coord.header->owner==9&&data.msync_in_transaction==0);
- reset();coord.header->state=MSYNC_COORD_COMMITTED;check("dirty_journal_untouched",msync_try_wait_ready_event(1)==STATUS_PENDING&&event.signaled==1&&coord.header->state==MSYNC_COORD_COMMITTED&&coord.header->owner==0);
- reset();record.retired=1;check("fork_child_retired_record",msync_try_wait_ready_event(1)==STATUS_PENDING&&event.signaled==1);record.retired=0;
- reset();retire_on_slot=1;check("epoch_retired_between_checks",msync_try_wait_ready_event(1)==STATUS_PENDING&&event.signaled==1&&coord.header->sequence==0&&data.msync_in_transaction==0);
- reset();data.msync_control_depth=0;check("unprotected_scope_falls_back",msync_try_wait_ready_event(1)==STATUS_PENDING&&event.signaled==1);data.msync_control_depth=1;
- reset();check("missing_mapping_falls_back",msync_try_wait_ready_event(2)==STATUS_PENDING&&event.signaled==1);
+ reset();status=try_ready_once(1);check("auto_actual_commit",status==STATUS_SUCCESS&&event.signaled==0&&coord.header->sequence==1&&coord.header->state==MSYNC_COORD_CLEAN&&coord.header->owner==0&&data.msync_in_transaction==0);
+ reset();event.msync_type=MSYNC_MANUAL_EVENT;check("manual_retains_signal",try_ready_once(1)==STATUS_SUCCESS&&event.signaled==1&&coord.header->sequence==0);
+ reset();event.signaled=0;check("unready_has_no_effect",try_ready_once(1)==STATUS_PENDING&&event.signaled==0&&coord.header->sequence==0&&data.msync_in_transaction==0);
+ reset();event.msync_type=MSYNC_AUTO_SERVER;check("server_event_falls_back",try_ready_once(1)==STATUS_PENDING&&event.signaled==1);
+ reset();coord.header->owner=9;check("busy_owner_has_no_effect",try_ready_once(1)==STATUS_PENDING&&event.signaled==1&&coord.header->owner==9&&data.msync_in_transaction==0);
+ reset();coord.header->state=MSYNC_COORD_COMMITTED;check("dirty_journal_untouched",try_ready_once(1)==STATUS_PENDING&&event.signaled==1&&coord.header->state==MSYNC_COORD_COMMITTED&&coord.header->owner==0);
+ reset();record.retired=1;check("fork_child_retired_record",try_ready_once(1)==STATUS_PENDING&&event.signaled==1);record.retired=0;
+ reset();retire_on_slot=1;check("epoch_retired_between_checks",try_ready_once(1)==STATUS_PENDING&&event.signaled==1&&coord.header->sequence==0&&data.msync_in_transaction==0);
+ reset();data.msync_control_depth=0;check("unprotected_scope_falls_back",try_ready_once(1)==STATUS_PENDING&&event.signaled==1);data.msync_control_depth=1;
+ reset();check("missing_mapping_falls_back",try_ready_once(2)==STATUS_PENDING&&event.signaled==1);
+#if defined(READY_FIXTURE_HAS_SPIN_BUDGET) && READY_FIXTURE_HAS_SPIN_BUDGET
+ reset();check("bounded_ready_uses_original_commit",msync_try_wait_ready_event(1,MSYNC_COORD_TRY_SPINS)==STATUS_SUCCESS&&event.signaled==0&&data.msync_in_transaction==0);
+ reset();check("zero_budget_falls_back",msync_try_wait_ready_event(1,0)==STATUS_PENDING&&event.signaled==1&&data.msync_in_transaction==0);
+ reset();check("oversize_budget_falls_back",msync_try_wait_ready_event(1,MSYNC_COORD_TRY_SPINS+1)==STATUS_PENDING&&event.signaled==1&&data.msync_in_transaction==0);
+#endif
  reset();coord_forking=1;if(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,&old))return 68;
- check("closed_fork_admission_falls_back",msync_try_wait_ready_event(1)==STATUS_PENDING&&event.signaled==1&&data.msync_in_transaction==0&&calls==1);
+ check("closed_fork_admission_falls_back",try_ready_once(1)==STATUS_PENDING&&event.signaled==1&&data.msync_in_transaction==0&&calls==1);
  {int observed;if(pthread_setcancelstate(PTHREAD_CANCEL_DISABLE,&observed))return 69;check("fork_wake_mask_retained",observed==PTHREAD_CANCEL_DISABLE);}
  if(pthread_setcancelstate(old,NULL))return 70;coord_forking=0;
  if(pthread_setspecific(coord_fd_key,NULL)||pthread_key_delete(coord_fd_key)||munmap(coord.header,MSYNC_COORD_SIZE))return 71;

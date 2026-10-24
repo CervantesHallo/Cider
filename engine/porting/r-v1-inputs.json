@@ -716,6 +716,18 @@
       "status": "revision2 source/disassembly review, native guards/extracted fixtures and own13 stages/11 identities passed; fixed six-run AC v4 speed4.434782609x/CS+11.0273327percent fail; no own hour/adoption",
       "selectedByRecipe": false,
       "productionPolicyBound": false
+    },
+    "optionalBoundedOwnerRetryCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0121-msync-bound-ready-owner-retries.patch",
+      "sha256": "7e507b00b629d6501d1e4a599d765477d8afe9785e6227d3445bf63a91508b72",
+      "requires": "0120 revision2",
+      "revision": 2,
+      "sharedCoordMagicVersion": 3,
+      "zeroTimeoutAttempts": 1,
+      "maxOwnerAttempts": 512,
+      "status": "native six executions/negatives and own13 runtime stages/11 identities passed; fixed six-run AC4.545454545x speed failed, CS-0.40733198percent passed; no own hour/adoption",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
     }
   }
 }

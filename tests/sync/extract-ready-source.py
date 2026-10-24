@@ -104,6 +104,16 @@ def main():
             raise RuntimeError(f"expected exactly one extracted definition of {name}")
 
     source_sha, block_sha = digest(data), digest(block)
+    has_spin_budget = False
+    if args.part == "event":
+        signature = re.search(rb"NTSTATUS msync_try_wait_ready_event[ \t]*\(([^)]*)\)", block)
+        if signature is None:
+            raise RuntimeError("missing ready-helper signature")
+        has_spin_budget = b"," in signature.group(1)
+        if has_spin_budget and not re.fullmatch(
+                rb"[ \t\r\n]*int[ \t]+obj[ \t]*,[ \t\r\n]*unsigned[ \t]+int[ \t]+max_spins[ \t\r\n]*",
+                signature.group(1)):
+            raise RuntimeError("unrecognized ready-helper argument contract")
     first_line = data[:start].count(b"\n") + 1
     stem = "frame-extracted" if args.part == "frame" else "ready-event-extracted"
     header_path = output / (stem + ".h")
@@ -115,6 +125,7 @@ def main():
         f"#ifndef CIDER_{tag}_EXTRACTED_H\n"
         f"#define CIDER_{tag}_EXTRACTED_H\n"
         f"#define {tag}_EXTRACT_VERSION 1\n"
+        f"#define READY_FIXTURE_HAS_SPIN_BUDGET {int(has_spin_budget)}\n"
         f"#define {tag}_SOURCE_PATH {json.dumps(str(source))}\n"
         f'#define {tag}_SOURCE_SHA256 "{source_sha}"\n'
         f'#define {tag}_BLOCK_SHA256 "{block_sha}"\n'

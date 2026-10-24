@@ -4,6 +4,10 @@
 
 用户明确恢复持续推进，不恢复自动任务或Goal，Windows仍busy/不能重启。本机四个受保护路径摘要仍相同。F24的诊断overlay固定两程序通过：ping22052次尝试仅148次ready成功，组合fork/busy/dirty门回退11927次、事件未就绪9972次；始终就绪控制10000次全部命中。计数快照取最大值、不相加，包含运行时/warmup且有观察扰动，不当作未插桩精确占比或性能。下一步只尝试首次owner获取前的有界CPU重试，保留一次对象检查、脏日志/未就绪完整回退、原事务/死亡恢复/取消及5倍/CS±3%。旧F24 AC队列和所有失败保留；详见79。
 
+F25/0121 revision2的有限owner重试已构建并经独立源码/二进制审查，无具体P1/P2；load-before-CAS，零timeout仍1次，其他至多512，原frame与共享格式/恢复不变。精确header两架构恢复/try/ready-body六次通过、针对性负例拒绝、四文件重建/300导出，以及自己的13阶段/11份身份均过。固定AC六轮4.545454545倍速度失败，CS−0.40733198%控制通过；不采用/不跑自己的小时，不重试挑样。后续先核对实际命中/回退细分，并只读审查关键raw调用的取消边界，不据此先扩张保护策略；详见[research80](../research/80-waitall-bounded-owner-retry-20261024.md)。
+
+F25细分诊断完成，owner预算耗尽11231、未就绪9800、成功1016，dirty/fork/same-token零；只限插桩观测，不外推性能。预解析raw ulock wake/sched_yield的Darwin源码及本机两架构取消探针已完成，真实waiter验收P2已修后双架构通过；接续cached普通SetEvent调用链审查，原提交/恢复、未证明分支的完整mask和yield保留。见[research81](../research/81-darwin-cancellation-boundaries-20261024.md)。
+
 ## 最新接续（2026-10-23）：F22 功能通过，性能失败
 
 真实 Wine 诊断报告198674帧原取消状态ENABLE、DISABLE零；请求QoS均21，不证明有效调度。永久关闭POSIX取消未采用。F22/0118保留原取消/事务/死亡恢复/Mach计数，只为普通事件追加256KiB保守提示桶；独立审查发现的借用alert槽类型变化P2已闭合。精确magic7 header的两架构原生恢复/提示/真实ulock ABA、五个x86负对照、自己的11阶段及九份身份核对通过；新单事件生命周期两位宽各2179检查/128线程回收/64终止与重新唤醒通过。详见[research78](../research/78-waitall-empty-wake-design-20261023.md)。

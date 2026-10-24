@@ -1,0 +1,129 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [Cider candidate] Bound CPU retries before first ready-event owner acquisition
+
+Requires0120 revision2, not selected by a recipe. Zero-timeout polls retain
+one attempt; other attempts use load-before-CAS bounded at512. No event
+readiness loop, lease shortcut, recovery or cancellation policy change.
+
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -65,6 +65,7 @@
+ #include "wine/msync_coord.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(sync);
++_Static_assert( MSYNC_READY_TRY_SPINS == MSYNC_COORD_TRY_SPINS, "ready retry bounds" );
+ 
+ static LONGLONG update_timeout( ULONGLONG end )
+ {
+@@ -1157,9 +1158,9 @@
+ }
+ 
+ /* Caller has a pinned cached event and holds its short Wine control guard.
+- * No slow descriptor/TLV initialization, mapping, wait, recovery or notification
++ * No slow descriptor/TLV initialization, mapping, kernel wait, recovery or notification
+  * may occur. Anything outside this closed CPU path retries under the old mask. */
+-NTSTATUS msync_try_wait_ready_event( int obj )
++NTSTATUS msync_try_wait_ready_event( int obj, unsigned int max_spins )
+ {
+     struct coord_fd_record *record;
+     struct thread_data *data = get_thread_data();
+@@ -1180,7 +1181,7 @@
+         !(event = coord_slot( obj, 0 ))) return STATUS_PENDING;
+     __atomic_store_n( &data->msync_in_transaction, 1, __ATOMIC_SEQ_CST );
+     if (!__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST ) &&
+-        msync_coord_try_clean( &coord, record->fd, record->token, &guard ))
++        msync_coord_try_clean_bounded( &coord, record->fd, record->token, &guard, max_spins ))
+     {
+         /* The server can retire an epoch before this attempt acquires owner.
+          * Validate again inside owner, exactly like the ordinary entry path. */
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -1216,7 +1216,8 @@
+             frame.pins[frame.count++] = sync;
+             if (!sync->closed && sync->type == INPROC_SYNC_EVENT &&
+                 (sync->access & SYNCHRONIZE) &&
+-                (ret = msync_try_wait_ready_event( sync->fd )) != STATUS_PENDING) goto done;
++                (ret = msync_try_wait_ready_event( sync->fd,
++                    timeout && !local_timeout.QuadPart ? 1 : MSYNC_READY_TRY_SPINS )) != STATUS_PENDING) goto done;
+         }
+         /* Retain the frame and disable state BEFORE restoring type, releasing
+          * any speculative pin, enabling controls or entering the original path. */
+--- a/dlls/ntdll/unix/msync.h
++++ b/dlls/ntdll/unix/msync.h
+@@ -58,7 +58,8 @@
+ extern NTSTATUS msync_release_mutex_obj( int obj, LONG *prev_count );
+ extern NTSTATUS msync_query_mutex_obj( int obj, MUTANT_BASIC_INFORMATION *info );
+ extern void inproc_prepare_kernel(void);
+-extern NTSTATUS msync_try_wait_ready_event( int obj );
++#define MSYNC_READY_TRY_SPINS 512u
++extern NTSTATUS msync_try_wait_ready_event( int obj, unsigned int max_spins );
+ extern NTSTATUS msync_wait_objs( const DWORD count, const int *objs, BOOLEAN wait_any,
+                                  int alert_obj, const LARGE_INTEGER *timeout );
+ 
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -263,24 +263,51 @@
+     }
+ }
+ 
+-/* Caller protects controls/cancellation and its admission for this CPU-only
+- * attempt. No waiting, fd probe, mapping, journal recovery or notification.
+- * A failed attempt leaves the journal untouched; an acquired dirty gate is
+- * released, including the original wake sequence and guarded kernel wake. */
+-static inline int msync_coord_try_clean( struct msync_coord *coord, int fd, uint64_t token,
+-                                        struct msync_coord_guard *guard )
+-{
+-    uint64_t expected = 0;
+-    if (!token) return 0;
++/* Same finite CPU budget as the normal gate take; no kernel wait, lease
++ * probe, allocation, or event readiness retry. The caller keeps its original
++ * native frame/admission and control guard for the whole short attempt. */
++#define MSYNC_COORD_TRY_SPINS 512u
++static inline int msync_coord_try_clean_bounded( struct msync_coord *coord, int fd, uint64_t token,
++                                                struct msync_coord_guard *guard, unsigned int max_spins )
++{
++    uint64_t expected;
++    unsigned int spin;
++    if (!token || !max_spins || max_spins > MSYNC_COORD_TRY_SPINS) return 0;
+     guard->coord = coord;
+     guard->fd = fd;
+     guard->token = token;
+     guard->cancel_state = -1;
+-    if (!__atomic_compare_exchange_n( &coord->header->owner, &expected, token, 0,
+-                                      __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST )) return 0;
+-    if (__atomic_load_n( &coord->header->state, __ATOMIC_ACQUIRE ) == MSYNC_COORD_CLEAN) return 1;
+-    msync_coord_give( guard );
++    for (spin = 0; spin < max_spins; ++spin)
++    {
++        /* Match normal take's load-before-CAS behavior: do not bounce the
++         * owner's cache line with failed locked RMWs while it is visibly busy. */
++        expected = __atomic_load_n( &coord->header->owner, __ATOMIC_RELAXED );
++        if (expected)
++        {
++            if (expected == token) return 0;
++            msync_coord_pause();
++            continue;
++        }
++        if (__atomic_compare_exchange_n( &coord->header->owner, &expected, token, 0,
++                                          __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST ))
++        {
++            if (__atomic_load_n( &coord->header->state, __ATOMIC_ACQUIRE ) == MSYNC_COORD_CLEAN) return 1;
++            /* Dirty journals promptly reach the original recovery path. */
++            msync_coord_give( guard );
++            return 0;
++        }
++        if (expected == token) return 0;
++        msync_coord_pause();
++    }
+     return 0;
++}
++
++/* Retain the original single-attempt helper for callers and fixtures that
++ * need a poll, including the zero-timeout ready-event path. */
++static inline int msync_coord_try_clean( struct msync_coord *coord, int fd, uint64_t token,
++                                        struct msync_coord_guard *guard )
++{
++    return msync_coord_try_clean_bounded( coord, fd, token, guard, 1 );
+ }
+ 
+ static inline struct msync_coord_header *msync_coord_map( int fd )

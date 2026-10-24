@@ -33,6 +33,14 @@ int main(void) {
   header.state=state;header.count=1;header.sequence=17;header.entries[0]=(struct msync_coord_entry){3,1,123};saved=header.entries[0];
   check("dirty_released_without_recovery",!msync_coord_try_clean(&coord,-1,7,&guard)&&header.owner==0&&header.state==state&&header.count==1&&header.sequence==17&&memcmp(&saved,&header.entries[0],sizeof(saved))==0);
  }
+#ifdef MSYNC_COORD_TRY_SPINS
+ header.state=MSYNC_COORD_CLEAN;header.owner=0;
+ check("bounded_clean_acquires",msync_coord_try_clean_bounded(&coord,-1,7,&guard,MSYNC_COORD_TRY_SPINS)&&header.owner==7);
+ msync_coord_give(&guard);
+ header.owner=9;check("bounded_busy_keeps_owner",!msync_coord_try_clean_bounded(&coord,-1,7,&guard,MSYNC_COORD_TRY_SPINS)&&header.owner==9);header.owner=0;
+ check("zero_budget_no_acquisition",!msync_coord_try_clean_bounded(&coord,-1,7,&guard,0)&&header.owner==0);
+ check("oversize_budget_no_acquisition",!msync_coord_try_clean_bounded(&coord,-1,7,&guard,MSYNC_COORD_TRY_SPINS+1)&&header.owner==0);
+#endif
  header.state=MSYNC_COORD_CLEAN;header.wait_hint=1;
  if(pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,&old))return 65;
  check("hinted_clean_acquires",msync_coord_try_clean(&coord,-1,7,&guard));
