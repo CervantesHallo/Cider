@@ -1,0 +1,1611 @@
+{
+  "schema": "cider.darwin-thread-cpu-qualification/v1",
+  "date": "2026-10-24",
+  "sourceSHA256": "031d71d338932de869ff4d4a849137ebfbe49e23100cd9176480c90484be9ae9",
+  "combinedExperimentAccepted": false,
+  "formalUGateChanged": false,
+  "wineIntegrationAccepted": false,
+  "operations": {
+    "windows": 0,
+    "newWineBenchmarks": 0,
+    "schedulerChanges": 0
+  },
+  "artifacts": {
+    "build-v1.json": {
+      "path": "out/darwin-thread-cpu-20261024/build-v1.json",
+      "sha256": "b3da9b53560c4da94d1b3dd4ff43d390bd8fe97c7d4ba9d7bc5c0b567c7c40ea",
+      "content": {
+        "sourceSHA256": "86a9a08e65471765265a55d9b8200d5b3fa2ad1783623c70e1d3a2a107cdaf73",
+        "rows": [
+          {
+            "arch": "arm64",
+            "processDouble": false,
+            "args": [
+              "/usr/bin/clang",
+              "-arch",
+              "arm64",
+              "-isysroot",
+              "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
+              "-mmacosx-version-min=14.0",
+              "-std=c11",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-Wno-misleading-indentation",
+              "/Users/cervantes/Cider/tests/sync/darwin-thread-cpu.c",
+              "-o",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/provider-arm64"
+            ],
+            "compileExit": 0,
+            "diagnostics": "",
+            "exeSHA256": "b980111073614c50078bbd1b701ce38da4367ed0d5207312854171a551f5775e"
+          },
+          {
+            "arch": "arm64",
+            "processDouble": true,
+            "args": [
+              "/usr/bin/clang",
+              "-arch",
+              "arm64",
+              "-isysroot",
+              "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
+              "-mmacosx-version-min=14.0",
+              "-std=c11",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-Wno-misleading-indentation",
+              "/Users/cervantes/Cider/tests/sync/darwin-thread-cpu.c",
+              "-o",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/provider-arm64-process-double",
+              "-DCPU_PROVIDER_PROCESS_DOUBLE"
+            ],
+            "compileExit": 0,
+            "diagnostics": "",
+            "exeSHA256": "cbf6370254b28d21ebf8e2945d5b59c37dcd3c58e6678b52691019057eacb151"
+          },
+          {
+            "arch": "x86_64",
+            "processDouble": false,
+            "args": [
+              "/usr/bin/clang",
+              "-arch",
+              "x86_64",
+              "-isysroot",
+              "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
+              "-mmacosx-version-min=14.0",
+              "-std=c11",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-Wno-misleading-indentation",
+              "/Users/cervantes/Cider/tests/sync/darwin-thread-cpu.c",
+              "-o",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/provider-x86_64"
+            ],
+            "compileExit": 0,
+            "diagnostics": "",
+            "exeSHA256": "79009b619328f07ce09bffa5876622affb0c629642088eebd67757350b373b5a"
+          },
+          {
+            "arch": "x86_64",
+            "processDouble": true,
+            "args": [
+              "/usr/bin/clang",
+              "-arch",
+              "x86_64",
+              "-isysroot",
+              "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
+              "-mmacosx-version-min=14.0",
+              "-std=c11",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-Wno-misleading-indentation",
+              "/Users/cervantes/Cider/tests/sync/darwin-thread-cpu.c",
+              "-o",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/provider-x86_64-process-double",
+              "-DCPU_PROVIDER_PROCESS_DOUBLE"
+            ],
+            "compileExit": 0,
+            "diagnostics": "",
+            "exeSHA256": "34c5619c8f8f8b36cad01a3d54847a07366dc568a848895912474c3ab47cd2c1"
+          }
+        ],
+        "passed": true
+      }
+    },
+    "runtime-v1.json": {
+      "path": "out/darwin-thread-cpu-20261024/runtime-v1.json",
+      "sha256": "13b00fe3914a9dd75c29e805ff495e12002f21efd22f759e1696b0a263ecfdb1",
+      "content": {
+        "scope": "native own-thread identity/counter separation only, no Wine/performance acceptance",
+        "sourceSHA256": "86a9a08e65471765265a55d9b8200d5b3fa2ad1783623c70e1d3a2a107cdaf73",
+        "rows": [
+          {
+            "arch": "arm64",
+            "processDouble": false,
+            "args": [
+              "/usr/bin/arch",
+              "-arm64",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/provider-arm64"
+            ],
+            "exitCode": 0,
+            "stdout": "{\"type\":\"begin\",\"scope\":\"native-own-thread-provider\",\"pid\":59598}\n{\"type\":\"check\",\"name\":\"distinct_kernel_ids\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"actual_sleep_call\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"busy\",\"kernel64_id\":1765881,\"mach_port\":7683,\"libproc_handle\":6170947808,\"wall_ns\":200012083,\"thread_clock_ns\":199373917,\"proc15_cpu_ns\":199375000,\"mach_cpu_ns\":199376000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"sleep\",\"kernel64_id\":1765882,\"mach_port\":7427,\"libproc_handle\":6171521248,\"wall_ns\":204563708,\"thread_clock_ns\":10458,\"proc15_cpu_ns\":11000,\"mach_cpu_ns\":9000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"proc15_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"clock_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"mach_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"process_observation\",\"cpu_ns\":199418000}\n{\"type\":\"complete\",\"ok\":true,\"checks\":11,\"failures\":0}\n",
+            "stderr": "",
+            "rows": [
+              {
+                "type": "begin",
+                "scope": "native-own-thread-provider",
+                "pid": 59598
+              },
+              {
+                "type": "check",
+                "name": "distinct_kernel_ids",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "actual_sleep_call",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "busy",
+                "kernel64_id": 1765881,
+                "mach_port": 7683,
+                "libproc_handle": 6170947808,
+                "wall_ns": 200012083,
+                "thread_clock_ns": 199373917,
+                "proc15_cpu_ns": 199375000,
+                "mach_cpu_ns": 199376000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "sleep",
+                "kernel64_id": 1765882,
+                "mach_port": 7427,
+                "libproc_handle": 6171521248,
+                "wall_ns": 204563708,
+                "thread_clock_ns": 10458,
+                "proc15_cpu_ns": 11000,
+                "mach_cpu_ns": 9000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "clock_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "mach_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "process_observation",
+                "cpu_ns": 199418000
+              },
+              {
+                "type": "complete",
+                "ok": true,
+                "checks": 11,
+                "failures": 0
+              }
+            ],
+            "elapsedActive": 2.242103792,
+            "elapsedWall": 2.242119073867798,
+            "expectedOutcomeMet": true,
+            "exeSHA256": "b980111073614c50078bbd1b701ce38da4367ed0d5207312854171a551f5775e"
+          },
+          {
+            "arch": "arm64",
+            "processDouble": true,
+            "args": [
+              "/usr/bin/arch",
+              "-arm64",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/provider-arm64-process-double"
+            ],
+            "exitCode": 1,
+            "stdout": "{\"type\":\"begin\",\"scope\":\"native-own-thread-provider\",\"pid\":59618}\n{\"type\":\"check\",\"name\":\"distinct_kernel_ids\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"actual_sleep_call\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"busy\",\"kernel64_id\":1765942,\"mach_port\":7683,\"libproc_handle\":6160871648,\"wall_ns\":200003875,\"thread_clock_ns\":158526167,\"proc15_cpu_ns\":158534000,\"mach_cpu_ns\":158529000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"sleep\",\"kernel64_id\":1765943,\"mach_port\":2819,\"libproc_handle\":6161445088,\"wall_ns\":200912625,\"thread_clock_ns\":10917,\"proc15_cpu_ns\":158559000,\"mach_cpu_ns\":17000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"proc15_distinguishes_threads\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"check\",\"name\":\"clock_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"mach_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"process_observation\",\"cpu_ns\":158585000}\n{\"type\":\"complete\",\"ok\":false,\"checks\":11,\"failures\":3}\n",
+            "stderr": "",
+            "rows": [
+              {
+                "type": "begin",
+                "scope": "native-own-thread-provider",
+                "pid": 59618
+              },
+              {
+                "type": "check",
+                "name": "distinct_kernel_ids",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "actual_sleep_call",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "busy",
+                "kernel64_id": 1765942,
+                "mach_port": 7683,
+                "libproc_handle": 6160871648,
+                "wall_ns": 200003875,
+                "thread_clock_ns": 158526167,
+                "proc15_cpu_ns": 158534000,
+                "mach_cpu_ns": 158529000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "sleep",
+                "kernel64_id": 1765943,
+                "mach_port": 2819,
+                "libproc_handle": 6161445088,
+                "wall_ns": 200912625,
+                "thread_clock_ns": 10917,
+                "proc15_cpu_ns": 158559000,
+                "mach_cpu_ns": 17000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_distinguishes_threads",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "clock_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "mach_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "process_observation",
+                "cpu_ns": 158585000
+              },
+              {
+                "type": "complete",
+                "ok": false,
+                "checks": 11,
+                "failures": 3
+              }
+            ],
+            "elapsedActive": 0.8150798749999999,
+            "elapsedWall": 0.8150880336761475,
+            "expectedOutcomeMet": true,
+            "exeSHA256": "cbf6370254b28d21ebf8e2945d5b59c37dcd3c58e6678b52691019057eacb151"
+          },
+          {
+            "arch": "x86_64",
+            "processDouble": false,
+            "args": [
+              "/usr/bin/arch",
+              "-x86_64",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/provider-x86_64"
+            ],
+            "exitCode": 1,
+            "stdout": "{\"type\":\"begin\",\"scope\":\"native-own-thread-provider\",\"pid\":59624}\n{\"type\":\"check\",\"name\":\"distinct_kernel_ids\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"actual_sleep_call\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"busy\",\"kernel64_id\":1766054,\"mach_port\":2819,\"libproc_handle\":13117505760,\"wall_ns\":200007167,\"thread_clock_ns\":4799106,\"proc15_cpu_ns\":199963000,\"mach_cpu_ns\":199965000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"sleep\",\"kernel64_id\":1766055,\"mach_port\":3075,\"libproc_handle\":13118042336,\"wall_ns\":204785542,\"thread_clock_ns\":303,\"proc15_cpu_ns\":12000,\"mach_cpu_ns\":12000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"proc15_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"clock_distinguishes_threads\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"check\",\"name\":\"mach_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"process_observation\",\"cpu_ns\":200154000}\n{\"type\":\"complete\",\"ok\":false,\"checks\":11,\"failures\":1}\n",
+            "stderr": "",
+            "rows": [
+              {
+                "type": "begin",
+                "scope": "native-own-thread-provider",
+                "pid": 59624
+              },
+              {
+                "type": "check",
+                "name": "distinct_kernel_ids",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "actual_sleep_call",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "busy",
+                "kernel64_id": 1766054,
+                "mach_port": 2819,
+                "libproc_handle": 13117505760,
+                "wall_ns": 200007167,
+                "thread_clock_ns": 4799106,
+                "proc15_cpu_ns": 199963000,
+                "mach_cpu_ns": 199965000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "sleep",
+                "kernel64_id": 1766055,
+                "mach_port": 3075,
+                "libproc_handle": 13118042336,
+                "wall_ns": 204785542,
+                "thread_clock_ns": 303,
+                "proc15_cpu_ns": 12000,
+                "mach_cpu_ns": 12000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "clock_distinguishes_threads",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "mach_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "process_observation",
+                "cpu_ns": 200154000
+              },
+              {
+                "type": "complete",
+                "ok": false,
+                "checks": 11,
+                "failures": 1
+              }
+            ],
+            "elapsedActive": 1.5398626659999999,
+            "elapsedWall": 1.539874792098999,
+            "expectedOutcomeMet": false,
+            "exeSHA256": "79009b619328f07ce09bffa5876622affb0c629642088eebd67757350b373b5a"
+          },
+          {
+            "arch": "x86_64",
+            "processDouble": true,
+            "args": [
+              "/usr/bin/arch",
+              "-x86_64",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/provider-x86_64-process-double"
+            ],
+            "exitCode": 1,
+            "stdout": "{\"type\":\"begin\",\"scope\":\"native-own-thread-provider\",\"pid\":59636}\n{\"type\":\"check\",\"name\":\"distinct_kernel_ids\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"actual_sleep_call\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"busy\",\"kernel64_id\":1766065,\"mach_port\":6659,\"libproc_handle\":13041684704,\"wall_ns\":200007667,\"thread_clock_ns\":4796444,\"proc15_cpu_ns\":199863000,\"mach_cpu_ns\":199856000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"sleep\",\"kernel64_id\":1766066,\"mach_port\":3587,\"libproc_handle\":13042221280,\"wall_ns\":202230834,\"thread_clock_ns\":447,\"proc15_cpu_ns\":199895000,\"mach_cpu_ns\":23000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"proc15_distinguishes_threads\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"check\",\"name\":\"clock_distinguishes_threads\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"check\",\"name\":\"mach_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"process_observation\",\"cpu_ns\":199947000}\n{\"type\":\"complete\",\"ok\":false,\"checks\":11,\"failures\":4}\n",
+            "stderr": "",
+            "rows": [
+              {
+                "type": "begin",
+                "scope": "native-own-thread-provider",
+                "pid": 59636
+              },
+              {
+                "type": "check",
+                "name": "distinct_kernel_ids",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "actual_sleep_call",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "busy",
+                "kernel64_id": 1766065,
+                "mach_port": 6659,
+                "libproc_handle": 13041684704,
+                "wall_ns": 200007667,
+                "thread_clock_ns": 4796444,
+                "proc15_cpu_ns": 199863000,
+                "mach_cpu_ns": 199856000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "sleep",
+                "kernel64_id": 1766066,
+                "mach_port": 3587,
+                "libproc_handle": 13042221280,
+                "wall_ns": 202230834,
+                "thread_clock_ns": 447,
+                "proc15_cpu_ns": 199895000,
+                "mach_cpu_ns": 23000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_distinguishes_threads",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "clock_distinguishes_threads",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "mach_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "process_observation",
+                "cpu_ns": 199947000
+              },
+              {
+                "type": "complete",
+                "ok": false,
+                "checks": 11,
+                "failures": 4
+              }
+            ],
+            "elapsedActive": 0.7989083749999999,
+            "elapsedWall": 0.7989151477813721,
+            "expectedOutcomeMet": true,
+            "exeSHA256": "34c5619c8f8f8b36cad01a3d54847a07366dc568a848895912474c3ab47cd2c1"
+          }
+        ],
+        "passed": false,
+        "state": "complete"
+      }
+    },
+    "unit-scale-v2.json": {
+      "path": "out/darwin-thread-cpu-20261024/unit-scale-v2.json",
+      "sha256": "f04922f5f0a5410adf53e921e9739bc92609fa46e292ff5d18b050e383dbb650",
+      "content": {
+        "sourceSHA256": "031d71d338932de869ff4d4a849137ebfbe49e23100cd9176480c90484be9ae9",
+        "rows": [
+          {
+            "arch": "arm64",
+            "processDouble": false,
+            "args": [
+              "/usr/bin/clang",
+              "-arch",
+              "arm64",
+              "-isysroot",
+              "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
+              "-mmacosx-version-min=14.0",
+              "-std=c11",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-Wno-misleading-indentation",
+              "/Users/cervantes/Cider/tests/sync/darwin-thread-cpu.c",
+              "-o",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/units-v2-arm64"
+            ],
+            "compileExit": 0,
+            "diagnostics": "",
+            "exeSHA256": "2c4711b2777090f08dff3924dc890eeb70463cb0c2f69db1c2c4a944d738b6f4",
+            "exitCode": 0,
+            "stdout": "{\"type\":\"begin\",\"scope\":\"native-own-thread-provider\",\"pid\":60142,\"timebase_numer\":125,\"timebase_denom\":3}\n{\"type\":\"check\",\"name\":\"distinct_kernel_ids\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"actual_sleep_call\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"proc15_matches_explicit_units\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"busy\",\"kernel64_id\":1773787,\"mach_port\":7939,\"libproc_handle\":6099661024,\"wall_ns\":200013958,\"thread_clock_ns\":195861416,\"proc15_cpu_ns\":195862000,\"mach_cpu_ns\":195864000,\"basic_explicit_units_cpu_ns\":195864000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"proc15_matches_explicit_units\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"sleep\",\"kernel64_id\":1773788,\"mach_port\":3075,\"libproc_handle\":6100234464,\"wall_ns\":205028417,\"thread_clock_ns\":22375,\"proc15_cpu_ns\":22000,\"mach_cpu_ns\":24000,\"basic_explicit_units_cpu_ns\":24000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"proc15_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"clock_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"mach_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"process_observation\",\"cpu_ns\":195941000}\n{\"type\":\"complete\",\"ok\":true,\"checks\":13,\"failures\":0}\n",
+            "stderr": "",
+            "elapsedActive": 3.536500042,
+            "elapsedWall": 3.5365209579467773,
+            "rows": [
+              {
+                "type": "begin",
+                "scope": "native-own-thread-provider",
+                "pid": 60142,
+                "timebase_numer": 125,
+                "timebase_denom": 3
+              },
+              {
+                "type": "check",
+                "name": "distinct_kernel_ids",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "actual_sleep_call",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_matches_explicit_units",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "busy",
+                "kernel64_id": 1773787,
+                "mach_port": 7939,
+                "libproc_handle": 6099661024,
+                "wall_ns": 200013958,
+                "thread_clock_ns": 195861416,
+                "proc15_cpu_ns": 195862000,
+                "mach_cpu_ns": 195864000,
+                "basic_explicit_units_cpu_ns": 195864000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_matches_explicit_units",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "sleep",
+                "kernel64_id": 1773788,
+                "mach_port": 3075,
+                "libproc_handle": 6100234464,
+                "wall_ns": 205028417,
+                "thread_clock_ns": 22375,
+                "proc15_cpu_ns": 22000,
+                "mach_cpu_ns": 24000,
+                "basic_explicit_units_cpu_ns": 24000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "clock_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "mach_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "process_observation",
+                "cpu_ns": 195941000
+              },
+              {
+                "type": "complete",
+                "ok": true,
+                "checks": 13,
+                "failures": 0
+              }
+            ]
+          },
+          {
+            "arch": "arm64",
+            "processDouble": true,
+            "args": [
+              "/usr/bin/clang",
+              "-arch",
+              "arm64",
+              "-isysroot",
+              "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
+              "-mmacosx-version-min=14.0",
+              "-std=c11",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-Wno-misleading-indentation",
+              "/Users/cervantes/Cider/tests/sync/darwin-thread-cpu.c",
+              "-o",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/units-v2-arm64-process-double",
+              "-DCPU_PROVIDER_PROCESS_DOUBLE"
+            ],
+            "compileExit": 0,
+            "diagnostics": "",
+            "exeSHA256": "673d8b2d475dea2f3e332b7d9c42bf5b3537bc9fb7fea1bd109699b5facbbbad",
+            "exitCode": 1,
+            "stdout": "{\"type\":\"begin\",\"scope\":\"native-own-thread-provider\",\"pid\":60185,\"timebase_numer\":125,\"timebase_denom\":3}\n{\"type\":\"check\",\"name\":\"distinct_kernel_ids\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"actual_sleep_call\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"proc15_matches_explicit_units\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"busy\",\"kernel64_id\":1773817,\"mach_port\":2563,\"libproc_handle\":6131085536,\"wall_ns\":200014042,\"thread_clock_ns\":194903333,\"proc15_cpu_ns\":194913000,\"mach_cpu_ns\":194908000,\"basic_explicit_units_cpu_ns\":194905000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"proc15_matches_explicit_units\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"sleep\",\"kernel64_id\":1773818,\"mach_port\":7427,\"libproc_handle\":6131658976,\"wall_ns\":204687375,\"thread_clock_ns\":20333,\"proc15_cpu_ns\":194935000,\"mach_cpu_ns\":20000,\"basic_explicit_units_cpu_ns\":19000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"proc15_distinguishes_threads\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"check\",\"name\":\"clock_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"mach_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"process_observation\",\"cpu_ns\":194988000}\n{\"type\":\"complete\",\"ok\":false,\"checks\":13,\"failures\":4}\n",
+            "stderr": "",
+            "elapsedActive": 0.6789697080000003,
+            "elapsedWall": 0.6789741516113281,
+            "rows": [
+              {
+                "type": "begin",
+                "scope": "native-own-thread-provider",
+                "pid": 60185,
+                "timebase_numer": 125,
+                "timebase_denom": 3
+              },
+              {
+                "type": "check",
+                "name": "distinct_kernel_ids",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "actual_sleep_call",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_matches_explicit_units",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "busy",
+                "kernel64_id": 1773817,
+                "mach_port": 2563,
+                "libproc_handle": 6131085536,
+                "wall_ns": 200014042,
+                "thread_clock_ns": 194903333,
+                "proc15_cpu_ns": 194913000,
+                "mach_cpu_ns": 194908000,
+                "basic_explicit_units_cpu_ns": 194905000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_matches_explicit_units",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "sleep",
+                "kernel64_id": 1773818,
+                "mach_port": 7427,
+                "libproc_handle": 6131658976,
+                "wall_ns": 204687375,
+                "thread_clock_ns": 20333,
+                "proc15_cpu_ns": 194935000,
+                "mach_cpu_ns": 20000,
+                "basic_explicit_units_cpu_ns": 19000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_distinguishes_threads",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "clock_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "mach_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "process_observation",
+                "cpu_ns": 194988000
+              },
+              {
+                "type": "complete",
+                "ok": false,
+                "checks": 13,
+                "failures": 4
+              }
+            ]
+          },
+          {
+            "arch": "x86_64",
+            "processDouble": false,
+            "args": [
+              "/usr/bin/clang",
+              "-arch",
+              "x86_64",
+              "-isysroot",
+              "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
+              "-mmacosx-version-min=14.0",
+              "-std=c11",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-Wno-misleading-indentation",
+              "/Users/cervantes/Cider/tests/sync/darwin-thread-cpu.c",
+              "-o",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/units-v2-x86_64"
+            ],
+            "compileExit": 0,
+            "diagnostics": "",
+            "exeSHA256": "c4eb737570888bc618263b823a6ec39e8cbeb2319f97dc973a9e887923649a2d",
+            "exitCode": 1,
+            "stdout": "{\"type\":\"begin\",\"scope\":\"native-own-thread-provider\",\"pid\":60189,\"timebase_numer\":1,\"timebase_denom\":1}\n{\"type\":\"check\",\"name\":\"distinct_kernel_ids\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"actual_sleep_call\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"proc15_matches_explicit_units\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"busy\",\"kernel64_id\":1773910,\"mach_port\":6403,\"libproc_handle\":12968607968,\"wall_ns\":200012667,\"thread_clock_ns\":4763197,\"proc15_cpu_ns\":198467000,\"mach_cpu_ns\":198473000,\"basic_explicit_units_cpu_ns\":198474000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"proc15_matches_explicit_units\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"sleep\",\"kernel64_id\":1773911,\"mach_port\":3331,\"libproc_handle\":12969144544,\"wall_ns\":201044167,\"thread_clock_ns\":722,\"proc15_cpu_ns\":30000,\"mach_cpu_ns\":34000,\"basic_explicit_units_cpu_ns\":38000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"proc15_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"clock_distinguishes_threads\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"check\",\"name\":\"mach_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"process_observation\",\"cpu_ns\":198717000}\n{\"type\":\"complete\",\"ok\":false,\"checks\":13,\"failures\":1}\n",
+            "stderr": "",
+            "elapsedActive": 1.6867705420000005,
+            "elapsedWall": 1.6867802143096924,
+            "rows": [
+              {
+                "type": "begin",
+                "scope": "native-own-thread-provider",
+                "pid": 60189,
+                "timebase_numer": 1,
+                "timebase_denom": 1
+              },
+              {
+                "type": "check",
+                "name": "distinct_kernel_ids",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "actual_sleep_call",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_matches_explicit_units",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "busy",
+                "kernel64_id": 1773910,
+                "mach_port": 6403,
+                "libproc_handle": 12968607968,
+                "wall_ns": 200012667,
+                "thread_clock_ns": 4763197,
+                "proc15_cpu_ns": 198467000,
+                "mach_cpu_ns": 198473000,
+                "basic_explicit_units_cpu_ns": 198474000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_matches_explicit_units",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "sleep",
+                "kernel64_id": 1773911,
+                "mach_port": 3331,
+                "libproc_handle": 12969144544,
+                "wall_ns": 201044167,
+                "thread_clock_ns": 722,
+                "proc15_cpu_ns": 30000,
+                "mach_cpu_ns": 34000,
+                "basic_explicit_units_cpu_ns": 38000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "clock_distinguishes_threads",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "mach_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "process_observation",
+                "cpu_ns": 198717000
+              },
+              {
+                "type": "complete",
+                "ok": false,
+                "checks": 13,
+                "failures": 1
+              }
+            ]
+          },
+          {
+            "arch": "x86_64",
+            "processDouble": true,
+            "args": [
+              "/usr/bin/clang",
+              "-arch",
+              "x86_64",
+              "-isysroot",
+              "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk",
+              "-mmacosx-version-min=14.0",
+              "-std=c11",
+              "-O2",
+              "-Wall",
+              "-Wextra",
+              "-Werror",
+              "-Wno-misleading-indentation",
+              "/Users/cervantes/Cider/tests/sync/darwin-thread-cpu.c",
+              "-o",
+              "/Users/cervantes/Cider/out/darwin-thread-cpu-20261024/units-v2-x86_64-process-double",
+              "-DCPU_PROVIDER_PROCESS_DOUBLE"
+            ],
+            "compileExit": 0,
+            "diagnostics": "",
+            "exeSHA256": "aae161a473022eb562041e47be769bf974db896eacc24eddc4f16cc5481d86d4",
+            "exitCode": 1,
+            "stdout": "{\"type\":\"begin\",\"scope\":\"native-own-thread-provider\",\"pid\":60202,\"timebase_numer\":1,\"timebase_denom\":1}\n{\"type\":\"check\",\"name\":\"distinct_kernel_ids\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"actual_sleep_call\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"proc15_matches_explicit_units\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"busy\",\"kernel64_id\":1773960,\"mach_port\":2563,\"libproc_handle\":12961042656,\"wall_ns\":200009708,\"thread_clock_ns\":4691462,\"proc15_cpu_ns\":195494000,\"mach_cpu_ns\":195483000,\"basic_explicit_units_cpu_ns\":195484000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"monotonic_counters\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"proc15_matches_explicit_units\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"check\",\"name\":\"port_released\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"check\",\"name\":\"external_lookup_monotonic\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"sample\",\"role\":\"sleep\",\"kernel64_id\":1773961,\"mach_port\":5635,\"libproc_handle\":12961579232,\"wall_ns\":202468042,\"thread_clock_ns\":641,\"proc15_cpu_ns\":195531000,\"mach_cpu_ns\":27000,\"basic_explicit_units_cpu_ns\":29000,\"run_state_before\":1,\"run_state_after\":1}\n{\"type\":\"check\",\"name\":\"proc15_distinguishes_threads\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"check\",\"name\":\"clock_distinguishes_threads\",\"ok\":false,\"actual\":0,\"expected\":1}\n{\"type\":\"check\",\"name\":\"mach_distinguishes_threads\",\"ok\":true,\"actual\":1,\"expected\":1}\n{\"type\":\"process_observation\",\"cpu_ns\":195618000}\n{\"type\":\"complete\",\"ok\":false,\"checks\":13,\"failures\":5}\n",
+            "stderr": "",
+            "elapsedActive": 0.8317340840000007,
+            "elapsedWall": 0.8317389488220215,
+            "rows": [
+              {
+                "type": "begin",
+                "scope": "native-own-thread-provider",
+                "pid": 60202,
+                "timebase_numer": 1,
+                "timebase_denom": 1
+              },
+              {
+                "type": "check",
+                "name": "distinct_kernel_ids",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "actual_sleep_call",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_matches_explicit_units",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "busy",
+                "kernel64_id": 1773960,
+                "mach_port": 2563,
+                "libproc_handle": 12961042656,
+                "wall_ns": 200009708,
+                "thread_clock_ns": 4691462,
+                "proc15_cpu_ns": 195494000,
+                "mach_cpu_ns": 195483000,
+                "basic_explicit_units_cpu_ns": 195484000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "monotonic_counters",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_matches_explicit_units",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "port_released",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "external_lookup_monotonic",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "sample",
+                "role": "sleep",
+                "kernel64_id": 1773961,
+                "mach_port": 5635,
+                "libproc_handle": 12961579232,
+                "wall_ns": 202468042,
+                "thread_clock_ns": 641,
+                "proc15_cpu_ns": 195531000,
+                "mach_cpu_ns": 27000,
+                "basic_explicit_units_cpu_ns": 29000,
+                "run_state_before": 1,
+                "run_state_after": 1
+              },
+              {
+                "type": "check",
+                "name": "proc15_distinguishes_threads",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "clock_distinguishes_threads",
+                "ok": false,
+                "actual": 0,
+                "expected": 1
+              },
+              {
+                "type": "check",
+                "name": "mach_distinguishes_threads",
+                "ok": true,
+                "actual": 1,
+                "expected": 1
+              },
+              {
+                "type": "process_observation",
+                "cpu_ns": 195618000
+              },
+              {
+                "type": "complete",
+                "ok": false,
+                "checks": 13,
+                "failures": 5
+              }
+            ]
+          }
+        ],
+        "state": "complete",
+        "scope": "follow-up explicit unit observation; original combined acceptance unchanged; not U performance acceptance"
+      }
+    },
+    "source-review-v1.json": {
+      "path": "out/darwin-thread-cpu-20261024/source-review-v1.json",
+      "sha256": "af07c454b5167527758bda405895d7cb3390105db3d80cdb01e5a8402e964184",
+      "content": {
+        "review": "bounded adversarial SOURCE review of own-process Darwin thread CPU qualification",
+        "startedAtUTC": "2026-10-24T11:55:56Z",
+        "scope": {
+          "sourceOnly": true,
+          "onlyFileWritten": "out/darwin-thread-cpu-20261024/source-review-v1.json",
+          "buildsOrProbesRun": false,
+          "runtimeResultsAudited": false,
+          "windowsNetworkOrUIAccess": false,
+          "schedulerOrEngineChanges": false,
+          "readBoundary": "Only darwin-thread-cpu.c and the three permitted SDK headers were read. The parent's architecture builds, process-counter double, outer deadline controller, and execution results were not inspected."
+        },
+        "inputs": [
+          {
+            "path": "tests/sync/darwin-thread-cpu.c",
+            "sha256": "86a9a08e65471765265a55d9b8200d5b3fa2ad1783623c70e1d3a2a107cdaf73",
+            "reviewedLines": "1-118"
+          },
+          {
+            "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/usr/include/mach/thread_info.h",
+            "sha256": "8e2e6446558fc793c257943b1f663d08d6c6de3f4ed21d4f4f940f05e0cc38ce",
+            "reviewedRegions": "90-120 and 148-168"
+          },
+          {
+            "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/usr/include/sys/proc_info.h",
+            "sha256": "9548e28972bd1653a6adb673d17beb975ae26a79e673a697434945bcb79d4059",
+            "reviewedRegions": "152-164, 724-725, 755-756"
+          },
+          {
+            "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/usr/include/libproc.h",
+            "sha256": "246d87709fc6b9157ce5cf3c475656ac48e0e1ae8bbdc46cf45acd34294448cd",
+            "reviewedRegions": "92-103"
+          }
+        ],
+        "verdict": {
+          "status": "no_concrete_P1_or_P2_in_bounded_source_review",
+          "P1": 0,
+          "P2": 0,
+          "findings": [],
+          "qualificationBoundary": "Identity, selector use, barrier ordering, and normal-path resource ownership are coherent in source. Actual source qualification, numeric unit scale, negative rejection reasons, and both architecture results still require the parent's independent evidence. This is not Wine performance acceptance."
+        },
+        "checkedProperties": [
+          {
+            "area": "owned identity and selector",
+            "result": "Each worker obtains its own mach_thread_self send right and pthread kernel64 ID, then requires THREAD_IDENTIFIER_INFO.thread_id to equal that ID. Both returned Mach counts are checked. proc_pidinfo uses getpid(), PROC_PIDTHREADID64INFO, and w->id, not thread_handle. The allowed SDK declares flavor 15 with proc_threadinfo output and a uint64_t proc_pidinfo argument. thread_handle is only retained/printed as the separate libproc handle. Distinct kernel IDs are checked after joining.",
+            "refs": [
+              "darwin-thread-cpu.c:40-44, 51-56, 95-98",
+              "SDK mach/thread_info.h:109-120",
+              "SDK sys/proc_info.h:755-756",
+              "SDK libproc.h:96"
+            ]
+          },
+          {
+            "area": "units and conversions in the code",
+            "result": "timespec seconds/nanoseconds are converted to ns, and getrusage timeval seconds/microseconds are converted by multiplying microseconds by 1000. The proc15 and Mach extended user/system fields are copied as raw uint64_t values and labeled ns. THREAD_EXTENDED_INFO is the extended proc-thread-shaped result, not THREAD_BASIC_INFO's time_value_t or the scaled cpu_usage field. The scale-evidence limit is recorded separately below.",
+            "refs": [
+              "darwin-thread-cpu.c:33-46, 106-115",
+              "SDK mach/thread_info.h:90-107, 148-168",
+              "SDK sys/proc_info.h:152-164"
+            ]
+          },
+          {
+            "area": "two barriers and overlap",
+            "result": "The first barrier holds both identified workers until main obtains its process baseline. Each worker then samples all of its CPU baselines. The second mutex/condition barrier releases neither workload until sampled reaches two; the last arrival sets one shared raw-monotonic deadline 200 ms ahead. Both workers copy that deadline while holding the mutex. This closes the simple sequential-start process-counter false-positive scenario. It does not make individual samples simultaneous or guarantee scheduler overlap on every possible execution.",
+            "refs": [
+              "darwin-thread-cpu.c:57-65, 90-96"
+            ]
+          },
+          {
+            "area": "busy/sleep workloads and counter checks",
+            "result": "The busy role updates a volatile accumulator and checks the common deadline between finite chunks. The other role calls nanosleep for the remaining common interval, tolerating EINTR, and the final checks require at least one actual sleep call. Counter components are checked for monotonicity before unsigned deltas are computed. Each of the three CPU sources must show busy CPU exceeding sleep CPU by more than 10 ms under the code's ns interpretation; process CPU is printed only as an observation.",
+            "refs": [
+              "darwin-thread-cpu.c:66-76, 99-115"
+            ]
+          },
+          {
+            "area": "live cross-thread lookup, joins, and Mach rights",
+            "result": "Workers take end samples, increment finished under the mutex, and remain alive waiting for main's release. Main reads both flavor-15 records while those IDs are still live, then releases them. Each worker deallocates its own acquired Mach send right exactly once and stores the result. Main joins both before reading/printing those results, check rows, and sample rows. The initial begin line precedes workload creation and is not a timed-body diagnostic. The printed port values after join are recorded identifiers, not ports used again after deallocation.",
+            "refs": [
+              "darwin-thread-cpu.c:76-80, 90-110"
+            ]
+          },
+          {
+            "area": "synchronization and failure outcome",
+            "result": "Shared ready/sampled/finished/go/released/deadline state is protected by the same mutex; condition waits use predicate loops. Worker fields become visible via the finished synchronization and joins. Dependency failure exits the whole process with code 2; failed checks make completion/exit fail. There is no child process or scheduler manipulation in this source. No concrete data race, live-ID reuse window, or normal-path port leak was found in the inspected path.",
+            "refs": [
+              "darwin-thread-cpu.c:22-31, 57-80, 91-118"
+            ]
+          },
+          {
+            "area": "internal and external deadlines",
+            "result": "alarm(5) is set before worker creation and remains active through waits, joins, checks, and the complete printf call; it is canceled before the final fflush. The source explicitly requires an outer process deadline. An external eight-second controller is a parent obligation and was not read or verified here. The alarm does not by itself establish complete stdout-drain or every-environment signal behavior.",
+            "refs": [
+              "darwin-thread-cpu.c:4, 90, 116-117"
+            ]
+          }
+        ],
+        "explicitEvidenceGaps": [
+          {
+            "area": "numeric unit-scale qualification",
+            "evidence": "The permitted SDK headers declare 64-bit user/system run-time fields but do not state their numeric scale in the inspected declarations. The program prints proc/Mach deltas beside CLOCK_THREAD_CPUTIME_ID, but does not assert numerical agreement or a scale relationship. A consistently rescaled monotonic counter can retain busy/sleep separation and pass the existing qualitative checks. No actual unit mismatch is alleged.",
+            "refs": [
+              "darwin-thread-cpu.c:44, 106-114",
+              "SDK mach/thread_info.h:152-154",
+              "SDK sys/proc_info.h:152-154"
+            ],
+            "acceptanceLimit": "Use separate authoritative scale evidence and/or analysis of the actual independent thread-clock observations before claiming the raw fields have been qualified as ns. No ns-resolution or timing-accuracy claim follows from this source review."
+          },
+          {
+            "area": "process-counter negative rejection reason",
+            "evidence": "CPU_PROVIDER_PROCESS_DOUBLE replaces only the worker proc user/system samples with process getrusage. The later external flavor-15 queries remain real per-thread records, yet external_lookup_monotonic compares them with the substituted process totals. The double can therefore be rejected by that mixed-provider consistency check as well as by proc15_distinguishes_threads. A nonzero negative exit alone does not prove that the overlapping busy/sleep discrimination was the rejecting oracle.",
+            "refs": [
+              "darwin-thread-cpu.c:45-46, 95, 108-114"
+            ],
+            "acceptanceLimit": "Inspect the named check outcomes when interpreting the parent's negative result. If claiming the contrast oracle rejected a process counter, require that specific contrast failure while distinguishing any expected external-provider mismatch. No negative result was read here."
+          },
+          {
+            "area": "sample skew and scheduling limits",
+            "evidence": "The second barrier orders both baselines before either workload, but the baseline timestamps, endpoint calls, wakeups, and end samples remain sequential and schedulable. The sleeping thread can be delayed, interrupted, or scheduled after the deadline; the code then rejects or records that execution according to its existing checks. No source-only proof establishes the process double's outcome for every possible timeline, exactly 200 ms of busy CPU, or a minimum amount of simultaneous execution.",
+            "refs": [
+              "darwin-thread-cpu.c:38-47, 59-76, 99-114"
+            ]
+          },
+          {
+            "area": "qualification versus performance attribution",
+            "evidence": "The 10 ms contrasts are qualitative own-process provider checks. They do not prove per-thread accounting for Wine threads, Rosetta/Wine integration, the larger U attribution matrix, benchmark speedups, CS +/-3%, scheduler equivalence, or continuous performance acceptance. Run-state values are observations from sampling, not a complete sleep/running timeline. Both architecture executions and the process double remain unverified by this review."
+          }
+        ],
+        "evidenceLimits": [
+          "Only the requested source and allowed local SDK declarations were read. No other implementation, runner, raw receipt, build log, or kernel source was used.",
+          "No source edits, builds, probes, tests, Windows operations, network access, UI interaction, or engine changes occurred.",
+          "This report is a bounded source assessment, not an assertion that the actual native program or negative double passed or failed."
+        ]
+      }
+    },
+    "source-review-v2.json": {
+      "path": "out/darwin-thread-cpu-20261024/source-review-v2.json",
+      "sha256": "2973d2e2c3f8a94d4c599fb084662b6b28f2c653509e40387e4227a8a4bb5870",
+      "content": {
+        "review": "bounded SOURCE review of the new explicit basic-info CPU conversion and timebase observations",
+        "reportVersion": 2,
+        "startedAtUTC": "2026-10-24T12:03:11Z",
+        "scope": {
+          "sourceOnly": true,
+          "onlyFileWritten": "out/darwin-thread-cpu-20261024/source-review-v2.json",
+          "reviewed": [
+            "THREAD_BASIC_INFO acquisition and seconds/microseconds conversion",
+            "new basic CPU monotonicity/delta/unit control",
+            "timebase read and begin fields",
+            "related stack and Mach-port lifetimes",
+            "retention of original mandatory clock contrast"
+          ],
+          "buildsOrProbesRun": false,
+          "runtimeResultsAudited": false,
+          "excluded": [
+            "new broad worker review",
+            "XNU implementation investigation",
+            "v1/v2 raw result or negative-run audit",
+            "Wine performance acceptance",
+            "Windows/network/UI or engine changes"
+          ]
+        },
+        "inputs": [
+          {
+            "path": "tests/sync/darwin-thread-cpu.c",
+            "sha256": "031d71d338932de869ff4d4a849137ebfbe49e23100cd9176480c90484be9ae9",
+            "reviewedRegions": "10, 27, 39-50, 93-95, 108-124 and immediate lifetime context"
+          },
+          {
+            "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/usr/include/mach/thread_info.h",
+            "sha256": "8e2e6446558fc793c257943b1f663d08d6c6de3f4ed21d4f4f940f05e0cc38ce",
+            "reviewedRegions": "90-107"
+          },
+          {
+            "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/usr/include/mach/time_value.h",
+            "sha256": "b11b0606d2f5f44bd0fa1728928ff6dd301b42d67d5ab2c035a84be85f1f7b21",
+            "reviewedRegions": "62-77"
+          },
+          {
+            "path": "/Library/Developer/CommandLineTools/SDKs/MacOSX15.4.sdk/usr/include/mach/mach_time.h",
+            "sha256": "d690e304ea595ca216ed51e20aa9747e0b3bcb07446d996abe0080a231c7065f",
+            "reviewedRegions": "36-47"
+          }
+        ],
+        "verdict": {
+          "status": "no_concrete_P1_or_P2_in_the_new_bounded_path",
+          "P1": 0,
+          "P2": 0,
+          "findings": [],
+          "basis": "The basic-info conversion, timebase observation, and their lifetimes are coherent in source. The original CLOCK_THREAD_CPUTIME_ID contrast remains mandatory. No conclusion about the parent's actual v1/v2 runs or their cause is made."
+        },
+        "checkedProperties": [
+          {
+            "area": "basic-info selector and result validation",
+            "result": "The new query uses THREAD_BASIC_INFO on the same owned worker Mach send right, with a separate count initialized to THREAD_BASIC_INFO_COUNT for each sample. It requires both KERN_SUCCESS and the complete expected count before reading the stack result. SDK THREAD_BASIC_INFO supplies time_value_t user_time/system_time; these are not the extended-info raw integer fields or scaled cpu_usage.",
+            "refs": [
+              "darwin-thread-cpu.c:41-47",
+              "SDK mach/thread_info.h:90-107"
+            ]
+          },
+          {
+            "area": "seconds/microseconds to ns",
+            "result": "The conversion computes (user seconds + system seconds)*1,000,000,000 plus (user microseconds + system microseconds)*1,000. Each component is widened before addition. Summing the microsecond fields without separately normalizing their sum is correct because the conversion is linear. Under the API's nonnegative normalized CPU-time values, this yields the total CPU time in ns; it does not imply ns precision or resolution.",
+            "refs": [
+              "darwin-thread-cpu.c:47",
+              "SDK mach/time_value.h:62-77"
+            ]
+          },
+          {
+            "area": "delta arithmetic and explicit-unit comparison",
+            "result": "basic_cpu participates in the monotonicity condition before its unsigned end-minus-begin delta is calculated. The absolute proc15/basic delta gap uses an ordered subtraction to avoid unsigned underflow. The new per-role check requires gap <5,000,000 ns. It adds a numerical scale control rather than replacing the earlier qualitative thread contrast.",
+            "refs": [
+              "darwin-thread-cpu.c:108-114"
+            ]
+          },
+          {
+            "area": "timebase observation",
+            "result": "mach_timebase_info fills a main-stack mach_timebase_info_data_t before worker creation. Success and a nonzero denominator are required before printing its uint32 numerator/denominator in the begin row. The values are diagnostic fields only: no timebase scaling is applied to the already-converted timespec/basic-info values or to the existing CLOCK contrast.",
+            "refs": [
+              "darwin-thread-cpu.c:93-96",
+              "SDK mach/mach_time.h:36-47"
+            ]
+          },
+          {
+            "area": "sample and port lifetimes",
+            "result": "Both new basic samples occur while the worker still owns its Mach send right, before finished/release/deallocation. The queried basic struct and count are stack-local and only copied into the worker snapshot after successful validation. No new Mach right, heap allocation, persistent handle, or escaped stack pointer is introduced. Main reads the new snapshot fields after joining both workers.",
+            "refs": [
+              "darwin-thread-cpu.c:39-48, 57, 63, 80-83, 100-118"
+            ]
+          },
+          {
+            "area": "original gate retention and check count",
+            "result": "The original proc15, CLOCK_THREAD_CPUTIME_ID, and Mach busy-minus-sleep >10 ms checks all remain present and mandatory through the shared failures result. Two new proc15_matches_explicit_units checks, one per worker, bring normal completion from eleven checks to thirteen. A failure of the CLOCK contrast still makes complete.ok false and the exit nonzero; the new basic control does not override it.",
+            "refs": [
+              "darwin-thread-cpu.c:86-89, 103-124"
+            ]
+          }
+        ],
+        "evidenceBoundaries": [
+          "The explicit basic control compares proc15 with THREAD_BASIC_INFO for this own-thread interval; it does not separately assert extended Mach/basic agreement. The extended values remain printed and retain their original contrast check.",
+          "The sample calls are sequential, so the 5 ms comparison includes endpoint-call skew/accounting granularity. It is a diagnostic scale-consistency criterion, not a proof of timer resolution, +/-3% performance equivalence, or all-timeline accuracy.",
+          "Printing a timebase ratio does not establish that it caused any observed clock discrepancy. No conversion workaround, threshold relaxation, or causal attribution was introduced or inferred in this review.",
+          "The parent's XNU bsd_kern.c unit evidence was not independently read here; only the named local SDK types and current probe source were used.",
+          "The parent's preserved v1 failure, actual architecture outputs, process doubles, and ongoing v2 runs remain separate evidence. No raw results, builds, probes, or negative runs were executed or audited.",
+          "This report covers only the requested additions and does not replace the broader evidence limits in source-review-v1 or establish Wine/performance acceptance. Only this JSON report was written."
+        ]
+      }
+    }
+  }
+}
