@@ -1,0 +1,981 @@
+Owned bounded SourceReader/processor regression scopes; original assertions remain.
+Requires fixed Wine11.18 test source. Does not run the original full suite.
+
+--- a/dlls/mfreadwrite/tests/mfplat.c
++++ b/dlls/mfreadwrite/tests/mfplat.c
+@@ -3010,6 +3010,13 @@
+ 
+     MFVIDEOFORMAT output_format;
+     HRESULT next_output;
++    /* Opt-in SourceReader error-completion injection; not a GPU pool. */
++    BOOL cider_allocator_gate;
++    LONG cider_input_count;
++    LONG cider_empty_count;
++    HANDLE cider_empty_event; /* Borrowed; fixture owns until decoder teardown. */
++    BOOL cider_reblock_after_success;
++    LONG cider_success_count;
+ };
+ 
+ static struct test_decoder *test_decoder_from_IMFTransform(IMFTransform *iface)
+@@ -3302,6 +3309,10 @@
+ 
+ static HRESULT WINAPI test_decoder_ProcessInput(IMFTransform *iface, DWORD id, IMFSample *sample, DWORD flags)
+ {
++    struct test_decoder *decoder = test_decoder_from_IMFTransform(iface);
++
++    if (decoder->cider_allocator_gate)
++        InterlockedIncrement(&decoder->cider_input_count);
+     return S_OK;
+ }
+ 
+@@ -3318,6 +3329,22 @@
+     IMFMediaBuffer *buffer;
+     IUnknown *unknown;
+     HRESULT hr;
++
++    if (decoder->cider_allocator_gate)
++    {
++        if (!InterlockedCompareExchange(&decoder->cider_input_count, 0, 0))
++            return MF_E_TRANSFORM_NEED_MORE_INPUT;
++        if (decoder->next_output == MF_E_SAMPLEALLOCATOR_EMPTY)
++        {
++            LONG empty = InterlockedIncrement(&decoder->cider_empty_count);
++            printf("cider-mf-injected-empty input=%ld count=%ld\n",
++                    InterlockedCompareExchange(&decoder->cider_input_count, 0, 0), empty);
++            fflush(stdout);
++            if (decoder->cider_empty_event)
++                SetEvent(decoder->cider_empty_event);
++            return MF_E_SAMPLEALLOCATOR_EMPTY;
++        }
++    }
+ 
+     if (test_decoder_allocate_samples)
+     {
+@@ -3357,6 +3384,12 @@
+         decoder->next_output = MF_E_TRANSFORM_NEED_MORE_INPUT;
+         hr = IMFSample_SetSampleTime(data->pSample, 0);
+         ok(hr == S_OK, "Unexpected hr %#lx.\n", hr);
++        if (decoder->cider_reblock_after_success)
++        {
++            decoder->cider_reblock_after_success = FALSE;
++            decoder->next_output = MF_E_SAMPLEALLOCATOR_EMPTY;
++            InterlockedIncrement(&decoder->cider_success_count);
++        }
+         return S_OK;
+     }
+ 
+@@ -4225,6 +4258,863 @@
+     expect_dxgi_manager = NULL;
+ }
+ 
++static DWORD WINAPI cider_media_watchdog(void *unused)
++{
++    Sleep(30000);
++    fputs("cider-mf-watchdog-expired\n", stderr);
++    fflush(stderr);
++    ExitProcess(124);
++    return 0;
++}
++
++/* SourceReader scheduling/error-completion injection, not a GPU pool test.
++ * Apply the three opt-in mock additions in pool-fixture-report-v1.json first.
++ * Insert before START_TEST(mfplat); invoke with MFStartup active.
++ */
++struct cider_allocator_callback
++{
++    struct async_callback base;
++    HANDLE flush_event;
++    BOOL expect_sample, expect_flush;
++    LONG reads, flushes;
++};
++
++static struct cider_allocator_callback *cider_allocator_callback_from_iface(IMFSourceReaderCallback *iface)
++{
++    return CONTAINING_RECORD(impl_from_IMFSourceReaderCallback(iface), struct cider_allocator_callback, base);
++}
++
++static ULONG WINAPI cider_allocator_callback_Release(IMFSourceReaderCallback *iface)
++{
++    struct cider_allocator_callback *callback = cider_allocator_callback_from_iface(iface);
++    ULONG refcount = InterlockedDecrement(&callback->base.refcount);
++
++    if (!refcount)
++    {
++        CloseHandle(callback->base.event);
++        CloseHandle(callback->flush_event);
++        free(callback);
++    }
++    return refcount;
++}
++
++static HRESULT WINAPI cider_allocator_callback_OnReadSample(IMFSourceReaderCallback *iface, HRESULT hr,
++        DWORD index, DWORD flags, LONGLONG timestamp, IMFSample *sample)
++{
++    struct cider_allocator_callback *callback = cider_allocator_callback_from_iface(iface);
++    DWORD buffers = 0;
++    HRESULT sample_hr;
++
++    ok(callback->base.expected, "Unexpected allocator read callback.\n");
++    ok(hr == callback->base.expected_hr, "Allocator callback hr %#lx, expected %#lx.\n",
++            hr, callback->base.expected_hr);
++    ok(index == 0, "Allocator callback index %lu.\n", index);
++    ok(flags == (callback->expect_sample ? 0 : MF_SOURCE_READERF_ERROR),
++            "Allocator callback flags %#lx.\n", flags);
++    ok(timestamp == 0, "Allocator callback timestamp %I64d.\n", timestamp);
++    ok(!!sample == callback->expect_sample, "Allocator callback sample %p, expected presence %u.\n",
++            sample, callback->expect_sample);
++    if (sample)
++    {
++        sample_hr = IMFSample_GetBufferCount(sample, &buffers);
++        ok(sample_hr == S_OK, "GetBufferCount returned %#lx.\n", sample_hr);
++        ok(buffers == 1, "Expected one fake CPU buffer, got %lu.\n", buffers);
++    }
++    callback->base.expected = FALSE;
++    InterlockedIncrement(&callback->reads);
++    /* Last access: a waiter may arm the next expectation after this signal. */
++    SetEvent(callback->base.event);
++    return S_OK;
++}
++
++static HRESULT WINAPI cider_allocator_callback_OnFlush(IMFSourceReaderCallback *iface, DWORD index)
++{
++    struct cider_allocator_callback *callback = cider_allocator_callback_from_iface(iface);
++
++    ok(callback->expect_flush, "Unexpected allocator flush callback.\n");
++    ok(index == 0, "Allocator flush index %lu.\n", index);
++    callback->expect_flush = FALSE;
++    InterlockedIncrement(&callback->flushes);
++    SetEvent(callback->flush_event);
++    return S_OK;
++}
++
++static const IMFSourceReaderCallbackVtbl cider_allocator_callback_vtbl =
++{
++    async_callback_QueryInterface,
++    async_callback_AddRef,
++    cider_allocator_callback_Release,
++    cider_allocator_callback_OnReadSample,
++    cider_allocator_callback_OnFlush,
++    async_callback_OnEvent,
++};
++
++static BOOL cider_allocator_read(IMFSourceReader *reader, struct cider_allocator_callback *callback,
++        HRESULT expected_hr)
++{
++    BOOL expect_sample = expected_hr == S_OK;
++    DWORD index = ~0u, flags = ~0u, buffers = 0, wait;
++    LONGLONG timestamp = -1;
++    IMFSample *sample = NULL;
++    LONG reads = 0;
++    HRESULT hr, sample_hr;
++
++    if (callback)
++    {
++        reads = InterlockedCompareExchange(&callback->reads, 0, 0);
++        callback->base.expected_hr = expected_hr;
++        callback->expect_sample = expect_sample;
++        callback->base.expected = TRUE;
++        hr = IMFSourceReader_ReadSample(reader, 0, 0, NULL, NULL, NULL, NULL);
++        ok(hr == S_OK, "Async ReadSample submission returned %#lx.\n", hr);
++        if (hr != S_OK) return FALSE;
++        wait = WaitForSingleObject(callback->base.event, 1500);
++        ok(wait == WAIT_OBJECT_0, "Allocator read callback wait returned %#lx.\n", wait);
++        if (wait != WAIT_OBJECT_0) return FALSE;
++        ok(!callback->base.expected, "Read callback did not consume expectation.\n");
++        ok(InterlockedCompareExchange(&callback->reads, 0, 0) == reads + 1,
++                "Expected exactly one allocator read callback.\n");
++        return TRUE;
++    }
++
++    /* This synchronous call is covered by the fixture worker's 20 s join. */
++    hr = IMFSourceReader_ReadSample(reader, 0, 0, &index, &flags, &timestamp, &sample);
++    ok(hr == expected_hr, "Sync allocator read returned %#lx, expected %#lx.\n", hr, expected_hr);
++    ok(index == 0, "Sync allocator index %lu.\n", index);
++    ok(flags == (expect_sample ? 0 : MF_SOURCE_READERF_ERROR), "Sync allocator flags %#lx.\n", flags);
++    ok(timestamp == 0, "Sync allocator timestamp %I64d.\n", timestamp);
++    ok(!!sample == expect_sample, "Sync allocator sample %p, expected presence %u.\n", sample, expect_sample);
++    if (sample)
++    {
++        sample_hr = IMFSample_GetBufferCount(sample, &buffers);
++        ok(sample_hr == S_OK, "GetBufferCount returned %#lx.\n", sample_hr);
++        ok(buffers == 1, "Expected one fake CPU buffer, got %lu.\n", buffers);
++        IMFSample_Release(sample);
++    }
++    return hr == expected_hr;
++}
++
++static void cider_allocator_case(BOOL asynchronous, BOOL release_blocked)
++{
++    static const struct attribute_desc input_desc[] =
++    {
++        ATTR_GUID(MF_MT_MAJOR_TYPE, MFMediaType_Video),
++        ATTR_GUID(MF_MT_SUBTYPE, MFVideoFormat_TEST),
++        ATTR_RATIO(MF_MT_FRAME_SIZE, 96, 96),
++        {0},
++    };
++    static const struct attribute_desc output_desc[] =
++    {
++        ATTR_GUID(MF_MT_MAJOR_TYPE, MFMediaType_Video),
++        ATTR_GUID(MF_MT_SUBTYPE, MFVideoFormat_YUY2),
++        {0},
++    };
++    struct cider_allocator_callback *callback = NULL;
++    IMFStreamDescriptor *descriptor = NULL;
++    IMFSourceReaderEx *reader_ex = NULL;
++    IMFAttributes *attributes = NULL;
++    IMFTransform *transform = NULL;
++    IMFMediaType *type = NULL;
++    IMFSourceReader *reader = NULL;
++    IMFMediaSource *source = NULL;
++    struct test_decoder *decoder;
++    DWORD wait;
++    HRESULT hr;
++    LONG inputs;
++    ULONG refs;
++
++    trace("allocator fixture async=%u release_blocked=%u\n", asynchronous, release_blocked);
++    if (asynchronous)
++    {
++        callback = calloc(1, sizeof(*callback));
++        ok(!!callback, "Failed to allocate allocator callback.\n");
++        if (!callback) goto done;
++        callback->base.IMFSourceReaderCallback_iface.lpVtbl = &cider_allocator_callback_vtbl;
++        callback->base.refcount = 1;
++        callback->base.event = CreateEventW(NULL, FALSE, FALSE, NULL);
++        callback->flush_event = CreateEventW(NULL, FALSE, FALSE, NULL);
++        ok(!!callback->base.event && !!callback->flush_event, "Failed to create allocator callback events.\n");
++        if (!callback->base.event || !callback->flush_event) goto done;
++        hr = MFCreateAttributes(&attributes, 1);
++        ok(hr == S_OK, "MFCreateAttributes returned %#lx.\n", hr);
++        if (hr != S_OK) goto done;
++        hr = IMFAttributes_SetUnknown(attributes, &MF_SOURCE_READER_ASYNC_CALLBACK,
++                (IUnknown *)&callback->base.IMFSourceReaderCallback_iface);
++        ok(hr == S_OK, "SetUnknown(callback) returned %#lx.\n", hr);
++        if (hr != S_OK) goto done;
++    }
++
++    hr = MFCreateMediaType(&type);
++    ok(hr == S_OK, "MFCreateMediaType returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    init_media_type(type, input_desc, -1);
++    hr = MFCreateStreamDescriptor(0, 1, &type, &descriptor);
++    ok(hr == S_OK, "MFCreateStreamDescriptor returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    source = create_test_source(&descriptor, 1);
++    ok(!!source, "Failed to create allocator test source.\n");
++    if (!source) goto done;
++    hr = MFCreateSourceReaderFromMediaSource(source, attributes, &reader);
++    ok(hr == S_OK, "MFCreateSourceReaderFromMediaSource returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    hr = IMFSourceReader_SetStreamSelection(reader, 0, TRUE);
++    ok(hr == S_OK, "SetStreamSelection returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    IMFMediaType_Release(type);
++    type = NULL;
++    hr = MFCreateMediaType(&type);
++    ok(hr == S_OK, "MFCreateMediaType(output) returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    init_media_type(type, output_desc, -1);
++    hr = IMFSourceReader_SetCurrentMediaType(reader, 0, NULL, type);
++    ok(hr == S_OK, "SetCurrentMediaType returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    hr = IMFSourceReader_QueryInterface(reader, &IID_IMFSourceReaderEx, (void **)&reader_ex);
++    ok(hr == S_OK, "QueryInterface(SourceReaderEx) returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    hr = IMFSourceReaderEx_GetTransformForStream(reader_ex, 0, 0, NULL, &transform);
++    ok(hr == S_OK, "GetTransformForStream returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    ok(transform->lpVtbl == &test_decoder_vtbl, "Expected registered fake decoder, got %p.\n", transform);
++    if (transform->lpVtbl != &test_decoder_vtbl) goto done;
++    /* Drop this extra public reader reference before checking final Release. */
++    IMFSourceReaderEx_Release(reader_ex);
++    reader_ex = NULL;
++    decoder = test_decoder_from_IMFTransform(transform);
++    decoder->cider_allocator_gate = TRUE;
++    test_decoder_set_next_output(transform, MF_E_SAMPLEALLOCATOR_EMPTY);
++
++    if (!cider_allocator_read(reader, callback, MF_E_SAMPLEALLOCATOR_EMPTY)) goto done;
++    inputs = InterlockedCompareExchange(&decoder->cider_input_count, 0, 0);
++    ok(inputs == 1, "Initial EMPTY must follow exactly one ProcessInput, got %ld.\n", inputs);
++    ok(InterlockedCompareExchange(&decoder->cider_empty_count, 0, 0) == 1,
++            "Initial read did not reach exactly one injected EMPTY.\n");
++    if (release_blocked) goto done;
++
++    /* A consumer still holding its pool has not made output available yet. */
++    if (!cider_allocator_read(reader, callback, MF_E_SAMPLEALLOCATOR_EMPTY)) goto done;
++    ok(InterlockedCompareExchange(&decoder->cider_input_count, 0, 0) == inputs,
++            "Still-empty retry consumed new input.\n");
++    ok(InterlockedCompareExchange(&decoder->cider_empty_count, 0, 0) == 2,
++            "Expected exactly two injected EMPTY results.\n");
++
++    /* Explicit caller retry on the same MFT; no allocator notification implied. */
++    test_decoder_set_next_output(transform, S_OK);
++    if (!cider_allocator_read(reader, callback, S_OK)) goto done;
++    ok(InterlockedCompareExchange(&decoder->cider_input_count, 0, 0) == inputs,
++            "Recovery requested new input instead of pulling retained output.\n");
++    ok(decoder->next_output == MF_E_TRANSFORM_NEED_MORE_INPUT,
++            "Fake decoder did not consume the armed successful output.\n");
++
++    /* Put the reader back into allocator-blocked state before flushing. */
++    test_decoder_set_next_output(transform, MF_E_SAMPLEALLOCATOR_EMPTY);
++    if (!cider_allocator_read(reader, callback, MF_E_SAMPLEALLOCATOR_EMPTY)) goto done;
++    ok(InterlockedCompareExchange(&decoder->cider_empty_count, 0, 0) == 3,
++            "Flush must follow a fresh third EMPTY injection, not a stale response.\n");
++    if (callback) callback->expect_flush = TRUE;
++    hr = IMFSourceReader_Flush(reader, 0);
++    ok(hr == S_OK, "Allocator-blocked Flush returned %#lx.\n", hr);
++    if (callback && hr == S_OK)
++    {
++        wait = WaitForSingleObject(callback->flush_event, 1500);
++        ok(wait == WAIT_OBJECT_0, "Allocator flush callback wait returned %#lx.\n", wait);
++        if (wait == WAIT_OBJECT_0)
++        {
++            ok(!callback->expect_flush, "Flush callback did not consume expectation.\n");
++            ok(InterlockedCompareExchange(&callback->flushes, 0, 0) == 1,
++                    "Expected exactly one flush callback.\n");
++        }
++    }
++
++done:
++    if (reader_ex) IMFSourceReaderEx_Release(reader_ex);
++    if (reader)
++    {
++        /* Includes direct Release with EMPTY armed in release_blocked cases. */
++        refs = IMFSourceReader_Release(reader);
++        ok(!refs, "Final allocator reader Release returned %lu.\n", refs);
++    }
++    if (transform) IMFTransform_Release(transform);
++    if (source) IMFMediaSource_Release(source);
++    if (descriptor) IMFStreamDescriptor_Release(descriptor);
++    if (type) IMFMediaType_Release(type);
++    if (attributes) IMFAttributes_Release(attributes);
++    if (callback) IMFSourceReaderCallback_Release(&callback->base.IMFSourceReaderCallback_iface);
++}
++
++static DWORD WINAPI cider_allocator_worker(void *unused)
++{
++    const MFT_REGISTER_TYPE_INFO input_info[] = {{MFMediaType_Video, MFVideoFormat_TEST}};
++    const MFT_REGISTER_TYPE_INFO output_info[] = {{MFMediaType_Video, MFVideoFormat_YUY2}};
++    IClassFactory factory = {.lpVtbl = &test_mft_factory_vtbl};
++    BOOL saved_fail = fail_request_sample, saved_allocate = test_decoder_allocate_samples;
++    BOOL saved_d3d9 = test_decoder_d3d_aware, saved_d3d11 = test_decoder_d3d11_aware;
++    unsigned int asynchronous;
++    HRESULT hr;
++
++    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
++    ok(hr == S_OK || hr == S_FALSE, "Allocator worker CoInitializeEx returned %#lx.\n", hr);
++    if (FAILED(hr)) return 1;
++    hr = MFTRegisterLocal(&factory, &MFT_CATEGORY_VIDEO_DECODER, L"Cider allocator injection", 0,
++            ARRAY_SIZE(input_info), input_info, ARRAY_SIZE(output_info), output_info);
++    ok(hr == S_OK, "Allocator MFTRegisterLocal returned %#lx.\n", hr);
++    if (hr != S_OK)
++    {
++        CoUninitialize();
++        return 1;
++    }
++
++    fail_request_sample = FALSE;
++    test_decoder_allocate_samples = TRUE;
++    test_decoder_d3d_aware = test_decoder_d3d11_aware = FALSE;
++    for (asynchronous = 0; asynchronous < 2; ++asynchronous)
++    {
++        cider_allocator_case(asynchronous, FALSE);
++        cider_allocator_case(asynchronous, TRUE);
++    }
++    fail_request_sample = saved_fail;
++    test_decoder_allocate_samples = saved_allocate;
++    test_decoder_d3d_aware = saved_d3d9;
++    test_decoder_d3d11_aware = saved_d3d11;
++    hr = MFTUnregisterLocal(&factory);
++    ok(hr == S_OK, "Allocator MFTUnregisterLocal returned %#lx.\n", hr);
++    CoUninitialize();
++    return 0;
++}
++
++static void test_cider_allocator_exhaustion(void)
++{
++    HANDLE thread;
++    DWORD wait, exit_code = ~0u;
++    BOOL ret;
++
++    thread = CreateThread(NULL, 0, cider_allocator_worker, NULL, 0, NULL);
++    ok(!!thread, "Failed to create allocator fixture worker, error %lu.\n", GetLastError());
++    if (!thread) return;
++    wait = WaitForSingleObject(thread, 20000);
++    ok(wait == WAIT_OBJECT_0, "Allocator fixture exceeded its deadline or wait failed, result %#lx.\n", wait);
++    if (wait != WAIT_OBJECT_0)
++    {
++        /* Do not detach a worker using stack/global mocks or pretend cleanup ran. */
++        fputs("cider-mf-allocator-fixture-deadline-failed\n", stderr);
++        fflush(stderr);
++        ExitProcess(125);
++    }
++    ret = GetExitCodeThread(thread, &exit_code);
++    ok(ret, "GetExitCodeThread failed, error %lu.\n", GetLastError());
++    ok(exit_code == 0, "Allocator fixture worker exit code %lu.\n", exit_code);
++    CloseHandle(thread);
++}
++
++/* Actual CPU video-processor copy fallback and Flush; no GPU pool claim. */
++static IMFSample *cider_nv12_sample(BYTE luma)
++{
++    IMFMediaBuffer *buffer = NULL;
++    IMFSample *sample = NULL;
++    BYTE *data;
++    HRESULT hr;
++
++    hr = MFCreateSample(&sample);
++    ok(hr == S_OK, "Create input sample %#lx.\n", hr);
++    if (FAILED(hr)) return NULL;
++    hr = MFCreateMemoryBuffer(24, &buffer);
++    ok(hr == S_OK, "Create 4x4 NV12 buffer %#lx.\n", hr);
++    if (FAILED(hr)) goto failed;
++    hr = IMFMediaBuffer_Lock(buffer, &data, NULL, NULL);
++    ok(hr == S_OK, "Lock input %#lx.\n", hr);
++    if (FAILED(hr)) goto failed;
++    memset(data, luma, 16);
++    memset(data + 16, 128, 8);
++    IMFMediaBuffer_Unlock(buffer);
++    hr = IMFMediaBuffer_SetCurrentLength(buffer, 24);
++    ok(hr == S_OK, "Input length %#lx.\n", hr);
++    if (FAILED(hr)) goto failed;
++    hr = IMFSample_AddBuffer(sample, buffer);
++    ok(hr == S_OK, "Add input buffer %#lx.\n", hr);
++    if (FAILED(hr)) goto failed;
++    IMFMediaBuffer_Release(buffer);
++    return sample;
++failed:
++    if (buffer) IMFMediaBuffer_Release(buffer);
++    IMFSample_Release(sample);
++    return NULL;
++}
++
++static void test_cider_processor_flush(void)
++{
++    static const struct attribute_desc input_desc[] =
++    {
++        ATTR_GUID(MF_MT_MAJOR_TYPE, MFMediaType_Video),
++        ATTR_GUID(MF_MT_SUBTYPE, MFVideoFormat_NV12),
++        ATTR_RATIO(MF_MT_FRAME_SIZE, 4, 4),
++        ATTR_RATIO(MF_MT_FRAME_RATE, 30, 1),
++        ATTR_RATIO(MF_MT_PIXEL_ASPECT_RATIO, 1, 1),
++        ATTR_UINT32(MF_MT_INTERLACE_MODE, MFVideoInterlace_Progressive),
++        ATTR_UINT32(MF_MT_DEFAULT_STRIDE, 4),
++        {0},
++    };
++    static const struct attribute_desc output_desc[] =
++    {
++        ATTR_GUID(MF_MT_MAJOR_TYPE, MFMediaType_Video),
++        ATTR_GUID(MF_MT_SUBTYPE, MFVideoFormat_RGB32),
++        ATTR_RATIO(MF_MT_FRAME_SIZE, 4, 4),
++        ATTR_RATIO(MF_MT_FRAME_RATE, 30, 1),
++        ATTR_RATIO(MF_MT_PIXEL_ASPECT_RATIO, 1, 1),
++        ATTR_UINT32(MF_MT_INTERLACE_MODE, MFVideoInterlace_Progressive),
++        ATTR_UINT32(MF_MT_DEFAULT_STRIDE, 16),
++        {0},
++    };
++    IMFTransform *processor = NULL;
++    IMFMediaType *type = NULL;
++    IMFSample *dark = NULL, *bright = NULL, *output_sample = NULL;
++    IMFMediaBuffer *buffer = NULL;
++    MFT_OUTPUT_DATA_BUFFER output = {0};
++    DWORD status = 0, length = 0;
++    unsigned int pixel;
++    BYTE *data;
++    HRESULT hr;
++
++    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
++    ok(hr == S_OK || hr == S_FALSE, "CoInitializeEx %#lx.\n", hr);
++    if (FAILED(hr)) return;
++    hr = CoCreateInstance(&CLSID_VideoProcessorMFT, NULL, CLSCTX_INPROC_SERVER,
++            &IID_IMFTransform, (void **)&processor);
++    ok(hr == S_OK, "Create actual video processor %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    hr = MFCreateMediaType(&type);
++    ok(hr == S_OK, "Create input type %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    init_media_type(type, input_desc, -1);
++    hr = IMFTransform_SetInputType(processor, 0, type, 0);
++    ok(hr == S_OK, "Set NV12 input %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    IMFMediaType_Release(type);
++    type = NULL;
++    hr = MFCreateMediaType(&type);
++    ok(hr == S_OK, "Create output type %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    init_media_type(type, output_desc, -1);
++    hr = IMFTransform_SetOutputType(processor, 0, type, 0);
++    ok(hr == S_OK, "Set RGB32 output %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    dark = cider_nv12_sample(16);
++    bright = cider_nv12_sample(235);
++    if (!dark || !bright) goto done;
++    hr = IMFTransform_ProcessInput(processor, 0, dark, 0);
++    ok(hr == S_OK, "Initial copy-fallback input %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    hr = IMFTransform_ProcessOutput(processor, 0, 1, &output, &status);
++    ok(hr == E_INVALIDARG, "Missing output buffer should leave pending frame, got %#lx.\n", hr);
++    hr = IMFTransform_ProcessMessage(processor, MFT_MESSAGE_COMMAND_FLUSH, 0);
++    ok(hr == S_OK, "Flush pending copied frame %#lx.\n", hr);
++    hr = IMFTransform_ProcessMessage(processor, MFT_MESSAGE_COMMAND_FLUSH, 0);
++    ok(hr == S_OK, "Repeated empty Flush %#lx.\n", hr);
++    hr = IMFTransform_ProcessInput(processor, 0, bright, 0);
++    ok(hr == S_OK, "Post-Flush input without renegotiation %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    hr = MFCreateSample(&output_sample);
++    ok(hr == S_OK, "Create output sample %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    hr = MFCreateMemoryBuffer(64, &buffer);
++    ok(hr == S_OK, "Create RGB output buffer %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    hr = IMFSample_AddBuffer(output_sample, buffer);
++    ok(hr == S_OK, "Attach RGB output buffer %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    output.pSample = output_sample;
++    hr = IMFTransform_ProcessOutput(processor, 0, 1, &output, &status);
++    ok(hr == S_OK, "Post-Flush real output %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    hr = IMFMediaBuffer_GetCurrentLength(buffer, &length);
++    ok(hr == S_OK && length == 64, "Output length %#lx, %lu.\n", hr, length);
++    hr = IMFMediaBuffer_Lock(buffer, &data, NULL, NULL);
++    ok(hr == S_OK, "Lock RGB output %#lx.\n", hr);
++    if (FAILED(hr)) goto done;
++    for (pixel = 0; pixel < 16; ++pixel)
++        ok(data[4 * pixel] >= 200 && data[4 * pixel + 1] >= 200 && data[4 * pixel + 2] >= 200,
++                "Pixel %u is not the new bright frame: %u/%u/%u.\n", pixel,
++                data[4 * pixel], data[4 * pixel + 1], data[4 * pixel + 2]);
++    printf("cider-mf-real-processor first-rgb=%u/%u/%u bytes=%lu\n", data[0], data[1], data[2], length);
++    IMFMediaBuffer_Unlock(buffer);
++    hr = IMFTransform_ProcessOutput(processor, 0, 1, &output, &status);
++    ok(hr == MF_E_TRANSFORM_NEED_MORE_INPUT, "Output consumed once, got %#lx.\n", hr);
++done:
++    if (output.pEvents) IMFCollection_Release(output.pEvents);
++    if (buffer) IMFMediaBuffer_Release(buffer);
++    if (output_sample) IMFSample_Release(output_sample);
++    if (bright) IMFSample_Release(bright);
++    if (dark) IMFSample_Release(dark);
++    if (type) IMFMediaType_Release(type);
++    if (processor) IMFTransform_Release(processor);
++    CoUninitialize();
++}
++
++/* Two admitted reads, one queued CPU sample and one native queue OOM.
++ * Apply the three opt-in mock insertions in oom-fixture-report-v1.json.
++ * Parent DIAG DLL must fail only the first two EMPTY-status queue_response
++ * allocations. This fragment does not inject or emulate those reader failures.
++ */
++struct cider_oom_record
++{
++    HRESULT hr;
++    DWORD index, flags;
++    LONGLONG timestamp;
++    BOOL has_sample;
++};
++
++struct cider_oom_callback
++{
++    struct async_callback base;
++    HANDLE drained_event;
++    LONG drain_armed, calls, completed, samples, ooms, other;
++    struct cider_oom_record records[4];
++};
++
++static struct cider_oom_callback *cider_oom_callback_from_iface(IMFSourceReaderCallback *iface)
++{
++    return CONTAINING_RECORD(impl_from_IMFSourceReaderCallback(iface), struct cider_oom_callback, base);
++}
++
++static ULONG WINAPI cider_oom_callback_Release(IMFSourceReaderCallback *iface)
++{
++    struct cider_oom_callback *callback = cider_oom_callback_from_iface(iface);
++    ULONG refs = InterlockedDecrement(&callback->base.refcount);
++
++    if (!refs)
++    {
++        if (callback->base.event) CloseHandle(callback->base.event);
++        if (callback->drained_event) CloseHandle(callback->drained_event);
++        free(callback);
++    }
++    else if (refs == 1 && InterlockedCompareExchange(&callback->drain_armed, 0, 0))
++    {
++        /* Sole remaining reference is the fixture's; no later field access. */
++        SetEvent(callback->drained_event);
++    }
++    return refs;
++}
++
++static HRESULT WINAPI cider_oom_callback_OnReadSample(IMFSourceReaderCallback *iface, HRESULT hr,
++        DWORD index, DWORD flags, LONGLONG timestamp, IMFSample *sample)
++{
++    struct cider_oom_callback *callback = cider_oom_callback_from_iface(iface);
++    LONG ordinal = InterlockedIncrement(&callback->calls);
++    DWORD buffers = 0;
++    HRESULT sample_hr;
++    LONG completed;
++
++    /* Ordinal is an observation, never an expected global callback order. */
++    if (ordinal > 0 && ordinal <= (LONG)ARRAY_SIZE(callback->records))
++    {
++        struct cider_oom_record *record = &callback->records[ordinal - 1];
++        record->hr = hr;
++        record->index = index;
++        record->flags = flags;
++        record->timestamp = timestamp;
++        record->has_sample = !!sample;
++    }
++    ok(ordinal <= 2, "Extra OOM-pair callback %ld, hr %#lx.\n", ordinal, hr);
++    ok(index == 0, "OOM-pair callback index %lu.\n", index);
++    ok(timestamp == 0, "OOM-pair callback timestamp %I64d.\n", timestamp);
++    if (hr == S_OK)
++    {
++        InterlockedIncrement(&callback->samples);
++        ok(!!sample, "Successful OOM-pair callback has no sample.\n");
++        ok(flags == 0, "Successful OOM-pair callback flags %#lx.\n", flags);
++        if (sample)
++        {
++            sample_hr = IMFSample_GetBufferCount(sample, &buffers);
++            ok(sample_hr == S_OK, "OOM-pair GetBufferCount returned %#lx.\n", sample_hr);
++            ok(buffers == 1, "Expected one fake CPU sample buffer, got %lu.\n", buffers);
++        }
++    }
++    else if (hr == E_OUTOFMEMORY)
++    {
++        InterlockedIncrement(&callback->ooms);
++        ok(!sample, "Native OOM callback supplied a sample %p.\n", sample);
++        ok(flags == MF_SOURCE_READERF_ERROR, "Native OOM callback flags %#lx.\n", flags);
++    }
++    else
++    {
++        InterlockedIncrement(&callback->other);
++        ok(0, "Unexpected OOM-pair callback hr %#lx, flags %#lx, sample %p.\n", hr, flags, sample);
++    }
++    completed = InterlockedIncrement(&callback->completed);
++    /* Final access; each callback owns its record slot and borrowed sample. */
++    if (completed >= 2) SetEvent(callback->base.event);
++    return S_OK;
++}
++
++static const IMFSourceReaderCallbackVtbl cider_oom_callback_vtbl =
++{
++    async_callback_QueryInterface,
++    async_callback_AddRef,
++    cider_oom_callback_Release,
++    cider_oom_callback_OnReadSample,
++    async_callback_OnFlush,
++    async_callback_OnEvent,
++};
++
++static BOOL cider_oom_wait(HANDLE event, const char *what)
++{
++    DWORD wait = WaitForSingleObject(event, 1500);
++
++    ok(wait == WAIT_OBJECT_0, "%s wait failed or timed out, result %#lx.\n", what, wait);
++    return wait == WAIT_OBJECT_0;
++}
++
++static BOOL cider_oom_reader_barrier(IMFSourceReader *reader)
++{
++    IMFMediaType *type = NULL;
++    HRESULT hr = IMFSourceReader_GetCurrentMediaType(reader, 0, &type);
++
++    /* The supplied reader takes reader->cs here. After the EMPTY signal this
++     * waits until the enclosing source event/helper has attempted its queue. */
++    ok(hr == S_OK, "OOM-pair reader barrier returned %#lx.\n", hr);
++    if (type) IMFMediaType_Release(type);
++    return hr == S_OK;
++}
++
++static void cider_oom_pair_case(void)
++{
++    static const struct attribute_desc input_desc[] =
++    {
++        ATTR_GUID(MF_MT_MAJOR_TYPE, MFMediaType_Video),
++        ATTR_GUID(MF_MT_SUBTYPE, MFVideoFormat_TEST),
++        ATTR_RATIO(MF_MT_FRAME_SIZE, 96, 96),
++        {0},
++    };
++    static const struct attribute_desc output_desc[] =
++    {
++        ATTR_GUID(MF_MT_MAJOR_TYPE, MFMediaType_Video),
++        ATTR_GUID(MF_MT_SUBTYPE, MFVideoFormat_YUY2),
++        {0},
++    };
++    struct cider_oom_callback *callback = NULL;
++    IMFSourceReaderEx *reader_ex = NULL;
++    IMFStreamDescriptor *descriptor = NULL;
++    IMFAttributes *attributes = NULL;
++    IMFSourceReader *reader = NULL;
++    IMFMediaSource *source = NULL;
++    IMFTransform *transform = NULL;
++    IMFMediaType *type = NULL;
++    struct test_decoder *decoder = NULL;
++    HANDLE empty_event = NULL;
++    BOOL pair_completed = FALSE, reader_created = FALSE, drained;
++    HRESULT hr;
++    ULONG refs;
++    LONG i;
++
++    callback = calloc(1, sizeof(*callback));
++    ok(!!callback, "Failed to allocate OOM-pair callback.\n");
++    if (!callback) goto done;
++    callback->base.IMFSourceReaderCallback_iface.lpVtbl = &cider_oom_callback_vtbl;
++    callback->base.refcount = 1;
++    callback->base.event = CreateEventW(NULL, TRUE, FALSE, NULL);
++    callback->drained_event = CreateEventW(NULL, TRUE, FALSE, NULL);
++    empty_event = CreateEventW(NULL, FALSE, FALSE, NULL);
++    ok(!!callback->base.event && !!callback->drained_event && !!empty_event,
++            "Failed to create OOM-pair events.\n");
++    if (!callback->base.event || !callback->drained_event || !empty_event) goto done;
++
++    hr = MFCreateAttributes(&attributes, 1);
++    ok(hr == S_OK, "OOM-pair MFCreateAttributes returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    hr = IMFAttributes_SetUnknown(attributes, &MF_SOURCE_READER_ASYNC_CALLBACK,
++            (IUnknown *)&callback->base.IMFSourceReaderCallback_iface);
++    ok(hr == S_OK, "OOM-pair SetUnknown(callback) returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    hr = MFCreateMediaType(&type);
++    ok(hr == S_OK, "OOM-pair MFCreateMediaType returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    init_media_type(type, input_desc, -1);
++    hr = MFCreateStreamDescriptor(0, 1, &type, &descriptor);
++    ok(hr == S_OK, "OOM-pair MFCreateStreamDescriptor returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    source = create_test_source(&descriptor, 1);
++    ok(!!source, "Failed to create OOM-pair source.\n");
++    if (!source) goto done;
++    hr = MFCreateSourceReaderFromMediaSource(source, attributes, &reader);
++    ok(hr == S_OK, "OOM-pair MFCreateSourceReader returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    reader_created = TRUE;
++    hr = IMFSourceReader_SetStreamSelection(reader, 0, TRUE);
++    ok(hr == S_OK, "OOM-pair SetStreamSelection returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    IMFMediaType_Release(type);
++    type = NULL;
++    hr = MFCreateMediaType(&type);
++    ok(hr == S_OK, "OOM-pair MFCreateMediaType(output) returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    init_media_type(type, output_desc, -1);
++    hr = IMFSourceReader_SetCurrentMediaType(reader, 0, NULL, type);
++    ok(hr == S_OK, "OOM-pair SetCurrentMediaType returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    hr = IMFSourceReader_QueryInterface(reader, &IID_IMFSourceReaderEx, (void **)&reader_ex);
++    ok(hr == S_OK, "OOM-pair QueryInterface(SourceReaderEx) returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    hr = IMFSourceReaderEx_GetTransformForStream(reader_ex, 0, 0, NULL, &transform);
++    ok(hr == S_OK, "OOM-pair GetTransformForStream returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    ok(transform->lpVtbl == &test_decoder_vtbl, "OOM-pair got a different transform %p.\n", transform);
++    if (transform->lpVtbl != &test_decoder_vtbl) goto done;
++    IMFSourceReaderEx_Release(reader_ex);
++    reader_ex = NULL;
++    decoder = test_decoder_from_IMFTransform(transform);
++    decoder->cider_allocator_gate = TRUE;
++    decoder->cider_empty_event = empty_event;
++    test_decoder_set_next_output(transform, MF_E_SAMPLEALLOCATOR_EMPTY);
++
++    hr = IMFSourceReader_ReadSample(reader, 0, 0, NULL, NULL, NULL, NULL); /* R1 */
++    ok(hr == S_OK, "OOM-pair R1 submission returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    if (!cider_oom_wait(empty_event, "R1 injected EMPTY")) goto done;
++    if (!cider_oom_reader_barrier(reader)) goto done;
++    ok(InterlockedCompareExchange(&decoder->cider_input_count, 0, 0) == 1,
++            "R1 EMPTY must follow exactly one ProcessInput.\n");
++    ok(InterlockedCompareExchange(&decoder->cider_empty_count, 0, 0) == 1,
++            "Expected first real EMPTY mock hit.\n");
++    ok(InterlockedCompareExchange(&callback->calls, 0, 0) == 0,
++            "R1 unexpectedly completed before R2 admission.\n");
++
++    decoder->cider_reblock_after_success = TRUE;
++    test_decoder_set_next_output(transform, S_OK);
++    hr = IMFSourceReader_ReadSample(reader, 0, 0, NULL, NULL, NULL, NULL); /* R2 */
++    ok(hr == S_OK, "OOM-pair R2 submission returned %#lx.\n", hr);
++    if (hr != S_OK) goto done;
++    if (!cider_oom_wait(empty_event, "R2 second injected EMPTY")) goto done;
++    if (!cider_oom_reader_barrier(reader)) goto done;
++    ok(InterlockedCompareExchange(&decoder->cider_empty_count, 0, 0) == 2,
++            "Expected exactly two actual EMPTY mock hits.\n");
++    ok(InterlockedCompareExchange(&decoder->cider_success_count, 0, 0) == 1,
++            "Expected exactly one success followed immediately by reblock.\n");
++    ok(!decoder->cider_reblock_after_success && decoder->next_output == MF_E_SAMPLEALLOCATOR_EMPTY,
++            "Fake decoder did not consume the one-shot reblock.\n");
++    ok(InterlockedCompareExchange(&decoder->cider_input_count, 0, 0) == 1,
++            "R2 consumed new input instead of retained output.\n");
++    pair_completed = cider_oom_wait(callback->base.event, "both admitted read completions");
++    if (pair_completed)
++    {
++        ok(InterlockedCompareExchange(&callback->samples, 0, 0) == 1, "Expected one successful sample callback.\n");
++        ok(InterlockedCompareExchange(&callback->ooms, 0, 0) == 1, "Expected one native OOM callback.\n");
++        ok(InterlockedCompareExchange(&callback->other, 0, 0) == 0, "Unexpected callback status count.\n");
++    }
++
++done:
++    if (reader_ex) IMFSourceReaderEx_Release(reader_ex);
++    if (attributes) IMFAttributes_Release(attributes);
++    if (reader)
++    {
++        InterlockedExchange(&callback->drain_armed, 1);
++        refs = IMFSourceReader_Release(reader);
++        ok(!refs, "OOM-pair final reader Release returned %lu.\n", refs);
++        drained = cider_oom_wait(callback->drained_event, "reader callback ownership drain");
++        if (!drained)
++        {
++            /* The missing drain is already a normal failure. Do not detach
++             * live work or free borrowed mock handles after claiming cleanup. */
++            fputs("cider-mf-oom-pair-callback-drain-failed\n", stderr);
++            fflush(stderr);
++            ExitProcess(125);
++        }
++        ok(InterlockedCompareExchange(&callback->base.refcount, 0, 0) == 1,
++                "Reader retained callback ownership after drain.\n");
++    }
++    if (reader_created)
++    {
++        ok(pair_completed, "OOM-pair did not complete both admitted reads before cleanup.\n");
++        ok(InterlockedCompareExchange(&callback->calls, 0, 0) == 2,
++                "Expected exactly two callbacks through reader teardown, got %ld.\n", callback->calls);
++        ok(InterlockedCompareExchange(&callback->completed, 0, 0) == 2, "Expected two finished callbacks.\n");
++        ok(callback->samples == 1 && callback->ooms == 1 && callback->other == 0,
++                "Final categories: samples=%ld ooms=%ld other=%ld.\n",
++                callback->samples, callback->ooms, callback->other);
++        if (decoder)
++        {
++            ok(InterlockedCompareExchange(&decoder->cider_input_count, 0, 0) == 1,
++                    "Final OOM-pair input count is not one.\n");
++            ok(InterlockedCompareExchange(&decoder->cider_empty_count, 0, 0) == 2,
++                    "Final OOM-pair EMPTY count is not two.\n");
++            ok(InterlockedCompareExchange(&decoder->cider_success_count, 0, 0) == 1,
++                    "Final OOM-pair success count is not one.\n");
++            printf("cider-mf-oom-pair-final input=%ld empty=%ld success=%ld callbacks=%ld completed=%ld samples=%ld ooms=%ld other=%ld\n",
++                    decoder->cider_input_count, decoder->cider_empty_count, decoder->cider_success_count,
++                    callback->calls, callback->completed, callback->samples, callback->ooms, callback->other);
++        }
++        for (i = 0; i < (LONG)ARRAY_SIZE(callback->records) && i < callback->calls; ++i)
++        {
++            const struct cider_oom_record *record = &callback->records[i];
++            printf("cider-mf-oom-pair-callback ordinal=%ld hr=%#lx index=%lu flags=%#lx time=%I64d sample=%u\n",
++                    i + 1, record->hr, record->index, record->flags, record->timestamp, record->has_sample);
++        }
++        fflush(stdout);
++    }
++    if (decoder) decoder->cider_empty_event = NULL;
++    if (transform) IMFTransform_Release(transform);
++    if (empty_event) CloseHandle(empty_event);
++    if (source) IMFMediaSource_Release(source);
++    if (descriptor) IMFStreamDescriptor_Release(descriptor);
++    if (type) IMFMediaType_Release(type);
++    if (callback) IMFSourceReaderCallback_Release(&callback->base.IMFSourceReaderCallback_iface);
++}
++
++static DWORD WINAPI cider_oom_pair_worker(void *unused)
++{
++    const MFT_REGISTER_TYPE_INFO input_info[] = {{MFMediaType_Video, MFVideoFormat_TEST}};
++    const MFT_REGISTER_TYPE_INFO output_info[] = {{MFMediaType_Video, MFVideoFormat_YUY2}};
++    IClassFactory factory = {.lpVtbl = &test_mft_factory_vtbl};
++    BOOL saved_fail = fail_request_sample, saved_allocate = test_decoder_allocate_samples;
++    BOOL saved_d3d9 = test_decoder_d3d_aware, saved_d3d11 = test_decoder_d3d11_aware;
++    HRESULT hr;
++
++    hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
++    ok(hr == S_OK || hr == S_FALSE, "OOM-pair CoInitializeEx returned %#lx.\n", hr);
++    if (FAILED(hr)) return 1;
++    hr = MFTRegisterLocal(&factory, &MFT_CATEGORY_VIDEO_DECODER, L"Cider OOM pair", 0,
++            ARRAY_SIZE(input_info), input_info, ARRAY_SIZE(output_info), output_info);
++    ok(hr == S_OK, "OOM-pair MFTRegisterLocal returned %#lx.\n", hr);
++    if (hr != S_OK)
++    {
++        CoUninitialize();
++        return 1;
++    }
++    fail_request_sample = FALSE;
++    test_decoder_allocate_samples = TRUE;
++    test_decoder_d3d_aware = test_decoder_d3d11_aware = FALSE;
++    cider_oom_pair_case();
++    fail_request_sample = saved_fail;
++    test_decoder_allocate_samples = saved_allocate;
++    test_decoder_d3d_aware = saved_d3d9;
++    test_decoder_d3d11_aware = saved_d3d11;
++    hr = MFTUnregisterLocal(&factory);
++    ok(hr == S_OK, "OOM-pair MFTUnregisterLocal returned %#lx.\n", hr);
++    CoUninitialize();
++    return 0;
++}
++
++static void test_cider_allocator_oom_pair(void)
++{
++    HANDLE thread;
++    DWORD wait, exit_code = ~0u;
++    BOOL ret;
++
++    thread = CreateThread(NULL, 0, cider_oom_pair_worker, NULL, 0, NULL);
++    ok(!!thread, "Failed to create OOM-pair worker, error %lu.\n", GetLastError());
++    if (!thread) return;
++    wait = WaitForSingleObject(thread, 20000);
++    ok(wait == WAIT_OBJECT_0, "OOM-pair worker exceeded deadline or wait failed, result %#lx.\n", wait);
++    if (wait != WAIT_OBJECT_0)
++    {
++        fputs("cider-mf-oom-pair-worker-deadline-failed\n", stderr);
++        fflush(stderr);
++        ExitProcess(125);
++    }
++    ret = GetExitCodeThread(thread, &exit_code);
++    ok(ret, "OOM-pair GetExitCodeThread failed, error %lu.\n", GetLastError());
++    ok(exit_code == 0, "OOM-pair worker exit code %lu.\n", exit_code);
++    CloseHandle(thread);
++}
++
+ START_TEST(mfplat)
+ {
+     HRESULT hr;
+@@ -4233,6 +5123,50 @@
+     ok(hr == S_OK, "Unexpected hr %#lx.\n", hr);
+ 
+     init_functions();
++
++    {
++        char required_scope[32];
++        DWORD size = GetEnvironmentVariableA("MF_FIXTURE_SCOPE", required_scope, sizeof(required_scope));
++        if (!size || size >= sizeof(required_scope))
++        {
++            ok(0, "Required bounded fixture scope missing or too long.\n");
++            MFShutdown();
++            return;
++        }
++    }
++
++    {
++        char scope[32];
++        if (GetEnvironmentVariableA("MF_FIXTURE_SCOPE", scope, sizeof(scope)))
++        {
++            HANDLE watchdog = CreateThread(NULL, 0, cider_media_watchdog, NULL, 0, NULL);
++            ok(!!watchdog, "No scoped watchdog.\n");
++            if (!watchdog) return;
++            CloseHandle(watchdog);
++            printf("cider-mf-begin scope=%s\n", scope);
++            fflush(stdout);
++            if (!strcmp(scope, "software"))
++            {
++                test_source_reader_transforms(FALSE, FALSE);
++                test_source_reader_transforms(TRUE, FALSE);
++                test_source_reader_transforms(FALSE, TRUE);
++                test_source_reader_transform_stream_change();
++                test_source_reader_release();
++            }
++            else if (!strcmp(scope, "processor")) test_cider_processor_flush();
++            else if (!strcmp(scope, "oom-pair")) test_cider_allocator_oom_pair();
++            else if (!strcmp(scope, "allocator")) test_cider_allocator_exhaustion();
++            else if (!strcmp(scope, "d3d11")) test_source_reader_transforms_d3d11();
++            else if (!strcmp(scope, "d3d9")) test_source_reader_transforms_d3d9();
++            else ok(0, "Unknown scope.\n");
++            hr = MFShutdown();
++            ok(hr == S_OK, "MFShutdown failed %#lx.\n", hr);
++            printf("cider-mf-end scope=%s successes=%ld failures=%ld todoFailures=%ld todoSuccesses=%ld skipped=%ld\n",
++                    scope, winetest_successes, winetest_failures, winetest_todo_failures, winetest_todo_successes, winetest_skipped);
++            fflush(stdout);
++            return;
++        }
++    }
+ 
+     test_factory();
+     test_interfaces();

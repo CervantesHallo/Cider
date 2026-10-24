@@ -263,7 +263,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "semantic-rebase-bounded-cpu-runtime-passed-gpu-full-mf-pending"
     },
     {
       "patch": "highball/0011-macos-lasterror-in-gs-slot.patch",
@@ -878,5 +878,20 @@
     "preparedWmaSubsetPassed": true,
     "zeroCacheWineUsePassed": false,
     "fullMfVideoGamePassed": false
+  },
+  "mfAllocatorCandidate": {
+    "patch": "engine/porting/wine-11.18/0010-mfreadwrite-video-processor-sample-allocator.patch",
+    "sha256": "b22288f08681bd2b71e85ad0f6628e91219cbbeeb6ccdcf5d0b75f61c33b8a29",
+    "research": "docs/research/92-r-v1-mf-allocator-20261025.md",
+    "evidence": "docs/research/evidence/r-v1-mf-allocator-20261025.json",
+    "readerVersion": "v7",
+    "processorVersion": "v6",
+    "sourceReaderChecksPerArchitecture": 300,
+    "cpuProcessorChecksPerArchitecture": 63,
+    "faultDiagnosticChecksPerArchitecture": 99,
+    "actualGpuSharedTexturePassed": false,
+    "fullMfGamePassed": false,
+    "defaultAdopted": false,
+    "faultDiagnosticsOrdinaryUse": false
   }
 }

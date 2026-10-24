@@ -1,5 +1,7 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+MF主题接续（2026-10-25）见[92](../research/92-r-v1-mf-allocator-20261025.md)：0010已按新base语义迁移，保留原上传/queue生命周期，补有限池完成/输出pending/EOS及processor真实Flush。双PE各300 SourceReader和各63真实CPU帧检查通过；最后异步reservation反例用同故障DIAG双PE各99检查闭合，原负例与失败保留。源码/组件与三文件重建已核，候选不默认采用，GPU/共享纹理和完整MF仍待。此工作属于原媒体迁移，U8/15不变，原HY顺序及Windows待重启条件保持。
+
 
 媒体主题实际结果与产品准备接入见[91](../research/91-r-v1-media-preparation-20261024.md)：原冷入口20s失败保留；显式准备后WMA双PE各32空输出/32768PCM/耗尽/参考metric7/refs通过。托管媒体包授权首次执行时在瓶子锁外准备，导入仍不执行；缓存逐文件校验、Stop实际回收与发布后备份均已实现。原生正负验证及5项底层检查、真GUI/XPC创建/正常运行/两种准备期Stop通过，全部私有清理与四摘要确认；源码限定复审无具体P1/P2，App/Commands构建过。非视频/完整MF/首次全冷游戏或默认采用证明。接续原MF allocator/视频及CEF主题，U8/15仍未过，Windows仍busy/不操作。
 

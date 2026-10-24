@@ -1,5 +1,7 @@
 # Engine R v1 主题迁移
 
+MF最新状态见[92](../../docs/research/92-r-v1-mf-allocator-20261025.md)：0010语义候选保留原上传，处理输出保留/完成、processor Flush与async reservation。双PE各300 SourceReader、各63真实CPU帧，以及同故障诊断各99检查通过，所有原失败保留。完整GPU/共享纹理、MF/游戏与默认采用仍待；公开限定夹具在tests/media/mf-source-reader。
+
 最新媒体接续见[91](../../docs/research/91-r-v1-media-preparation-20261024.md)：显式准备后WMA双PE实际数据/耗尽通过，原全冷20s失败保留；产品托管媒体准备、缓存失效与真实Stop路径已实现/验证，导入不执行。完整MF/视频/游戏和R v1默认采用仍待，接续Highball0010。下方早期组件结论为历史记录。
 
 2026-10-18，按计划02在v0 Steam通过后开始。此目录记录新基线的源码迁移、构建及私有运行验收，当前不作为发布配方，不切换用户引擎。最新同步运行状态见[research77](../../docs/research/77-waitall-mac-runtime-20261018.md)，下方原组件阶段结论保留为历史。

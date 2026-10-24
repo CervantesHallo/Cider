@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新MF接续（2026-10-25）见[92](../research/92-r-v1-mf-allocator-20261025.md)：Highball0010按新base保留上传后备/队列，补输出pending、真实Flush/复制存储和异步reservation错误。reader v7/provider v6双PE完整编译/四模块链接/三文件精确重建；真实SourceReader双PE各300、实际CPU processor各63通过，旧base及旧Flush负例拒绝。两次分配失败的同故障对照中，source6各丢1回调，source7诊断各99检查并分别完成sample/nativeOOM；原失败及未交付标记的首轮保持，最后恢复普通实验候选并确认清理/四摘要。不是GPU共享纹理、完整MF、Windows或游戏验收，不默认采用。接续原GPU/CEF窗口与U归因，原HY顺序和Windows待重启条件保持。
+
 
 媒体主题实际结果与产品准备接入见[91](../research/91-r-v1-media-preparation-20261024.md)：原冷入口20s失败保留；显式准备后WMA双PE各32空输出/32768PCM/耗尽/参考metric7/refs通过。托管媒体包授权首次执行时在瓶子锁外准备，导入仍不执行；缓存逐文件校验、Stop实际回收与发布后备份均已实现。原生正负验证及5项底层检查、真GUI/XPC创建/正常运行/两种准备期Stop通过，全部私有清理与四摘要确认；源码限定复审无具体P1/P2，App/Commands构建过。非视频/完整MF/首次全冷游戏或默认采用证明。接续原MF allocator/视频及CEF主题，U8/15仍未过，Windows仍busy/不操作。
 

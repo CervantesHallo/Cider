@@ -1,8 +1,16 @@
 # Cider 项目持久记忆
 
-更新：2026-10-24。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
+更新：2026-10-25。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
 
-## 最新实际运行接续（2026-10-24）
+## 最新实际运行接续（2026-10-25）
+
+最新MF已归档[92](research/92-r-v1-mf-allocator-20261025.md)：Highball0010语义迁移保留原上传及工作队列生命周期，只转交满足sharing的transform实际D3D11纹理；用保守output_pending先取已有输出、保留EOS排队帧，processor真正Flush并回收内部复制存储。最终reader v7/provider v6双PE完整Werror编译/四模块链接、三文件zero-fuzz重建通过，加入静态dxguid依赖。普通SourceReader的sync/async EMPTY/重试/Flush/Release实际双PE各300检查0失败；实际CPU processor复制输入、两次Flush、无重新协商新亮帧双PE各63过，64字节首RGB253/253/253。原base一次EMPTY后20s125、原processor后续input失败的负例均保留。均不是GPU/完整MF/游戏或默认采用。
+
+独立审查v1/v3/v4的P2已逐项修；最后review-v6.json指出undo当前admission后取Q会偷走既有SAMPLE_READY预约，父代理v7改为当前native错误自己回调、旧Q保持原预约。真实同故障DIAG对照已闭合：source6负例双PE各仅1sample回调/0OOM、5断言失败；source7诊断双PE各99检查0失败，2回调=1sample+1nativeOOM。两次真实error-node故障日志均index1/2 requests1，没把fake EMPTY数当注入证明。只证明精确reservation反例，不推定任意OOM/并发Flush/Windows契约。第一次默认日志未交付故障标记而被控制器拒绝，旧oom-runtime-v1保持失败；明确warn+mfplat后另建v2四运行通过。每轮GUI/两空清理确认，最后普通实验瓶MF Allocator R3配置及DLL逐字恢复，四保护摘要一致；诊断引擎从不作普通采用。所有子代理已关闭。
+
+两份mf-oom诊断引擎已从私有活动Engines移到out/engine-mf-allocator-20261024/retired-diagnostics（manifest/模块摘要核对、零瓶子引用、真实空观察），位置映射在diagnostic-retirement-v1.json；后续不要把旧活动路径不存在误判成资料丢失或重装普通候选。MF Allocator R3仍使用普通reader-v7/provider-v6，未默认采用。
+
+资料根out/engine-mf-allocator-20261024；普通实际模块是reader-v7/provider-v6（private-install-v7），不能拿旧stage-v5/v6当最终绑定。公开tests/media/mf-source-reader用probe.patch保留原断言、固定Wine11.18原测试d0ee…及实际v9生成源d666…；生成器prepare-only核对逐字同源和配置命令，复用既有同源编译，不重跑基线。重要经验：CIDER_是产品保留前缀，测试改用MF_FIXTURE_SCOPE并校验实际session.env，缺失立即失败；早期错误范围运行及编译/链接失败保留。Wine PE msvproc实际用自带libs/ffmpeg，不从native HAVE_FFMPEG undef推断缺组件；reader需要静态dxguid而非新运行库。后续继续GPU/共享纹理与CEF/窗口，U8/15仍未过，不重跑不变90轮/小时。24ee12e已推送91；92及MF代码本次提交从git实际读取。用户App/瓶子/Windows/Actions/定时/Goal均不动。
 
 最新媒体进行点已闭合并归档research91：新base原WMA冷入口20s/CLI124失败保留，LLDB超时未取栈也保留，不能叫互锁或冷用通过。原ADR012 bundle的独立native扫描32.14s，最终路径显式准备45.07s；随后Media Bundle双PE各32空输出检查/32768真实PCM/耗尽/原参考metric7≤10/最终refs1均通过，原20s不改，模块/核心/EXE/runner/runID/时钟与GUI退出/两空清理已核对。仅准备后DMO子集，不提升视频/完整MF/游戏/默认状态。
 

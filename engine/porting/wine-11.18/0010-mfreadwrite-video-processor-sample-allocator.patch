@@ -1,0 +1,305 @@
+mfreadwrite: forward transform GPU samples while preserving upload and output backpressure.
+
+Cider-Topic: media/mf
+Source: Highball0010 / ValveSoftware wine 164af86d (CW-Bug-Id 20833).
+Rebase: Wine 11.18 7b3fff76. Retain native/software upload and shared queue
+ownership. Forward only a transform D3D11 texture satisfying sharing flags.
+Probe retained output before new source input; complete real pool errors,
+preserve queued-response order/EOS output, and actually discard processor
+input on Flush. Nondefault candidate; actual runtime/GPU acceptance pending.
+
+--- a/dlls/mfreadwrite/reader.c
++++ b/dlls/mfreadwrite/reader.c
+@@ -31,6 +31,7 @@
+ #include "mfidl.h"
+ #include "mfreadwrite.h"
+ #include "d3d9.h"
++#include "d3d11.h"
+ #include "initguid.h"
+ #include "dxva2api.h"
+ 
+@@ -82,6 +83,7 @@
+     GUID category;
+     BOOL hidden;
+     BOOL attributes_initialized;
++    BOOL output_pending; /* Probe retained output before requesting more input. */
+ };
+ 
+ struct media_stream
+@@ -504,9 +506,48 @@
+     return source_reader_queue_response(reader, stream, S_OK, flags, timestamp, sample);
+ }
+ 
++static HRESULT source_reader_pull_transform_samples(struct source_reader *reader, struct media_stream *stream,
++        struct transform_entry *entry);
++
+ static HRESULT source_reader_request_sample(struct source_reader *reader, struct media_stream *stream)
+ {
+-    HRESULT hr = S_OK;
++    struct transform_entry *entry;
++    HRESULT hr = S_OK, queued_hr;
++
++    /* Probe every stage to NEED_MORE_INPUT before fetching a new source
++     * sample. A successful final output may still have more outputs, and a
++     * downstream error must not hide the producer's remaining outputs. */
++    for (;;)
++    {
++        BOOL pending = FALSE;
++
++        LIST_FOR_EACH_ENTRY_REV(entry, &stream->transforms, struct transform_entry, entry)
++        {
++            if (!entry->output_pending)
++                continue;
++            pending = TRUE;
++            hr = source_reader_pull_transform_samples(reader, stream, entry);
++            if (FAILED(hr) && hr != MF_E_TRANSFORM_NEED_MORE_INPUT)
++            {
++                while (stream->requests)
++                    if (FAILED(queued_hr = source_reader_queue_response(reader, stream, hr, MF_SOURCE_READERF_ERROR, 0, NULL)))
++                        return queued_hr;
++                return S_OK;
++            }
++            if (!stream->requests)
++                return S_OK;
++        }
++        if (!pending)
++            break;
++    }
++
++    if (stream->state == STREAM_STATE_EOS)
++    {
++        while (stream->requests)
++            if (FAILED(queued_hr = source_reader_queue_response(reader, stream, S_OK, MF_SOURCE_READERF_ENDOFSTREAM, 0, NULL)))
++                return queued_hr;
++        return S_OK;
++    }
+ 
+     if (stream->stream && !(stream->flags & STREAM_FLAG_SAMPLE_REQUESTED))
+     {
+@@ -909,7 +950,9 @@
+                 && FAILED(hr = source_reader_allocate_stream_sample(&stream_info, &out_buffer.pSample)))
+             break;
+ 
+-        if (SUCCEEDED(hr = IMFTransform_ProcessOutput(entry->transform, 0, 1, &out_buffer, &status)))
++        hr = IMFTransform_ProcessOutput(entry->transform, 0, 1, &out_buffer, &status);
++        entry->output_pending = hr != MF_E_TRANSFORM_NEED_MORE_INPUT;
++        if (SUCCEEDED(hr))
+         {
+             /* propagate upstream type to the transform input type */
+             if ((entry->pending_flags & MF_SOURCE_READERF_CURRENTMEDIATYPECHANGED)
+@@ -971,6 +1014,8 @@
+     if (FAILED(hr = source_reader_pull_transform_samples(reader, stream, entry))
+             && hr != MF_E_TRANSFORM_NEED_MORE_INPUT)
+         WARN("Failed to pull pending samples, hr %#lx.\n", hr);
++    if (hr == MF_E_SAMPLEALLOCATOR_EMPTY)
++        return hr;
+ 
+     return next ? source_reader_drain_transform_samples(reader, stream, next) : S_OK;
+ }
+@@ -987,6 +1032,8 @@
+ 
+     if (FAILED(hr = IMFTransform_ProcessMessage(entry->transform, MFT_MESSAGE_COMMAND_FLUSH, 0)))
+         WARN("Failed to flush transform %p, hr %#lx\n", entry->transform, hr);
++    else
++        entry->output_pending = FALSE;
+ 
+     return next ? source_reader_flush_transform_samples(reader, stream, next) : S_OK;
+ }
+@@ -1022,7 +1069,15 @@
+     if (SUCCEEDED(hr = source_reader_push_transform_samples(reader, stream, entry, sample)))
+         hr = stream->requests ? source_reader_request_sample(reader, stream) : S_OK;
+     else
++    {
+         WARN("Transform failed to process output, hr %#lx.\n", hr);
++        if (hr == MF_E_SAMPLEALLOCATOR_EMPTY)
++        {
++            while (stream->requests)
++                if (FAILED(source_reader_queue_response(reader, stream, hr, MF_SOURCE_READERF_ERROR, 0, NULL)))
++                    break;
++        }
++    }
+ 
+     return hr;
+ }
+@@ -1105,6 +1160,7 @@
+                 case MEEndOfStream:
+                     stream->state = STREAM_STATE_EOS;
+                     stream->flags &= ~STREAM_FLAG_SAMPLE_REQUESTED;
++                    hr = S_OK;
+ 
+                     if ((ptr = list_head(&stream->transforms)))
+                     {
+@@ -1113,8 +1169,14 @@
+                             WARN("Failed to drain pending samples, hr %#lx.\n", hr);
+                     }
+ 
+-                    while (stream->requests)
+-                        source_reader_queue_response(reader, stream, S_OK, MF_SOURCE_READERF_ENDOFSTREAM, 0, NULL);
++                    if (FAILED(hr))
++                    {
++                        while (stream->requests)
++                            if (FAILED(source_reader_queue_response(reader, stream, hr, MF_SOURCE_READERF_ERROR, 0, NULL)))
++                                break;
++                    }
++                    else if (stream->requests)
++                        hr = source_reader_request_sample(reader, stream);
+ 
+                     break;
+                 case MEStreamSeeked:
+@@ -1239,6 +1301,47 @@
+     return response;
+ }
+ 
++/* Keep the source-reader upload path for native/software samples. A final
++ * transform already providing the requested D3D11 texture must not be copied
++ * through a second allocator, losing its resource identity and attributes. */
++static BOOL source_reader_can_forward_sample(struct source_reader *reader, struct media_stream *stream, IMFSample *sample)
++{
++    IMFDXGIBuffer *dxgi_buffer;
++    ID3D11Texture2D *texture;
++    D3D11_TEXTURE2D_DESC desc;
++    IMFMediaBuffer *buffer;
++    UINT32 shared = 0, without_mutex = 0;
++    DWORD count;
++    BOOL forward = FALSE;
++
++    if (!(reader->flags & SOURCE_READER_DXGI_DEVICE_MANAGER) || list_empty(&stream->transforms))
++        return FALSE;
++    if (FAILED(IMFSample_GetBufferCount(sample, &count)) || count != 1
++            || FAILED(IMFSample_GetBufferByIndex(sample, 0, &buffer)))
++        return FALSE;
++
++    if (SUCCEEDED(IMFMediaBuffer_QueryInterface(buffer, &IID_IMFDXGIBuffer, (void **)&dxgi_buffer)))
++    {
++        if (SUCCEEDED(IMFDXGIBuffer_GetResource(dxgi_buffer, &IID_ID3D11Texture2D, (void **)&texture)))
++        {
++            ID3D11Texture2D_GetDesc(texture, &desc);
++            IMFAttributes_GetUINT32(reader->attributes, &MF_SA_D3D11_SHARED_WITHOUT_MUTEX, &without_mutex);
++            IMFAttributes_GetUINT32(reader->attributes, &MF_SA_D3D11_SHARED, &shared);
++            /* Match the existing fallback allocator's precedence. */
++            if (without_mutex)
++                forward = !!(desc.MiscFlags & D3D11_RESOURCE_MISC_SHARED);
++            else if (shared)
++                forward = !!(desc.MiscFlags & D3D11_RESOURCE_MISC_SHARED_KEYEDMUTEX);
++            else
++                forward = TRUE;
++            ID3D11Texture2D_Release(texture);
++        }
++        IMFDXGIBuffer_Release(dxgi_buffer);
++    }
++    IMFMediaBuffer_Release(buffer);
++    return forward;
++}
++
+ static struct stream_response *media_stream_pop_response(struct source_reader *reader, struct media_stream *stream)
+ {
+     struct stream_response *response;
+@@ -1253,7 +1356,8 @@
+         if (!stream && response->stream_index < reader->stream_count)
+             stream = &reader->streams[response->stream_index];
+ 
+-        if (response->sample && stream->allocator)
++        if (response->sample && stream->allocator
++                && !source_reader_can_forward_sample(reader, stream, response->sample))
+         {
+             /* Return allocation error to the caller, while keeping original response sample in for later. */
+             if (SUCCEEDED(hr = IMFVideoSampleAllocatorEx_AllocateSample(stream->allocator, &sample)))
+@@ -1360,8 +1464,35 @@
+         HRESULT *status, DWORD *stream_index, DWORD *stream_flags, LONGLONG *timestamp, IMFSample **sample)
+ {
+     struct stream_response *response = NULL;
++    struct transform_entry *entry;
+     BOOL request_sample = FALSE;
+     struct list *ptr;
++    HRESULT hr;
++
++    /* EOS does not discard a frame still retained by an exhausted allocator.
++     * Preserve queued responses first; a later read can retry after release. */
++    if (stream->state == STREAM_STATE_EOS && !source_reader_got_response_for_stream(reader, stream))
++    {
++        LIST_FOR_EACH_ENTRY_REV(entry, &stream->transforms, struct transform_entry, entry)
++        {
++            if (!entry->output_pending)
++                continue;
++            hr = source_reader_pull_transform_samples(reader, stream, entry);
++            /* A nested pull can queue a frame before a later allocation fails.
++             * Deliver that older frame first; retained output is retried later. */
++            if (source_reader_got_response_for_stream(reader, stream))
++                break;
++            if (FAILED(hr) && hr != MF_E_TRANSFORM_NEED_MORE_INPUT)
++            {
++                *status = hr;
++                *stream_index = stream->index;
++                *stream_flags = MF_SOURCE_READERF_ERROR;
++                *timestamp = 0;
++                *sample = NULL;
++                return TRUE;
++            }
++        }
++    }
+ 
+     if ((response = media_stream_pop_response(reader, stream)))
+     {
+@@ -1568,8 +1699,18 @@
+                             &stream_index, &stream_flags, &timestamp, &sample)))
+                     {
+                         stream->requests++;
+-                        source_reader_request_sample(reader, stream);
+-                        /* FIXME: set error stream/reader state on request failure */
++                        if (FAILED(hr = source_reader_request_sample(reader, stream)))
++                        {
++                            stream->requests--;
++                            /* This failed admission owns its native error.
++                             * Leave older queued responses and their existing
++                             * SAMPLE_READY reservations untouched. */
++                            status = hr;
++                            stream_flags = MF_SOURCE_READERF_ERROR;
++                            timestamp = 0;
++                            sample = NULL;
++                            report_sample = TRUE;
++                        }
+                     }
+                 }
+                 else
+@@ -2498,7 +2639,13 @@
+                 {
+                     stream->requests++;
+                     if (FAILED(hr = source_reader_request_sample(reader, stream)))
++                    {
+                         WARN("Failed to request a sample, hr %#lx.\n", hr);
++                        stream->requests--;
++                        *stream_flags = MF_SOURCE_READERF_ERROR;
++                        *timestamp = 0;
++                        break;
++                    }
+                     if (stream->stream && !(stream->flags & STREAM_FLAG_SAMPLE_REQUESTED))
+                     {
+                         *stream_flags = MF_SOURCE_READERF_ERROR;
+--- a/dlls/msvproc/video_processor.c
++++ b/dlls/msvproc/video_processor.c
+@@ -1044,6 +1044,15 @@
+ 
+     switch (message)
+     {
++    case MFT_MESSAGE_COMMAND_FLUSH:
++        /* A failed allocator has not consumed this frame. Drop it on Flush
++         * without destroying the negotiated types, context or caller samples. */
++        if (processor->current_frame.width && !processor->current_frame.opaque)
++            av_frame_move_ref(&processor->input_frame, &processor->current_frame);
++        else
++            av_frame_unref(&processor->current_frame);
++        return S_OK;
++
+     case MFT_MESSAGE_SET_D3D_MANAGER:
+         if (FAILED(hr = video_processor_uninit_allocator(processor)))
+             return hr;
+--- a/dlls/mfreadwrite/Makefile.in
++++ b/dlls/mfreadwrite/Makefile.in
+@@ -1,6 +1,6 @@
+ MODULE    = mfreadwrite.dll
+ IMPORTLIB = mfreadwrite
+-IMPORTS   = mfuuid uuid mfplat ole32 kernelbase
++IMPORTS   = dxguid mfuuid uuid mfplat ole32 kernelbase
+ DELAYIMPORTS = mf
+ 
+ EXTRADLLFLAGS = -Wb,--prefer-native
