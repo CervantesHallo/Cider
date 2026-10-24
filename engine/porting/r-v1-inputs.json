@@ -172,7 +172,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "source-port-prepared-component-compiled"
+      "v1Status": "private-basic-d3d9-readback-passed-full-graphics-pending"
     },
     {
       "patch": "highball/0003-ntdll-winedllpath-prepend.patch",
@@ -211,7 +211,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "source-port-prepared-component-compiled"
+      "v1Status": "private-child-argv-runtime-passed-full-entry-regression-pending"
     },
     {
       "patch": "highball/0007-winemac-cross-process-child-swapchains.patch",
@@ -781,5 +781,19 @@
       "0011"
     ],
     "runtimeAccepted": false
+  },
+  "profileRendererPrivateRuntime": {
+    "evidence": "docs/research/evidence/engine-r-v1-profile-ports-20261024.json",
+    "profileChildChecksPerArch": 23,
+    "profileArches": [
+      "i686",
+      "x86_64"
+    ],
+    "oldUnportedNegativeFailures": 5,
+    "d3d9ChecksPerArch": 16,
+    "d3d9MatchedRGBPixels": 4096,
+    "actualOrphanCleanupSeconds": 9.585970458,
+    "fullM1Accepted": false,
+    "recipeSelected": false
   }
 }

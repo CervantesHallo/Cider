@@ -1497,5 +1497,2662 @@
       }
     }
   ],
-  "stage": "private candidate linked and fresh prefix bootstrap passed; specific args/graphics/ABI runtime checks not yet accepted"
+  "stage": "Scoped actual child argv and basic D3D9 readback passed; full graphics/ABI/application/performance acceptance pending",
+  "profileProbeBuild": {
+    "sourceSHA256": "0d11ea2adbc253cc4737527db2f0c77017310f7b9438d0677653029ffbb717b1",
+    "rows": [
+      {
+        "arch": "i686",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-municode",
+          "/Users/cervantes/Cider/tests/runtime/profile-args/probe.c",
+          "-ladvapi32",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/profile-args-i686.exe"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exeSHA256": "70c0a53ea569021b73a6ef5788d7a5be6e43440cd3b7f18164318d18fead4cdd"
+      },
+      {
+        "arch": "x86_64",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-municode",
+          "/Users/cervantes/Cider/tests/runtime/profile-args/probe.c",
+          "-ladvapi32",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/profile-args-x86_64.exe"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exeSHA256": "bd8de3bf6321535292f63cbe6c5a41f42c2eab60cbfc9ecb68f1ba4ca3220fe6"
+      }
+    ],
+    "passed": true
+  },
+  "profileProbeHeaderClarification": {
+    "sourceSHA256": "0d11ea2adbc253cc4737527db2f0c77017310f7b9438d0677653029ffbb717b1",
+    "rows": [
+      {
+        "arch": "i686",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-municode",
+          "/Users/cervantes/Cider/tests/runtime/profile-args/probe.c",
+          "-ladvapi32",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/profile-args-i686.exe"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exeSHA256": "70c0a53ea569021b73a6ef5788d7a5be6e43440cd3b7f18164318d18fead4cdd"
+      },
+      {
+        "arch": "x86_64",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-municode",
+          "/Users/cervantes/Cider/tests/runtime/profile-args/probe.c",
+          "-ladvapi32",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/profile-args-x86_64.exe"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "exeSHA256": "bd8de3bf6321535292f63cbe6c5a41f42c2eab60cbfc9ecb68f1ba4ca3220fe6"
+      }
+    ],
+    "passed": true,
+    "postBuildHeaderOnlySHA256": "94c802ca9d15dd8d3c4942f49a0ddfc5c38b2128df92295b8578dac7556337ff",
+    "headerOnlyChange": "clarified mandatory owned-prefix cleanup; executable statements and compiled binary unchanged"
+  },
+  "profileProbeInitialCompileFailure": {
+    "sourceSHA256": "27949901885f1a6352c0bda5368dc0aa1426562d94576e95ec3b6be6776f4b10",
+    "rows": [
+      {
+        "arch": "i686",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-municode",
+          "/Users/cervantes/Cider/tests/runtime/profile-args/probe.c",
+          "-ladvapi32",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/profile-args-i686.exe"
+        ],
+        "exitCode": 1,
+        "stdout": "",
+        "stderr": "/Users/cervantes/Cider/tests/runtime/profile-args/probe.c: In function 'wmain':\n/Users/cervantes/Cider/tests/runtime/profile-args/probe.c:81:5: error: this 'for' clause does not guard... [-Werror=misleading-indentation]\n   81 |     for(i=0;i<sizeof(large)/sizeof(large[0]);++i)large[i]=L'A';large[1025]=0;\n      |     ^~~\n/Users/cervantes/Cider/tests/runtime/profile-args/probe.c:81:64: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'for'\n   81 |     for(i=0;i<sizeof(large)/sizeof(large[0]);++i)large[i]=L'A';large[1025]=0;\n      |                                                                ^~~~~\ncc1: all warnings being treated as errors\n"
+      },
+      {
+        "arch": "x86_64",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-municode",
+          "/Users/cervantes/Cider/tests/runtime/profile-args/probe.c",
+          "-ladvapi32",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/profile-args-x86_64.exe"
+        ],
+        "exitCode": 1,
+        "stdout": "",
+        "stderr": "/Users/cervantes/Cider/tests/runtime/profile-args/probe.c: In function 'wmain':\n/Users/cervantes/Cider/tests/runtime/profile-args/probe.c:81:5: error: this 'for' clause does not guard... [-Werror=misleading-indentation]\n   81 |     for(i=0;i<sizeof(large)/sizeof(large[0]);++i)large[i]=L'A';large[1025]=0;\n      |     ^~~\n/Users/cervantes/Cider/tests/runtime/profile-args/probe.c:81:64: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'for'\n   81 |     for(i=0;i<sizeof(large)/sizeof(large[0]);++i)large[i]=L'A';large[1025]=0;\n      |                                                                ^~~~~\ncc1: all warnings being treated as errors\n"
+      }
+    ],
+    "passed": false
+  },
+  "profileProbeReview": {
+    "schema": "cider.profile-args-probe-source-review/v1",
+    "reviewDate": "2026-10-24",
+    "reviewKind": "bounded read-only actual-test-source and profile-args runner integration review",
+    "outcome": "one_p2_owned_child_failure_cleanup",
+    "summary": "The expected child argv cases and 23-check successful-path inventory match the source. One P2 remains: failed child termination/reap kills only the probe, without independently enforced child containment or guaranteed runner cleanup for a normal nonzero probe exit.",
+    "sources": [
+      {
+        "path": "tests/runtime/profile-args/probe.c",
+        "sha256": "0d11ea2adbc253cc4737527db2f0c77017310f7b9438d0677653029ffbb717b1",
+        "bytes": 5500,
+        "lines": 95
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "sha256": "5c9c1fc3c06a94f8c8e22238880ae01f3fe232cbccdfbed10a2f4f635eee7a0f",
+        "bytes": 28815,
+        "lines": 485
+      }
+    ],
+    "findings": [
+      {
+        "id": "failed-child-reap-exits-parent-with-child-unconfirmed",
+        "priority": "P2",
+        "title": "Retain enforced child cleanup when termination or its follow-up wait fails",
+        "path": "tests/runtime/profile-args/probe.c",
+        "lineStart": 45,
+        "lineEnd": 48,
+        "relatedLocations": [
+          {
+            "path": "tests/runtime/profile-args/probe.c",
+            "lineStart": 18,
+            "lineEnd": 18
+          },
+          {
+            "path": "tests/sync/run-mac.py",
+            "lineStart": 350,
+            "lineEnd": 366
+          }
+        ],
+        "trigger": "The 10-second process wait does not establish exit, then TerminateProcess on that child fails or the 5-second termination wait still does not establish exit.",
+        "evidence": "Line 48 immediately calls fatal on either condition. fatal terminates GetCurrentProcess(), which is the probe parent, and has no child handle, job or other child containment to enforce cleanup. Parent termination is not child termination. In the inspected runner, stop-runtime cleanup is conditional on host timeout, timing discontinuity or launch error; a completed CLI response reporting the probe failure alone does not enter that cleanup block.",
+        "impact": "A still-running or not-yet-terminated owned child can outlive the failed probe. The owned key also bypasses its normal deletion path. The fixture can therefore violate its stated never-exit-past-a-live-owned-child guarantee; rejecting the incomplete receipt does not itself clean up that child.",
+        "suggestedFix": "Provide independently enforced owned-child containment before the child can execute, and require confirmed cleanup when termination/reap is unprovable. Also arrange owned-lab cleanup for failed/abnormal profile-args probe exits in the runner, rather than relying only on the host-timeout path. A parent self-termination must not be treated as child-reap confirmation.",
+        "evidenceBoundary": "A source failure-path defect, not an observed orphan or runtime reproduction. An unreviewed outer controller might perform later cleanup, but that does not establish this probe guarantee or the inspected runner failure path.",
+        "primaryContracts": [
+          {
+            "title": "Microsoft TerminateProcess",
+            "url": "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminateprocess",
+            "supports": "Terminating another process is asynchronous; waiting on its process handle establishes completion. Pending I/O can delay exit."
+          },
+          {
+            "title": "Microsoft ExitProcess",
+            "url": "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-exitprocess",
+            "supports": "Exiting a process does not cause its child processes to terminate."
+          }
+        ]
+      }
+    ],
+    "concreteP1": 0,
+    "concreteP2": 1,
+    "childArgvReview": {
+      "sourceLines": [
+        19,
+        44
+      ],
+      "baseCommand": "\"<exe>\" --child <scenario> \"space arg\" \"\"",
+      "baseArgv": [
+        "<exe>",
+        "--child",
+        "<scenario>",
+        "space arg",
+        ""
+      ],
+      "cases": [
+        {
+          "scenario": "missing",
+          "expectedArgc": 5,
+          "expectedExtraArgv": [],
+          "registryInput": "Value absent in the newly owned key."
+        },
+        {
+          "scenario": "append",
+          "expectedArgc": 8,
+          "expectedExtraArgv": [
+            "--added",
+            "two words",
+            "中文参数"
+          ],
+          "registryInput": "Terminated REG_SZ raw suffix."
+        },
+        {
+          "scenario": "unterminated",
+          "expectedArgc": 8,
+          "expectedExtraArgv": [
+            "--added",
+            "two words",
+            "中文参数"
+          ],
+          "registryInput": "REG_SZ suffix byte count excludes the final WCHAR NUL."
+        },
+        {
+          "scenario": "implicit",
+          "expectedArgc": 8,
+          "expectedExtraArgv": [
+            "--added",
+            "two words",
+            "中文参数"
+          ],
+          "registryInput": "Same suffix with CreateProcessW applicationName=NULL."
+        },
+        {
+          "scenario": "odd",
+          "expectedArgc": 5,
+          "expectedExtraArgv": [],
+          "registryInput": "Three bytes of L\"AB\", to be ignored as odd-sized REG_SZ."
+        },
+        {
+          "scenario": "type",
+          "expectedArgc": 5,
+          "expectedExtraArgv": [],
+          "registryInput": "REG_DWORD 65, to be ignored by the REG_SZ-only rule."
+        },
+        {
+          "scenario": "empty",
+          "expectedArgc": 5,
+          "expectedExtraArgv": [],
+          "registryInput": "One NUL WCHAR REG_SZ."
+        },
+        {
+          "scenario": "oversized",
+          "expectedArgc": 5,
+          "expectedExtraArgv": [],
+          "registryInput": "1026 WCHAR buffer, 1025 As plus NUL, exceeds the reviewed helper 1024-WCHAR query capacity."
+        },
+        {
+          "scenario": "limit",
+          "expectedArgc": 6,
+          "expectedExtraArgv": [
+            "1024 As"
+          ],
+          "registryInput": "Exactly 1024 WCHARs of A without NUL."
+        },
+        {
+          "scenario": "limit-nul",
+          "expectedArgc": 6,
+          "expectedExtraArgv": [
+            "1023 As"
+          ],
+          "registryInput": "Exactly 1024 WCHARs including NUL at index 1023."
+        }
+      ],
+      "observations": [
+        "The child verifies the spaced original argument and the original empty argument before testing appended argv; count guards prevent out-of-range argv accesses.",
+        "The raw quoted suffix is expected to parse as three appended arguments while preserving the original five. Boundary inputs expect one long A-only argument, with lengths matching inclusion or exclusion of the registry terminator.",
+        "large[1023] is changed to NUL only for the final limit-nul case. The preceding oversized and limit cases therefore use the intended unmodified A contents.",
+        "These expectations match the reviewed CommandLineAppend helper contract; actual registry round-tripping, CRT parsing and successful API behavior have not been executed or established here."
+      ]
+    },
+    "inventoryReview": {
+      "successfulPathTotal": 23,
+      "derivation": "new_owned_key 1 + registry_write 10 + one child-result check for each of 10 scenarios + registry_close 1 + registry_delete 1 = 23.",
+      "expectedCounter": {
+        "new_owned_key": 1,
+        "registry_write": 10,
+        "missing": 1,
+        "append": 1,
+        "unterminated": 1,
+        "implicit": 1,
+        "odd": 1,
+        "type": 1,
+        "empty": 1,
+        "oversized": 1,
+        "limit": 1,
+        "limit-nul": 1,
+        "registry_close": 1,
+        "registry_delete": 1
+      },
+      "probeLines": [
+        60,
+        93
+      ],
+      "runnerLines": [
+        48,
+        51,
+        422,
+        430
+      ],
+      "observation": "The runner requires subject profile-arguments, correctness mode, complete checks 23, zero failures and output_error:false, with the existing single begin/complete and pointer-width checks. It separately requires 23 parsed successful checks with string names, integer actual/expected values and exact name multiplicities. Successful-path source inventory matches; an early registry-write failure produces a failing/short receipt rather than silently passing."
+    },
+    "ownershipAndNormalCleanup": [
+      {
+        "path": "tests/runtime/profile-args/probe.c",
+        "lines": [
+          75,
+          80
+        ],
+        "observation": "The key derives from the running executable basename. The probe proceeds with writes/deletion only after RegCreateKeyExW returns REG_CREATED_NEW_KEY. An already-existing key is closed and rejected before writing or deleting its value."
+      },
+      {
+        "path": "tests/runtime/profile-args/probe.c",
+        "lines": [
+          41,
+          53
+        ],
+        "observation": "CreateProcessW uses the probe executable itself, with no handle inheritance. On the normal path, waiting for the process proves completion before its handles are closed. GetExitCodeProcess failure is recorded as a non-success child code after completion was established."
+      },
+      {
+        "path": "tests/runtime/profile-args/probe.c",
+        "lines": [
+          83,
+          94
+        ],
+        "observation": "Registry-write failure breaks to attempted close/delete. Unexpected child argv/exit records failure and the loop continues, with each successfully reaped child completed before the next case. Close/delete are checked before the complete record. Fatal self-exit paths are the exception identified above."
+      }
+    ],
+    "runnerInvocationReview": {
+      "path": "tests/sync/run-mac.py",
+      "lines": [
+        132,
+        171,
+        176,
+        188,
+        203,
+        209
+      ],
+      "observation": "The new suite is named profile-args. It selects profile-args-<i686|x86_64>.exe, copies that basename into the owned prefix CiderTests directory, permits correctness mode only and passes no guest arguments for the parent invocation. The existing packaged GUI/XPC CLI path and run-ID/session binding remain in use. There is no separate tests/runtime/profile-args/run-mac.py in this snapshot; the reviewed integration is in tests/sync/run-mac.py."
+    },
+    "bounds": {
+      "perChildNormalWaitMs": 10000,
+      "perChildTerminationWaitMs": 5000,
+      "caseCount": 10,
+      "observation": "The explicit child waits are finite, but CreateProcessW, registry APIs and output have no independent in-probe total watchdog. The common runner provides its existing outer timeout and interruption cleanup. Neither the per-child waits nor the 23-check inventory establish fatal-child cleanup; see the P2 finding."
+    },
+    "operations": {
+      "buildsRun": 0,
+      "runtimeWorkloadsRun": 0,
+      "probeRunnerOrValidatorExecutions": 0,
+      "windowsOperations": 0,
+      "processControlOperations": 0,
+      "subagentsUsed": 0,
+      "sourceEdits": 0,
+      "onlyWrittenArtifact": "out/engine-profile-ports-20261024/probe-review.json",
+      "bottlePrefixOrUserEngineChanges": false
+    },
+    "limits": [
+      "Actual current probe source and the profile-args runner branch plus its immediate common invocation/failure-cleanup path were read. Other suites were not re-reviewed.",
+      "No compilation, runtime, negative injection, Windows oracle, raw receipt validation or child cleanup observation was performed. The parent-reported private empty bottles were not accessed.",
+      "The unterminated write is visible in the input byte count; this alone does not prove that a particular registry implementation returned an unterminated short buffer or that the old helper defect was reproduced.",
+      "No production/canonical engine, recipe, user prefix, unrelated workload or frozen experiment was modified."
+    ]
+  },
+  "profileProbeFinalReview": {
+    "schema": "cider.profile-args-probe-final-source-review/v1",
+    "reviewDate": "2026-10-24",
+    "reviewKind": "bounded actual-source read-only P2 closure review",
+    "outcome": "p2_closed_for_required_wrapped_execution",
+    "summary": "The prior P2 is closed under the explicit run-mac.py --suite profile-args execution contract. The suite now drains the owned runtime on ordinary success/failure as well as interruption, and acceptance requires its confirmed cleanup receipt plus the final clock check. No remaining concrete P1/P2 found in these reviewed changes. This is not a standalone no-orphan guarantee or runtime cleanup verification.",
+    "sources": [
+      {
+        "path": "tests/runtime/profile-args/probe.c",
+        "sha256": "94c802ca9d15dd8d3c4942f49a0ddfc5c38b2128df92295b8578dac7556337ff",
+        "bytes": 5694,
+        "lines": 98
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "sha256": "942e06746927d81f7e32b6942ca97425b70fcc4d25af2c343959f7b80eba9e76",
+        "bytes": 29607,
+        "lines": 496
+      }
+    ],
+    "previousFinding": {
+      "id": "failed-child-reap-exits-parent-with-child-unconfirmed",
+      "priority": "P2",
+      "status": "closed_under_required_wrapper_contract",
+      "previousProbeSHA256": "0d11ea2adbc253cc4737527db2f0c77017310f7b9438d0677653029ffbb717b1",
+      "previousRunnerSHA256": "5c9c1fc3c06a94f8c8e22238880ae01f3fe232cbccdfbed10a2f4f635eee7a0f",
+      "resolution": "The accepted design changes the execution/cleanup boundary rather than introducing a child job. The C probe explicitly requires this suite. A failed/unconfirmed child reap remains a failed probe, and the wrapper performs owned-root cleanup instead of treating parent self-termination as child completion."
+    },
+    "closureEvidence": [
+      {
+        "path": "tests/runtime/profile-args/probe.c",
+        "lineStart": 1,
+        "lineEnd": 6,
+        "observation": "The header now distinguishes normal per-child joining from unprovable reaping, explicitly requires the profile-args suite and no longer claims standalone no-orphan behavior."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 350,
+        "lineEnd": 369,
+        "observation": "args.suite==profile-args independently enters the stop-runtime block. That condition covers ordinary CLI success and failure as well as the existing timeout, launch-error and timing-discontinuity paths."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 356,
+        "lineEnd": 368,
+        "observation": "Cleanup confirmation requires helper exit 0, no unconfirmed client reap, receipt mode stop-runtime, literal hostShutdown.confirmed:true, empty pending, and emptyObservations>=2. Helper OS/JSON/timeout errors set confirmed:false. The complete cleanup receipt is retained in ownedRootCleanup."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 480,
+        "lineEnd": 490,
+        "observation": "passed additionally requires ownedRootCleanup.confirmed is True for profile-args. CLI exit 0, complete.ok:true, exact successful check inventory, established session binding and the other existing failure gates remain required. A baseline semantic negative cannot become passed merely because cleanup succeeded."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 480,
+        "lineEnd": 484,
+        "relatedLocation": {
+          "path": "tests/sync/run-mac.py",
+          "lineStart": 243,
+          "lineEnd": 244
+        },
+        "observation": "The final active and wall elapsed times are sampled from the original prelaunch starts after cleanup and log/metadata inspection, immediately before acceptance. Their clock-discontinuity result is ORed with the earlier result, so earlier clock failures remain sticky and the final totals include cleanup."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 427,
+        "lineEnd": 435,
+        "relatedLocation": {
+          "path": "tests/runtime/profile-args/probe.c",
+          "lineStart": 86,
+          "lineEnd": 98
+        },
+        "observation": "The 23-check inventory is retained: one new-owned-key check, ten registry-write checks, ten scenario result checks, and registry close/delete. Current C argv cases and normal cleanup logic retain the previously reviewed expectations."
+      }
+    ],
+    "findings": [],
+    "remainingConcreteP1": 0,
+    "remainingConcreteP2": 0,
+    "acceptedExecutionBoundary": "Only the profile-args suite with confirmed owned runtime cleanup is covered by this closure. The C executable itself still self-terminates if child termination/reap cannot be proved; it is not independently contained when run unwrapped.",
+    "runtimeEvidence": {
+      "accepted": false,
+      "positiveArchesExecutedByReviewer": [],
+      "baselineSemanticNegativeExecutedByReviewer": false,
+      "actualGUIShutdownOrEmptyObservationsObservedByReviewer": false,
+      "status": "Parent runtime validation remains pending; no source-to-runtime inference."
+    },
+    "operations": {
+      "buildsRun": 0,
+      "runtimeWorkloadsRun": 0,
+      "probeRunnerOrHelperExecutions": 0,
+      "windowsOperations": 0,
+      "processControlOperations": 0,
+      "subagentsUsed": 0,
+      "sourceEdits": 0,
+      "onlyWrittenArtifact": "out/engine-profile-ports-20261024/probe-review-final.json",
+      "bottlePrefixOrUserEngineChanges": false
+    },
+    "limits": [
+      "Actual current probe source and runner diff/cleanup/acceptance code were read. This closure is limited to the revised mandatory-wrapper contract and the prior P2.",
+      "The owned-processes helper implementation and the parent-reported outer cohort finally block were not independently re-audited or executed in this review. The source gate requires their relevant cleanup receipt evidence; it does not establish that a real cleanup has succeeded.",
+      "No compilation, runtime, semantic-negative execution, raw runtime receipt validation or standalone cleanup claim was made."
+    ]
+  },
+  "profileProtocol": {
+    "scope": "real CreateProcess child argv in fresh owned prefixes; old-base semantic negative, new PE modules positive; not graphics/performance/whole-engine acceptance",
+    "declaredUTC": "2026-10-24T08:58:02.647140+00:00",
+    "queue": [
+      [
+        "x86_64",
+        "Profile Original",
+        true
+      ],
+      [
+        "x86_64",
+        "Profile Ports",
+        false
+      ],
+      [
+        "i686",
+        "Profile Ports",
+        false
+      ]
+    ],
+    "expectedCore": {
+      "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+      "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+      "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+      "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+    },
+    "exeSHA256": {
+      "i686": "70c0a53ea569021b73a6ef5788d7a5be6e43440cd3b7f18164318d18fead4cdd",
+      "x86_64": "bd8de3bf6321535292f63cbe6c5a41f42c2eab60cbfc9ecb68f1ba4ca3220fe6"
+    },
+    "fixedInputs": {
+      "/Users/cervantes/Cider/out/engine-profile-ports-20261024/profile-runner-v1.py": "942e06746927d81f7e32b6942ca97425b70fcc4d25af2c343959f7b80eba9e76",
+      "/Users/cervantes/Cider/tests/runtime/profile-args/probe.c": "94c802ca9d15dd8d3c4942f49a0ddfc5c38b2128df92295b8578dac7556337ff",
+      "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes": "e13a4d30073caad340f2df4d7718a77779f29b88ae04e460f0faa27bf17916b4"
+    },
+    "noRetry": true
+  },
+  "profileRuntime": {
+    "state": "complete",
+    "passed": true,
+    "runs": [
+      {
+        "arch": "x86_64",
+        "bottle": "Profile Original",
+        "expectedNegative": true,
+        "args": [
+          "python3",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/profile-runner-v1.py",
+          "--root",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+          "--bottle",
+          "Profile Original",
+          "--arch",
+          "x86_64",
+          "--suite",
+          "profile-args",
+          "--mode",
+          "correctness",
+          "--timeout",
+          "180"
+        ],
+        "driverExit": 1,
+        "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792832282965080000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json\", \"passed\": false, \"cliExitCode\": 1, \"seconds\": 10.907722458999999, \"failedChecks\": [{\"type\": \"check\", \"name\": \"append\", \"ok\": false, \"actual\": 41, \"expected\": 42}, {\"type\": \"check\", \"name\": \"unterminated\", \"ok\": false, \"actual\": 41, \"expected\": 42}, {\"type\": \"check\", \"name\": \"implicit\", \"ok\": false, \"actual\": 41, \"expected\": 42}, {\"type\": \"check\", \"name\": \"limit\", \"ok\": false, \"actual\": 41, \"expected\": 42}, {\"type\": \"check\", \"name\": \"limit-nul\", \"ok\": false, \"actual\": 41, \"expected\": 42}], \"measurements\": []}\n",
+        "stderr": "",
+        "negativeControlMet": true,
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792832282965080000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+        "rawSHA256": "c605e48b9e6e95a3d172f0e11cc51af287a4c277cffe1e0863fbed839b487552",
+        "complete": {
+          "type": "complete",
+          "mode": "correctness",
+          "ok": false,
+          "checks": 23,
+          "failures": 5,
+          "output_error": false
+        },
+        "cleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        },
+        "rawRecord": {
+          "schema": "cider.waitall-mac-run/v1",
+          "state": "complete",
+          "bottle": "profile-original-5ea128af-5d13-423c-a626-2540bb049d7f",
+          "engine": "cider-lab-wine11.18-waitall-latepark-x86_64",
+          "sync": "msync",
+          "arch": "x86_64",
+          "arguments": [],
+          "prefix": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/profile-original-5ea128af-5d13-423c-a626-2540bb049d7f/prefix",
+          "suite": "profile-args",
+          "statisticsRequested": false,
+          "benchmarkFixture": null,
+          "userBenchmark": null,
+          "lifecycleFixture": null,
+          "diagnosticFailureGraceSeconds": 0,
+          "runnerSHA256": "942e06746927d81f7e32b6942ca97425b70fcc4d25af2c343959f7b80eba9e76",
+          "cleanupHelperSHA256": "e13a4d30073caad340f2df4d7718a77779f29b88ae04e460f0faa27bf17916b4",
+          "runID": "3437d444-dfbc-49d3-9852-3c195898d8d8",
+          "exeSHA256": "bd8de3bf6321535292f63cbe6c5a41f42c2eab60cbfc9ecb68f1ba4ca3220fe6",
+          "timeoutSeconds": 180,
+          "windowsOperations": 0,
+          "loadAverageBefore": [
+            3.443359375,
+            4.3349609375,
+            6.03759765625
+          ],
+          "nativeSHA256": {
+            "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+            "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "wallStartUnixSeconds": 1792832282.976924,
+          "monotonicClock": "mach_absolute_time()",
+          "cliExitCode": 1,
+          "stdout": "exit 1 · log /Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-original-5ea128af-5d13-423c-a626-2540bb049d7f/20261024T085804-profile-args-x86_64-1F8ACAA0-62BE-4313-A88F-034675FB8AAA/wine.log\n",
+          "stderr": "",
+          "pumpSnapshots": [],
+          "systemPauses": [],
+          "seconds": 10.907722458999999,
+          "wallElapsedSeconds": 10.907795190811157,
+          "loadAverageAfter": [
+            3.82958984375,
+            4.38916015625,
+            6.03662109375
+          ],
+          "timingDiscontinuity": false,
+          "ownedRootCleanup": {
+            "ownedRoot": {
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "emptyObservations": 2,
+                "hostShutdown": {
+                  "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+                  "capturedPIDs": [
+                    43726
+                  ],
+                  "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+                  "confirmed": true,
+                  "kernelIdentityReadable": true,
+                  "terminationRequested": true
+                },
+                "mode": "stop-runtime",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            },
+            "confirmed": true
+          },
+          "log": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-original-5ea128af-5d13-423c-a626-2540bb049d7f/20261024T085804-profile-args-x86_64-1F8ACAA0-62BE-4313-A88F-034675FB8AAA/wine.log",
+          "rows": [
+            {
+              "type": "begin",
+              "mode": "correctness",
+              "pointer_bits": 64,
+              "pid": 32,
+              "subject": "profile-arguments"
+            },
+            {
+              "type": "check",
+              "name": "new_owned_key",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "missing",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "append",
+              "ok": false,
+              "actual": 41,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "unterminated",
+              "ok": false,
+              "actual": 41,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "implicit",
+              "ok": false,
+              "actual": 41,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "odd",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "type",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "empty",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "oversized",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "limit",
+              "ok": false,
+              "actual": 41,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "limit-nul",
+              "ok": false,
+              "actual": 41,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_close",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "registry_delete",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "complete",
+              "mode": "correctness",
+              "ok": false,
+              "checks": 23,
+              "failures": 5,
+              "output_error": false
+            }
+          ],
+          "reportedErrors": [],
+          "acceptanceElapsedActiveSeconds": 11.207833334,
+          "acceptanceElapsedWallSeconds": 11.207911014556885,
+          "passed": false
+        }
+      },
+      {
+        "arch": "x86_64",
+        "bottle": "Profile Ports",
+        "expectedNegative": false,
+        "args": [
+          "python3",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/profile-runner-v1.py",
+          "--root",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+          "--bottle",
+          "Profile Ports",
+          "--arch",
+          "x86_64",
+          "--suite",
+          "profile-args",
+          "--mode",
+          "correctness",
+          "--timeout",
+          "180"
+        ],
+        "driverExit": 0,
+        "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792832294515967000-cider-lab-wine11.18-profile-renderer-r1-x86_64-x86_64-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 9.460131625, \"failedChecks\": [], \"measurements\": []}\n",
+        "stderr": "",
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792832294515967000-cider-lab-wine11.18-profile-renderer-r1-x86_64-x86_64-correctness.json",
+        "rawSHA256": "fcdb9f5b044ca52938ef24c0aabb96bd7e9843b0f39f5505a0055aaf3dfa81ee",
+        "complete": {
+          "type": "complete",
+          "mode": "correctness",
+          "ok": true,
+          "checks": 23,
+          "failures": 0,
+          "output_error": false
+        },
+        "cleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        },
+        "rawRecord": {
+          "schema": "cider.waitall-mac-run/v1",
+          "state": "complete",
+          "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+          "engine": "cider-lab-wine11.18-profile-renderer-r1-x86_64",
+          "sync": "msync",
+          "arch": "x86_64",
+          "arguments": [],
+          "prefix": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/prefix",
+          "suite": "profile-args",
+          "statisticsRequested": false,
+          "benchmarkFixture": null,
+          "userBenchmark": null,
+          "lifecycleFixture": null,
+          "diagnosticFailureGraceSeconds": 0,
+          "runnerSHA256": "942e06746927d81f7e32b6942ca97425b70fcc4d25af2c343959f7b80eba9e76",
+          "cleanupHelperSHA256": "e13a4d30073caad340f2df4d7718a77779f29b88ae04e460f0faa27bf17916b4",
+          "runID": "6e0c70e3-d38b-4e62-aa8a-90a062eb21d2",
+          "exeSHA256": "bd8de3bf6321535292f63cbe6c5a41f42c2eab60cbfc9ecb68f1ba4ca3220fe6",
+          "timeoutSeconds": 180,
+          "windowsOperations": 0,
+          "loadAverageBefore": [
+            3.6025390625,
+            4.33251953125,
+            6.0068359375
+          ],
+          "nativeSHA256": {
+            "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+            "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "wallStartUnixSeconds": 1792832294.525572,
+          "monotonicClock": "mach_absolute_time()",
+          "cliExitCode": 0,
+          "stdout": "exit 0 · log /Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T085816-profile-args-x86_64-C920A7D4-701E-42FD-9E78-592D7A741EFC/wine.log\n",
+          "stderr": "",
+          "pumpSnapshots": [],
+          "systemPauses": [],
+          "seconds": 9.460131625,
+          "wallElapsedSeconds": 9.460194826126099,
+          "loadAverageAfter": [
+            3.39404296875,
+            4.27685546875,
+            5.97705078125
+          ],
+          "timingDiscontinuity": false,
+          "ownedRootCleanup": {
+            "ownedRoot": {
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "emptyObservations": 2,
+                "hostShutdown": {
+                  "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+                  "capturedPIDs": [
+                    43840
+                  ],
+                  "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+                  "confirmed": true,
+                  "kernelIdentityReadable": true,
+                  "terminationRequested": true
+                },
+                "mode": "stop-runtime",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            },
+            "confirmed": true
+          },
+          "log": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T085816-profile-args-x86_64-C920A7D4-701E-42FD-9E78-592D7A741EFC/wine.log",
+          "rows": [
+            {
+              "type": "begin",
+              "mode": "correctness",
+              "pointer_bits": 64,
+              "pid": 32,
+              "subject": "profile-arguments"
+            },
+            {
+              "type": "check",
+              "name": "new_owned_key",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "missing",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "append",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "unterminated",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "implicit",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "odd",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "type",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "empty",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "oversized",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "limit",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "limit-nul",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_close",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "registry_delete",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "complete",
+              "mode": "correctness",
+              "ok": true,
+              "checks": 23,
+              "failures": 0,
+              "output_error": false
+            }
+          ],
+          "reportedErrors": [],
+          "acceptanceElapsedActiveSeconds": 9.732110334,
+          "acceptanceElapsedWallSeconds": 9.732177972793579,
+          "passed": true
+        }
+      },
+      {
+        "arch": "i686",
+        "bottle": "Profile Ports",
+        "expectedNegative": false,
+        "args": [
+          "python3",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/profile-runner-v1.py",
+          "--root",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+          "--bottle",
+          "Profile Ports",
+          "--arch",
+          "i686",
+          "--suite",
+          "profile-args",
+          "--mode",
+          "correctness",
+          "--timeout",
+          "180"
+        ],
+        "driverExit": 0,
+        "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792832304584551000-cider-lab-wine11.18-profile-renderer-r1-x86_64-i686-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 7.268227958, \"failedChecks\": [], \"measurements\": []}\n",
+        "stderr": "",
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792832304584551000-cider-lab-wine11.18-profile-renderer-r1-x86_64-i686-correctness.json",
+        "rawSHA256": "0b19615074855c498f5652f79fe72e66da8b25ea926cdaf13a8fb1ff2284ae70",
+        "complete": {
+          "type": "complete",
+          "mode": "correctness",
+          "ok": true,
+          "checks": 23,
+          "failures": 0,
+          "output_error": false
+        },
+        "cleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        },
+        "rawRecord": {
+          "schema": "cider.waitall-mac-run/v1",
+          "state": "complete",
+          "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+          "engine": "cider-lab-wine11.18-profile-renderer-r1-x86_64",
+          "sync": "msync",
+          "arch": "i686",
+          "arguments": [],
+          "prefix": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/prefix",
+          "suite": "profile-args",
+          "statisticsRequested": false,
+          "benchmarkFixture": null,
+          "userBenchmark": null,
+          "lifecycleFixture": null,
+          "diagnosticFailureGraceSeconds": 0,
+          "runnerSHA256": "942e06746927d81f7e32b6942ca97425b70fcc4d25af2c343959f7b80eba9e76",
+          "cleanupHelperSHA256": "e13a4d30073caad340f2df4d7718a77779f29b88ae04e460f0faa27bf17916b4",
+          "runID": "e0e53402-4501-4455-bdb5-0c2492e41336",
+          "exeSHA256": "70c0a53ea569021b73a6ef5788d7a5be6e43440cd3b7f18164318d18fead4cdd",
+          "timeoutSeconds": 180,
+          "windowsOperations": 0,
+          "loadAverageBefore": [
+            3.2822265625,
+            4.23876953125,
+            5.95361328125
+          ],
+          "nativeSHA256": {
+            "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+            "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "wallStartUnixSeconds": 1792832304.5933928,
+          "monotonicClock": "mach_absolute_time()",
+          "cliExitCode": 0,
+          "stdout": "exit 0 · log /Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T085825-profile-args-i686-D39A7068-F1E0-4B8D-992C-0F115358ACEE/wine.log\n",
+          "stderr": "",
+          "pumpSnapshots": [],
+          "systemPauses": [],
+          "seconds": 7.268227958,
+          "wallElapsedSeconds": 7.268276929855347,
+          "loadAverageAfter": [
+            4.30029296875,
+            4.43359375,
+            6.01220703125
+          ],
+          "timingDiscontinuity": false,
+          "ownedRootCleanup": {
+            "ownedRoot": {
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "emptyObservations": 2,
+                "hostShutdown": {
+                  "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+                  "capturedPIDs": [
+                    43930
+                  ],
+                  "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+                  "confirmed": true,
+                  "kernelIdentityReadable": true,
+                  "terminationRequested": true
+                },
+                "mode": "stop-runtime",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            },
+            "confirmed": true
+          },
+          "log": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T085825-profile-args-i686-D39A7068-F1E0-4B8D-992C-0F115358ACEE/wine.log",
+          "rows": [
+            {
+              "type": "begin",
+              "mode": "correctness",
+              "pointer_bits": 32,
+              "pid": 236,
+              "subject": "profile-arguments"
+            },
+            {
+              "type": "check",
+              "name": "new_owned_key",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "missing",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "append",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "unterminated",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "implicit",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "odd",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "type",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "empty",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "oversized",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "limit",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_write",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "limit-nul",
+              "ok": true,
+              "actual": 42,
+              "expected": 42
+            },
+            {
+              "type": "check",
+              "name": "registry_close",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "registry_delete",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "complete",
+              "mode": "correctness",
+              "ok": true,
+              "checks": 23,
+              "failures": 0,
+              "output_error": false
+            }
+          ],
+          "reportedErrors": [],
+          "acceptanceElapsedActiveSeconds": 7.525689874999999,
+          "acceptanceElapsedWallSeconds": 7.525745153427124,
+          "passed": true
+        }
+      }
+    ],
+    "preCleanup": {
+      "captured": [],
+      "emptyObservations": 2,
+      "hostShutdown": {
+        "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+        "capturedPIDs": [],
+        "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+        "confirmed": true,
+        "kernelIdentityReadable": true,
+        "terminationRequested": true
+      },
+      "mode": "stop-runtime",
+      "pending": [],
+      "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+    },
+    "fixedInputsUnchanged": true,
+    "finalCleanup": {
+      "captured": [],
+      "emptyObservations": 2,
+      "hostShutdown": {
+        "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+        "capturedPIDs": [],
+        "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+        "confirmed": true,
+        "kernelIdentityReadable": true,
+        "terminationRequested": true
+      },
+      "mode": "stop-runtime",
+      "pending": [],
+      "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+    }
+  },
+  "orphanCleanupInitialMethodFailure": {
+    "scope": "initial negative retained, not accepted as ordinary-failure proof",
+    "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792832419252257000-cider-lab-wine11.18-profile-renderer-r1-x86_64-x86_64-correctness.json",
+    "rawSHA256": "1bbd117cb6bdab7464539f51f3150b0bcc41bfd339339af52b093865b6811961",
+    "cause": "CLI Run waits process then runner.waitForIdle; acknowledged live child keeps prefix active by design, so 40s deadline triggered. Real timeout cleanup succeeded but ordinary-failure path was not exercised.",
+    "actualTimeoutCleanupConfirmed": true,
+    "source": "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift:329",
+    "passedAsTargetNegative": false
+  },
+  "orphanCleanupFault": {
+    "scope": "faulted parent with acknowledged child still active, required owned-root cleanup; not a normal probe pass",
+    "args": [
+      "python3",
+      "/Users/cervantes/Cider/out/engine-profile-ports-20261024/orphan-runner-v2.py",
+      "--root",
+      "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+      "--bottle",
+      "Profile Ports",
+      "--arch",
+      "x86_64",
+      "--suite",
+      "profile-args",
+      "--mode",
+      "correctness",
+      "--timeout",
+      "40"
+    ],
+    "runnerSHA256": "306d960de1a2838cfc4ae153abfe6e3b5cb265407081c707c82a4a3bf9ac9c38",
+    "fixtureSHA256": "d30d194c66ffecaeb692120f3331e891c122b46269dfdfabea74e11c526caf08",
+    "passed": true,
+    "driverExit": 1,
+    "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792832811267283000-cider-lab-wine11.18-profile-renderer-r1-x86_64-x86_64-correctness.json\", \"passed\": false, \"cliExitCode\": -15, \"seconds\": 7.063471084, \"failedChecks\": [], \"measurements\": []}\n",
+    "stderr": "",
+    "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792832811267283000-cider-lab-wine11.18-profile-renderer-r1-x86_64-x86_64-correctness.json",
+    "rawSHA256": "f0e03b9e9ad3baa5aa14a1307c6b5dd416adb4c153c6b07030e82755b5021c00",
+    "acknowledgedChild": {
+      "type": "error",
+      "kind": "profile-owned-child-live-before-parent-exit",
+      "windows_child_pid": 236,
+      "exit_code_before": 259
+    },
+    "actualCleanup": {
+      "ownedRoot": {
+        "exitCode": 0,
+        "receipt": {
+          "captured": [
+            {
+              "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+              "image": "C:\\windows\\system32\\winedevice.exe",
+              "pid": 44637
+            },
+            {
+              "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+              "image": "C:\\windows\\system32\\conhost.exe",
+              "pid": 44654
+            },
+            {
+              "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+              "image": "C:\\windows\\system32\\svchost.exe",
+              "pid": 44633
+            },
+            {
+              "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+              "image": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-profile-renderer-r1-x86_64/engine/lib/wine/../../bin/wineserver",
+              "pid": 44589
+            },
+            {
+              "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+              "image": "C:\\windows\\system32\\plugplay.exe",
+              "pid": 44615
+            },
+            {
+              "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+              "image": "C:\\windows\\system32\\winedevice.exe",
+              "pid": 44608
+            },
+            {
+              "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+              "image": "C:\\CiderTests\\profile-args-orphan2-x86_64.exe",
+              "pid": 44652
+            },
+            {
+              "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+              "image": "C:\\windows\\system32\\services.exe",
+              "pid": 44605
+            }
+          ],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [
+              44556
+            ],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        }
+      },
+      "confirmed": true
+    },
+    "activeSeconds": 9.585970458,
+    "negativeControlMet": true,
+    "finalCleanup": {
+      "captured": [],
+      "emptyObservations": 2,
+      "hostShutdown": {
+        "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+        "capturedPIDs": [],
+        "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+        "confirmed": true,
+        "kernelIdentityReadable": true,
+        "terminationRequested": true
+      },
+      "mode": "stop-runtime",
+      "pending": [],
+      "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+    }
+  },
+  "rendererProbeBuild": {
+    "sourceSHA256": "4a9019f81af24c4a6683b1211ff4ae41915204ca285c4a78d993ab94f766f378",
+    "rows": [
+      {
+        "arch": "i686",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "/Users/cervantes/Cider/tests/graphics/d3d9-readback.c",
+          "-ld3d9",
+          "-lgdi32",
+          "-luser32",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/renderer-smoke-i686.exe"
+        ],
+        "exitCode": 0,
+        "stderr": "",
+        "exeSHA256": "5d54149c5506b1882ab806d73466fdaf26fe09f3d9ee4c7c9cd713dba32c66c5"
+      },
+      {
+        "arch": "x86_64",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "/Users/cervantes/Cider/tests/graphics/d3d9-readback.c",
+          "-ld3d9",
+          "-lgdi32",
+          "-luser32",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/renderer-smoke-x86_64.exe"
+        ],
+        "exitCode": 0,
+        "stderr": "",
+        "exeSHA256": "f2b6f0aa26e4dd63b6323147b75c33daaf59db91e7c3bbd0338114160c335ce7"
+      }
+    ],
+    "passed": true
+  },
+  "rendererProbeReview": {
+    "schema": "cider.renderer-readback-probe-source-review/v1",
+    "reviewDate": "2026-10-24",
+    "reviewKind": "bounded read-only actual-test-source review",
+    "outcome": "no_concrete_p1_p2_found",
+    "summary": "No concrete P1/P2 found in the reviewed D3D9 clear/readback source, COM reference lifetimes, pitch arithmetic, failure cleanup, 16-check inventory or renderer-smoke integration. The shared mandatory owned-cleanup gate still covers profile-args and now also covers renderer-smoke. Runtime rendering and cleanup have not been verified by this review.",
+    "sources": [
+      {
+        "path": "tests/graphics/d3d9-readback.c",
+        "sha256": "4a9019f81af24c4a6683b1211ff4ae41915204ca285c4a78d993ab94f766f378",
+        "bytes": 5122,
+        "lines": 82
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "sha256": "4571ac0f2cc5fb4f294c1c53439b097ffbf0758f9f1ae345d1ccf47fcdf7ba52",
+        "bytes": 30776,
+        "lines": 511
+      }
+    ],
+    "findings": [],
+    "concreteP1": 0,
+    "concreteP2": 0,
+    "probeReview": [
+      {
+        "subject": "Actual API path and limited observation",
+        "path": "tests/graphics/d3d9-readback.c",
+        "lineStart": 31,
+        "lineEnd": 57,
+        "observation": "The source registers an owned window class and creates its window without WS_VISIBLE or a ShowWindow call. It calls Direct3DCreate9, requests D3DDEVTYPE_HAL with a 64x64 windowed X8R8G8B8 backbuffer, clears the target and obtains render target zero. It verifies dimensions and a supported 32-bit RGB/ARGB format, allocates a matching D3DPOOL_SYSTEMMEM offscreen plain surface, and calls GetRenderTargetData. This is an actual D3D9 API workload request, not runtime proof that any particular GPU/backend/module was used."
+      },
+      {
+        "subject": "Readback API preconditions",
+        "path": "tests/graphics/d3d9-readback.c",
+        "lineStart": 41,
+        "lineEnd": 58,
+        "observation": "The parameters request one backbuffer with COPY swap effect and leave multisampling at its zero-initialized NONE value. The checked source dimensions and the destination dimensions/format match, and the destination is an offscreen SYSTEMMEM surface. The source then locks the copy read-only instead of assuming the default-pool target is directly lockable. HRESULT failures stop the success path."
+      },
+      {
+        "subject": "COM reference ownership and normal destruction order",
+        "path": "tests/graphics/d3d9-readback.c",
+        "lineStart": 25,
+        "lineEnd": 77,
+        "observation": "All owned interface pointers start NULL. Each creation/acquisition is checked before dependent use. The GetRenderTarget-added surface reference is released once, as are the separately created copy, device and D3D9 object references. Cleanup releases copy and target before device, and device before the top-level object; no interface is used after Release. No assumption that Release must return zero is made."
+      },
+      {
+        "subject": "Lock state and error cleanup",
+        "path": "tests/graphics/d3d9-readback.c",
+        "lineStart": 58,
+        "lineEnd": 81,
+        "observation": "is_locked is set only after a successful LockRect. A failed row-layout check reaches cleanup with the surface still owned and attempts UnlockRect before Release. The normal UnlockRect is checked; if it fails, that failure remains recorded and cleanup makes a best-effort second unlock. Neither retry nor later releases can turn a failed check into a successful receipt. Cleanup retry success or API error-path release behavior is not asserted without runtime evidence. Window destruction and class unregistration follow COM cleanup and are checked."
+      },
+      {
+        "subject": "Pitch arithmetic and pixel access",
+        "path": "tests/graphics/d3d9-readback.c",
+        "lineStart": 60,
+        "lineEnd": 69,
+        "observation": "INT pitch is widened to int64_t before negation, avoiding INT_MIN negation overflow. The source requires non-null bits, at least 64*4 bytes of absolute row stride and a stride such that multiplying by the maximum row index 63 fits PTRDIFF_MAX. Row addresses use the returned signed pitch, not an assumed tightly packed width. memcpy loads each 4-byte pixel without an alignment assumption. The x loop accesses offsets 0..252 within the validated 256-byte pixel row. These checks establish the arithmetic being used; the actual locked storage extent still comes from the API, and no requirement that every returned pitch be negative, positive-only or exactly 256 is invented."
+      },
+      {
+        "subject": "Integer RGB comparison",
+        "path": "tests/graphics/d3d9-readback.c",
+        "lineStart": 23,
+        "lineEnd": 69,
+        "observation": "For the accepted X8R8G8B8/A8R8G8B8 layouts, the loop compares only the low 24 RGB bits against 0x2589c7 and requires all 4096 pixels to match. It deliberately does not impose a value on the X/alpha byte. The test contains no shader draw, Present, frame pacing or timing/FPS measurement."
+      },
+      {
+        "subject": "Failure acceptance boundary",
+        "path": "tests/graphics/d3d9-readback.c",
+        "lineStart": 14,
+        "lineEnd": 81,
+        "observation": "Failed setup/readback/lock/layout checks accumulate failure and enter cleanup. A color mismatch still attempts unlock and cleanup. Output failure self-terminates with nonzero status, relying on the required wrapper for runtime draining. A complete record alone is not sufficient; the runner also requires exit 0 and confirmed cleanup. COM/driver calls and output do not have an independent in-probe watchdog; the suite retains the outer timeout."
+      }
+    ],
+    "inventory": {
+      "successfulPathChecks": 16,
+      "derivation": "14 main-path checks through unlock_copy plus destroy_window and unregister_class.",
+      "expectedNames": {
+        "register_class": 1,
+        "create_window": 1,
+        "d3d9_create": 1,
+        "adapter_identifier": 1,
+        "create_hal_device": 1,
+        "clear": 1,
+        "get_render_target": 1,
+        "surface_layout": 1,
+        "create_system_copy": 1,
+        "render_target_readback": 1,
+        "lock_copy": 1,
+        "row_layout": 1,
+        "exact_rgb_pixels": 1,
+        "unlock_copy": 1,
+        "destroy_window": 1,
+        "unregister_class": 1
+      },
+      "runnerLocation": {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 441,
+        "lineEnd": 450
+      },
+      "observation": "The exact names and multiplicities match the complete success path. The runner requires 16 parsed successful checks with string names and integer actual/expected values, together with one begin/complete, the requested pointer width, correctness mode, subject d3d9-readback, complete checks 16, zero failures and no output error. Early failures produce a rejected shorter or failed receipt."
+    },
+    "runnerIntegrationReview": [
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 136,
+        "lineEnd": 193,
+        "observation": "renderer-smoke is an allowed suite, selects renderer-smoke-<arch>.exe, copies it into the owned prefix, accepts correctness mode only and passes no guest arguments. requires_owned_cleanup is true for exactly profile-args and renderer-smoke."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 355,
+        "lineEnd": 374,
+        "observation": "Both mandatory-cleanup suites enter stop-runtime after ordinary success/failure as well as interruption. Confirmation requires helper exit 0, no unconfirmed client reap, stop-runtime receipt mode, hostShutdown.confirmed:true, no pending processes and at least two empty observations. Helper failures cannot supply a confirmed cleanup result."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 397,
+        "lineEnd": 411,
+        "observation": "The parser retains begin/check/complete and the new adapter row. Vendor/device IDs and the explicit default_choice_not_backend_detection flag are diagnostic source output; the adapter row is not treated as proof of the actual renderer or fallback."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 495,
+        "lineEnd": 505,
+        "observation": "Final active/wall elapsed checks now cover both suites, including their cleanup. passed requires ownedRootCleanup.confirmed for both, alongside CLI exit 0, successful complete/inventory checks, session binding and existing JSON/log/sampler/clock gates. Cleanup success does not erase semantic or graphics failures."
+      }
+    ],
+    "primaryContractReferences": [
+      {
+        "title": "Microsoft GetRenderTarget",
+        "url": "https://learn.microsoft.com/en-us/windows/win32/api/d3d9/nf-d3d9-idirect3ddevice9-getrendertarget",
+        "use": "The returned surface gains a reference that must be released."
+      },
+      {
+        "title": "Microsoft GetRenderTargetData",
+        "url": "https://learn.microsoft.com/en-us/windows/win32/api/d3d9/nf-d3d9-idirect3ddevice9-getrendertargetdata",
+        "use": "SYSTEMMEM destination and matching size/format, non-multisampled source requirements."
+      },
+      {
+        "title": "Microsoft LockRect",
+        "url": "https://learn.microsoft.com/en-us/windows/win32/api/d3d9/nf-d3d9-idirect3dsurface9-lockrect",
+        "use": "Read-only locking and copying a render target to lockable system memory."
+      },
+      {
+        "title": "Microsoft D3DLOCKED_RECT",
+        "url": "https://learn.microsoft.com/en-us/windows/win32/direct3d9/d3dlocked-rect",
+        "use": "INT pitch in bytes per row and the locked bits pointer."
+      },
+      {
+        "title": "Microsoft Clear",
+        "url": "https://learn.microsoft.com/en-us/windows/win32/api/d3d9/nf-d3d9-idirect3ddevice9-clear",
+        "use": "Count zero with null rectangles clears the viewport using the supplied ARGB color; TARGET alone avoids requiring a depth/stencil attachment."
+      }
+    ],
+    "evidenceScope": {
+      "currentRendererRuntimeAcceptedByReviewer": false,
+      "scope": "Source review of a hidden-window HAL-type Clear/GetRenderTargetData/CPU-RGB readback check. HAL type is requested; actual host acceleration, exact loaded module/backend and runtime success are not established here.",
+      "notEstablished": [
+        "game compatibility",
+        "forced AUTO GL-to-VK fallback",
+        "presentation correctness",
+        "shader correctness",
+        "FPS or performance",
+        "full M1 acceptance"
+      ],
+      "separateParentReportedContext": "The user reported prior profile-args PE32/64 23-check positives, an exact five-failure unported semantic negative, and a 9.6-second nonce-bound disconnect/orphan containment result, while retaining the earlier --wait timeout negative as a method failure. Those receipts were not reopened, reverified or counted as renderer evidence in this source review."
+    },
+    "operations": {
+      "buildsRun": 0,
+      "runtimeWorkloadsRun": 0,
+      "probeRunnerOrHelperExecutions": 0,
+      "windowsOperations": 0,
+      "processControlOperations": 0,
+      "subagentsUsed": 0,
+      "sourceEdits": 0,
+      "onlyWrittenArtifact": "out/engine-profile-ports-20261024/renderer-probe-review.json",
+      "bottlePrefixCanonicalOrUserEngineChanges": false
+    },
+    "limits": [
+      "Static inspection of the complete current D3D9 probe, the renderer-smoke runner changes and the shared owned-cleanup integration only. Other suites were not re-audited.",
+      "No compilation, disassembly, renderer workload, injected API failure, raw receipt validation, Windows oracle or actual GUI shutdown/empty observation was performed. Cleanup helper implementation and parent outer cohort were not independently re-audited here.",
+      "The no-finding result is not a guarantee that a selected host/driver supports this requested HAL/format configuration or that every COM failure cleanup completes. The mandatory wrapper must reject unconfirmed results."
+    ]
+  },
+  "rendererProtocol": {
+    "scope": "first D3D9 HAL-request hidden-window 64x64 clear/readback, not shader/presentation/backend-fallback/FPS/game acceptance",
+    "declaredUTC": "2026-10-24T09:30:43.044540+00:00",
+    "queue": [
+      [
+        "x86_64",
+        "Profile Ports"
+      ],
+      [
+        "x86_64",
+        "Profile Original"
+      ],
+      [
+        "i686",
+        "Profile Ports"
+      ]
+    ],
+    "sourceSHA256": "4a9019f81af24c4a6683b1211ff4ae41915204ca285c4a78d993ab94f766f378",
+    "runnerSHA256": "4571ac0f2cc5fb4f294c1c53439b097ffbf0758f9f1ae345d1ccf47fcdf7ba52",
+    "exeSHA256": {
+      "i686": "5d54149c5506b1882ab806d73466fdaf26fe09f3d9ee4c7c9cd713dba32c66c5",
+      "x86_64": "f2b6f0aa26e4dd63b6323147b75c33daaf59db91e7c3bbd0338114160c335ce7"
+    },
+    "expectedCore": {
+      "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+      "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+      "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+      "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+    },
+    "noRetry": true
+  },
+  "rendererRuntime": {
+    "state": "complete",
+    "passed": true,
+    "runs": [
+      {
+        "arch": "x86_64",
+        "bottle": "Profile Ports",
+        "args": [
+          "python3",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/renderer-runner-v1.py",
+          "--root",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+          "--bottle",
+          "Profile Ports",
+          "--arch",
+          "x86_64",
+          "--suite",
+          "renderer-smoke",
+          "--mode",
+          "correctness",
+          "--timeout",
+          "120"
+        ],
+        "driverExit": 0,
+        "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792834243387594000-cider-lab-wine11.18-profile-renderer-r1-x86_64-x86_64-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 18.674974917, \"failedChecks\": [], \"measurements\": []}\n",
+        "stderr": "",
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792834243387594000-cider-lab-wine11.18-profile-renderer-r1-x86_64-x86_64-correctness.json",
+        "rawSHA256": "524239294913cafcb70895154a4405a25db0affaf1e9bc311463ef8dde14faad",
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "correctness",
+            "ok": true,
+            "checks": 16,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "pixel": [
+          {
+            "type": "check",
+            "name": "exact_rgb_pixels",
+            "ok": true,
+            "actual": 4096,
+            "expected": 4096
+          }
+        ],
+        "rawRecord": {
+          "schema": "cider.waitall-mac-run/v1",
+          "state": "complete",
+          "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+          "engine": "cider-lab-wine11.18-profile-renderer-r1-x86_64",
+          "sync": "msync",
+          "arch": "x86_64",
+          "arguments": [],
+          "prefix": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/prefix",
+          "suite": "renderer-smoke",
+          "statisticsRequested": false,
+          "benchmarkFixture": null,
+          "userBenchmark": null,
+          "lifecycleFixture": null,
+          "diagnosticFailureGraceSeconds": 0,
+          "runnerSHA256": "4571ac0f2cc5fb4f294c1c53439b097ffbf0758f9f1ae345d1ccf47fcdf7ba52",
+          "cleanupHelperSHA256": "e13a4d30073caad340f2df4d7718a77779f29b88ae04e460f0faa27bf17916b4",
+          "runID": "8f5824fa-34eb-45cc-bac5-31641fbc1866",
+          "exeSHA256": "f2b6f0aa26e4dd63b6323147b75c33daaf59db91e7c3bbd0338114160c335ce7",
+          "timeoutSeconds": 120,
+          "windowsOperations": 0,
+          "loadAverageBefore": [
+            2.94384765625,
+            3.8330078125,
+            4.408203125
+          ],
+          "nativeSHA256": {
+            "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+            "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "wallStartUnixSeconds": 1792834243.399634,
+          "monotonicClock": "mach_absolute_time()",
+          "cliExitCode": 0,
+          "stdout": "exit 0 · log /Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T093045-renderer-smoke-x86_64-011E494C-77BA-4CD3-962F-2D51E13CF298/wine.log\n",
+          "stderr": "",
+          "pumpSnapshots": [],
+          "systemPauses": [],
+          "seconds": 18.674974917,
+          "wallElapsedSeconds": 18.675141096115112,
+          "loadAverageAfter": [
+            2.95849609375,
+            3.7783203125,
+            4.375
+          ],
+          "timingDiscontinuity": false,
+          "ownedRootCleanup": {
+            "ownedRoot": {
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "emptyObservations": 2,
+                "hostShutdown": {
+                  "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+                  "capturedPIDs": [
+                    50361
+                  ],
+                  "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+                  "confirmed": true,
+                  "kernelIdentityReadable": true,
+                  "terminationRequested": true
+                },
+                "mode": "stop-runtime",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            },
+            "confirmed": true
+          },
+          "log": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T093045-renderer-smoke-x86_64-011E494C-77BA-4CD3-962F-2D51E13CF298/wine.log",
+          "rows": [
+            {
+              "type": "begin",
+              "mode": "correctness",
+              "subject": "d3d9-readback",
+              "pointer_bits": 64,
+              "pid": 32
+            },
+            {
+              "type": "check",
+              "name": "register_class",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "create_window",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "d3d9_create",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "adapter_identifier",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "adapter",
+              "vendor_id": 4318,
+              "device_id": 65,
+              "default_choice_not_backend_detection": true
+            },
+            {
+              "type": "check",
+              "name": "create_hal_device",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "clear",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "get_render_target",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "surface_layout",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "create_system_copy",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "render_target_readback",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "lock_copy",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "row_layout",
+              "ok": true,
+              "actual": 256,
+              "expected": 256
+            },
+            {
+              "type": "check",
+              "name": "exact_rgb_pixels",
+              "ok": true,
+              "actual": 4096,
+              "expected": 4096
+            },
+            {
+              "type": "check",
+              "name": "unlock_copy",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "destroy_window",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "unregister_class",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "complete",
+              "mode": "correctness",
+              "ok": true,
+              "checks": 16,
+              "failures": 0,
+              "output_error": false
+            }
+          ],
+          "reportedErrors": [],
+          "acceptanceElapsedActiveSeconds": 18.944172875,
+          "acceptanceElapsedWallSeconds": 18.944342136383057,
+          "passed": true
+        }
+      },
+      {
+        "arch": "x86_64",
+        "bottle": "Profile Original",
+        "args": [
+          "python3",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/renderer-runner-v1.py",
+          "--root",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+          "--bottle",
+          "Profile Original",
+          "--arch",
+          "x86_64",
+          "--suite",
+          "renderer-smoke",
+          "--mode",
+          "correctness",
+          "--timeout",
+          "120"
+        ],
+        "driverExit": 0,
+        "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792834262410855000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 12.201532083, \"failedChecks\": [], \"measurements\": []}\n",
+        "stderr": "",
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792834262410855000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+        "rawSHA256": "868f379f60d6b5fb564115e4ad36d9e1472f83df7eb02cdf8750dc223a4643b1",
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "correctness",
+            "ok": true,
+            "checks": 16,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "pixel": [
+          {
+            "type": "check",
+            "name": "exact_rgb_pixels",
+            "ok": true,
+            "actual": 4096,
+            "expected": 4096
+          }
+        ],
+        "rawRecord": {
+          "schema": "cider.waitall-mac-run/v1",
+          "state": "complete",
+          "bottle": "profile-original-5ea128af-5d13-423c-a626-2540bb049d7f",
+          "engine": "cider-lab-wine11.18-waitall-latepark-x86_64",
+          "sync": "msync",
+          "arch": "x86_64",
+          "arguments": [],
+          "prefix": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/profile-original-5ea128af-5d13-423c-a626-2540bb049d7f/prefix",
+          "suite": "renderer-smoke",
+          "statisticsRequested": false,
+          "benchmarkFixture": null,
+          "userBenchmark": null,
+          "lifecycleFixture": null,
+          "diagnosticFailureGraceSeconds": 0,
+          "runnerSHA256": "4571ac0f2cc5fb4f294c1c53439b097ffbf0758f9f1ae345d1ccf47fcdf7ba52",
+          "cleanupHelperSHA256": "e13a4d30073caad340f2df4d7718a77779f29b88ae04e460f0faa27bf17916b4",
+          "runID": "fc676677-f4f5-48b1-987f-d6bc5724b203",
+          "exeSHA256": "f2b6f0aa26e4dd63b6323147b75c33daaf59db91e7c3bbd0338114160c335ce7",
+          "timeoutSeconds": 120,
+          "windowsOperations": 0,
+          "loadAverageBefore": [
+            2.95849609375,
+            3.7783203125,
+            4.375
+          ],
+          "nativeSHA256": {
+            "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+            "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "wallStartUnixSeconds": 1792834262.421058,
+          "monotonicClock": "mach_absolute_time()",
+          "cliExitCode": 0,
+          "stdout": "exit 0 · log /Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-original-5ea128af-5d13-423c-a626-2540bb049d7f/20261024T093103-renderer-smoke-x86_64-436D7D98-1E67-4343-8635-125825A1BF0C/wine.log\n",
+          "stderr": "",
+          "pumpSnapshots": [],
+          "systemPauses": [],
+          "seconds": 12.201532083,
+          "wallElapsedSeconds": 12.201641082763672,
+          "loadAverageAfter": [
+            2.890625,
+            3.73583984375,
+            4.3525390625
+          ],
+          "timingDiscontinuity": false,
+          "ownedRootCleanup": {
+            "ownedRoot": {
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "emptyObservations": 2,
+                "hostShutdown": {
+                  "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+                  "capturedPIDs": [
+                    50439
+                  ],
+                  "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+                  "confirmed": true,
+                  "kernelIdentityReadable": true,
+                  "terminationRequested": true
+                },
+                "mode": "stop-runtime",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            },
+            "confirmed": true
+          },
+          "log": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-original-5ea128af-5d13-423c-a626-2540bb049d7f/20261024T093103-renderer-smoke-x86_64-436D7D98-1E67-4343-8635-125825A1BF0C/wine.log",
+          "rows": [
+            {
+              "type": "begin",
+              "mode": "correctness",
+              "subject": "d3d9-readback",
+              "pointer_bits": 64,
+              "pid": 32
+            },
+            {
+              "type": "check",
+              "name": "register_class",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "create_window",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "d3d9_create",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "adapter_identifier",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "adapter",
+              "vendor_id": 4318,
+              "device_id": 65,
+              "default_choice_not_backend_detection": true
+            },
+            {
+              "type": "check",
+              "name": "create_hal_device",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "clear",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "get_render_target",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "surface_layout",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "create_system_copy",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "render_target_readback",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "lock_copy",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "row_layout",
+              "ok": true,
+              "actual": 256,
+              "expected": 256
+            },
+            {
+              "type": "check",
+              "name": "exact_rgb_pixels",
+              "ok": true,
+              "actual": 4096,
+              "expected": 4096
+            },
+            {
+              "type": "check",
+              "name": "unlock_copy",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "destroy_window",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "unregister_class",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "complete",
+              "mode": "correctness",
+              "ok": true,
+              "checks": 16,
+              "failures": 0,
+              "output_error": false
+            }
+          ],
+          "reportedErrors": [],
+          "acceptanceElapsedActiveSeconds": 12.443651500000001,
+          "acceptanceElapsedWallSeconds": 12.443762063980103,
+          "passed": true
+        }
+      },
+      {
+        "arch": "i686",
+        "bottle": "Profile Ports",
+        "args": [
+          "python3",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/renderer-runner-v1.py",
+          "--root",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+          "--bottle",
+          "Profile Ports",
+          "--arch",
+          "i686",
+          "--suite",
+          "renderer-smoke",
+          "--mode",
+          "correctness",
+          "--timeout",
+          "120"
+        ],
+        "driverExit": 0,
+        "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792834274926700000-cider-lab-wine11.18-profile-renderer-r1-x86_64-i686-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 8.643360917, \"failedChecks\": [], \"measurements\": []}\n",
+        "stderr": "",
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792834274926700000-cider-lab-wine11.18-profile-renderer-r1-x86_64-i686-correctness.json",
+        "rawSHA256": "6a7c77e2d3a330ffcd42650c7956939a6580b4e0493bc243bfa22631329a8e03",
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "correctness",
+            "ok": true,
+            "checks": 16,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "pixel": [
+          {
+            "type": "check",
+            "name": "exact_rgb_pixels",
+            "ok": true,
+            "actual": 4096,
+            "expected": 4096
+          }
+        ],
+        "rawRecord": {
+          "schema": "cider.waitall-mac-run/v1",
+          "state": "complete",
+          "bottle": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+          "engine": "cider-lab-wine11.18-profile-renderer-r1-x86_64",
+          "sync": "msync",
+          "arch": "i686",
+          "arguments": [],
+          "prefix": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/prefix",
+          "suite": "renderer-smoke",
+          "statisticsRequested": false,
+          "benchmarkFixture": null,
+          "userBenchmark": null,
+          "lifecycleFixture": null,
+          "diagnosticFailureGraceSeconds": 0,
+          "runnerSHA256": "4571ac0f2cc5fb4f294c1c53439b097ffbf0758f9f1ae345d1ccf47fcdf7ba52",
+          "cleanupHelperSHA256": "e13a4d30073caad340f2df4d7718a77779f29b88ae04e460f0faa27bf17916b4",
+          "runID": "9bd2d263-1f23-4bb7-9c70-916a66be66c8",
+          "exeSHA256": "5d54149c5506b1882ab806d73466fdaf26fe09f3d9ee4c7c9cd713dba32c66c5",
+          "timeoutSeconds": 120,
+          "windowsOperations": 0,
+          "loadAverageBefore": [
+            2.890625,
+            3.73583984375,
+            4.3525390625
+          ],
+          "nativeSHA256": {
+            "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+            "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+            "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+            "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+          },
+          "wallStartUnixSeconds": 1792834274.936487,
+          "monotonicClock": "mach_absolute_time()",
+          "cliExitCode": 0,
+          "stdout": "exit 0 · log /Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T093115-renderer-smoke-i686-F57D77AC-5E83-4CF2-BA02-4E9015F78CEE/wine.log\n",
+          "stderr": "",
+          "pumpSnapshots": [],
+          "systemPauses": [],
+          "seconds": 8.643360917,
+          "wallElapsedSeconds": 8.64343810081482,
+          "loadAverageAfter": [
+            2.74658203125,
+            3.677734375,
+            4.32421875
+          ],
+          "timingDiscontinuity": false,
+          "ownedRootCleanup": {
+            "ownedRoot": {
+              "exitCode": 0,
+              "receipt": {
+                "captured": [],
+                "emptyObservations": 2,
+                "hostShutdown": {
+                  "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+                  "capturedPIDs": [
+                    50488
+                  ],
+                  "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+                  "confirmed": true,
+                  "kernelIdentityReadable": true,
+                  "terminationRequested": true
+                },
+                "mode": "stop-runtime",
+                "pending": [],
+                "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+              }
+            },
+            "confirmed": true
+          },
+          "log": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T093115-renderer-smoke-i686-F57D77AC-5E83-4CF2-BA02-4E9015F78CEE/wine.log",
+          "rows": [
+            {
+              "type": "begin",
+              "mode": "correctness",
+              "subject": "d3d9-readback",
+              "pointer_bits": 32,
+              "pid": 236
+            },
+            {
+              "type": "check",
+              "name": "register_class",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "create_window",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "d3d9_create",
+              "ok": true,
+              "actual": 1,
+              "expected": 1
+            },
+            {
+              "type": "check",
+              "name": "adapter_identifier",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "adapter",
+              "vendor_id": 4318,
+              "device_id": 65,
+              "default_choice_not_backend_detection": true
+            },
+            {
+              "type": "check",
+              "name": "create_hal_device",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "clear",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "get_render_target",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "surface_layout",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "create_system_copy",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "render_target_readback",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "lock_copy",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "row_layout",
+              "ok": true,
+              "actual": 256,
+              "expected": 256
+            },
+            {
+              "type": "check",
+              "name": "exact_rgb_pixels",
+              "ok": true,
+              "actual": 4096,
+              "expected": 4096
+            },
+            {
+              "type": "check",
+              "name": "unlock_copy",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "destroy_window",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "check",
+              "name": "unregister_class",
+              "ok": true,
+              "actual": 0,
+              "expected": 0
+            },
+            {
+              "type": "complete",
+              "mode": "correctness",
+              "ok": true,
+              "checks": 16,
+              "failures": 0,
+              "output_error": false
+            }
+          ],
+          "reportedErrors": [],
+          "acceptanceElapsedActiveSeconds": 8.898818375,
+          "acceptanceElapsedWallSeconds": 8.898898124694824,
+          "passed": true
+        }
+      }
+    ],
+    "preCleanup": {
+      "captured": [],
+      "emptyObservations": 2,
+      "hostShutdown": {
+        "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+        "capturedPIDs": [],
+        "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+        "confirmed": true,
+        "kernelIdentityReadable": true,
+        "terminationRequested": true
+      },
+      "mode": "stop-runtime",
+      "pending": [],
+      "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+    },
+    "finalCleanup": {
+      "captured": [],
+      "emptyObservations": 2,
+      "hostShutdown": {
+        "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+        "capturedPIDs": [],
+        "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+        "confirmed": true,
+        "kernelIdentityReadable": true,
+        "terminationRequested": true
+      },
+      "mode": "stop-runtime",
+      "pending": [],
+      "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+    }
+  },
+  "protectedUnchangedNow": true
 }
