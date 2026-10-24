@@ -20,6 +20,18 @@ F26 r2后续独立实际source/x86 binary复审无具体P1/P2，r1 control问题
 
 F26固定六轮已完成：server10000/candidate2100ns=4.761904762倍未达5，CS1.118/1.036ns/op=−7.334525939%超±3%，两项失败；不采用/不跑自己的小时。原记录/原门槛保持，私有GUI内核退出和两次空观察确认。接续仅SetEvent实际命中/回退诊断，原F26产物冻结，不借观察数据当性能。
 
+F26真实Set覆盖已完成：ping22050尝试/22049成功/1 gate回退，无Mach或恢复；manual控制10000次新helper成功。固定raw返回诊断22050调用中102为0、21948非0；不能自动称ENOENT或把0当woken数量。原F26冻结不改；补一个预解析/预热原生errno-getter的固定ping，消除分类歧义，同时限定只读审查等待登记的时机与丢失唤醒风险，尚未实施新组合。私有GUI和两次空观察已确认，各次诊断不是性能验收。
+
+F27/0123已实施限定晚发布：F26r2 + F22饱和/碰撞保守hint布局magic7 + 64次只读预等待；额外fresh owner内发布/复核，EINTR/EFAULT不重新登记/补spin，deadline在late entry后重算，count0借用alert无条件sticky；blocking recovery/MANY/原commit/yield/取消pins保护保持。pair64547f41…/7b0cb109…，独立实际binary复审无P1/P2，8组新header原生、最终公开两架构late14线程321检查/Set38线程676检查和11个负例通过。夹具owner竞态、重试期限缺口、依赖/harness绑定P2均修并独立复审；初版回执/负例构造编译错误保留。取消探针只覆盖显式清理后交付，不代替Wine终止unwind。自己的13阶段Wine正在运行，性能/小时未开始，不采用。详见83；当前生产/用户瓶子/Windows不改，原HY顺序保持。
+
+F27自己的13阶段与11份实际身份均已过，固定AC六轮首次两门都过：server10000/candidate2000ns=5.0倍，CS0.815/0.820ns/op=+0.6134969%。已声明并启动该精确pair自己的首个3600秒/8线程（旧v3 EXE7b77147c…，统计reader严格magic7），小时尚未完成，不借旧小时/不采用/不提升完整M1。状态见out/waitall-late-park/hour-state-v1.json，controller与driver PID在那里；外层3830秒、SIGINT让原runner清理，最后stop-runtime确认GUI退出及两次空观察。不能重建/改该pair源、输入对象/归档、EXE、runner、当前reader或切用户瓶子。可做文档和分离的只读/诊断源准备，保持Windows零操作。
+
+F27自己的连续小时已完成并清理：guest3600016ms、78检查0失败，获取/成功归还均758497967，最终1/max1，无睡眠；3567有效资源快照账平、peak36/fallback0，3份不可用不当0，GUI退出+两次空观察确认。固定输入未变。短功能+5.0倍/CS+0.6135%+自己的小时已过，仍不默认采用/不提升完整M1或游戏评级。当前转补充真实Wine live hint回收诊断（out/waitall-live-hint-reap）：独立trace产物仅观察，原F27冻结；只读--hint reader及PE客户端已构建、纯协议9检查通过，观察器完整复审/实际运行未完成。新Lab前置必须确认hour状态终止且cleanup confirmed并取得wine-runtime.lock。Windows仍零操作、忙/不能重启；不恢复定时Goal。
+
+补充live-hint诊断进度：CIDER_* trace开关被WineRunner过滤，未放宽过滤，改WINEMSYNC_TRACE_WAIT。新positive5e80379c…/7b0cb109…两轮真实0→1→两次0+join42通过；省略unwind的negative9d06aa7f…实际join42后48次读数仍1，被拒绝，STOP/CLI终止状态及GUI退出/两空观察已留证。完整64轮双位宽未跑；观察器四P2（阻塞读/clock/partial pipes/最终总限时）已修，14纯协议通过，真正文件复审仍等Laplace（01a16c99-e89b-79b3-aa68-7b38f5708909），未读文件的Lovelace报告不算复审。实验RootApp允许两个r3诊断pair，仍不切用户瓶子；原F27小时已通过，Lab当前无实验Wine pending。
+
+补充真实Wine live hint已闭合：真正文件复审确认四P2修复后，PE64/PE32各64轮baseline0→登记1→TerminateThread/join42→两次0，128轮均过；故意缺失unwind的negative第0轮join后48读数保持1被正确拒绝，STOP及CLI被终止状态未伪装成功，GUI及两空观察确认。diagnostic正5e80379c…/7b0cb109…、负9d06aa7f…/7b0cb109…；原F27正式5倍/小时证据仍仅64547f41…/7b0cb109…。当前按原research17§7清点更广N/U/S及应用级缺口，不能由一个auto-event gate/CS控制/小时宣布完整M1。Windows仍busy/不能重启，不操作。
+
 ## 用户紧急暂停（2026-10-23）
 
 用户明确要求紧急暂停。已停止当前私有实验GUI（PID42885，内核退出确认）并连续两次观察到无自有Wine进程；旧实验室亦无pending。不要继续研究、构建、测试、提交/推送或启用自动任务，等待用户新的继续指令。

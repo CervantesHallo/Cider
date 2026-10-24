@@ -64,16 +64,35 @@ def atomic_write(path, data):
             temporary.unlink(missing_ok=True)
 
 
-def extract_set_event(source, data, output, directory):
-    """Extract three exact, disjoint definitions; surrounding APIs are doubles."""
-    specifications = (
-        ("signal_all", rb"static inline int"),
-        ("coord_finish", rb"static void"),
-        ("msync_try_set_event_obj", rb"NTSTATUS"),
-    )
+def extract_closed_functions(source, data, output, directory, part):
+    """Extract exact, disjoint definitions; surrounding APIs are doubles."""
     blocks, records = [], []
+    if part == "set-event":
+        specifications = (("signal_all", rb"static inline int"),
+                          ("coord_finish", rb"static void"),
+                          ("msync_try_set_event_obj", rb"NTSTATUS"))
+        stem, harness = "set-event-extracted", "msync-set-event.c"
+    else:
+        specifications = (("msync_wait_single", rb"static inline NTSTATUS"),
+                          ("prepare_payload_park", rb"static int"),
+                          ("verify_single_wait", rb"static void"),
+                          ("single_wait_remove", rb"static void"))
+        stem, harness = "late-extracted", "msync-late-park.c"
+        contexts = list(re.finditer(
+            rb"(?m)^struct msync_payload_park[ \t\r\n]*\{[^{}]*^\};[ \t]*\r?$", data))
+        if len(contexts) != 1:
+            raise RuntimeError("expected one exact payload-park context declaration")
+        context = contexts[0]
+        blocks.append(context.group(0) + b"\n"
+                      b"static int prepare_payload_park(struct msync_payload_park *,int,void *);\n"
+                      b"static void verify_single_wait(int,void *);\n")
+        records.append({"declaration": "msync_payload_park",
+                        "start_byte": context.start(), "end_byte_exclusive": context.end(),
+                        "block_sha256": digest(context.group(0))})
     for name, declaration in specifications:
-        pattern = rb"(?m)^" + declaration + rb"[ \t]+" + name.encode() + rb"[ \t]*\("
+        # A later definition may have a forward declaration with the same name.
+        pattern = (rb"(?m)^" + declaration + rb"[ \t]+" + name.encode()
+                   + rb"[ \t]*\([^;{}]*\)[ \t\r\n]*\{")
         matches = list(re.finditer(pattern, data))
         if len(matches) != 1:
             raise RuntimeError(f"expected one definition of {name}")
@@ -92,16 +111,16 @@ def extract_set_event(source, data, output, directory):
                         "end_byte_exclusive": end, "start_line": line,
                         "block_sha256": digest(block)})
     header = b"/* Exact production functions WITH EXPLICIT NATIVE DOUBLES. */\n" + b"\n".join(blocks)
-    path = output / "set-event-extracted.h"
-    record = {"kind": "native-exact-set-event-with-stubs",
+    path = output / (stem + ".h")
+    record = {"kind": "native-exact-" + part + "-with-stubs",
               "scope": "not Wine/API/signal-handler/Windows equivalence",
               "source": str(source), "source_sha256": digest(data),
               "functions": records, "header": str(path),
               "header_sha256": digest(header),
-              "harness_sha256": digest(stable_read(directory / "msync-set-event.c")),
+              "harness_sha256": digest(stable_read(directory / harness)),
               "extractor_sha256": digest(stable_read(Path(__file__).resolve()))}
     atomic_write(path, header)
-    atomic_write(output / "set-event-extracted.sha256.json",
+    atomic_write(output / (stem + ".sha256.json"),
                  (json.dumps(record, indent=2, sort_keys=True) + "\n").encode())
     json.dump(record, sys.stdout, sort_keys=True)
     sys.stdout.write("\n")
@@ -114,7 +133,7 @@ def main():
     parser.add_argument("--output-dir", type=Path, default=directory,
                         help="existing directory for the header and source-hash record")
     parser.add_argument("--source", type=Path, required=True, help="explicit applied Wine source file")
-    parser.add_argument("--part", choices=["frame", "event", "set-event"], default="frame")
+    parser.add_argument("--part", choices=["frame", "event", "set-event", "late-park"], default="frame")
     args = parser.parse_args()
     output = args.output_dir.resolve(strict=True)
     if not output.is_dir():
@@ -123,8 +142,8 @@ def main():
     # Read the selected production source; do not rewrite a modeled substitute.
     source = args.source.resolve(strict=True)
     data = stable_read(source)
-    if args.part == "set-event":
-        extract_set_event(source, data, output, directory)
+    if args.part in ("set-event", "late-park"):
+        extract_closed_functions(source, data, output, directory, args.part)
         return
     if args.part == "frame":
         start_pattern = rb"(?m)^struct inproc_frame[ \t]*\r?\n\{"

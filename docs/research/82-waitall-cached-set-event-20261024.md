@@ -32,6 +32,18 @@ revision2 native为 `f758950666cae386f1f7db7e74615db9d3d4a35de7b7a0e33649617b385
 
 自己的两位宽13阶段全部通过，11份实际回执native/双PE/EXE、runner/helper身份及原时钟检查逐一匹配；策略负例真实错误1260，未启动替身程序。短功能通过不计自己的连续小时。固定六轮AC/LPM0完整结束：server10000/candidate2100ns=4.761904762倍未达5；CS1.118/1.036ns/op=−7.334525939%亦超出±3%，两项失败。原记录保留，不重试挑样或借小时；私有GUI及Wine清零已确认。接续只做实际SetEvent命中/回退诊断，不由源码推断负载使用了新路径。
 
+## 后续真实覆盖诊断
+
+另建计数产物 `0803a2d3…` / `1798e22d…`，正式F26的源码/native及性能样本不改。固定ping和新manual SetEvent控制各一次；程序/双PE/native身份、真实完成、时钟和私有GUI退出+两次空观察确认。
+
+ping中SetEvent尝试22050次、直接pin/进入helper均22050，成功22049、仅1次gate回退，22049次真正commit及notify-required，零提交恢复、零Mach消息分支。yield22047；所有原始通知共22050次。manual控制实际10000轮Set/Wait/Reset/timeout正常，10000次helper成功；另一次冷cache回退。
+
+这证明该插桩程序大量执行新SetEvent路径，不支持“几乎没命中新分支”的解释。全局快照按最大值读、不相加，包含启动/warmup/退出和计数扰动，不能外推未插桩比例或性能。现有计数没有保留raw wake返回值，**不能由“调用了wake”推断确实唤醒了等待线程，也不能推断全部是空唤醒**。下一步只补一个固定ping诊断，区分raw wake返回0/非0；不读取errno、不新引入取消点，不把非0自动叫做ENOENT。
+
+固定单次返回值诊断亦已完成：`f3bb99fb…` / `1798e22d…`，22050次SetEvent全部走新helper；22050次raw wake中102次返回0、21948次非0，无Mach/恢复，身份/完成/时钟及私有GUI清零通过。这里只能记录返回分类；非0没有errno不能等同ENOENT，返回0也不计被唤醒线程数。Apple所核对wake-all实现不返回wake数量：[XNU实现](https://github.com/apple-oss-distributions/xnu/blob/xnu-12377.101.15/bsd/kern/sys_ulock.c#L940)。接续再用初始化阶段解析/预热的`__error`原生TSD getter区分错误，不改变wake参数/重试/API状态；不是正式性能队列。
+
+errno分类的独立固定ping已完成：`9201a186…` / `1798e22d…`，22050次SetEvent均走新helper，raw wake1625次返回0、20425次非0全部为ENOENT，EINVAL/EDOM/其他/不可用均0。真实完成/身份/时钟与GUI退出+两次空观察通过。这是另一产物/另一诊断，不能把1625与前一102的差值归因收益；不拼比例或变成性能样本。它支持研究更靠近真实raw park的保守登记：保持owner内发布/复核，不根据wake结果清登记；F22全程登记与F23预读不能原样拼接。后续候选源与严格接受/回退另记83。
+
 ## 代价、接受和回退
 
 代价为短control延期、额外入口分支及有界owner重试；预解析/预热只闭合已核对的调用集合，不声明macOS14及以后每一补丁版本等价。不得推广到read/write、冷映射、恢复、日志、末引用或尚未证明的消息调用；异步信号安全仍须真实Wine验收。

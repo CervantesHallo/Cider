@@ -18,7 +18,20 @@ int main(int argc,char **argv)
     struct proc_fdinfo *fds = NULL;
     int usage_ok, fd_bytes, fd_count = -1;
     char hint_fields[512] = "";
-    if(argc!=2)return 64;
+    uint32_t hint_index = 0;
+    if(argc==4 && !strcmp(argv[2],"--hint"))
+    {
+        char *end;
+        unsigned long index;
+        errno=0;
+        index=strtoul(argv[3],&end,0);
+        if(errno || end==argv[3] || *end || !index || index>0x0ffffffful)return 64;
+        hint_index=(uint32_t)index;
+    }
+    else if(argc!=2)return 64;
+#ifndef MSYNC_COORD_HINT_BUCKETS
+    if(hint_index)return 64; /* unavailable layout is never reported as zero */
+#endif
     fd=open(argv[1],O_RDONLY|O_CLOEXEC|O_NOFOLLOW);
     if(fd<0 || fstat(fd,&st) || !S_ISREG(st.st_mode) || st.st_uid!=getuid() ||
        (st.st_mode&0777)!=0600 || st.st_size!=MSYNC_COORD_SIZE)return 65;
@@ -64,7 +77,7 @@ int main(int argc,char **argv)
         else
         {
             uint64_t sum = 0;
-            uint32_t nonzero = 0, sticky = 0, i, value;
+            uint32_t nonzero = 0, sticky = 0, i, value, selected = 0;
             int length;
             for (i = 0; i < MSYNC_COORD_HINT_BUCKETS; ++i)
             {
@@ -73,6 +86,8 @@ int main(int argc,char **argv)
                 if (value == UINT32_MAX) ++sticky;
                 else sum += value;
             }
+            if(hint_index)
+                selected=__atomic_load_n(&hints[hint_index&(MSYNC_COORD_HINT_BUCKETS-1)],__ATOMIC_SEQ_CST);
             if (munmap(hints, MSYNC_COORD_HINT_BUCKETS * sizeof(*hints))) return 70;
             /* Concurrent buckets are not a coherent global waiter snapshot;
              * collisions and process death can leave conservative overcounts. */
@@ -81,6 +96,14 @@ int main(int argc,char **argv)
                 "\"eventHintNonstickySum\":%" PRIu64 ",\"eventHintNonzeroBuckets\":%u,"
                 "\"eventHintStickyBuckets\":%u", sum, nonzero, sticky);
             if (length < 0 || (size_t)length >= sizeof(hint_fields)) return 71;
+            if(hint_index)
+            {
+                int extra=snprintf(hint_fields+length,sizeof(hint_fields)-(size_t)length,
+                    ",\"eventHintIndex\":%u,\"eventHintBucket\":%u,\"eventHintValue\":%u,"
+                    "\"eventHintReadAtomic\":true",hint_index,
+                    hint_index&(MSYNC_COORD_HINT_BUCKETS-1),selected);
+                if(extra<0 || (size_t)extra>=sizeof(hint_fields)-(size_t)length)return 71;
+            }
         }
     }
 #endif

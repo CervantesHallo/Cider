@@ -10,6 +10,12 @@ F25细分诊断完成，owner预算耗尽11231、未就绪9800、成功1016，di
 
 F26/0122 revision2限定cached普通SetEvent已构建/精确原生验证，原commit和yield保持；源审P2的阻塞恢复control边界已修，四负例拒绝。实际二进制复审及自己的13阶段/11份运行身份已通过，固定六轮AC4.761904762倍/CS−7.334525939%两项失败，不采用/不跑自己的小时，接续仅真实SetEvent覆盖诊断，见[research82](../research/82-waitall-cached-set-event-20261024.md)。
 
+F26后续真实Set命中及raw errno诊断已完成（20425/22050为ENOENT，另一插桩产物不当正式占比），转入F27/0123晚发布候选。magic7保守提示+64次只读预算，fresh owner内发布/复核、原deadline/恢复/取消与pins不变；限定binary复审、新header8组和公开原生边界/11负例已过，夹具P2亦修并独立复审。自己的13阶段Wine正在执行，性能/小时未开始，不采用，见[research83](../research/83-waitall-late-payload-park-20261024.md)。
+
+F27后续自己的13阶段/11份实际身份通过，固定AC六轮5.0倍/CS+0.6134969%两门通过；该精确64547f41…/7b0cb109…的首个3600秒/8线程小时已声明启动，状态out/waitall-late-park/hour-state-v1.json。完成/资源核对/清理前不计小时通过，不采用、不借旧小时或提升完整M1，见83。
+
+F27自己的连续小时也已过：78检查0失败、许可获取/归还758497967相等、final1/max1，无睡眠；3567有效原生资源快照账平、peak36/fallback0，3份不可用不当0，GUI退出+两次空观察确认。Mac短功能/5倍+CS控制/自己的小时已闭合，默认采用与完整M1仍未声明。当前补充live hint终止回收观测，见[84](../research/84-wine-live-hint-unwind-20261024.md)；Windows/游戏状态不提升。
+
 ## 最新接续（2026-10-23）：F22 功能通过，性能失败
 
 真实 Wine 诊断报告198674帧原取消状态ENABLE、DISABLE零；请求QoS均21，不证明有效调度。永久关闭POSIX取消未采用。F22/0118保留原取消/事务/死亡恢复/Mach计数，只为普通事件追加256KiB保守提示桶；独立审查发现的借用alert槽类型变化P2已闭合。精确magic7 header的两架构原生恢复/提示/真实ulock ABA、五个x86负对照、自己的11阶段及九份身份核对通过；新单事件生命周期两位宽各2179检查/128线程回收/64终止与重新唤醒通过。详见[research78](../research/78-waitall-empty-wake-design-20261023.md)。

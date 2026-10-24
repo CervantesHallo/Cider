@@ -1,0 +1,347 @@
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -217,6 +217,7 @@
+     mach_register_message_t message;
+ };
+ static __thread struct msync_wait_registration *wait_registrations;
++static __thread struct msync_single_waiter *single_waiters;
+ /* Wine already owns a native per-thread record. Avoid separate Mach-O TLV
+  * resolver calls for hot state; the descriptor destructor retains its own TLS
+  * record and never depends on thread_data key destruction order. */
+@@ -276,6 +277,13 @@
+ {
+     coord_exiting = 1;
+     if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, NULL )) msync_coord_fatal( "exit cancellation" );
++}
++
++static void single_wait_remove( struct msync_single_waiter *waiter )
++{
++    msync_control_begin();
++    msync_coord_single_remove( &single_waiters, waiter );
++    msync_control_end();
+ }
+ 
+ static void server_remove_wait( struct msync_wait_registration *registration )
+@@ -316,10 +324,22 @@
+     msync_control_end();
+ }
+ 
++/* A caller-owned node remains in msync_wait_objs until normal removal or
++ * native unwind. Eligibility was established from a pinned slot under owner. */
++struct msync_payload_park
++{
++    struct msync_single_waiter *waiter;
++    struct msync_single_waiter **head;
++    int eligible;
++};
++static int prepare_payload_park( struct msync_payload_park *park, int obj, void *shm );
++static void verify_single_wait( int obj, void *obj_shm );
++
+ static inline NTSTATUS msync_wait_single( int obj, void *obj_shm,
+-                                          ULONGLONG *end, int tid )
++                                          ULONGLONG *end, int tid, struct msync_payload_park *park )
+ {
+     int ret, val = 0;
++    unsigned int spins = park && park->eligible ? 64 : 0;
+     ULONGLONG ns_timeleft = 0;
+ 
+     do 
+@@ -334,6 +354,24 @@
+         if (__atomic_load_n( (int *)obj_shm, __ATOMIC_ACQUIRE ) != val)
+             return STATUS_PENDING;
+ 
++        /* Budget is consumed once per helper call, never renewed after an
++         * interrupted raw wait. Readiness only retries original acquisition. */
++        while (spins)
++        {
++            --spins;
++            YieldProcessor();
++            if (__atomic_load_n( (int *)obj_shm, __ATOMIC_ACQUIRE ) != val)
++                return STATUS_PENDING;
++        }
++        if (park && park->eligible && !park->waiter->counter)
++        {
++            if (!prepare_payload_park( park, obj, obj_shm )) return STATUS_PENDING;
++            /* Publication is before this final check and before kernel entry. */
++            if (__atomic_load_n( (int *)obj_shm, __ATOMIC_ACQUIRE ) != val)
++                return STATUS_PENDING;
++        }
++        verify_single_wait( obj, obj_shm );
++        /* Recompute the original absolute deadline AFTER late owner entry. */
+         if (end)
+         {
+             ns_timeleft = update_timeout( *end ) * 100;
+@@ -576,6 +614,15 @@
+ }
+ 
+ static struct msync_coord coord;
++static void verify_single_wait( int obj, void *obj_shm )
++{
++    struct event *event = obj_shm;
++    if ((event->msync_type == MSYNC_AUTO_EVENT || event->msync_type == MSYNC_MANUAL_EVENT) &&
++        (!single_waiters || single_waiters->idx != (unsigned int)obj) &&
++        __atomic_load_n( msync_coord_hint( &coord, obj ), __ATOMIC_SEQ_CST ) != UINT32_MAX)
++        msync_coord_fatal( "unregistered event ulock wait" );
++}
++
+ static __thread int coord_retired;
+ static pthread_key_t coord_fd_key;
+ static pthread_once_t coord_key_once = PTHREAD_ONCE_INIT;
+@@ -686,6 +733,7 @@
+     }
+     coord_fds = coord_record = NULL;
+     coord_retired = 1; /* child must exec/_exit; never enter the old Wine instance */
++    msync_coord_single_fork_child( &single_waiters );
+     coord_fork_parent();
+ }
+ 
+@@ -725,6 +773,7 @@
+ void msync_unwind_waits(void)
+ {
+     msync_begin_thread_exit();
++    while (single_waiters) single_wait_remove( single_waiters );
+     while (wait_registrations) server_remove_wait( wait_registrations );
+     while (map_requests) finish_map_request( map_requests );
+ }
+@@ -819,6 +868,24 @@
+     }
+ }
+ 
++/* Ordinary path only: cancellation is fully masked and pins remain live.
++ * Do not hold an extra short control guard across coord_enter's fork admission.
++ * Owner/admission protect publication; leaving reaches the original replay point. */
++static int prepare_payload_park( struct msync_payload_park *park, int obj, void *shm )
++{
++    struct msync_coord_guard guard;
++    struct event *event = shm;
++    int ready;
++    coord_enter( &guard ); /* fresh epoch/fork validation, never stale entries */
++    if (!park->eligible || park->waiter->counter ||
++        (event->msync_type != MSYNC_AUTO_EVENT && event->msync_type != MSYNC_MANUAL_EVENT))
++        msync_coord_fatal( "late park eligibility" );
++    msync_coord_single_publish( &guard, park->head, park->waiter, obj );
++    ready = !!event->signaled;
++    msync_coord_leave( &guard );
++    return !ready;
++}
++
+ static void coord_finish( struct msync_coord_guard *guard )
+ {
+     int pending = coord.header->state != MSYNC_COORD_CLEAN;
+@@ -955,10 +1022,17 @@
+     struct event *event_obj = (struct event *)shm;
+     mach_msg_return_t result;
+ 
+-    if (ready_event_wake)
+-        ready_event_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, shm, 0 );
+-    else
+-        __ulock_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, shm, 0 );
++    if (blocking || (event_obj->msync_type != MSYNC_AUTO_EVENT &&
++                     event_obj->msync_type != MSYNC_MANUAL_EVENT) ||
++        msync_coord_event_waiters( &coord, shm_idx ))
++    {
++        if (ready_event_wake)
++            ready_event_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, shm, 0 );
++        else
++            __ulock_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, shm, 0 );
++    }
++    /* Keep the pump's independent registration handshake when no syscall ran. */
++    __atomic_thread_fence( __ATOMIC_SEQ_CST );
+ 
+     if (!__atomic_load_n( &event_obj->multiple_waiters, __ATOMIC_SEQ_CST ))
+         return 1;
+@@ -1125,7 +1199,7 @@
+     return STATUS_SUCCESS;
+ }
+ 
+-static NTSTATUS do_single_wait( int obj, void *obj_shm, int alert_obj, void *alert_obj_shm, ULONGLONG *end, int tid )
++static NTSTATUS do_single_wait( int obj, void *obj_shm, int alert_obj, void *alert_obj_shm, ULONGLONG *end, int tid, struct msync_payload_park *park )
+ {
+     NTSTATUS status;
+ 
+@@ -1141,7 +1215,7 @@
+     }
+     else
+     {
+-        status = msync_wait_single( obj, obj_shm, end, tid );
++        status = msync_wait_single( obj, obj_shm, end, tid, park );
+     }
+     return status;
+ }
+@@ -1290,6 +1364,9 @@
+ {
+     struct msync_coord_entry entries[MAXIMUM_WAIT_OBJECTS];
+     struct msync_coord_guard guard;
++    struct msync_single_waiter single = {0};
++    struct msync_single_waiter **single_head = &single_waiters;
++    struct msync_payload_park park = { &single, single_head, 0 };
+     void *objs_shm[MAXIMUM_WAIT_OBJECTS], *alert_obj_shm = NULL;
+     unsigned int tid = GetCurrentThreadId();
+     LARGE_INTEGER now;
+@@ -1321,6 +1398,8 @@
+     {
+         abandoned = 0;
+         blocked = count;
++        park.eligible = 0;
++        if (single.counter) msync_coord_fatal( "late waiter before retry" );
+         coord_enter( &guard );
+         /* APC priority is decided with the same state view as acquisition. */
+         if (alert_obj && *(int *)alert_obj_shm)
+@@ -1346,6 +1425,18 @@
+             coord_finish( &guard );
+             return abandoned ? STATUS_ABANDONED : STATUS_SUCCESS;
+         }
++        if (!timeout || timeout->QuadPart)
++        {
++            if (!count)
++                msync_coord_single_unknown( &guard, alert_obj ); /* borrowed slot may change type */
++            else if (!alert_obj && ((!wait_any && blocked < count) || count == 1))
++            {
++                unsigned int index = !wait_any ? blocked : 0;
++                struct event *event = objs_shm[index];
++                park.eligible = event->msync_type == MSYNC_AUTO_EVENT ||
++                                event->msync_type == MSYNC_MANUAL_EVENT;
++            }
++        }
+         msync_coord_leave( &guard );
+ 
+         /* The gate is NEVER held while waiting for an object, sending a Mach
+@@ -1353,13 +1444,14 @@
+         if (timeout && (!timeout->QuadPart || !update_timeout( end ))) return STATUS_TIMEOUT;
+         if (!wait_any && blocked < count)
+             ret = do_single_wait( objs[blocked], objs_shm[blocked], alert_obj, alert_obj_shm,
+-                                  timeout ? &end : NULL, tid );
++                                  timeout ? &end : NULL, tid, &park );
+         else if (!count)
+-            ret = msync_wait_single( alert_obj, alert_obj_shm, timeout ? &end : NULL, tid );
++            ret = msync_wait_single( alert_obj, alert_obj_shm, timeout ? &end : NULL, tid, NULL );
+         else if (count == 1)
+-            ret = do_single_wait( objs[0], objs_shm[0], alert_obj, alert_obj_shm, timeout ? &end : NULL, tid );
++            ret = do_single_wait( objs[0], objs_shm[0], alert_obj, alert_obj_shm, timeout ? &end : NULL, tid, &park );
+         else
+             ret = msync_wait_multiple( objs, objs_shm, alert_obj, alert_obj_shm, count, timeout ? &end : NULL, tid );
++        if (single.counter) single_wait_remove( &single );
+         if (ret == STATUS_USER_APC) goto userapc;
+         if (ret != STATUS_SUCCESS && ret != STATUS_PENDING) return ret;
+     }
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -24,11 +24,15 @@
+ #include <sys/stat.h>
+ #include <unistd.h>
+ 
+-#define MSYNC_COORD_MAGIC UINT64_C(0x43494445524d5303)
++#define MSYNC_COORD_MAGIC UINT64_C(0x43494445524d5307)
+ #define MSYNC_COORD_TIDS (1u << 24)
+ #define MSYNC_COORD_HEADER_SIZE 65536u
+-#define MSYNC_COORD_SIZE (MSYNC_COORD_HEADER_SIZE + (uint64_t)MSYNC_COORD_TIDS * sizeof(uint64_t))
++#define MSYNC_COORD_HINT_BUCKETS (1u << 16)
++#define MSYNC_COORD_HINT_OFFSET (MSYNC_COORD_HEADER_SIZE + (uint64_t)MSYNC_COORD_TIDS * sizeof(uint64_t))
++#define MSYNC_COORD_SIZE (MSYNC_COORD_HINT_OFFSET + (uint64_t)MSYNC_COORD_HINT_BUCKETS * sizeof(uint32_t))
+ #define MSYNC_COORD_ENTRIES 65
++_Static_assert( !(MSYNC_COORD_HINT_BUCKETS & (MSYNC_COORD_HINT_BUCKETS - 1)), "hint bucket mask" );
++_Static_assert( !(MSYNC_COORD_HINT_OFFSET % sizeof(uint32_t)), "hint counter alignment" );
+ #define MSYNC_COORD_CLEAN 0
+ #define MSYNC_COORD_PREPARING 1
+ #define MSYNC_COORD_COMMITTED 2
+@@ -111,6 +115,85 @@
+      * while holding a shared gate, or enter Wine's assertion/debugger path. */
+     (void)operation;
+     _exit(1);
++}
++
++/* Conservative potential payload-ulock waiters. Collisions and a killed
++ * process may leave extra wakes; no notifier or slot reuse clears a bucket.
++ * UINT32_MAX is sticky, so this hint can never wrap to a false zero. */
++struct msync_single_waiter
++{
++    struct msync_single_waiter *prev;
++    uint32_t *counter;
++    unsigned int idx;
++};
++
++static inline uint32_t *msync_coord_hint( struct msync_coord *coord, unsigned int idx )
++{
++    if (!idx || idx > 0x0fffffff) msync_coord_fatal( "single hint index" );
++    return (uint32_t *)((char *)coord->header + MSYNC_COORD_HINT_OFFSET) +
++           (idx & (MSYNC_COORD_HINT_BUCKETS - 1));
++}
++
++static inline int msync_coord_event_waiters( struct msync_coord *coord, unsigned int idx )
++{
++    return __atomic_load_n( msync_coord_hint( coord, idx ), __ATOMIC_SEQ_CST ) != 0;
++}
++
++static inline void msync_coord_hint_add( uint32_t *counter )
++{
++    uint32_t value = __atomic_load_n( counter, __ATOMIC_RELAXED );
++    while (value != UINT32_MAX &&
++           !__atomic_compare_exchange_n( counter, &value, value + 1, 0,
++                                         __ATOMIC_SEQ_CST, __ATOMIC_RELAXED ));
++}
++
++static inline void msync_coord_hint_remove( uint32_t *counter )
++{
++    uint32_t value = __atomic_load_n( counter, __ATOMIC_RELAXED );
++    for (;;)
++    {
++        if (value == UINT32_MAX) return;
++        if (!value) msync_coord_fatal( "single hint underflow" );
++        if (__atomic_compare_exchange_n( counter, &value, value - 1, 0,
++                                         __ATOMIC_SEQ_CST, __ATOMIC_RELAXED )) return;
++    }
++}
++
++static inline void msync_coord_single_publish( struct msync_coord_guard *guard,
++        struct msync_single_waiter **head, struct msync_single_waiter *waiter, unsigned int idx )
++{
++    if (waiter->counter || !guard->token ||
++        __atomic_load_n( &guard->coord->header->owner, __ATOMIC_RELAXED ) != guard->token)
++        msync_coord_fatal( "single hint publication outside owner" );
++    waiter->counter = msync_coord_hint( guard->coord, idx );
++    waiter->idx = idx;
++    waiter->prev = *head;
++    msync_coord_hint_add( waiter->counter );
++    *head = waiter;
++}
++
++/* Caller defers controls. This does not acquire owner or consult a possibly
++ * retired epoch, and must run before the native caller releases its pins. */
++static inline void msync_coord_single_remove( struct msync_single_waiter **head,
++                                              struct msync_single_waiter *waiter )
++{
++    uint32_t *counter = waiter->counter;
++    if (*head != waiter || !counter) msync_coord_fatal( "single hint stack" );
++    *head = waiter->prev;
++    waiter->counter = NULL;
++    msync_coord_hint_remove( counter );
++}
++
++static inline void msync_coord_single_unknown( struct msync_coord_guard *guard, unsigned int idx )
++{
++    if (!guard->token || __atomic_load_n( &guard->coord->header->owner, __ATOMIC_RELAXED ) != guard->token)
++        msync_coord_fatal( "unknown single hint outside owner" );
++    __atomic_store_n( msync_coord_hint( guard->coord, idx ), UINT32_MAX, __ATOMIC_SEQ_CST );
++}
++
++static inline void msync_coord_single_fork_child( struct msync_single_waiter **head )
++{
++    *head = NULL; /* inherited addresses are not a child's registrations */
+ }
+ 
+ static inline void msync_coord_signal_mask( sigset_t *mask, const sigset_t *base )
+--- a/server/msync.c
++++ b/server/msync.c
+@@ -602,7 +602,11 @@
+     mach_msg_header_t send_header = {0};
+     struct msync_shm *obj = (struct msync_shm *)shm;
+ 
+-    __ulock_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, (void *)shm, 0 );
++    if (blocking || (obj->msync_type != MSYNC_AUTO_EVENT && obj->msync_type != MSYNC_MANUAL_EVENT) ||
++        msync_coord_event_waiters( &coord, shm_idx ))
++        __ulock_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, (void *)shm, 0 );
++    /* Registration is published by a pump that does not take owner. */
++    __atomic_thread_fence( __ATOMIC_SEQ_CST );
+     if (!__atomic_load_n( &obj->multiple_waiters, __ATOMIC_SEQ_CST ))
+         return MACH_MSG_SUCCESS;
+ 

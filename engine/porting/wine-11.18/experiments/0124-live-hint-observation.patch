@@ -1,0 +1,138 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [Diagnostic only] Observe live hints without changing synchronization state
+
+Requires0123. Not a product engine or performance/hour artifact.
+
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -65,6 +65,8 @@
+ #include "wine/msync_coord.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(sync);
++static void hint_trace_configure(void);
++static void hint_trace_emit( unsigned int kind, HANDLE handle, unsigned int idx );
+ _Static_assert( MSYNC_READY_TRY_SPINS == MSYNC_COORD_TRY_SPINS, "ready retry bounds" );
+ 
+ static LONGLONG update_timeout( ULONGLONG end )
+@@ -377,6 +379,8 @@
+             ns_timeleft = update_timeout( *end ) * 100;
+             if (!ns_timeleft) return STATUS_TIMEOUT;
+         }
++        if (park && park->eligible && park->waiter->counter)
++            hint_trace_emit( 1, NULL, obj ); /* registration, NOT kernel-park proof */
+         ret = ulock_wait( UL_COMPARE_AND_WAIT_SHARED | ULF_NO_ERRNO, obj_shm, val, ns_timeleft );
+     } while (ret == -EINTR || ret == -EFAULT);
+ 
+@@ -614,6 +618,7 @@
+ }
+ 
+ static struct msync_coord coord;
++#include "hint-trace.cinc"
+ static void verify_single_wait( int obj, void *obj_shm )
+ {
+     struct event *event = obj_shm;
+@@ -903,6 +908,7 @@
+     mach_port_t bootstrap_port;
+     void *dlhandle;
+     char message_port_name[28];
++    hint_trace_configure();
+ 
+     if (!do_msync())
+     {
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -1016,6 +1016,8 @@
+         case INPROC_QUERY_MUTEX: ret = linux_query_mutex_obj( sync->fd, &result->mutex ); break;
+         default: assert( 0 ); ret = STATUS_INVALID_PARAMETER;
+         }
++        if (!ret && op == INPROC_RESET_EVENT && do_msync())
++            msync_trace_reset_index( handle, sync->fd ); /* pin live, owner released, controls enabled */
+         msync_control_begin_data( frame.data );
+     }
+     inproc_frame_leave( &frame );
+--- a/dlls/ntdll/unix/msync.h
++++ b/dlls/ntdll/unix/msync.h
+@@ -58,6 +58,7 @@
+ extern NTSTATUS msync_query_event_obj( int obj, EVENT_BASIC_INFORMATION *info );
+ extern NTSTATUS msync_release_mutex_obj( int obj, LONG *prev_count );
+ extern NTSTATUS msync_query_mutex_obj( int obj, MUTANT_BASIC_INFORMATION *info );
++extern void msync_trace_reset_index( HANDLE handle, int obj );
+ extern void inproc_prepare_kernel(void);
+ #define MSYNC_READY_TRY_SPINS 512u
+ extern NTSTATUS msync_try_wait_ready_event( int obj, unsigned int max_spins );
+--- /dev/null
++++ b/dlls/ntdll/unix/hint-trace.cinc
+@@ -0,0 +1,73 @@
++/* Private observation only. Called outside owner in original fully masked
++ * paths. No stdio/locale/heap locks: CPU formatting plus async-safe raw write.
++ * Missing/partial records are unavailable, never evidence of a zero count. */
++static unsigned int hint_trace_enabled;
++static int *(*hint_trace_errno)(void);
++
++static void hint_trace_configure(void)
++{
++    const char *value = getenv( "WINEMSYNC_TRACE_WAIT" );
++    if (!value || value[0] != '1' || value[1]) return;
++    hint_trace_errno = (void *)dlsym( RTLD_DEFAULT, "__error" );
++    if (hint_trace_errno)
++    {
++        volatile int warmup = *hint_trace_errno();
++        (void)warmup;
++        hint_trace_enabled = 1;
++    }
++}
++
++static void hint_trace_text( volatile char *buffer, unsigned int *length, const char *text )
++{
++    while (*text && *length < 512) buffer[(*length)++] = *text++;
++}
++
++static void hint_trace_uint( volatile char *buffer, unsigned int *length, uint64_t value )
++{
++    char digits[20];
++    unsigned int count = 0;
++    do { digits[count++] = '0' + value % 10; value /= 10; } while (value);
++    while (count && *length < 512) buffer[(*length)++] = digits[--count];
++}
++
++static void hint_trace_emit( unsigned int kind, HANDLE handle, unsigned int idx )
++{
++    volatile char buffer[512];
++    struct thread_data *data;
++    unsigned int length = 0;
++    uint32_t hint;
++    struct stat file;
++    int *error, previous;
++    if (!hint_trace_enabled || !coord.header || !idx || idx > 0x0fffffff) return;
++    error = hint_trace_errno();
++    previous = *error;
++    if (fstat( inproc_device_fd, &file )) { *error = previous; return; }
++    data = get_thread_data();
++    hint = __atomic_load_n( msync_coord_hint( &coord, idx ), __ATOMIC_SEQ_CST );
++    hint_trace_text( buffer, &length, "{\"type\":\"cider-live-hint\",\"phase\":\"" );
++    hint_trace_text( buffer, &length, kind ? "registered" : "reset" );
++    hint_trace_text( buffer, &length, "\",\"pid\":" );
++    hint_trace_uint( buffer, &length, (unsigned int)getpid() );
++    hint_trace_text( buffer, &length, ",\"windows_pid\":" );
++    hint_trace_uint( buffer, &length, HandleToULong( PsGetCurrentProcessId() ) );
++    hint_trace_text( buffer, &length, ",\"windows_tid\":" );
++    hint_trace_uint( buffer, &length, data->tid );
++    hint_trace_text( buffer, &length, ",\"windows_handle\":" );
++    hint_trace_uint( buffer, &length, (uintptr_t)handle );
++    hint_trace_text( buffer, &length, ",\"idx\":" );
++    hint_trace_uint( buffer, &length, idx );
++    hint_trace_text( buffer, &length, ",\"coord_dev\":" );
++    hint_trace_uint( buffer, &length, (uint32_t)file.st_dev );
++    hint_trace_text( buffer, &length, ",\"coord_ino\":" );
++    hint_trace_uint( buffer, &length, (uint64_t)file.st_ino );
++    hint_trace_text( buffer, &length, ",\"hint\":" );
++    hint_trace_uint( buffer, &length, hint );
++    hint_trace_text( buffer, &length, "}\n" );
++    if (length < sizeof(buffer)) (void)write( STDERR_FILENO, (const char *)buffer, length );
++    *error = previous;
++}
++
++void msync_trace_reset_index( HANDLE handle, int obj )
++{
++    hint_trace_emit( 0, handle, obj );
++}

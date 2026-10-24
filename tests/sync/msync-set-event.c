@@ -36,7 +36,7 @@ static unsigned coord_fd_key_ready,coord_forking,retire_on_slot;
 _Alignas(8) static struct event event; /* Real slots are mapped at 16-byte offsets. */
 static unsigned checks,failures,wakes,yields,messages,recovery_entries,closes,mode;
 static int pipefd[2];
-enum { AUTO,MANUAL,ALREADY,NO_IMPORT,NO_KEY,COLD,RETIRED,BUSY,DIRTY,EPOCH,SERVER_EVENT,FORK,MSG,RECOVER,GATE_HINT,FORK_NOTIFY,MODES };
+enum { AUTO,MANUAL,ALREADY,NO_IMPORT,NO_KEY,COLD,RETIRED,BUSY,DIRTY,EPOCH,SERVER_EVENT,FORK,MSG,RECOVER,GATE_HINT,FORK_NOTIFY,HINT_LIVE,HINT_STICKY,HINT_COLLISION,MODES };
 static void check(int condition){checks++;failures+=!condition;}
 static void alarm_expired(int sig){(void)sig;_exit(124);}
 static inline LONG InterlockedCompareExchange(LONG *p,LONG value,LONG old){__atomic_compare_exchange_n(p,&old,value,0,__ATOMIC_SEQ_CST,__ATOMIC_SEQ_CST);return old;}
@@ -113,13 +113,23 @@ int main(void){
   __atomic_store_n(&msync_coord_epochs(&coord)[1],2,__ATOMIC_RELEASE);event=(struct event){.signaled=mode==ALREADY,.msync_type=mode==MANUAL?MSYNC_MANUAL_EVENT:mode==SERVER_EVENT?MSYNC_AUTO_SERVER:MSYNC_AUTO_EVENT,.multiple_waiters=mode==MSG||mode==RECOVER};
   wakes=yields=messages=recovery_entries=closes=0;coord_forking=mode==FORK;coord_fd_key_ready=mode!=NO_KEY;retire_on_slot=mode==EPOCH;
   ready_event_wake=mode==NO_IMPORT?NULL:wake_call;ready_event_yield=yield_call;
+#ifdef MSYNC_COORD_HINT_BUCKETS
+  __atomic_store_n(msync_coord_hint(&coord,1),mode==HINT_LIVE||mode==FORK_NOTIFY?1:mode==HINT_STICKY?UINT32_MAX:0,__ATOMIC_SEQ_CST);
+  if(mode==HINT_COLLISION){check(msync_coord_hint(&coord,1)==msync_coord_hint(&coord,1+MSYNC_COORD_HINT_BUCKETS));__atomic_store_n(msync_coord_hint(&coord,1+MSYNC_COORD_HINT_BUCKETS),1,__ATOMIC_SEQ_CST);}
+#endif
   c.data.tid=1;c.data.msync_epoch=2;c.sync.refcount=2;c.sync.fd=13;c.record=(struct coord_fd_record){.fd=-1,.token=7,.thread_data=&c.data,.retired=mode==RETIRED};c.previous=-1;c.queued=queued;atomic_init(&c.ready,0);atomic_init(&c.go,0);
   if(pipe(pipefd)||write(pipefd[1],bytes,sizeof(bytes))!=(ssize_t)sizeof(bytes)||pthread_create(&thread,NULL,worker,&c))return 67;
-  while(!atomic_load(&c.ready))cpu_pause();if(queued&&pthread_cancel(thread))return 68;atomic_store(&c.go,1);
-  if(pthread_join(thread,&status))return 69;total++;
+  while(!atomic_load(&c.ready))cpu_pause();if(queued&&pthread_cancel(thread))_exit(68);atomic_store(&c.go,1);
+  if(pthread_join(thread,&status))_exit(69);total++;
   check(status==(queued?PTHREAD_CANCELED:NULL));check(c.cleanup_count==1);check(!closes);
   if(mode>=NO_IMPORT&&mode<=FORK){check(c.status==STATUS_PENDING);check(!wakes&&!yields&&!messages);}
-  else {check(c.status==STATUS_SUCCESS);check(yields==(mode==MANUAL||mode==ALREADY?0u:1u));check(messages==(mode==MSG?1u:mode==RECOVER?2u:0u));check(recovery_entries==(mode==RECOVER?1u:0u));check(coord.header->state==MSYNC_COORD_CLEAN);}
+  else {check(c.status==STATUS_SUCCESS);check(yields==(mode==MANUAL||mode==ALREADY?0u:1u));check(messages==(mode==MSG?1u:mode==RECOVER?2u:0u));check(recovery_entries==(mode==RECOVER?1u:0u));check(coord.header->state==MSYNC_COORD_CLEAN);
+#ifdef MSYNC_COORD_HINT_BUCKETS
+   check(wakes==(mode==RECOVER||mode==FORK_NOTIFY||mode==HINT_LIVE||mode==HINT_STICKY||mode==HINT_COLLISION?1u:0u));
+#else
+   check(wakes==(mode==ALREADY?0u:mode==RECOVER?2u:1u));
+#endif
+  }
   if(close(pipefd[0])||close(pipefd[1]))return 70;
   printf("{\"type\":\"case\",\"mode\":%u,\"queued_cancel\":%s,\"passed\":%s,\"wakes\":%u,\"yields\":%u,\"messages\":%u,\"recovery_entries\":%u}\n",mode,queued?"true":"false",failures==first?"true":"false",wakes,yields,messages,recovery_entries);
  }

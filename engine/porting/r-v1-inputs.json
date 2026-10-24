@@ -738,6 +738,17 @@
       "status": "revision2 actual binary review/native32threads548checks per arch/negatives and own13 stages/11 identities passed; fixed six-run AC4.761904762x and CS-7.334525939percent both failed; no own hour/adoption",
       "selectedByRecipe": false,
       "productionPolicyBound": false
+    },
+    "optionalLatePayloadParkCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0123-msync-publish-event-waiters-near-park.patch",
+      "sha256": "a1199766ddefba676c2eb6a88ccd1247f17b7a71d1e1d98a526c97512791db18",
+      "requires": "0122 revision2; selected F22 conservative helper layout, not a wholesale older header",
+      "sharedCoordMagicVersion": 7,
+      "additionalSharedBytes": 262144,
+      "prewaitReadBudget": 64,
+      "status": "own13 Wine stages/11 identities, native fixtures/reviews/negatives, AC5.0x/CS+0.6134969percent and own3600s78checks all passed; actual live-hint termination observation pending; no fullM1/default adoption",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
     }
   }
 }

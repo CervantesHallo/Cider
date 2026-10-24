@@ -30,12 +30,45 @@ separate from Wine/Windows API equivalence and the candidate's own runtime hour.
 | `extract-ready-source.py` | Reads an explicitly selected applied Wine source, extracts exact function bytes and records source/header/harness hashes. Does not build or run code. |
 | `darwin-cancel-boundary.c` | Self-owned native queued-cancellation observations around pre-resolved raw ulock wake and sched_yield, with a known read cancellation-point control. Not Wine, signal-safety or release-wide proof. |
 | `msync-set-event.c` | Exact extracted SetEvent/notify/finish/frame plus the production coordinator, explicit Wine/Mach doubles, queued cancellation and recovery control-boundary checks. |
+| `msync-late-park.c` | Exact extracted late publication/raw wait/removal with production hints, actual own-kernel park/wake, explicit timeout/control/admission doubles, and full compiled-input binding in the run record. |
 | `stats-snapshot.c` | Reads the actual pump's seqlock counters and kernel process resource observations. A missing/disabled snapshot is unavailable, not zero occupancy. |
 | `owned-processes.swift` | Uses production process identity and prefix checks to observe/stop only the owned laboratory. Never spawns Wine. |
 | `policy-probe.c` | Negative child-launch check using a copy of this harmless fixture named `C:\CiderTests\yuanshen.exe` in an otherwise empty laboratory. Never point it at an installed game. |
 | `run-mac.py` | Invokes the laboratory's packaged `ciderctl` through its actual GUI/XPC spawner, records exact native-module and EXE hashes, validates completion, and performs bounded timeout cleanup. |
+| `live-hint-reap.c` | Controlled owned Win32 thread termination with nonce/round commands. Ready/join alone are not native-registration evidence. |
+| `run-live-hint-reap.py` | Observes real 0/1/0 hints and native mapping records through an existing private GUI/XPC lab; cannot run over an active hour or held lab lock. |
+| `check-live-hint-observer.py` | Pure observer fault doubles, separate from actual Wine/native validation. |
 
 ## Build
+
+Live-registration observation is a separate diagnostic image: apply
+`engine/porting/wine-11.18/experiments/0124-live-hint-observation.patch` after
+candidate0123, and use `WINEMSYNC_TRACE_WAIT=1`, `WINEMSYNC_STATS=1` in the owned
+lab. Keep production filtering of protected `CIDER_*` overrides. Build
+`live-hint-reap.c` with the existing per-architecture mingw flags. Prepare exact
+diagnostic engine/build records in the artifact directory and a distinct empty
+bottle. `run-live-hint-reap.py --root <owned-lab> --artifacts <diagnostic-artifacts>
+--bottle <owned-name> --arch <i686|x86_64> --rounds 64 --label <unique-label>` uses
+only the packaged GUI/XPC path. No normal or logged-in Steam clone is accepted.
+`stats-snapshot <coord-file> --hint <index>` returns an atomic selected bucket
+only for a layout compiled with hints; availability false/missing is not zero.
+The intentional missing-unwind image is accepted only as a rejected negative
+control, with `--expected-leak`. Neither trace image inherits the original
+candidate's performance or hour acceptance. See research84 for the precise
+boundaries and retained preparation failures.
+
+For optional candidate0123, prepare `--part late-park --source <applied-msync.c>`
+into an owned existing output directory, then compile `msync-late-park.c`
+against that directory and the exact magic7 coordinator header. It uses the same
+native flags/session/deadlines as the SetEvent fixture. Bind the actual fixture,
+extracted body, frame where used, and coordinator header hashes before/after
+build and run. Readiness probes remain separate from acquisition and Wine proof.
+The retry-expiration cases construct timeout-double expiration; the late-owner
+expiry uses real elapsed time. Pending cancellation is delivered after explicit
+cleanup; this is not Wine-signal-driven removal evidence. No rescue wake hides
+failed native parking. Parent quiescence is checked after join, while the worker
+asserts only that it does not still own the coordinator.
+
 
 For optional candidate0122, prepare one existing output directory twice with
 `extract-ready-source.py`: `--part frame --source <applied-sync.c>` and
