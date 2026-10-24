@@ -9,9 +9,9 @@
 | WaitAll许可、混合对象、8/64、APC、abandoned、命名/跨进程 | 两位宽当前短功能及自己的小时 | 保留原失败历史；未测项不借其它用例 |
 | 随机3600秒/资源 | 自己的64547f41…/7b0cb109…78检查、758497967许可收支、peak36/fallback0 | 已过本轮，资源范围含启动/运行/退出，不泛化全进程泄漏证明 |
 | 真实live登记终止回收 | 独立trace image双位宽各64轮0→1→0及missing-unwind负例 | 不是本体性能/hour或kernel-park/Windows对照 |
-| U：CS/SRW/CV/WaitOnAddress/InitOnce | 当前正式控制仅private uncontended CS | 补真实正确性；全U基准±3%仍待，不能由正确性替代 |
-| S：进程/线程、timer、IOCP、overlapped pipe及N混合 | 生命周期已有进程/线程证据；其它未覆盖 | 增加有界正确性，IOCP不直接塞入WaitForMultipleObjects |
-| N：MsgWait、SignalObjectAndWait、Pulse、关闭中的句柄 | 原完整矩阵未闭合 | 按公开契约区分确定语义与未定义/不可靠项，不强造返回值 |
+| U：CS/SRW/CV/WaitOnAddress/InitOnce | 双位宽、双模式正确性已过 | 全U基准±3%仍待，不能由正确性替代 |
+| S：进程/线程、timer、IOCP、overlapped pipe及N混合 | 生命周期及新增双位宽、双模式正确性已过 | 不是吞吐/尾延迟证明；IOCP不直接塞入WaitForMultipleObjects |
+| N：MsgWait、SignalObjectAndWait、Pulse、关闭中的句柄 | 新增双位宽、双模式18项契约已过；关闭等待中句柄不强造保证 | 超时仅观察；Pulse不宣称可靠交付；完整对象ping/尾分布仍待 |
 | 应用级/CEF20次、5GB下载、游戏帧时间等 | 尚未在完整新R v1闭合 | 不换用户引擎或借v0图形/媒体游戏结果；依赖其它主题迁移与真实交互 |
 
 ## 新的有界 U/S 正确性实现
@@ -33,3 +33,39 @@ SRW加入worker实际持shared/exclusive期间的opposite TryAcquire与最终unc
 S复审纠正即时WriteFile完成使用HasOverlappedIoCompleted的契约越界；仅此前IO_PENDING才用该宏。写入字节统一来自GetOverlappedResult，管道改为message-read保证单payload完整性，不强加byte-stream原子读取。取消不等于完成，不能排空则终止自有进程而不越过活跃栈I/O。[WriteFile](https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-writefile)、[消息模式](https://learn.microsoft.com/en-us/windows/win32/ipc/named-pipe-type-read-and-wait-modes)、[完成宏约束](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-hasoverlappediocompleted)。
 
 这闭合本轮U/S正确性子集；U组±3%性能归因、N其它ping/尾分布、其余API和应用级门禁仍待，不声明完整M1。
+
+## 新增 N 契约实际结果
+
+`sync-nt-extra.c`在PE32/PE64各以msync/server运行一次，每次18检查零失败，匹配相同F27 native/PE产物。消息等待只接受队列返回索引后取到指定载荷；系统事件的无消息唤醒继续等待原绝对期限。SignalObjectAndWait核对真实往返信号、peer退出和自动事件消耗，不声称该API提供原子信号加等待。[消息等待](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-msgwaitformultipleobjectsex)、[SignalObjectAndWait](https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-signalobjectandwait)。
+
+Pulse以已置位的manual event开场并验证前提，核对无waiter时最终复位。没有把不可靠的Pulse交付或等待中关闭句柄的未定义行为变成强制保证。[Pulse契约](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-pulseevent)。
+
+审查修了两个可能误报通过的夹具P2（等待超时后仍读取排队消息、Pulse从未置位事件开场），以及一个会误报失败的解析缺口（遗漏timeout_observation类型）。两个限定API-result double实际分别被message_payload和final_reset_only拒绝；它们验证夹具，不冒充引擎破坏变体。
+
+0／1／15.6／100ms的实际QPC观察全部保留。四次运行分别约0.0095–0.0113／1.2569–1.2704／17.6115–17.6708／100.3336–101.1458ms；仅核对STATUS_TIMEOUT及单调时钟，无新增精度门槛、统计等效或原生Windows结论。`out/sync-nt-extra-20261024`保留构建、源审、冻结runner、四原回执、负例与真实GUI退出/两次空观察。原5倍、CS±3%和自己的小时不重跑或改写。
+
+## U组固定性能比较：运行正常，归因门槛未过
+
+独立源码/回执复审后，以同一PE和F27 native pair做2/4/8线程、五种用户态原语、每种模式三次，共90次；每次四个固定warmup/measurement batch。主要指标是全部worker QPC区间包络/完成迭代数，不是单API裸延迟或唤醒百分位。CV含配套CS/谓词循环，WaitOnAddress按实际wait/wake调用计数。没有扣减开销、删样或重试；AC/LPM0、真实session环境与run ID、PE/native摘要均核对，运行和真实清理通过。
+
+下表为msync相对server的成本差异，**粗体超出原±3%门槛**：
+
+| 原语 | 2线程 | 4线程 | 8线程 |
+|---|---:|---:|---:|
+| CS争用 | **+4.16%** | +1.86% | **-11.58%** |
+| SRW读写 | +0.94% | +2.26% | **+5.72%** |
+| 条件变量 | +1.23% | -0.30% | **+25.04%** |
+| WaitOnAddress | -1.51% | +1.28% | **-8.43%** |
+| 已初始化InitOnce | **+16.73%** | **+45.51%** | **-4.86%** |
+
+7/15单元在门槛内，8/15越界，故更广U归因不通过。源/运行检查通过不替代这一结论，也不能把双向差异自动说成msync回归或宿主噪声。原F27的5倍/私有CS控制/小时证据仍只覆盖原冻结范围，完整M1和默认采用继续未通过。
+
+新夹具复审的两项P2（缺失final状态也可接受、超时/等待计数不一致）已修，最终复审无剩余具体P1/P2；原10个预检回执离线按更严校验仍过，19个回执破坏负例被拒绝。预检/正式各有冻结runner/validator，旧字节不改。原始区间、每worker计数、全部batch和实际清理在out/sync-user-bench-20261024。
+
+有限源码检查显示两个tid-alert函数体无直接msync分支，不是间接调用、调度或整体归因证明。另核对Wine ThreadTimes发现macOS可能回退进程CPU时间，因此不能直接把GetThreadTimes数据当真实每线程CPU；后续计量必须先验证这一来源，不以假精度通过门槛。
+
+## WaitAny与WaitAll的对象数量覆盖
+
+sync-wait-widths.c覆盖WaitAny2/8/64和WaitAll2/8，manual/auto/semaphore混合，核对最低就绪索引、只消耗选中对象、manual保持、未就绪WaitAll不消耗、就绪WaitAll和不可重复消耗；另有真实peer信号和有界join，不宣称已kernel-park。WaitAll成功按文档范围判断，不强制索引0。[公开契约](https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitformultipleobjects)。
+
+四次实际执行（双位宽×双模式）各214检查0失败。首个PE32/msync的运行器按Python3.10的Counter零项相等规则编写，在本机Python3.9.6误报失败；修为显式移除零项，保留首个raw passed:false，以独立sidecar验证正确性和所有运行条件，只运行其余三项，未重跑首项或改写旧回执。初审没有识别该版本差异，后续实际诊断闭合，不能宣称初审全覆盖。三个删组/删检查/重复检查负例均被拒绝；真实GUI退出/两次空观察确认。证据在out/sync-wait-widths-20261024。

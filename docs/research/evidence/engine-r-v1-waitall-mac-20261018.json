@@ -87,7 +87,7 @@
     "stats-snapshot.c": "e77ba4a58b6307ca3a1b29b21470ccdc3808ae059c1d8937ec3285587cb8818f",
     "policy-probe.c": "d92f25d528e8422829c3750d040050d7b44f93f6c12f6c1bc72daa2ed8f5384c",
     "owned-processes.swift": "952b542cacdcd0509c7864c995abcee76da070da5a82af0b0361e57bc55f9b09",
-    "run-mac.py": "c0ac7dcb21d8ec199b77fb23e377236fe180f28516cdab902913164fd7e91603",
+    "run-mac.py": "70c156ba99bdf5bd084450660fea01074df6c7e7bbd42c9aab1a60decba31a5b",
     "README.md": "907e60d7b8b017e63357c697ed23daae9db9e08c19dfee68c6ff04a95cad1a95",
     "msync-waiter-hint.c": "d4bdfc90183c5500a3637af319e506318f27bc2a9ea4148fa960ab5ff89b90cb",
     "msync-single-waiter.c": "4330fbfc0f5cf9892f0f45d7d5979bb83864b682b978341ed3f038a887dec6ae",
@@ -98642,6 +98642,4097 @@
         "rawLogSHA256": "92e8e55d623af91bea538c64944288294dfea7cac2ca7c340356438cc8b98e82"
       }
     ]
+  },
+  "additionalNCorrectness": {
+    "scope": "18 contract checks per architecture/mode; timeout observations without precision gate; not Windows/fullM1",
+    "build": {
+      "rows": [
+        {
+          "arch": "i686",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/sync-nt-extra.c",
+            "-luser32",
+            "-o",
+            "/Users/cervantes/Cider/out/sync-nt-extra-20261024/sync-nt-extra-i686.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "sourceSHA256": "de04ca7bee53c87ae7eba0631ddd7af4e0e4e33191f772493306757cc459f5fe",
+          "exeSHA256": "43518e0baaebae11ebdf6632e4a7dc14d262d89a59ec897ba482110c9b9b0438"
+        },
+        {
+          "arch": "x86_64",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/sync-nt-extra.c",
+            "-luser32",
+            "-o",
+            "/Users/cervantes/Cider/out/sync-nt-extra-20261024/sync-nt-extra-x86_64.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "sourceSHA256": "de04ca7bee53c87ae7eba0631ddd7af4e0e4e33191f772493306757cc459f5fe",
+          "exeSHA256": "e91e48f3362a537f8da7422aca9c9e27c8b2ac68ed57bc681bf8b760e1269d54"
+        }
+      ],
+      "passed": true,
+      "scope": "Review fixes; two architecture strict builds; no runtime yet"
+    },
+    "initialBuild": {
+      "scope": "remaining N contract probe only, timing observation has no precision gate",
+      "rows": [
+        {
+          "arch": "i686",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/sync-nt-extra.c",
+            "-luser32",
+            "-o",
+            "/Users/cervantes/Cider/out/sync-nt-extra-20261024/sync-nt-extra-i686.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "sourceSHA256": "cb513ff60d6de8f7e30b02c85f41619c48cd9dc1f5ffd7e77f0a4acda165a7e5",
+          "exeSHA256": "b7a6f5f209f50a28512dfc35bb2328ce3a46572a773cfe7d199736929c822edf"
+        },
+        {
+          "arch": "x86_64",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/sync-nt-extra.c",
+            "-luser32",
+            "-o",
+            "/Users/cervantes/Cider/out/sync-nt-extra-20261024/sync-nt-extra-x86_64.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "sourceSHA256": "cb513ff60d6de8f7e30b02c85f41619c48cd9dc1f5ffd7e77f0a4acda165a7e5",
+          "exeSHA256": "1034598ee51a8c04ec9c50a3763db596210d7741654a0ace469cf220fa0c6bc9"
+        }
+      ],
+      "passed": true
+    },
+    "review": {
+      "schema": "cider.sync-nt-extra-final-review/v1",
+      "reviewDate": "2026-10-24",
+      "reviewKind": "bounded actual-source adversarial review",
+      "outcome": "remaining_p2",
+      "summary": "Both prior C fixture P2 findings are closed. One runner integration P2 remains: timeout observations are filtered out before validation, so every otherwise successful nt-extra run is rejected.",
+      "sources": [
+        {
+          "path": "tests/sync/sync-nt-extra.c",
+          "sha256": "de04ca7bee53c87ae7eba0631ddd7af4e0e4e33191f772493306757cc459f5fe",
+          "bytes": 6078,
+          "lines": 117
+        },
+        {
+          "path": "tests/sync/run-mac.py",
+          "sha256": "b6978cf7d0e6e7920a2675f1251e801eba7543b476d29a74308d0462e5d8f091",
+          "bytes": 24282,
+          "lines": 422
+        }
+      ],
+      "reviewedDiff": "git diff -- tests/sync/sync-nt-extra.c tests/sync/run-mac.py; complete current contents of both files were also read",
+      "previousFindings": [
+        {
+          "id": "queue-wake-false-pass",
+          "priority": "P2",
+          "status": "closed",
+          "path": "tests/sync/sync-nt-extra.c",
+          "lineStart": 39,
+          "lineEnd": 47,
+          "evidence": "Only WAIT_OBJECT_0+1 reaches payload retrieval. WAIT_TIMEOUT and unexpected handle results break with found still false. A queue result without matching input can retry under the existing deadline."
+        },
+        {
+          "id": "pulse-reset-no-op-pass",
+          "priority": "P2",
+          "status": "closed",
+          "path": "tests/sync/sync-nt-extra.c",
+          "lineStart": 78,
+          "lineEnd": 84,
+          "evidence": "The unnamed manual-reset event starts signaled. A zero-time wait records the signaled precondition without consuming a manual-reset event. PulseEvent must then leave it nonsignaled. A successful no-op pulse would fail final_reset_only."
+        }
+      ],
+      "findings": [
+        {
+          "id": "nt-extra-observations-dropped-before-validation",
+          "priority": "P2",
+          "title": "Preserve timeout_observation rows before requiring four observations",
+          "path": "tests/sync/run-mac.py",
+          "lineStart": 403,
+          "lineEnd": 407,
+          "relatedLocations": [
+            {
+              "path": "tests/sync/run-mac.py",
+              "lineStart": 370,
+              "lineEnd": 375
+            }
+          ],
+          "trigger": "Any nt-extra run whose guest emits the complete successful 18-check receipt and all four timeout observations.",
+          "evidence": "The JSON row type allowlist at line 374 does not include timeout_observation. Such rows never enter rows at line 375. The observations comprehension at line 403 is therefore empty, and len(observations)==4 at line 407 is always false.",
+          "impact": "metadata_ok and the final passed result become false for every otherwise successful nt-extra run, and the structured receipt also omits its QPC observations.",
+          "suggestedFix": "Include timeout_observation in the parsed row type allowlist so the existing exact four-observation validation receives the records emitted by the fixture.",
+          "basis": "Static control-flow inspection of the complete current source; no runner or fixture execution."
+        }
+      ],
+      "additionalReview": {
+        "cFixtureRemainingConcreteP1P2": [],
+        "successfulPathCheckCount": 18,
+        "inventory": {
+          "messageChecks": 4,
+          "signalWaitChecks": 3,
+          "pulseChecks": 2,
+          "nativeAPIAvailabilityChecks": 1,
+          "timeoutStatusChecks": 4,
+          "qpcNonnegativeChecks": 4
+        },
+        "queueAndAutoEvent": "Queue acceptance requires the queue result and the owned payload; system-event retries remain permitted. The signaled auto-event index and subsequent consumption are checked.",
+        "ownedThreadLifetime": "The peer receives the live signal_wait stack context. Normal closure follows the bounded join. Failed join takes the process termination path before returning or closing peer handles. No additional concrete lifetime or failure-path P1/P2 found.",
+        "signalObjectAndWait": "Actual owned-peer handshake and reply consumption are checked; this does not establish atomic signal-and-wait ordering.",
+        "pulse": "No-waiter final reset only; no reliable delivery claim.",
+        "timeouts": "The fixture uses 0, -10000, -156000, and -1000000 in 100ns units, checks STATUS_TIMEOUT 0x102, and records QPC delta/frequency. No elapsed-time precision threshold is imposed.",
+        "runnerInventory": "The new branch requires exactly 18 successful named checks with the expected Counter. Its four-observation predicate requires integer requested duration/ticks/frequency, nonnegative ticks, positive frequency, explicit false precision gate, and the four requested durations. Those observations are currently unreachable because of the reported parser filter defect.",
+        "closeDuringWait": "Absent; no guarantee assigned to undefined close-during-wait behavior."
+      },
+      "operations": {
+        "buildsRun": 0,
+        "runtimeWorkloadsRun": 0,
+        "windowsOperations": 0,
+        "processControlOperations": 0,
+        "subagentsUsed": 0,
+        "sourceEdits": 0,
+        "onlyWrittenArtifact": "out/sync-nt-extra-20261024/final-review.json",
+        "f27PerformanceOrHourRepeated": false
+      },
+      "limits": [
+        "Source and diff review only; no builds, fixture execution, runner execution, or binary inspection.",
+        "Reported dual-architecture compilation was not independently verified.",
+        "Runtime behavior, scheduling, native Windows equivalence, and empirical timeout precision are not established by this review.",
+        "F27 performance and hour evidence were not changed or repeated."
+      ]
+    },
+    "parentClosure": {
+      "schema": "cider.sync-nt-extra-final-review/v1",
+      "reviewDate": "2026-10-24",
+      "reviewKind": "bounded actual-source adversarial review",
+      "outcome": "remaining_p2",
+      "summary": "Both prior C fixture P2 findings are closed. One runner integration P2 remains: timeout observations are filtered out before validation, so every otherwise successful nt-extra run is rejected.",
+      "sources": [
+        {
+          "path": "tests/sync/sync-nt-extra.c",
+          "sha256": "de04ca7bee53c87ae7eba0631ddd7af4e0e4e33191f772493306757cc459f5fe",
+          "bytes": 6078,
+          "lines": 117
+        },
+        {
+          "path": "tests/sync/run-mac.py",
+          "sha256": "b6978cf7d0e6e7920a2675f1251e801eba7543b476d29a74308d0462e5d8f091",
+          "bytes": 24282,
+          "lines": 422
+        }
+      ],
+      "reviewedDiff": "git diff -- tests/sync/sync-nt-extra.c tests/sync/run-mac.py; complete current contents of both files were also read",
+      "previousFindings": [
+        {
+          "id": "queue-wake-false-pass",
+          "priority": "P2",
+          "status": "closed",
+          "path": "tests/sync/sync-nt-extra.c",
+          "lineStart": 39,
+          "lineEnd": 47,
+          "evidence": "Only WAIT_OBJECT_0+1 reaches payload retrieval. WAIT_TIMEOUT and unexpected handle results break with found still false. A queue result without matching input can retry under the existing deadline."
+        },
+        {
+          "id": "pulse-reset-no-op-pass",
+          "priority": "P2",
+          "status": "closed",
+          "path": "tests/sync/sync-nt-extra.c",
+          "lineStart": 78,
+          "lineEnd": 84,
+          "evidence": "The unnamed manual-reset event starts signaled. A zero-time wait records the signaled precondition without consuming a manual-reset event. PulseEvent must then leave it nonsignaled. A successful no-op pulse would fail final_reset_only."
+        }
+      ],
+      "findings": [
+        {
+          "id": "nt-extra-observations-dropped-before-validation",
+          "priority": "P2",
+          "title": "Preserve timeout_observation rows before requiring four observations",
+          "path": "tests/sync/run-mac.py",
+          "lineStart": 403,
+          "lineEnd": 407,
+          "relatedLocations": [
+            {
+              "path": "tests/sync/run-mac.py",
+              "lineStart": 370,
+              "lineEnd": 375
+            }
+          ],
+          "trigger": "Any nt-extra run whose guest emits the complete successful 18-check receipt and all four timeout observations.",
+          "evidence": "The JSON row type allowlist at line 374 does not include timeout_observation. Such rows never enter rows at line 375. The observations comprehension at line 403 is therefore empty, and len(observations)==4 at line 407 is always false.",
+          "impact": "metadata_ok and the final passed result become false for every otherwise successful nt-extra run, and the structured receipt also omits its QPC observations.",
+          "suggestedFix": "Include timeout_observation in the parsed row type allowlist so the existing exact four-observation validation receives the records emitted by the fixture.",
+          "basis": "Static control-flow inspection of the complete current source; no runner or fixture execution."
+        }
+      ],
+      "additionalReview": {
+        "cFixtureRemainingConcreteP1P2": [],
+        "successfulPathCheckCount": 18,
+        "inventory": {
+          "messageChecks": 4,
+          "signalWaitChecks": 3,
+          "pulseChecks": 2,
+          "nativeAPIAvailabilityChecks": 1,
+          "timeoutStatusChecks": 4,
+          "qpcNonnegativeChecks": 4
+        },
+        "queueAndAutoEvent": "Queue acceptance requires the queue result and the owned payload; system-event retries remain permitted. The signaled auto-event index and subsequent consumption are checked.",
+        "ownedThreadLifetime": "The peer receives the live signal_wait stack context. Normal closure follows the bounded join. Failed join takes the process termination path before returning or closing peer handles. No additional concrete lifetime or failure-path P1/P2 found.",
+        "signalObjectAndWait": "Actual owned-peer handshake and reply consumption are checked; this does not establish atomic signal-and-wait ordering.",
+        "pulse": "No-waiter final reset only; no reliable delivery claim.",
+        "timeouts": "The fixture uses 0, -10000, -156000, and -1000000 in 100ns units, checks STATUS_TIMEOUT 0x102, and records QPC delta/frequency. No elapsed-time precision threshold is imposed.",
+        "runnerInventory": "The new branch requires exactly 18 successful named checks with the expected Counter. Its four-observation predicate requires integer requested duration/ticks/frequency, nonnegative ticks, positive frequency, explicit false precision gate, and the four requested durations. Those observations are currently unreachable because of the reported parser filter defect.",
+        "closeDuringWait": "Absent; no guarantee assigned to undefined close-during-wait behavior."
+      },
+      "operations": {
+        "buildsRun": 0,
+        "runtimeWorkloadsRun": 0,
+        "windowsOperations": 0,
+        "processControlOperations": 0,
+        "subagentsUsed": 0,
+        "sourceEdits": 0,
+        "onlyWrittenArtifact": "out/sync-nt-extra-20261024/final-review.json",
+        "f27PerformanceOrHourRepeated": false
+      },
+      "limits": [
+        "Source and diff review only; no builds, fixture execution, runner execution, or binary inspection.",
+        "Reported dual-architecture compilation was not independently verified.",
+        "Runtime behavior, scheduling, native Windows equivalence, and empirical timeout precision are not established by this review.",
+        "F27 performance and hour evidence were not changed or repeated."
+      ],
+      "parentClosure": "timeout_observation added to parser allowlist before runtime; C unchanged"
+    },
+    "protocol": {
+      "scope": "additional N API correctness only; four timeout observations have no precision gate; no Windows reference",
+      "declaredUTC": "2026-10-24T07:37:47.990967+00:00",
+      "order": [
+        [
+          "i686",
+          "WaitAll LatePark"
+        ],
+        [
+          "i686",
+          "WaitAll LatePark Server"
+        ],
+        [
+          "x86_64",
+          "WaitAll LatePark Server"
+        ],
+        [
+          "x86_64",
+          "WaitAll LatePark"
+        ]
+      ],
+      "expectedNativeSHA256": {
+        "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+        "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+        "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+        "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+      },
+      "apiTimeoutMs": 5000,
+      "exeSHA256": {
+        "i686": "43518e0baaebae11ebdf6632e4a7dc14d262d89a59ec897ba482110c9b9b0438",
+        "x86_64": "e91e48f3362a537f8da7422aca9c9e27c8b2ac68ed57bc681bf8b760e1269d54"
+      },
+      "runnerSHA256": "7486692574f3ce0e1cb912f9a57b28963f5a1ea0bf1bbf7b65c24aa79ba32cd6",
+      "noAutomaticRetry": true,
+      "fullM1Accepted": false
+    },
+    "negative": {
+      "scope": "fixture API-result doubles, not engine mutations or Windows reference",
+      "declaredUTC": "2026-10-24T07:41:36.782042+00:00",
+      "cases": [
+        {
+          "tag": "timeout-queue",
+          "args": [
+            "python3",
+            "/Users/cervantes/Cider/out/sync-nt-extra-20261024/runner-negative-timeout-queue.py",
+            "--root",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+            "--bottle",
+            "WaitAll LatePark",
+            "--arch",
+            "x86_64",
+            "--suite",
+            "nt-extra",
+            "--mode",
+            "correctness",
+            "--timeout",
+            "90"
+          ],
+          "driverExit": 1,
+          "stderr": "",
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827697453403000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+          "rawSHA256": "f89700490e18ceb0819d75909c656b6e30509882f9e2a3bf9bb242cbd35b4268",
+          "failedChecks": [
+            "N.MsgWait.message_payload"
+          ],
+          "correctlyRejected": true,
+          "sourceSHA256": "a660f87e3088649a6fc655ab27434bbd2598f437312595d56d4a22a7acf87ce5",
+          "exeSHA256": "f4f05e323ad5ceb37f86d9e9f71f9c06501a67f2a08371e3ff02c338b05b634c"
+        },
+        {
+          "tag": "pulse-noop",
+          "args": [
+            "python3",
+            "/Users/cervantes/Cider/out/sync-nt-extra-20261024/runner-negative-pulse-noop.py",
+            "--root",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+            "--bottle",
+            "WaitAll LatePark",
+            "--arch",
+            "x86_64",
+            "--suite",
+            "nt-extra",
+            "--mode",
+            "correctness",
+            "--timeout",
+            "90"
+          ],
+          "driverExit": 1,
+          "stderr": "",
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827707245962000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+          "rawSHA256": "deeed227f9a184becfc9c9dcaf4e50075cb7f71ca2f5e11c7e9a4f69e273784b",
+          "failedChecks": [
+            "N.Pulse.final_reset_only"
+          ],
+          "correctlyRejected": true,
+          "sourceSHA256": "a21ae975bde94b375faec2f6886641434de9c9da3aae839031a903a2740bc895",
+          "exeSHA256": "7450cb540820f1d93305f07f11a1c588cffb85cde5053277b539047b82ea2c1d"
+        }
+      ],
+      "passed": true,
+      "cleanup": {
+        "exitCode": 0,
+        "receipt": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [
+              4495
+            ],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        }
+      }
+    },
+    "cleanup": {
+      "exitCode": 0,
+      "receipt": {
+        "captured": [],
+        "emptyObservations": 2,
+        "hostShutdown": {
+          "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+          "capturedPIDs": [
+            4132
+          ],
+          "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+          "confirmed": true,
+          "kernelIdentityReadable": true,
+          "terminationRequested": true
+        },
+        "mode": "stop-runtime",
+        "pending": [],
+        "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+      }
+    },
+    "runtimeTests": [
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792827468214127000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json",
+        "rawResultSHA256": "265b766c3eb91df98f7348ffb4a5629c7fd48dada3b473dcaa0a1bfcb4b5473c",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [],
+        "suite": "nt-extra",
+        "arch": "i686",
+        "nativeSHA256": {
+          "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+          "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "43518e0baaebae11ebdf6632e4a7dc14d262d89a59ec897ba482110c9b9b0438",
+        "activeSeconds": 11.057608625,
+        "wallSeconds": 11.057698011398315,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "nt-extra-correctness",
+            "ok": true,
+            "checks": 18,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 4178,
+            "startAbstime": 2129649162153,
+            "samples": 8,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 4178,
+              "sequence": 0,
+              "allocations": 0,
+              "frees": 0,
+              "current": 0,
+              "peak": 0,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524288,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 6029312,
+              "producerPhysicalFootprintBytes": 5743576,
+              "producerUserTimeNs": 26256,
+              "producerSystemTimeNs": 108832,
+              "producerStartAbstime": 2129649162153,
+              "producerFDCount": 23,
+              "eventHintsAvailable": true,
+              "eventHintSnapshotCoherent": false,
+              "eventHintNonstickySum": 0,
+              "eventHintNonzeroBuckets": 0,
+              "eventHintStickyBuckets": 0
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 4178,
+              "sequence": 276,
+              "allocations": 85,
+              "frees": 53,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 4313088,
+              "producerPhysicalFootprintBytes": 19051720,
+              "producerUserTimeNs": 1695788,
+              "producerSystemTimeNs": 2175419,
+              "producerStartAbstime": 2129649162153,
+              "producerFDCount": 259,
+              "eventHintsAvailable": true,
+              "eventHintSnapshotCoherent": false,
+              "eventHintNonstickySum": 8,
+              "eventHintNonzeroBuckets": 8,
+              "eventHintStickyBuckets": 0
+            },
+            "maxCurrent": 36,
+            "minCurrent": 0,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              23,
+              259
+            ],
+            "RSSRangeBytes": [
+              1654784,
+              14811136
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-latepark-f11d7db3-3680-4ea8-8a93-ccdb7ce55d5d/20261024T073749-sync-nt-extra-i686-7568EBD9-D20A-4491-89E2-AFC18D9965EF/wine.log",
+        "rawLogSHA256": "467c8b3c605ae00a425f7b6b0b08a2c602885fb6157bf2720c06bff4e37a0566"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792827479424098000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json",
+        "rawResultSHA256": "3e1f5650f9ffbe3115ef1fd1c0e0b8c6ba766902d657a5ea58e9ff14e8232a5d",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [],
+        "suite": "nt-extra",
+        "arch": "i686",
+        "nativeSHA256": {
+          "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+          "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "43518e0baaebae11ebdf6632e4a7dc14d262d89a59ec897ba482110c9b9b0438",
+        "activeSeconds": 5.039633,
+        "wallSeconds": 5.0396740436553955,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "nt-extra-correctness",
+            "ok": true,
+            "checks": 18,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [],
+        "failedChecks": [],
+        "pumpProducers": [],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-latepark-server-188fd9fd-3796-4028-938a-25684a5b305e/20261024T073759-sync-nt-extra-i686-9C348A14-CB47-43D3-A45B-86295E8F48FC/wine.log",
+        "rawLogSHA256": "4468064e6cc56b8f1432bb2e02feaafd3a5e68cbf9172b78c577c68d010f8e8c"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792827484589020000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+        "rawResultSHA256": "3cb6d14c1e40b74ec91715c0daaf9237441ee6a6b3ba2d5b75a2069bedb03068",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [],
+        "suite": "nt-extra",
+        "arch": "x86_64",
+        "nativeSHA256": {
+          "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+          "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "e91e48f3362a537f8da7422aca9c9e27c8b2ac68ed57bc681bf8b760e1269d54",
+        "activeSeconds": 5.076040834,
+        "wallSeconds": 5.076081991195679,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "nt-extra-correctness",
+            "ok": true,
+            "checks": 18,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [],
+        "failedChecks": [],
+        "pumpProducers": [],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-latepark-server-188fd9fd-3796-4028-938a-25684a5b305e/20261024T073804-sync-nt-extra-x86_64-BC97B7BE-6BA7-4116-9EC6-A35C7540152C/wine.log",
+        "rawLogSHA256": "48947f7e6206499e2bc8f84e2153d18cc4b0ddcc77e20a3b18edd96aa8dc9888"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792827489780354000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+        "rawResultSHA256": "384da6453fc4b1b5d3f8fcae85c917d0bc8c2e21c1364a8595225575ee896660",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [],
+        "suite": "nt-extra",
+        "arch": "x86_64",
+        "nativeSHA256": {
+          "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+          "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "e91e48f3362a537f8da7422aca9c9e27c8b2ac68ed57bc681bf8b760e1269d54",
+        "activeSeconds": 5.052556625,
+        "wallSeconds": 5.052597999572754,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "nt-extra-correctness",
+            "ok": true,
+            "checks": 18,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 4295,
+            "startAbstime": 2130116839538,
+            "samples": 4,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 4295,
+              "sequence": 68,
+              "allocations": 24,
+              "frees": 10,
+              "current": 14,
+              "peak": 14,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524274,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18472960,
+              "producerPhysicalFootprintBytes": 18478256,
+              "producerUserTimeNs": 1490054,
+              "producerSystemTimeNs": 650155,
+              "producerStartAbstime": 2130116839538,
+              "producerFDCount": 107,
+              "eventHintsAvailable": true,
+              "eventHintSnapshotCoherent": false,
+              "eventHintNonstickySum": 1,
+              "eventHintNonzeroBuckets": 1,
+              "eventHintStickyBuckets": 0
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 4295,
+              "sequence": 276,
+              "allocations": 85,
+              "frees": 53,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 9314304,
+              "producerPhysicalFootprintBytes": 19010760,
+              "producerUserTimeNs": 2086096,
+              "producerSystemTimeNs": 1854900,
+              "producerStartAbstime": 2130116839538,
+              "producerFDCount": 259,
+              "eventHintsAvailable": true,
+              "eventHintSnapshotCoherent": false,
+              "eventHintNonstickySum": 8,
+              "eventHintNonzeroBuckets": 8,
+              "eventHintStickyBuckets": 0
+            },
+            "maxCurrent": 32,
+            "minCurrent": 14,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              107,
+              259
+            ],
+            "RSSRangeBytes": [
+              9314304,
+              19062784
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-latepark-f11d7db3-3680-4ea8-8a93-ccdb7ce55d5d/20261024T073810-sync-nt-extra-x86_64-2DDCB62B-F90C-40C5-937A-EAE533C28654/wine.log",
+        "rawLogSHA256": "be3326766c7016362dfe8940550708eb73adaf6ff677fd7a50c3dab13da4484a"
+      }
+    ]
+  },
+  "additionalUAttribution": {
+    "scope": "90 fixed runs;7of15 cells within3percent,8outside; not fullM1/default adoption",
+    "build": {
+      "rows": [
+        {
+          "arch": "i686",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/sync-user-bench.c",
+            "-o",
+            "/Users/cervantes/Cider/out/sync-user-bench-20261024/sync-user-bench-i686.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "sourceSHA256": "ae2157e1f665ac82bc36acce4543a9330f54401bfa9257a4a42f90aca9834397",
+          "exeSHA256": "d55065c2fd67b0630da11efc8047ca1064db198aeb314a9bed0f6bd555e74aba"
+        },
+        {
+          "arch": "x86_64",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "-std=c11",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/sync-user-bench.c",
+            "-o",
+            "/Users/cervantes/Cider/out/sync-user-bench-20261024/sync-user-bench-x86_64.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "sourceSHA256": "ae2157e1f665ac82bc36acce4543a9330f54401bfa9257a4a42f90aca9834397",
+          "exeSHA256": "bdff826d9735bb44af85286703b99fb1bdbb964a111959cf3b682d4ac03e6698"
+        }
+      ],
+      "passed": true
+    },
+    "sourceNotes": {
+      "schema": 1,
+      "date": "2026-10-24",
+      "source": "tests/sync/sync-user-bench.c",
+      "source_sha256": "ae2157e1f665ac82bc36acce4543a9330f54401bfa9257a4a42f90aca9834397",
+      "status": "source_and_component_compile_only_not_executed",
+      "write_scope": [
+        "tests/sync/sync-user-bench.c",
+        "out/sync-user-bench-20261024/source-notes.json"
+      ],
+      "basis": [
+        "AGENTS.md",
+        "docs/PROJECT_MEMORY.md",
+        "docs/research/17-wine-baseline-and-sync.md, U group in benchmark plan",
+        "tests/sync/waitall.c, operation counts, warmup, raw timing scopes, bounded cleanup and output acceptance",
+        "tests/sync/sync-matrix.c, existing U correctness coverage (not used as performance evidence)"
+      ],
+      "invocation": {
+        "syntax": "sync-user-bench.exe --bench cs|srw|cv|address|once iterations [threads=4] [batches=8]",
+        "iterations_scope": "per_worker_per_batch_in_each_selected_workload",
+        "threads": [
+          2,
+          4,
+          8
+        ],
+        "batches_minimum": 1,
+        "batches_maximum": 8,
+        "iterations_minimum": 1,
+        "iterations_maximum": {
+          "cs": 4000000,
+          "srw": 4000000,
+          "cv": 100000,
+          "address": 200000,
+          "once": 64000000
+        },
+        "warmup_per_worker_per_batch": "min(requested iterations, mode cap)",
+        "warmup_caps": {
+          "cs": 32768,
+          "srw": 32768,
+          "cv": 512,
+          "address": 1024,
+          "once": 262144
+        },
+        "backend": "externally selected and unverified by this PE; identical PE and arguments must be used for server and msync",
+        "no_runtime_calibration_or_sample_selection": true
+      },
+      "workloads": {
+        "cs": {
+          "operation": "All workers acquire/release one shared CRITICAL_SECTION, spin count zero, and update a sequence/complement plus previous-owner accounting under that lock.",
+          "success_api_calls_per_worker_iteration": 2,
+          "validation": "Exact aggregate sequence, complement invariant during work and afterward, exact per-worker completion.",
+          "scope_limit": "Contended shared-lock workload, without enforced round-robin turns or a count of actually blocked acquisitions. Peer switches do not prove blocking."
+        },
+        "srw": {
+          "operation": "Even workers acquire exclusive and update sequence/complement; odd workers acquire shared and check complement and monotonic observations. Half readers and half writers, no recursion or upgrade.",
+          "success_api_calls_per_worker_iteration": 2,
+          "validation": "Exact writer total, coherent reader observations, complement and per-worker completion."
+        },
+        "cv": {
+          "operation": "One-slot producer/consumer queue, half producers and half consumers, one CS, separate full/empty CV predicates. A consumer verifies the next produced sequence.",
+          "success_api_calls_per_worker_iteration": "3 (EnterCriticalSection, WakeConditionVariable, LeaveCriticalSection) plus actual SleepConditionVariableCS calls",
+          "transfer_count": "actual consumed count; on successful rows threads/2 * iterations",
+          "deadline": "One absolute phase deadline, recomputed remaining timeout before each predicate sleep; spurious/stolen wakes never renew it.",
+          "maximum_requested_measurement_transfers": 3200000,
+          "maximum_warmup_transfers": 16384,
+          "validation": "Exact produced/consumed totals, empty final slot, payload sequence and each worker completion."
+        },
+        "address": {
+          "operation": "Independent ping/pong pairs. Each pair uses one 32-bit turn word with acquire/release compiler atomics and a turn-protected sequence; every published turn calls WakeByAddressSingle.",
+          "success_api_calls_per_worker_iteration": "1 WakeByAddressSingle plus actual predicate WaitOnAddress calls; count is not assumed constant",
+          "roundtrip_count": "sum(floor(pair sequence / 2)); on successful rows threads/2 * iterations",
+          "deadline": "One absolute phase deadline; predicate is rechecked after all wait returns.",
+          "resolution": "Load documented api-ms-win-core-synch-l1-2-0.dll and resolve both APIs from it; otherwise resolve both from kernelbase.dll. Retain module through all joins, then free it.",
+          "unavailable": "Explicit failing check and nonzero completion, never a skip.",
+          "validation": "Exact sequence and restored turn for every pair, all per-worker completions and at least one WaitOnAddress API invocation in each emitted phase.",
+          "scope_limit": "API invocation is not proof of an actual kernel park; changed values and spurious returns are legitimate. No isolated wake latency is reported."
+        },
+        "once": {
+          "operation": "InitOnceExecuteOnce on an already initialized shared INIT_ONCE. Initialization occurs once per batch before warmup and before worker creation.",
+          "success_api_calls_per_worker_iteration": 1,
+          "callback": "Constant bounded callback: increment count atomically, publish a DWORD-aligned cookie address, return TRUE. It has no waits or asynchronous callback lifetime.",
+          "validation": "Every call returns success and the expected context; callback count must remain exactly one after both warmup and measurement."
+        }
+      },
+      "timing_and_metrics": {
+        "warmup": "Fixed warmup on the same worker threads and primitive instances as measurement. Workers park at a user-memory gate while worker zero snapshots warmup state and resets payload state. Each batch creates a fresh worker group; there is no adaptive calibration.",
+        "hot_region": "Between each worker's two QueryPerformanceCounter samples: primitive calls, predicates, sequence/checkword work, local call accounting, cancellation reads and required deadline-clock reads. Clock/payload/accounting costs are retained.",
+        "gate_join_scope": "Main participates as worker zero. Every event-gate return precedes the start barrier. Every QPC end precedes the finish barrier. No worker exits or parent joins until every measured interval ends. Watchdog has its own single bounded event wait.",
+        "barrier_reset_proof": "A distinct published counter proves all workers have exited the warmup finish barrier and published warmup samples before worker zero resets arrived/finished counters and payload state. The second_go release/acquire publication protects new iterations/deadline/state.",
+        "barrier_limit": "Early finishers spin outside their own QPC interval until peers finish. Those spins may affect peers still measuring. Start skew and scheduling remain in the common envelope; no isolation or quiet-host claim is made.",
+        "raw_rows": "One warmup and one measurement batch row per completed batch, including individual worker QPC begin/end/ticks, counters, error stage, Win32 error, roles, pair states, final invariants, deadline/completion ticks and actual completion counts. A measurement that ran is reported even if warmup validation later fails.",
+        "qpc_frequency": "Actual QueryPerformanceFrequency result, retained in begin/batch/summary records.",
+        "envelope_ticks": "max(worker qpc_end) - min(worker qpc_begin)",
+        "worker_ticks_sum": "sum(worker qpc_end - worker qpc_begin), diagnostic only; not the parallel throughput denominator",
+        "envelope_ns": "envelope_ticks * 1e9 / qpc_frequency",
+        "worker_units": "sum(completed worker iterations), including both peers and both producer/consumer roles",
+        "primitive_api_calls": "sum(acquire_calls + release_calls + wait_calls + wake_calls + once_calls); actual returned acquisition/release calls and actual wait/wake/once invocations, including separately counted failure-containment wake calls when those occur",
+        "ns_per_worker_iteration": "envelope_ns / worker_units",
+        "ns_per_primitive_api_call": "envelope_ns / primitive_api_calls; composite throughput cost including payload and accounting, not isolated call latency",
+        "worker_iterations_per_second": "worker_units * qpc_frequency / envelope_ticks (batch rows)",
+        "primitive_api_calls_per_second": "primitive_api_calls * qpc_frequency / envelope_ticks (batch rows)",
+        "summary": "Sum of all emitted measurement envelopes and their actual counts; warmup excluded. Ratios use summed envelopes/counts, never the fastest batch. Failed/partial run summaries are not accepted performance evidence.",
+        "process_duration": "GetTickCount64 elapsed milliseconds through complete-record construction, explicitly excludes subsequent final flush/watchdog join/process return. External runner must measure full process and cleanup duration.",
+        "no_subtraction": true,
+        "no_latency_percentiles": true,
+        "not_collected": [
+          "user/system CPU",
+          "wineserver/pump CPU",
+          "context switches",
+          "power",
+          "isolated blocked wake latency",
+          "actual kernel park counts"
+        ]
+      },
+      "bounds_and_cleanup": {
+        "process_watchdog_ms": 115000,
+        "required_external_wall_bound_ms_maximum": 120000,
+        "phase_absolute_limit_ms": 20000,
+        "join_limit_ms": 3000,
+        "phase_budget": "Warmup deadline starts before thread creation; measurement gets a new absolute deadline after all workers park. Each deadline is additionally capped at process deadline minus join reserve. Deadline violations fail; these are containment limits, not performance thresholds.",
+        "cancellation": "cs/srw/once read the shared abort word every 1024 iterations; cv/address read abort in predicate/turn processing. No shared RMW cancellation polling inside successful hot loops.",
+        "normal_cleanup": "Join every owned worker before checking thread exit status, closing handles, deleting CS storage or returning through group stack storage. Module refs remain live until workers join. Main worker returns in-process. Flush all output while watchdog stays armed, then signal and join watchdog before its stack context is released.",
+        "unprovable_cleanup": "Immediate TerminateProcess on this executable, with ExitProcess fallback. Never TerminateThread then unwind shared locks or stack objects.",
+        "exit_codes": {
+          "0": "all checks and output succeeded and watchdog cleanup completed",
+          "1": "argument/API/logical/output failure",
+          "122": "fatal setup/barrier/join/cleanup containment",
+          "124": "independent watchdog containment"
+        },
+        "acceptance": "Require complete ok:true, exit status zero, all requested batch rows/counts and successful external cleanup. A complete record can precede a later I/O or cleanup failure; its ok flag alone is insufficient.",
+        "outer_bound_limit": "CS/SRW/InitOnce acquisitions have no public timeout. Independent watchdog bounds a stuck main/worker while schedulable; OS suspension or watchdog starvation requires the external <=120s bound. Windows 8+ handle-wait timeouts exclude low-power time. This worker did not implement or execute the parent's outer runner."
+      },
+      "sizing_examples_not_frozen_or_measured": {
+        "purpose": "Fixed repeated batches intended to provide useful aggregate intervals. Actual durations are unknown; these examples are neither a calibration result nor a six-run comparison protocol. Parent freezes arguments and six-run +/-3% procedure only after adversarial source review.",
+        "arguments": [
+          "--bench cs 1000000 4 8",
+          "--bench srw 1000000 4 8",
+          "--bench cv 25000 2 8",
+          "--bench address 50000 2 8",
+          "--bench once 16000000 4 8"
+        ],
+        "cv_example_measurement_transfers": 200000,
+        "address_example_measurement_roundtrips": 400000,
+        "no_benchmark_runs_performed": true
+      },
+      "primary_sources_read": [
+        {
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitonaddress",
+          "decision": "Support documented 4-byte address size, predicate rechecks, actual error/timeout accounting and finite absolute-deadline waits; resolve the documented API-set dynamically."
+        },
+        {
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-wakebyaddresssingle",
+          "decision": "Use same-process two-peer pairs and one-address single wakes. Do not infer park/woken counts from its void return."
+        },
+        {
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-sleepconditionvariablecs",
+          "decision": "Enter CS exactly once before sleeping; recheck predicates for spurious/stolen wakeups; timeout paths still own CS and release it before exiting."
+        },
+        {
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-initonceexecuteonce",
+          "decision": "Preinitialize successfully before timing; retain aligned context and require exactly one callback across warmup/measurement."
+        },
+        {
+          "url": "https://learn.microsoft.com/en-us/windows/win32/sync/slim-reader-writer--srw--locks",
+          "decision": "Use nonrecursive exclusive writers and shared readers, no upgrades; make no fairness or FIFO claim."
+        },
+        {
+          "url": "https://learn.microsoft.com/en-us/windows/win32/sync/critical-section-objects",
+          "decision": "Use actual shared Enter/Leave calls. Do not infer FIFO handoffs or bounded acquisition from the API; watchdog is needed for stuck acquisitions."
+        },
+        {
+          "url": "https://learn.microsoft.com/en-us/windows/win32/sysinfo/acquiring-high-resolution-time-stamps",
+          "decision": "Cache actual QPC frequency; retain raw counters and use an interval envelope. Cross-thread timestamp ordering has a one-tick ambiguity; no individual cross-thread latency is claimed."
+        },
+        {
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/sysinfoapi/nf-sysinfoapi-gettickcount64",
+          "decision": "Use coarse monotonic elapsed milliseconds only for safety deadlines and process scope, not fine latency."
+        },
+        {
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitforsingleobject",
+          "decision": "Join before closing waited handles. Handle-wait timeouts on modern Windows do not include low-power time, so require the parent's outer wall bound."
+        }
+      ],
+      "component_compilation": {
+        "compiler_version": "Cider toolchain GCC 15.2.0",
+        "flags": [
+          "-std=c11",
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-S",
+          "-o",
+          "/dev/null"
+        ],
+        "results": [
+          {
+            "target": "x86_64-w64-mingw32",
+            "compiler": "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "exit_status": 0,
+            "diagnostics": "none"
+          },
+          {
+            "target": "i686-w64-mingw32",
+            "compiler": "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "exit_status": 0,
+            "diagnostics": "none"
+          }
+        ],
+        "scope": "Compile and assembly code generation only; output discarded to /dev/null. No PE linked or retained, no program executed, no MSVC claim."
+      },
+      "review_and_untested_limits": {
+        "local_source_review_corrections": [
+          "Count failure-containment wake API invocations and expose them separately.",
+          "Use actual consumed/per-pair sequence counts for incomplete transfers instead of total worker iterations divided by two.",
+          "Separate QPF evaluation from check argument construction so logged frequency cannot depend on C argument evaluation order.",
+          "Retain warmed worker identities between phases; use published barrier before counter reset."
+        ],
+        "parent_handoff": "Parent read current full source and reviewed barrier/published/reset/join/phase logic without an immediate finding. Independent adversarial review and fixed protocol/runner integration remain parent work. This delivery does not claim their completion.",
+        "known_limits": [
+          "Not linked or executed under Wine or Windows; runtime behavior, deadlock cleanup, output fault handling and dynamic export fallback are untested.",
+          "Run lengths are uncalibrated. Fixed counts can finish too quickly or hit containment deadlines; no samples may be silently dropped or retried.",
+          "Shared CS provides contention opportunity, not forced pingpong or a measured blocking fraction.",
+          "Address waits can return immediately or spuriously; API counts are not kernel park counts.",
+          "Barrier spinning and workload validation/accounting affect measured throughput and are retained.",
+          "No CPU, energy, isolated wakeup percentile, native equivalence or complete M1 acceptance claim.",
+          "No concrete unresolved source defect identified in this worker's limited review; compilation is not runtime or independent adversarial verification."
+        ]
+      },
+      "operations_performed": {
+        "wine_or_user_workload_execution": false,
+        "windows_or_remote_execution": false,
+        "tools_installed": false,
+        "subagents_used": false,
+        "production_or_msync_core_edits": false,
+        "affinity_power_root_or_platform_changes": false,
+        "comparison_protocol_frozen": false
+      }
+    },
+    "review": {
+      "schema": "cider.sync-user-bench-adversarial-review/v1",
+      "reviewDate": "2026-10-24",
+      "reviewKind": "bounded actual-source read-only adversarial review",
+      "outcome": "two_p2_in_validator",
+      "summary": "No concrete P1/P2 found in the frozen C source. Two receipt-validation P2 findings remain in user-bench-validation.py. No additional concrete defect found in the reviewed user-bench runner integration; see the explicit host-timeout scope limitation.",
+      "sources": [
+        {
+          "path": "tests/sync/sync-user-bench.c",
+          "sha256": "ae2157e1f665ac82bc36acce4543a9330f54401bfa9257a4a42f90aca9834397",
+          "bytes": 34660,
+          "lines": 733
+        },
+        {
+          "path": "tests/sync/user-bench-validation.py",
+          "sha256": "535d92f1b71675f4978388fcd7c62093412cd8c015a63cc0722407f9921f01c5",
+          "bytes": 7285,
+          "lines": 120
+        },
+        {
+          "path": "tests/sync/run-mac.py",
+          "sha256": "3f963e74b1984455a46f3fb4689fd50ef7a8c7d2ed03fb1b2d9a7e7c954ae203",
+          "bytes": 25720,
+          "lines": 441
+        }
+      ],
+      "findings": [
+        {
+          "id": "validate-complete-workload-state-and-address-pair-cardinality",
+          "priority": "P2",
+          "title": "Reject missing or contradictory workload state instead of relying only on successful check labels",
+          "path": "tests/sync/user-bench-validation.py",
+          "lineStart": 104,
+          "lineEnd": 106,
+          "relatedLocations": [
+            {
+              "path": "tests/sync/user-bench-validation.py",
+              "lineStart": 54,
+              "lineEnd": 60
+            },
+            {
+              "path": "tests/sync/sync-user-bench.c",
+              "lineStart": 492,
+              "lineEnd": 499
+            },
+            {
+              "path": "tests/sync/sync-user-bench.c",
+              "lineStart": 538,
+              "lineEnd": 553
+            }
+          ],
+          "staticCounterexamples": [
+            "Starting with an otherwise accepted address receipt, replace a batch row address_pairs with []. The only pair validation is any(...) over that array; any([]) is false, no required pair count or indexes are checked, and no later condition reads the array. With the existing positive predicate_wait_calls, acceptance is unchanged despite losing every pair state.",
+            "For an otherwise accepted CV receipt, delete produced, consumed, slot_full, and transfer_or_roundtrip_count from a batch row, or replace them with contradictory values. _validate never accesses those fields. The analogous protected_sequence for CS/SRW and once_callback_count for once are also never read."
+          ],
+          "impact": "The new runner can mark an incomplete or contradictory benchmark evidence receipt passed, despite the stated complete-raw-receipt validation purpose. Exact check-name counts and ok:true flags do not bind those claims to the emitted final state.",
+          "suggestedFix": "Validate the emitted per-kind final-state fields against count and threads. Require exactly threads/2 uniquely ordered address pairs with correct indexes, sequence and turn; verify CV produced/consumed/empty state and transfer count, CS/SRW sequence, and once callback count. Reject missing or contradictory state rather than trusting check flags alone.",
+          "evidenceBoundary": "Acceptance-preserving counterexamples follow from the actual source control flow. They were not executed; no current runtime receipt is claimed to contain these faults."
+        },
+        {
+          "id": "reconcile-wait-timeout-and-aggregate-attribution-counters",
+          "priority": "P2",
+          "title": "Cross-check wait/timeout/wake totals with the worker counters used for attribution",
+          "path": "tests/sync/user-bench-validation.py",
+          "lineStart": 89,
+          "lineEnd": 95,
+          "relatedLocations": [
+            {
+              "path": "tests/sync/user-bench-validation.py",
+              "lineStart": 97,
+              "lineEnd": 106
+            },
+            {
+              "path": "tests/sync/sync-user-bench.c",
+              "lineStart": 451,
+              "lineEnd": 464
+            },
+            {
+              "path": "tests/sync/sync-user-bench.c",
+              "lineStart": 263,
+              "lineEnd": 275
+            },
+            {
+              "path": "tests/sync/sync-user-bench.c",
+              "lineStart": 308,
+              "lineEnd": 315
+            }
+          ],
+          "staticCounterexamples": [
+            "For an otherwise accepted CV or address receipt, set a worker timeout_returns to wait_calls+1. Both remain nonnegative ints, the kind-specific zero check does not apply, and timeout_returns is not subsequently used in the API-call sum or summary. The impossible count is therefore accepted without changing any timing or summary fields.",
+            "A CV batch row predicate_wait_calls, wake_api_calls, or timeout_returns can be deleted or contradicted without changing validation. For address only predicate_wait_calls>0 is required; it is not reconciled with the sum of worker wait_calls, so the stated wait-exercised evidence can disagree with the raw per-worker counters."
+          ],
+          "impact": "A passed receipt need not consistently describe the actual wait, wake and timeout mix that accompanies its composite API throughput cost. This leaves a concrete gap in timing attribution even though the envelope, primary ns ratios and total primitive_api_calls are recomputed.",
+          "suggestedFix": "Require 0 <= timeout_returns <= wait_calls per worker, sum worker wait/wake/timeout counters, and compare each emitted batch aggregate to that sum. Base the address wait-exercised requirement on the summed worker waits. Reconcile the emitted per-second rates with the same QPC envelope and totals if retaining them as validated attribution fields.",
+          "evidenceBoundary": "Static counterexamples only; no validator execution, malformed-receipt tests, or empirical counter failure is claimed."
+        }
+      ],
+      "cSourceReview": {
+        "concreteP1P2": [],
+        "concurrency": [
+          {
+            "lines": [
+              215,
+              295
+            ],
+            "observation": "CS payload and CV predicates/payload are protected by one CS; SRW writers use exclusive and readers shared access. CV predicates are rechecked after all sleep returns."
+          },
+          {
+            "lines": [
+              299,
+              327
+            ],
+            "observation": "Each address pair has one worker per role, an acquire-loaded turn and release-stored handoff protecting sequence access. WaitOnAddress compares the observed LONG and the predicate is rechecked after returns. No actual kernel park is inferred."
+          },
+          {
+            "lines": [
+              359,
+              423
+            ],
+            "observation": "All warmup samples are stored before a worker increments published. Worker zero waits for every publication before resetting arrived/finished/payload and publishes the measurement configuration through second_go release/acquire. This avoids resetting a finish-barrier counter while another participant still reads it."
+          }
+        ],
+        "lifetimeAndFailure": [
+          {
+            "lines": [
+              557,
+              590
+            ],
+            "observation": "Normal paths join every created peer before closing gate/thread handles or allowing group storage to leave scope. Partial CreateThread failure, unprovable barrier completion, and failed join terminate this process rather than returning through live owned storage."
+          },
+          {
+            "lines": [
+              593,
+              613
+            ],
+            "observation": "Both address function pointers are resolved from one held module reference, retained until after worker joins."
+          },
+          {
+            "lines": [
+              720,
+              732
+            ],
+            "observation": "The watchdog stack context and stop event remain live through its join. Completion output is followed by flush and cleanup, so accepting complete.ok alone would be insufficient; the reviewed runner also requires exit 0."
+          }
+        ],
+        "apiUse": [
+          {
+            "lines": [
+              201,
+              207
+            ],
+            "observation": "InitOnce callback context points to DWORD-aligned group cookie storage. Initialization is performed before warmup for the steady-state once workload; callback count remains checked after each phase."
+          },
+          {
+            "lines": [
+              263,
+              295
+            ],
+            "observation": "SleepConditionVariableCS is entered while owning the CS once and returns to a predicate loop. Spurious/stolen wakes and early timeout returns do not renew the absolute phase deadline."
+          },
+          {
+            "lines": [
+              299,
+              327
+            ],
+            "observation": "WaitOnAddress uses a 4-byte LONG value and the documented function signature, followed by release publication and WakeByAddressSingle. Failure-containment wakes do not imply reliable delivery; finite deadlines and process containment remain."
+          }
+        ],
+        "timingAttribution": [
+          {
+            "lines": [
+              359,
+              423
+            ],
+            "observation": "Gate returns precede the start barrier and every worker ends QPC before the finish barrier opens. Worker exits and joins follow all intervals. Early finishers still spin while peers can remain timed, a disclosed source of interference."
+          },
+          {
+            "lines": [
+              444,
+              519
+            ],
+            "observation": "Envelope is min worker begin to max worker end, divided by summed completed iterations and actual API invocation counters. Summed worker time is diagnostic. CV CS calls and variable predicate sleeps, address wake/wait mix, validation payload, counters and clock reads remain in the composite cost."
+          },
+          {
+            "lines": [
+              519,
+              519
+            ],
+            "observation": "Only measurement envelopes/counts enter totals; raw warmup and measurement rows are emitted. Failed phases may contribute diagnostic totals, but checks and final ok/exit prevent accepting those totals as successful performance evidence."
+          },
+          {
+            "lines": [
+              634,
+              703
+            ],
+            "observation": "Work is fixed by arguments and per-kind warmup caps, with fresh groups per batch and the same peers/primitive instances across each batch warmup and measurement. No calibration, percentile latency, actual blocking fraction, quiet-host result or backend identity is established by the C fixture."
+          }
+        ]
+      },
+      "runnerIntegrationReview": {
+        "path": "tests/sync/run-mac.py",
+        "additionalConcreteP1P2": [],
+        "observations": [
+          {
+            "lines": [
+              170,
+              174
+            ],
+            "observation": "Requires bench mode, threads in 2/4/8, 1..8 batches, no stats and no alternative fixture, with args.timeout<=120. The argument vector matches the C --bench kind iterations threads batches interface."
+          },
+          {
+            "lines": [
+              227,
+              230
+            ],
+            "observation": "Loads the sibling validator and records its SHA256."
+          },
+          {
+            "lines": [
+              385,
+              410
+            ],
+            "observation": "The row allowlist preserves batch and summary, and user-bench validation is required along with an unchanged validator hash."
+          },
+          {
+            "lines": [
+              431,
+              435
+            ],
+            "observation": "Acceptance also requires exit 0, one valid bound session, no failed check/error/invalid JSON/oversize log or timing discontinuity. The validator findings above can therefore propagate into passed:true; this is not a new C workload defect."
+          }
+        ],
+        "hostTimeoutScopeLimit": "args.timeout<=120 caps the CLI waiting interval. Client pipe draining, sampler join and stop-runtime cleanup follow outside that waiting budget at lines 305..355. This review does not establish a <=120-second total wall bound including all cleanup, file IO, suspension or scheduler starvation. Parent outer-driver behavior was not reviewed.",
+        "guestTimeoutScopeLimit": "The C watchdog is 115000ms, phase deadlines 20000ms capped by the process join reserve, and joins 3000ms. A schedulable watchdog and the external host bound are still required; source inspection does not establish empirical timeout or cleanup behavior."
+      },
+      "primaryContractReferences": [
+        {
+          "title": "Microsoft WaitOnAddress",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitonaddress",
+          "use": "Signature, allowed sizes, timeout error, and required predicate recheck after early wake."
+        },
+        {
+          "title": "Microsoft SleepConditionVariableCS",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-sleepconditionvariablecs",
+          "use": "Single CS ownership, release/reacquire, timeout and spurious/stolen wake contracts."
+        },
+        {
+          "title": "Microsoft InitOnceExecuteOnce",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-initonceexecuteonce",
+          "use": "Callback context DWORD alignment and synchronous initialization behavior."
+        }
+      ],
+      "operations": {
+        "buildsRun": 0,
+        "runtimeWorkloadsRun": 0,
+        "validatorOrRunnerExecutions": 0,
+        "counterexampleTestsExecuted": 0,
+        "windowsOperations": 0,
+        "processControlOperations": 0,
+        "subagentsUsed": 0,
+        "sourceEdits": 0,
+        "onlyWrittenArtifact": "out/sync-user-bench-20261024/adversarial-review.json",
+        "f27PerformanceOrHourRepeated": false
+      },
+      "limits": [
+        "Complete current contents of all three source files and the runner diff were inspected. Source notes were supplemental and matched the frozen C hash; they were not a substitute for source review.",
+        "No compilation, linking, disassembly, runtime, receipt-validation execution or fault injection was performed. Reported component compilation was not independently verified.",
+        "No claim of native Windows equivalence, successful runtime cleanup, measured throughput, +/-3% acceptance, actual kernel blocking, complete M1 acceptance or a strict total runner wall-time bound.",
+        "Parent outer protocol, actual engine/PE pairing and cleanup receipts were outside this source review. Existing N and F27 runs/evidence were not modified or repeated."
+      ]
+    },
+    "finalReview": {
+      "schema": "cider.sync-user-bench-validator-final-review/v1",
+      "reviewDate": "2026-10-24",
+      "reviewKind": "bounded actual-source read-only closure review of validator only",
+      "outcome": "prior_p2_findings_closed_no_remaining_concrete_p1_p2_in_reviewed_scope",
+      "summary": "Both previously reported validator P2 findings are closed in the exact public source reviewed. No remaining concrete P1/P2 found in this closure scope. This is static source review, not execution of the stricter validator or confirmation of preflight receipts.",
+      "source": {
+        "path": "tests/sync/user-bench-validation.py",
+        "sha256": "1acfb2dd9c50c3d5afae328c4a07a115d656b3f63a2a994241bf8c7e77d1c79b",
+        "bytes": 8627,
+        "lines": 142,
+        "previousReviewedSHA256": "535d92f1b71675f4978388fcd7c62093412cd8c015a63cc0722407f9921f01c5"
+      },
+      "previousFindings": [
+        {
+          "id": "validate-complete-workload-state-and-address-pair-cardinality",
+          "priority": "P2",
+          "status": "closed",
+          "path": "tests/sync/user-bench-validation.py",
+          "lineStart": 111,
+          "lineEnd": 128,
+          "evidence": [
+            "The validator now requires protected_sequence, transfer_or_roundtrip_count, produced, consumed, slot_full, once_callback_count, cs_peer_switches and address_pairs. Missing accessed fields raise KeyError and the public wrapper returns False.",
+            "CS/SRW protected sequence is checked against the phase iteration and writer counts; transfers and CV produced/consumed counts are derived from iterations and half the workers; final slot_full must be zero. Callback count must be exactly one for once and zero otherwise.",
+            "Address rows require exactly threads/2 pairs, ordered indexes matching enumeration, sequence 2*count and final turn zero. The earlier empty-array counterexample is rejected by the cardinality check; missing, duplicated or wrong pair indexes are also rejected.",
+            "Non-address rows must have an empty pair array. CS peer switches must be an int strictly between zero and total worker iterations; other modes require zero. This is an observed-switch check, not a claim that acquisitions blocked."
+          ]
+        },
+        {
+          "id": "reconcile-wait-timeout-and-aggregate-attribution-counters",
+          "priority": "P2",
+          "status": "closed",
+          "path": "tests/sync/user-bench-validation.py",
+          "lineStart": 89,
+          "lineEnd": 110,
+          "relatedLocations": [
+            {
+              "path": "tests/sync/user-bench-validation.py",
+              "lineStart": 121,
+              "lineEnd": 125
+            }
+          ],
+          "evidence": [
+            "All six per-worker acquisition/release/once/wake/wait/timeout counters must be nonnegative ints. timeout_returns greater than wait_calls is explicitly rejected, closing the earlier wait_calls+1 counterexample.",
+            "Each row predicate_wait_calls, wake_api_calls and timeout_returns must equal the corresponding worker sum. Missing or contradictory aggregate counters therefore fail.",
+            "For address, the positive predicate_wait_calls requirement now applies to an aggregate already reconciled with the worker waits. It consequently cannot claim a wait API invocation when the worker sum is zero.",
+            "The existing QPC envelope, API-call denominator, ns ratios and measurement summary recomputation remain in place. No benchmark performance gate or minimum timing precision gate was introduced by these fixes."
+          ]
+        }
+      ],
+      "findings": [],
+      "remainingConcreteP1": 0,
+      "remainingConcreteP2": 0,
+      "reviewMethod": "Read the entire current public validator and numbered source; inspect the counter, state, shape and summary conditions against the two prior static counterexamples. Verify the exact source hash before and after writing this report.",
+      "executionAndPreservation": {
+        "validatorExecutions": 0,
+        "receiptMutationTestsExecuted": 0,
+        "rawReceiptValidationPerformed": false,
+        "buildsRun": 0,
+        "runtimeWorkloadsRun": 0,
+        "windowsOperations": 0,
+        "processControlOperations": 0,
+        "subagentsUsed": 0,
+        "sourceEdits": 0,
+        "frozenV1InputsReadOrModified": false,
+        "preflightRerun": false,
+        "onlyWrittenArtifact": "out/sync-user-bench-20261024/adversarial-review-final.json"
+      },
+      "limits": [
+        "Scope is the current public validator only. The C fixture, runner, frozen v1 preflight inputs, raw preflight rows, and parent mutation-negative results were not reopened, executed or reassessed in this closure review.",
+        "Closure is supported by actual source control flow. It does not establish successful offline validation of actual preflight output or successful execution of the parent mutation negatives.",
+        "This review does not add runtime, performance, native Windows equivalence or broader acceptance evidence."
+      ]
+    },
+    "receiptValidation": {
+      "scope": "offline stricter validation of original raw preflight; no rerun, no changed raw bytes",
+      "validatorSHA256": "1acfb2dd9c50c3d5afae328c4a07a115d656b3f63a2a994241bf8c7e77d1c79b",
+      "positive": [
+        {
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827932462075000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-bench.json",
+          "rawSHA256": "1e8a5248dbd6d71de3ba40f4e472eeb12f7ce371a7e9c3e1d908afc15b875e52",
+          "valid": true
+        },
+        {
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827943093462000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-bench.json",
+          "rawSHA256": "f7dc5bc54e7f3296a21f188b357527ce1778e866abc96f2b4f35eb6eb104e65f",
+          "valid": true
+        },
+        {
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827947957879000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-bench.json",
+          "rawSHA256": "0927e8903cc43360cde88eaf9ccd8114266a7f4c7f7a23b1937990c5589cf6d3",
+          "valid": true
+        },
+        {
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827953021533000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-bench.json",
+          "rawSHA256": "b42b1eb37d4542e2e2812a8e3222ad8339686102a031dfa53578a3d593247d82",
+          "valid": true
+        },
+        {
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827958178147000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-bench.json",
+          "rawSHA256": "eedfc996a51d41141d8443879d7aabf4aac053ca649cbcc88824f03479ec54ab",
+          "valid": true
+        },
+        {
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827963270859000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+          "rawSHA256": "2ac8f51a04764740bb0f09c23c0ac3719ff1aa657ffe92455e452acea924b777",
+          "valid": true
+        },
+        {
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827968310688000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+          "rawSHA256": "b714bc4251f05203e8b77115d846c85485e5c7d788dc6f37e2f7a12f6216867a",
+          "valid": true
+        },
+        {
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827973256771000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+          "rawSHA256": "c6ceb03214f6b0a64b99ca79d79482c511479a27c4c1306c87e06e72fb5442aa",
+          "valid": true
+        },
+        {
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827978206798000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+          "rawSHA256": "82d8a0cd416c1f18b4023347f1f08e75e82d5c5e930e74f3e2d54afb47747d92",
+          "valid": true
+        },
+        {
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792827983140636000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+          "rawSHA256": "21ae7a4b55bc16ab48e2ec3cad21bdc2afb20e24188ffa091113f83c2f4efa60",
+          "valid": true
+        }
+      ],
+      "negative": [
+        {
+          "name": "missing check",
+          "correctlyRejected": true
+        },
+        {
+          "name": "missing batch",
+          "correctlyRejected": true
+        },
+        {
+          "name": "duplicate batch",
+          "correctlyRejected": true
+        },
+        {
+          "name": "missing worker",
+          "correctlyRejected": true
+        },
+        {
+          "name": "incorrect metric divisor",
+          "correctlyRejected": true
+        },
+        {
+          "name": "bad batch address_pairs",
+          "correctlyRejected": true
+        },
+        {
+          "name": "wrong pair index",
+          "correctlyRejected": true
+        },
+        {
+          "name": "wrong pair turn",
+          "correctlyRejected": true
+        },
+        {
+          "name": "wrong pair sequence",
+          "correctlyRejected": true
+        },
+        {
+          "name": "bad batch protected_sequence",
+          "correctlyRejected": true
+        },
+        {
+          "name": "bad batch produced",
+          "correctlyRejected": true
+        },
+        {
+          "name": "bad batch consumed",
+          "correctlyRejected": true
+        },
+        {
+          "name": "bad batch slot_full",
+          "correctlyRejected": true
+        },
+        {
+          "name": "bad batch once_callback_count",
+          "correctlyRejected": true
+        },
+        {
+          "name": "bad batch transfer_or_roundtrip_count",
+          "correctlyRejected": true
+        },
+        {
+          "name": "bad batch predicate_wait_calls",
+          "correctlyRejected": true
+        },
+        {
+          "name": "bad batch wake_api_calls",
+          "correctlyRejected": true
+        },
+        {
+          "name": "bad batch timeout_returns",
+          "correctlyRejected": true
+        },
+        {
+          "name": "timeouts exceed waits",
+          "correctlyRejected": true
+        }
+      ],
+      "passed": true
+    },
+    "protocol": {
+      "schema": "cider.u-attribution/v1",
+      "scope": "performance",
+      "declaredUTC": "2026-10-24T07:48:33.865484+00:00",
+      "queue": [
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 2,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 4,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cs",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "srw",
+          "iterations": 2000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "cv",
+          "iterations": 20000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "address",
+          "iterations": 40000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 0
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 1
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark Server",
+          "pair": 2
+        },
+        {
+          "arch": "x86_64",
+          "kind": "once",
+          "iterations": 64000000,
+          "threads": 8,
+          "batches": 4,
+          "bottle": "WaitAll LatePark",
+          "pair": 2
+        }
+      ],
+      "expectedNativeSHA256": {
+        "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+        "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+        "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+        "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+      },
+      "exeSHA256": {
+        "i686": "d55065c2fd67b0630da11efc8047ca1064db198aeb314a9bed0f6bd555e74aba",
+        "x86_64": "bdff826d9735bb44af85286703b99fb1bdbb964a111959cf3b682d4ac03e6698"
+      },
+      "fixedInputs": {
+        "/Users/cervantes/Cider/out/sync-user-bench-20261024/performance-inputs-v1/frozen-runner-v1.py": "9578b3265e142d498386da2f467c784b59679bc63568618166cef1bc0f0673cb",
+        "/Users/cervantes/Cider/out/sync-user-bench-20261024/performance-inputs-v1/user-bench-validation.py": "1acfb2dd9c50c3d5afae328c4a07a115d656b3f63a2a994241bf8c7e77d1c79b",
+        "/Users/cervantes/Cider/tests/sync/sync-user-bench.c": "ae2157e1f665ac82bc36acce4543a9330f54401bfa9257a4a42f90aca9834397",
+        "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes": "e13a4d30073caad340f2df4d7718a77779f29b88ae04e460f0faa27bf17916b4",
+        "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/sync-user-bench-i686.exe": "d55065c2fd67b0630da11efc8047ca1064db198aeb314a9bed0f6bd555e74aba",
+        "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/sync-user-bench-x86_64.exe": "bdff826d9735bb44af85286703b99fb1bdbb964a111959cf3b682d4ac03e6698"
+      },
+      "power": "AC/LPM0 before and after each performance run",
+      "metric": "summary raw worker-loop envelope ns per completed worker iteration; no subtraction, not wake latency",
+      "aggregation": "median of three whole-run summaries per mode per cell; all batches retained",
+      "relativeGate": 0.03,
+      "noRetry": true,
+      "noPosthocExclusions": true,
+      "fullM1Accepted": false
+    },
+    "sourcePathObservation": {
+      "sourceSHA256": "6a1e4ca32d726b22d3e0653960adf2ed3b7b6d0c1ea96162a60d0af0c8f0668d",
+      "scope": "limited source call-path inspection; not runtime causality or gate acceptance",
+      "functions": {
+        "NtAlertThreadByThreadId": {
+          "sha256": "ed77d80603c82718f458e42720e99648de9cb1badbd44e973575d93718399a4f",
+          "mentionsMsync": false,
+          "mentionsFutex": true,
+          "containsOSSyncDirectly": false,
+          "lines": 34
+        },
+        "NtWaitForAlertByThreadId": {
+          "sha256": "b293e5a0beb9334416eb4a1531651828ac27a5df6b2f13d1e93093d650724fe6",
+          "mentionsMsync": false,
+          "mentionsFutex": true,
+          "containsOSSyncDirectly": false,
+          "lines": 88
+        }
+      }
+    },
+    "executionPassed": true,
+    "attributionAccepted": false,
+    "cells": [
+      {
+        "kind": "cs",
+        "threads": 2,
+        "values": {
+          "server": [
+            141.22329375,
+            139.54911875,
+            105.41775
+          ],
+          "msync": [
+            145.34844375,
+            146.7561125,
+            144.69355
+          ]
+        },
+        "medians": {
+          "server": 139.54911875,
+          "msync": 145.34844375
+        },
+        "relative": 0.04155758955661626,
+        "within3Percent": false
+      },
+      {
+        "kind": "srw",
+        "threads": 2,
+        "values": {
+          "server": [
+            56.6394,
+            55.8176875,
+            88.2685125
+          ],
+          "msync": [
+            57.16965,
+            79.56100625,
+            56.38234375
+          ]
+        },
+        "medians": {
+          "server": 56.6394,
+          "msync": 57.16965
+        },
+        "relative": 0.00936185764679709,
+        "within3Percent": true
+      },
+      {
+        "kind": "cv",
+        "threads": 2,
+        "values": {
+          "server": [
+            3767.253125,
+            3260.2,
+            3297.150625
+          ],
+          "msync": [
+            3582.57,
+            3337.7625,
+            3260.149375
+          ]
+        },
+        "medians": {
+          "server": 3297.150625,
+          "msync": 3337.7625
+        },
+        "relative": 0.012317264092233993,
+        "within3Percent": true
+      },
+      {
+        "kind": "address",
+        "threads": 2,
+        "values": {
+          "server": [
+            2907.3565625,
+            2891.3625,
+            2862.1884375
+          ],
+          "msync": [
+            2895.3228125,
+            2847.6228125,
+            2557.0478125
+          ]
+        },
+        "medians": {
+          "server": 2891.3625,
+          "msync": 2847.6228125
+        },
+        "relative": -0.015127707957753644,
+        "within3Percent": true
+      },
+      {
+        "kind": "once",
+        "threads": 2,
+        "values": {
+          "server": [
+            2.466500977,
+            3.125088086,
+            2.445146875
+          ],
+          "msync": [
+            2.332319531,
+            2.879028516,
+            3.813134961
+          ]
+        },
+        "medians": {
+          "server": 2.466500977,
+          "msync": 2.879028516
+        },
+        "relative": 0.1672521287632962,
+        "within3Percent": false
+      },
+      {
+        "kind": "cs",
+        "threads": 4,
+        "values": {
+          "server": [
+            65.532375,
+            67.1125625,
+            70.89188125
+          ],
+          "msync": [
+            67.135246875,
+            68.3641875,
+            68.86589375
+          ]
+        },
+        "medians": {
+          "server": 67.1125625,
+          "msync": 68.3641875
+        },
+        "relative": 0.018649638061428497,
+        "within3Percent": true
+      },
+      {
+        "kind": "srw",
+        "threads": 4,
+        "values": {
+          "server": [
+            82.2519875,
+            81.87495,
+            78.525784375
+          ],
+          "msync": [
+            84.448009375,
+            83.727121875,
+            80.6297375
+          ]
+        },
+        "medians": {
+          "server": 81.87495,
+          "msync": 83.727121875
+        },
+        "relative": 0.022621960379823003,
+        "within3Percent": true
+      },
+      {
+        "kind": "cv",
+        "threads": 4,
+        "values": {
+          "server": [
+            3357.018125,
+            3426.038125,
+            3381.121875
+          ],
+          "msync": [
+            3371.094375,
+            3352.2021875,
+            3837.7053125
+          ]
+        },
+        "medians": {
+          "server": 3381.121875,
+          "msync": 3371.094375
+        },
+        "relative": -0.002965731603507993,
+        "within3Percent": true
+      },
+      {
+        "kind": "address",
+        "threads": 4,
+        "values": {
+          "server": [
+            4112.5040625,
+            2483.3634375,
+            2445.64921875
+          ],
+          "msync": [
+            2607.08984375,
+            2515.17796875,
+            2346.71390625
+          ]
+        },
+        "medians": {
+          "server": 2483.3634375,
+          "msync": 2515.17796875
+        },
+        "relative": 0.012811065335659233,
+        "within3Percent": true
+      },
+      {
+        "kind": "once",
+        "threads": 4,
+        "values": {
+          "server": [
+            1.649390527,
+            1.74325166,
+            1.977099023
+          ],
+          "msync": [
+            2.536557129,
+            1.815597852,
+            4.198826758
+          ]
+        },
+        "medians": {
+          "server": 1.74325166,
+          "msync": 2.536557129
+        },
+        "relative": 0.45507225789763495,
+        "within3Percent": false
+      },
+      {
+        "kind": "cs",
+        "threads": 8,
+        "values": {
+          "server": [
+            87.132845312,
+            104.177626562,
+            111.272003125
+          ],
+          "msync": [
+            86.797764062,
+            92.109690625,
+            98.139579688
+          ]
+        },
+        "medians": {
+          "server": 104.177626562,
+          "msync": 92.109690625
+        },
+        "relative": -0.11583999689048319,
+        "within3Percent": false
+      },
+      {
+        "kind": "srw",
+        "threads": 8,
+        "values": {
+          "server": [
+            191.059707812,
+            191.7621125,
+            225.114271875
+          ],
+          "msync": [
+            202.724279688,
+            163.93696875,
+            242.444339063
+          ]
+        },
+        "medians": {
+          "server": 191.7621125,
+          "msync": 202.724279688
+        },
+        "relative": 0.057165448612796155,
+        "within3Percent": false
+      },
+      {
+        "kind": "cv",
+        "threads": 8,
+        "values": {
+          "server": [
+            3251.43265625,
+            12869.91484375,
+            3258.89359375
+          ],
+          "msync": [
+            4074.87265625,
+            4901.52703125,
+            3502.245625
+          ]
+        },
+        "medians": {
+          "server": 3258.89359375,
+          "msync": 4074.87265625
+        },
+        "relative": 0.25038530379295243,
+        "within3Percent": false
+      },
+      {
+        "kind": "address",
+        "threads": 8,
+        "values": {
+          "server": [
+            1740.244140625,
+            3736.90484375,
+            3935.137890625
+          ],
+          "msync": [
+            3346.7271875,
+            4230.578671875,
+            3421.849453125
+          ]
+        },
+        "medians": {
+          "server": 3736.90484375,
+          "msync": 3421.849453125
+        },
+        "relative": -0.0843091820097942,
+        "within3Percent": false
+      },
+      {
+        "kind": "once",
+        "threads": 8,
+        "values": {
+          "server": [
+            2.495919873,
+            2.801675098,
+            2.301503369
+          ],
+          "msync": [
+            7.345619385,
+            2.185185938,
+            2.374652832
+          ]
+        },
+        "medians": {
+          "server": 2.495919873,
+          "msync": 2.374652832
+        },
+        "relative": -0.048586111401982435,
+        "within3Percent": false
+      }
+    ],
+    "cleanup": {
+      "captured": [],
+      "emptyObservations": 2,
+      "hostShutdown": {
+        "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+        "capturedPIDs": [
+          5199
+        ],
+        "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+        "confirmed": true,
+        "kernelIdentityReadable": true,
+        "terminationRequested": true
+      },
+      "mode": "stop-runtime",
+      "pending": [],
+      "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+    },
+    "runtimeTests": [
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828114230771000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "3f0fd6bb10744e3f005863eb3ac49c4fd99c7ae8fa2e30e6feb8c7a10a532af0",
+        "sessionManifestSHA256": "f270489c95475667fd7646f154d85de7ffa83f8a582a62c4828dde141ff13c02",
+        "actualWINEMSYNC": "0",
+        "kind": "cs",
+        "threads": 2,
+        "nsPerWorkerIteration": 141.22329375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828126763191000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "4a475e8e166844fed7dd0ed4fc6a90995996cb2682b1bbfe386b7267d4e8a3c1",
+        "sessionManifestSHA256": "200825be5998b97b045ac5592d6fe4f6a9e02be048399612c11fa076e291af3c",
+        "actualWINEMSYNC": "1",
+        "kind": "cs",
+        "threads": 2,
+        "nsPerWorkerIteration": 145.34844375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828133898369000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "141fbf1ca58e080613541eeb96b9c5a3d55e8ac91855eb3c32851b8dce5b697c",
+        "sessionManifestSHA256": "248a3de1a376f12983e31a942d9792de1b8b4d79a2c4bc1cf60d46bc7cc1423b",
+        "actualWINEMSYNC": "1",
+        "kind": "cs",
+        "threads": 2,
+        "nsPerWorkerIteration": 146.7561125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828141522250000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "3d6a3f3e6691698e96aca9d820fffc00443ac02b3aaaf19004562ee6aa1e0080",
+        "sessionManifestSHA256": "46d89bbe1f8c7cbbffa67d6d70880ab432239e96845d4a0465e0d616855a5016",
+        "actualWINEMSYNC": "0",
+        "kind": "cs",
+        "threads": 2,
+        "nsPerWorkerIteration": 139.54911875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828148739911000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "d5aeb79fbf0dfbf3b82b1795bf4d326f0407ed059448de06e9c9d2e3af93cdd7",
+        "sessionManifestSHA256": "6d8a663b022ca1a39402ba3e3b735f53fd65bd99aa21b5df0bced83cef7ca440",
+        "actualWINEMSYNC": "0",
+        "kind": "cs",
+        "threads": 2,
+        "nsPerWorkerIteration": 105.41775,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828155648479000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "28f9d1c65aa5be5f31f161a0a0c716b2a97a93a62f4babfaf78ad3f6e17af741",
+        "sessionManifestSHA256": "f3f8d17ae6a28c9b7e7c489c16a55592253d1d16d66799fba132480cdbf8a004",
+        "actualWINEMSYNC": "1",
+        "kind": "cs",
+        "threads": 2,
+        "nsPerWorkerIteration": 144.69355,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828163913806000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "828bc7e0ed9235f1c9b649b914e1d4f8aa2af8ccb2a33d815b346cea709ad5e9",
+        "sessionManifestSHA256": "4f4d1d35e68029af05ac0d8cc8269c92cb145edc17aaf31eca32496ba60cf27c",
+        "actualWINEMSYNC": "0",
+        "kind": "srw",
+        "threads": 2,
+        "nsPerWorkerIteration": 56.6394,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828170126246000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "7a3787c7423659bc28e0b95c0e06975bd9a6aece572840e6fa5a6d1b4a6e168b",
+        "sessionManifestSHA256": "5fba24c6961aa9ddab85f09beb6e13e07a51900d1b3a6d74074257ca9957c28c",
+        "actualWINEMSYNC": "1",
+        "kind": "srw",
+        "threads": 2,
+        "nsPerWorkerIteration": 57.16965,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828176454553000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "04260bfa9b08f4c8d8f4f1fc550eaa7bf6720ef2089b18332d02cd2e6a77b14a",
+        "sessionManifestSHA256": "d51d6b13b5b2b7ec433c1bee2eb3708a47c68c8392cfa9df270b234aeab09f30",
+        "actualWINEMSYNC": "1",
+        "kind": "srw",
+        "threads": 2,
+        "nsPerWorkerIteration": 79.56100625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828183105848000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "1599646d38806acd411d2e4a423fccd3a60ada8d602fe410e680a3f9b5bca277",
+        "sessionManifestSHA256": "dac30cfdd0636c3958992582af9c542ad291004bc29e8ea2c72be13ec38f65e6",
+        "actualWINEMSYNC": "0",
+        "kind": "srw",
+        "threads": 2,
+        "nsPerWorkerIteration": 55.8176875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828193425615000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "fc6394190ec990dd5c34e49d8a66f0e480f0e42e1e9fceb50bc58338db258497",
+        "sessionManifestSHA256": "12a29d559ebe67ddc61214c52d219b4c0dce5a23f973d693be39a74fb0442dc6",
+        "actualWINEMSYNC": "0",
+        "kind": "srw",
+        "threads": 2,
+        "nsPerWorkerIteration": 88.2685125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828200874025000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "65f52b9112c3a904dbdbba20d2996630b588497bc2ae4adcc78e04bc0881d47e",
+        "sessionManifestSHA256": "1ec654b699e7837ba47fa5743a7ea1e0bb09c7eb63f3322ce17257fde9a9139e",
+        "actualWINEMSYNC": "1",
+        "kind": "srw",
+        "threads": 2,
+        "nsPerWorkerIteration": 56.38234375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828207060656000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "369681c9e6b8a54f9fd29e0efadbd47328208f6a8bb8339d026856fdd6694f5d",
+        "sessionManifestSHA256": "602e687196fcd392b2b0b84275745452c4674261f39cd4a20a87decb169c908d",
+        "actualWINEMSYNC": "0",
+        "kind": "cv",
+        "threads": 2,
+        "nsPerWorkerIteration": 3767.253125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828212918518000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "96f0c69d70f82b5595740cd26e41cf4260e4e0cf41a1639b6ab21ee13c8e5b19",
+        "sessionManifestSHA256": "0dc0e7557f2accd057c98531e3e1ed768a1a14f6a743ab0ad53681070ecc3df1",
+        "actualWINEMSYNC": "1",
+        "kind": "cv",
+        "threads": 2,
+        "nsPerWorkerIteration": 3582.57,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828218703487000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "d794c61d6311cd4d9c0f190aa0363b68c4cb9c2c5a584b671b2996ef6631affc",
+        "sessionManifestSHA256": "96d971b161f75c1b4be78e55bc07d09d83f9964eccbb6249c3f23a35fa89bba5",
+        "actualWINEMSYNC": "1",
+        "kind": "cv",
+        "threads": 2,
+        "nsPerWorkerIteration": 3337.7625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828224811151000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "cf4b0495e276566cfaebe00046fbaa71eb1274e96d54ea7ce0ab6e87e4b39889",
+        "sessionManifestSHA256": "78dd7d8bd51ee78d788787fea5b19b3f90ca8e48f4de3d3f20fd2999cf596cd7",
+        "actualWINEMSYNC": "0",
+        "kind": "cv",
+        "threads": 2,
+        "nsPerWorkerIteration": 3260.2,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828230450817000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "71afdba99717ddd5e511741428a1bede1738a60ef415d7e2be733430d82da612",
+        "sessionManifestSHA256": "47db0ee06c090056f84c115c2a4a646ad69b358b950a208c92610b8cb29ed41f",
+        "actualWINEMSYNC": "0",
+        "kind": "cv",
+        "threads": 2,
+        "nsPerWorkerIteration": 3297.150625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828236084585000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "4d6c361357b7b8c0dd0ea73dd14fc4f2d2933e4149bdad6d1c7887434681236e",
+        "sessionManifestSHA256": "851a107d4a6935bc98392dd4b3ff1054a3bb2b8ae304441d3761a9e75394cf84",
+        "actualWINEMSYNC": "1",
+        "kind": "cv",
+        "threads": 2,
+        "nsPerWorkerIteration": 3260.149375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828241702831000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "e85c167dff29bff9c892615b5dc6753469b163558e22a529b3c24330ce558c55",
+        "sessionManifestSHA256": "6ad57a61629ab3159f39bebca77c53428f04c5c5d1d7a76c9e07b3526d6dd2f1",
+        "actualWINEMSYNC": "0",
+        "kind": "address",
+        "threads": 2,
+        "nsPerWorkerIteration": 2907.3565625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828247781450000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "e8f858d1652af9e3f54b49e3c6c7fe246d0b21abc82b3dadbb2198de07f4c256",
+        "sessionManifestSHA256": "dc3e5f12f3c2bb144bd29a1b53fb49a03cc5d380f876de9fdf3cb02a28fdba91",
+        "actualWINEMSYNC": "1",
+        "kind": "address",
+        "threads": 2,
+        "nsPerWorkerIteration": 2895.3228125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828253852132000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "93b0a616899401c9dda2bf1048425b13c7dac7c86dc0dea4b5ab0f497b20310f",
+        "sessionManifestSHA256": "dd33881b9b42bf0e3ff2f073d8ffd3021f04081df7ee68280ba0cdcc8edf54b1",
+        "actualWINEMSYNC": "1",
+        "kind": "address",
+        "threads": 2,
+        "nsPerWorkerIteration": 2847.6228125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828260139617000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "8479c3c1a161cfa9285be976e3823f9bb37057cb6a07fb98807ab83ca30ab110",
+        "sessionManifestSHA256": "21f794d456e96079cb42e32e73264fcd319bd44ada7ba4c739b17483c5907efb",
+        "actualWINEMSYNC": "0",
+        "kind": "address",
+        "threads": 2,
+        "nsPerWorkerIteration": 2891.3625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828266321112000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "855eae174fc473d64829952a3d53e9b7487866e15852463fe85ebba422d4330d",
+        "sessionManifestSHA256": "4f734c1618324f82baa262a5c4d7eee56eab69b06494792c1b81ee4d4a3c1996",
+        "actualWINEMSYNC": "0",
+        "kind": "address",
+        "threads": 2,
+        "nsPerWorkerIteration": 2862.1884375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828272416627000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "14e7ac38a96cd8e5535c9b82699f629cf1f06a705af240bd7f31c10d9b37dc96",
+        "sessionManifestSHA256": "fb917f845e3cf18880e58764bdfb07a1c6bf0951f1495dcca94b1f3b4004bff9",
+        "actualWINEMSYNC": "1",
+        "kind": "address",
+        "threads": 2,
+        "nsPerWorkerIteration": 2557.0478125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828278360825000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "585b05173ca1ee50226756fd5d8ef4a9563a1bec5b176aed3bee749cab10f7c6",
+        "sessionManifestSHA256": "0d799d5307491903792bcf00527bdd87f7da4bb14e59e19341a4e1e2d731b348",
+        "actualWINEMSYNC": "0",
+        "kind": "once",
+        "threads": 2,
+        "nsPerWorkerIteration": 2.466500977,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828284800277000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "75f298ad523100e918e9dd20cdb2a7f8aaf51c3242980c68ffd3819b288b8dc4",
+        "sessionManifestSHA256": "3facca9387ec595737633bccf9606fe69dabbd1431a10cf865e1642d0aebed1b",
+        "actualWINEMSYNC": "1",
+        "kind": "once",
+        "threads": 2,
+        "nsPerWorkerIteration": 2.332319531,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828291082222000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "11a710c9fd6876f14c25f34c5ba54810f5f6089abb266464ba7af969f50282d3",
+        "sessionManifestSHA256": "f6b97e9c4db63e292b6d7ae16eff6afa795bfadc1f14a47ba1c5ada0117fb023",
+        "actualWINEMSYNC": "1",
+        "kind": "once",
+        "threads": 2,
+        "nsPerWorkerIteration": 2.879028516,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828297629583000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "3e48651a6a728ac95c7193db7d72880fa8f09cb30a321d5847a2fefa04f39eff",
+        "sessionManifestSHA256": "3a4c867d0c81f04e1d7379835a135b525119fd1e44ea6ba3cbedcb36d753886e",
+        "actualWINEMSYNC": "0",
+        "kind": "once",
+        "threads": 2,
+        "nsPerWorkerIteration": 3.125088086,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828304602871000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "3e4d7190e43db13b2c0a676b6f7f6c9994c2cd4ea64aa74fa74a460a7d48848e",
+        "sessionManifestSHA256": "9db3c9c5c1e4c547df3143ebdeb073caed3e161e8d4ab7aee7b5497b03093e03",
+        "actualWINEMSYNC": "0",
+        "kind": "once",
+        "threads": 2,
+        "nsPerWorkerIteration": 2.445146875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828310961894000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "68d3830bce9e51edbdc713bebf997fb4152d38231f2d0c25aad7fa8d44bffd37",
+        "sessionManifestSHA256": "4fdcd234d5adb928dc74847feaf5b0cb074a7137fd5436cf29c90b953b812400",
+        "actualWINEMSYNC": "1",
+        "kind": "once",
+        "threads": 2,
+        "nsPerWorkerIteration": 3.813134961,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828318159622000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "bc2d689941c6c1760d546888fbb99a4c4034d8204c46137d258fad6814a84e6b",
+        "sessionManifestSHA256": "161989aa2ace19c15bc8227e3da400f18a9065d64ef3f1c6b4fb25e8cd324881",
+        "actualWINEMSYNC": "0",
+        "kind": "cs",
+        "threads": 4,
+        "nsPerWorkerIteration": 65.532375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828325455892000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "6f5e9621102a91d3e3d815ae3cf9d966914368da77c2cbe45fe7f8b50e686171",
+        "sessionManifestSHA256": "a75f41d07bc098fa0064a1adcac87d096c5a8d54030af2e2c17e7e43af71cec9",
+        "actualWINEMSYNC": "1",
+        "kind": "cs",
+        "threads": 4,
+        "nsPerWorkerIteration": 67.135246875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828333148162000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "1ff6c35788d9f1a4dd414e18733b52bd30eb5e0b41cf0ad0f08c67b2cce6a58a",
+        "sessionManifestSHA256": "f3a47c839ccf7e346ef4040dbc210324473a3dbf4dacee1f82f476ab87227df4",
+        "actualWINEMSYNC": "1",
+        "kind": "cs",
+        "threads": 4,
+        "nsPerWorkerIteration": 68.3641875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828340540223000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "151f99477ca1bbe8bd5858090888e0cd5176f09736f88885c14e28a66b82e526",
+        "sessionManifestSHA256": "1bf37797bc2924d6675af68f5df489222f56c20b2c5b8d91240e66c3d8d46d7b",
+        "actualWINEMSYNC": "0",
+        "kind": "cs",
+        "threads": 4,
+        "nsPerWorkerIteration": 67.1125625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828347774869000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "218bca51289ed7cf2a61b25eb6d4632a120742b436cd5dba833323e8d57058a2",
+        "sessionManifestSHA256": "6727b32962ca417d09639dcc246d8c03adda0ec4643cda1772c59de17935d97e",
+        "actualWINEMSYNC": "0",
+        "kind": "cs",
+        "threads": 4,
+        "nsPerWorkerIteration": 70.89188125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828355154620000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "c54ecd29fa3c1d4b79074f30f2d4999dba489be50645861baafebf11654e3b61",
+        "sessionManifestSHA256": "7d6aa9bb74f72d64695869ccb37cfc747038aa94b36d3e18b190ce74f6fb9006",
+        "actualWINEMSYNC": "1",
+        "kind": "cs",
+        "threads": 4,
+        "nsPerWorkerIteration": 68.86589375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828362523837000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "e8480045ff0714384d30561b710aa3f7d874a4cc75f85407ad0d473901a7a0f8",
+        "sessionManifestSHA256": "c244ad7125c000ffa3b743399c4137d10c20727708a78cffde87dd4974cfc95f",
+        "actualWINEMSYNC": "0",
+        "kind": "srw",
+        "threads": 4,
+        "nsPerWorkerIteration": 82.2519875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828370235279000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "60ae75f709d1349c66f12b146316bbf642bb4b2cea0044ba07378aa2ed0538be",
+        "sessionManifestSHA256": "fd4dd65c2db9832b2003944b9da4558c89ad89ec0cc625b57f9e76d94e17ddfe",
+        "actualWINEMSYNC": "1",
+        "kind": "srw",
+        "threads": 4,
+        "nsPerWorkerIteration": 84.448009375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828378095207000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "82e89f6ba7aa13238c282d02e79fa43501de6ca37532839d5aadd359b17d0db8",
+        "sessionManifestSHA256": "ce2dfeddd89490cdbba90e59a0a40044348ee1e64e6136f23ae9fa4c03ef9f1d",
+        "actualWINEMSYNC": "1",
+        "kind": "srw",
+        "threads": 4,
+        "nsPerWorkerIteration": 83.727121875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828385879718000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "55ff23ec0aa206e61deb6a28969fe69369c12b4ea12d6a08db33416884f67806",
+        "sessionManifestSHA256": "37d00f500ddfb5885f7f9c4c348e34236ae92cb0efc1448ef497ebd0f53a7945",
+        "actualWINEMSYNC": "0",
+        "kind": "srw",
+        "threads": 4,
+        "nsPerWorkerIteration": 81.87495,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828393703749000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "f45aa5b26e03b5e5858e70f14a59e74886b19443ae72019b1f66c0cc3dc2bcf7",
+        "sessionManifestSHA256": "8c3a1d3d5fe7d9d5026fc92245d8ad9b0e035a9a2c2b24ced189d6a0de72a891",
+        "actualWINEMSYNC": "0",
+        "kind": "srw",
+        "threads": 4,
+        "nsPerWorkerIteration": 78.525784375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828401530690000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "223f8d24d35fc3588a9af75361f3878af880d168754b703a4f056fbc05f5e3bd",
+        "sessionManifestSHA256": "84b6c935d2b34c574566ad7872bb6c39eadbecc7d64eeed3d35e2441b13eaf47",
+        "actualWINEMSYNC": "1",
+        "kind": "srw",
+        "threads": 4,
+        "nsPerWorkerIteration": 80.6297375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828409285462000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "4299ddbe5b824c27ba7acccf746cf9b25ffbf075a84b74d05b996890ffb391df",
+        "sessionManifestSHA256": "71365c2f6fc827174a5aa3292751637f61d777efdba5e8c6cfb6c074e410a179",
+        "actualWINEMSYNC": "0",
+        "kind": "cv",
+        "threads": 4,
+        "nsPerWorkerIteration": 3357.018125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828415618855000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "0ae4957652a8f9e1241031411dd37674ba91a4d163cfb64a2033cf1f5cca0f6a",
+        "sessionManifestSHA256": "ec66c8608c033d880ab866840d4d9105c3c0d5fef97392cb39677f30aba4600f",
+        "actualWINEMSYNC": "1",
+        "kind": "cv",
+        "threads": 4,
+        "nsPerWorkerIteration": 3371.094375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828421953127000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "c65ed501946cdebf0b8f3105e9ec98ce2eb951ff458302268c6c22844aaeb22d",
+        "sessionManifestSHA256": "963aff834a05a500dc8ea8e82a229b7a9dbf2184e6360c90970e75b27faf7b28",
+        "actualWINEMSYNC": "1",
+        "kind": "cv",
+        "threads": 4,
+        "nsPerWorkerIteration": 3352.2021875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828428324588000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "902e234f94418fe633b5507e74f77b5fdc39b11adeb517446bef1bc6fbd045d4",
+        "sessionManifestSHA256": "1145fdc60f5de7035a5af05f2d3e7b440fc898bc33a775bb00e426f155802a60",
+        "actualWINEMSYNC": "0",
+        "kind": "cv",
+        "threads": 4,
+        "nsPerWorkerIteration": 3426.038125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828435477809000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "95641ef097f757e696b630cf581bca701009f18ffc4f183a8e9ba5157a701a54",
+        "sessionManifestSHA256": "b16a9e3dba141f158973e95ac5593fc9c9295e005faccff0cc6d2ece9de322d6",
+        "actualWINEMSYNC": "0",
+        "kind": "cv",
+        "threads": 4,
+        "nsPerWorkerIteration": 3381.121875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828441690363000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "7fb1cdf8d78b2b42ed64434306d529cdf8b89508fc8cdeef26ba807371fe640e",
+        "sessionManifestSHA256": "c91fe80127884c855761f0519594aab9c4e1912dd7df7077e6523bb8248beca7",
+        "actualWINEMSYNC": "1",
+        "kind": "cv",
+        "threads": 4,
+        "nsPerWorkerIteration": 3837.7053125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828449598433000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "9cf0925984ddce8735dda8d4f3a9bfb2fd19d488ec140f9ddc3cf0a96e52b350",
+        "sessionManifestSHA256": "900da99cb5ed965b932c2e236828f8e8971000a79b6e15907db70743a9243b76",
+        "actualWINEMSYNC": "0",
+        "kind": "address",
+        "threads": 4,
+        "nsPerWorkerIteration": 4112.5040625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828466596898000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "008b2b6f0a20be530e53f1a1bbdeb745280bdc5d5e7e44cf27ebdfa8cc50cefb",
+        "sessionManifestSHA256": "ea6b9875c5106a799dd7ceb4963faf20d4ca7da05366507a4b984933300d534e",
+        "actualWINEMSYNC": "1",
+        "kind": "address",
+        "threads": 4,
+        "nsPerWorkerIteration": 2607.08984375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828475863970000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "16a92ef4ebf414a02779fc37348b7432df8f74e857ecf5a849b83864568851a5",
+        "sessionManifestSHA256": "fb3094fb6d5fa452332f40756add3aa5559233d28a281128dda0da232062aab7",
+        "actualWINEMSYNC": "1",
+        "kind": "address",
+        "threads": 4,
+        "nsPerWorkerIteration": 2515.17796875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828483792534000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "d6a3e8c53f0c5966655b33726f0e9a8b88cf7218e8912dc2ba87edde04e12ace",
+        "sessionManifestSHA256": "f9a26aa15e701d9ad3d5914b91e01f571455bfdf2a9102f8ff7b56ee24a26587",
+        "actualWINEMSYNC": "0",
+        "kind": "address",
+        "threads": 4,
+        "nsPerWorkerIteration": 2483.3634375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828490999865000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "802c06e559c1746086cfb9446f3db070e70c8c5dfe930c9870edfbce67791322",
+        "sessionManifestSHA256": "57d11c191bbc593000d097e9dc10cc09217b2bb60b804ef72f4355f612c23346",
+        "actualWINEMSYNC": "0",
+        "kind": "address",
+        "threads": 4,
+        "nsPerWorkerIteration": 2445.64921875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828498189028000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "35dd4acf755987cef9fa3ff02b694b971fa944d0c25e1c9c79fa9f36020388e1",
+        "sessionManifestSHA256": "ee1ac7c9deb7e9da601ad4f2b406f6f0d0a372a11d085000a46c7c14b2834a46",
+        "actualWINEMSYNC": "1",
+        "kind": "address",
+        "threads": 4,
+        "nsPerWorkerIteration": 2346.71390625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828506080958000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "3ff26c908ae561f62576162076e004ff14726be2dced58ff709c087da9e4df38",
+        "sessionManifestSHA256": "72fc4c9819aafe2443656081f0adb1bc23f18ade4e39f3d77875e06fefbe0c42",
+        "actualWINEMSYNC": "0",
+        "kind": "once",
+        "threads": 4,
+        "nsPerWorkerIteration": 1.649390527,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828514377038000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "9bc44a8bfab628846024739ee90de2aa73ff25eb2291d4e9cb7a16a548e56e4e",
+        "sessionManifestSHA256": "be91db037d30949efbb86245e3144e374f0ce2de2f3535ac96e5a20bc01cfddf",
+        "actualWINEMSYNC": "1",
+        "kind": "once",
+        "threads": 4,
+        "nsPerWorkerIteration": 2.536557129,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828522238660000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "5b099b99b29a7667b890f06da84321adc4edd2d56a464a7c4e5ed2f7eb3515c9",
+        "sessionManifestSHA256": "468ac1893585a4ec999dbacc8b6955fec2c7b1f577cc79911528393b767a95c0",
+        "actualWINEMSYNC": "1",
+        "kind": "once",
+        "threads": 4,
+        "nsPerWorkerIteration": 1.815597852,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828529418925000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "bf17954585327e38abdb76e2d2a14ad93595e0a61816511bf3e4cecf7d1ee217",
+        "sessionManifestSHA256": "a789c7546de2aff43868dfe7dbca0aa9d03f1e4aebafe716641af2c9f5eb5af7",
+        "actualWINEMSYNC": "0",
+        "kind": "once",
+        "threads": 4,
+        "nsPerWorkerIteration": 1.74325166,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828536669890000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "f04c2cd49f5413d2fe114e222eefa46d3cd8b42960e9ec0467047aba0fc6c8a5",
+        "sessionManifestSHA256": "f6c51ad27ad0eb409a112e007ac17f569aa24b7f672347754c6ef20431ee1484",
+        "actualWINEMSYNC": "0",
+        "kind": "once",
+        "threads": 4,
+        "nsPerWorkerIteration": 1.977099023,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828544883380000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "8b74ef15bb45c812151daa1355ac94df8ee510a3bc1f8ea124315e83fe5e8043",
+        "sessionManifestSHA256": "149d5f2cab1066e0cce18b9ca073eded85fb15ae34c04733a82cfcf08a7793d9",
+        "actualWINEMSYNC": "1",
+        "kind": "once",
+        "threads": 4,
+        "nsPerWorkerIteration": 4.198826758,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828572016160000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "796967c142723230650d8f162a9cf4f0962872babd57a3acc8ea268d98f95b46",
+        "sessionManifestSHA256": "90c2caa701504259417c545330d95adf77078535f71ae4b8824571768f15002e",
+        "actualWINEMSYNC": "0",
+        "kind": "cs",
+        "threads": 8,
+        "nsPerWorkerIteration": 87.132845312,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828587024634000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "c1efe6d4a49dffa999cbbc4a7bc8f7f4c31caa503c756329a8fe246b04894256",
+        "sessionManifestSHA256": "e7ddee7ed2ae5b6d29e35c239241baa0f45e1d4546172d94f04f89d7fa11eedb",
+        "actualWINEMSYNC": "1",
+        "kind": "cs",
+        "threads": 8,
+        "nsPerWorkerIteration": 86.797764062,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828611456924000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "c5a13df4d6fb6002532ff38aa61d376e208da19deb7572fbfe94bf319faa34b8",
+        "sessionManifestSHA256": "9c3e170a13d552edd676d56868b51fef66874f452b5ada86525641b08b8f0fc7",
+        "actualWINEMSYNC": "1",
+        "kind": "cs",
+        "threads": 8,
+        "nsPerWorkerIteration": 92.109690625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828624633122000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "5391bd34ed89a8ef0c0462ebd2a3fc31c21209d64d5c470e4edddb27a262cfa5",
+        "sessionManifestSHA256": "b5a00c2effe6c883b7c675dbab5623c51f8494b13dcb39b6f567f7355fecc14d",
+        "actualWINEMSYNC": "0",
+        "kind": "cs",
+        "threads": 8,
+        "nsPerWorkerIteration": 104.177626562,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828638096780000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "2d01352ac4896c9fc8bafd83dac736853f3a042bea2d0fd5a0a8445d6fb011ae",
+        "sessionManifestSHA256": "5804b2c2d043c4cfe327a5c51e82c113966445d89e0a6f9f27d47fdbfd7f0ef8",
+        "actualWINEMSYNC": "0",
+        "kind": "cs",
+        "threads": 8,
+        "nsPerWorkerIteration": 111.272003125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828651630318000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "634df5995fd88725596aa17d368fb3f3a171565ddd4a6d99ebd43ff0150d86b3",
+        "sessionManifestSHA256": "af81ea732d73713a59bd464aa12119fcfce4780ea08a2135efc94ce767c9ab67",
+        "actualWINEMSYNC": "1",
+        "kind": "cs",
+        "threads": 8,
+        "nsPerWorkerIteration": 98.139579688,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828665107129000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "f8f228a0f79f5d9a55ab8c3ab9b24e3130b42d8e7c20f633dfc4a2969c134b76",
+        "sessionManifestSHA256": "c6a37bf808c60f6971d530e6c61e8724fb9d79a656b78eab081f8f1f9339adf8",
+        "actualWINEMSYNC": "0",
+        "kind": "srw",
+        "threads": 8,
+        "nsPerWorkerIteration": 191.059707812,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828683908415000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "b840b186d2885b30585fd678c4083dd12623458d45cff006ec9ae23abd47d996",
+        "sessionManifestSHA256": "164ded238269555f8e1dcf79128e0678abfb115018419e2f37bdcec314ab4aeb",
+        "actualWINEMSYNC": "1",
+        "kind": "srw",
+        "threads": 8,
+        "nsPerWorkerIteration": 202.724279688,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828703771675000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "80718a51d0344c4e3134d82814a9de1050397830b64f7270ec1ac8e6eb177799",
+        "sessionManifestSHA256": "e71e6619b325c0c99dfd8ad39c744053edeadad74c88ee62de26f9922800c584",
+        "actualWINEMSYNC": "1",
+        "kind": "srw",
+        "threads": 8,
+        "nsPerWorkerIteration": 163.93696875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828720950912000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "5813e6362f5606d4f89c289568141dbecaf4f8f44d881dd6762dd73eae510459",
+        "sessionManifestSHA256": "c36a4bb2e84bd00ddf84387c6c2547107a90b57b64162adb8c5308eedb1bc3ba",
+        "actualWINEMSYNC": "0",
+        "kind": "srw",
+        "threads": 8,
+        "nsPerWorkerIteration": 191.7621125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828740431603000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "2e676c80f76cf757cd324ac28e8a0b27bfccf2351f90fcc65e4ce7e2865e8b71",
+        "sessionManifestSHA256": "24c54c11a599eb52c670ad6300dc7497b87f2f9fb831f23b1760f7882afdd6de",
+        "actualWINEMSYNC": "0",
+        "kind": "srw",
+        "threads": 8,
+        "nsPerWorkerIteration": 225.114271875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828761457774000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "c8f4b1eae520f3b59ca221ed53868dd31b63139b1ef748b45bf1a360ade6ba3b",
+        "sessionManifestSHA256": "013de26bdeba791aa6fda866f6b382c7947f3d33eef4312842d13421006f1aeb",
+        "actualWINEMSYNC": "1",
+        "kind": "srw",
+        "threads": 8,
+        "nsPerWorkerIteration": 242.444339063,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828782561233000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "0831383d84e72e6fbde753e22a7276c782bcec9ffc69fa735f563dea9d87bb35",
+        "sessionManifestSHA256": "7eff8ab1addd34d5871529f0943635bab936de9b77c5d4d0b5c402ac62c67d34",
+        "actualWINEMSYNC": "0",
+        "kind": "cv",
+        "threads": 8,
+        "nsPerWorkerIteration": 3251.43265625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828789970309000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "5c00db1d82546954047905481db7ad00d9de5980a25ab5e353600028ac254e03",
+        "sessionManifestSHA256": "7f94d5c2fd8c8ca41556a3a43c07a26d215224ba7928a1b3bbe2654e985cca76",
+        "actualWINEMSYNC": "1",
+        "kind": "cv",
+        "threads": 8,
+        "nsPerWorkerIteration": 4074.87265625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828809379991000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "b43593e1af1cb45e7af36bd79420a0f7c1c5a84bf22b9fbc542ebd0750fbeac5",
+        "sessionManifestSHA256": "403a7f1f586955904d2537768a247dba32ceaecc37d92868b0e9ea34e40a2bab",
+        "actualWINEMSYNC": "1",
+        "kind": "cv",
+        "threads": 8,
+        "nsPerWorkerIteration": 4901.52703125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828827889421000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "1bf918a274d10d7ef5d36dc8c75bce7bd2b1894ef8bc8cd5924916fae4d4bdad",
+        "sessionManifestSHA256": "a40af705c74c6cfa6b5b9c94d1da1fcb54bed788ecf3f66ef4324731284827db",
+        "actualWINEMSYNC": "0",
+        "kind": "cv",
+        "threads": 8,
+        "nsPerWorkerIteration": 12869.91484375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828852010956000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "e5ae0e1c3fd2354ae0b5e192fb337ed1e9a809e5d3f8bc2d4ea950f8985ab681",
+        "sessionManifestSHA256": "f672f6d1319815f10fad1f925173f0090a05d345e09bf7b05ae96366b2de3c79",
+        "actualWINEMSYNC": "0",
+        "kind": "cv",
+        "threads": 8,
+        "nsPerWorkerIteration": 3258.89359375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828860561059000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "3fd3d0e477df0e3e78005575d8b192d5e8a72fb0c2d44cc087dca7d2bfa2b101",
+        "sessionManifestSHA256": "67fc872c9e351d92fd9c0362cbdfd3b738948464e92f81699ab04a3323e4ce8a",
+        "actualWINEMSYNC": "1",
+        "kind": "cv",
+        "threads": 8,
+        "nsPerWorkerIteration": 3502.245625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828874522303000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "94161988d2a1858cb72b6a8a57b380dbca1a75d5f93416bedc20705e1df66317",
+        "sessionManifestSHA256": "37156bfbb7486419a5b33f9d6a552e9f3470cdca859ce462cb498f027860bf7e",
+        "actualWINEMSYNC": "0",
+        "kind": "address",
+        "threads": 8,
+        "nsPerWorkerIteration": 1740.244140625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828883265150000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "3c77025c6b9fe8eb3a93adf2e26059f64d0c888eecbb81a81b2ec086cdef1e16",
+        "sessionManifestSHA256": "6a6c59b576fda3bbf124e3b24d3bdc162fac539f410980e6ed05685921b26bff",
+        "actualWINEMSYNC": "1",
+        "kind": "address",
+        "threads": 8,
+        "nsPerWorkerIteration": 3346.7271875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828898225252000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "74d27c7c956798535ed252f82f119b82c8e55f1a4ca3eb52e1866b2593ad4392",
+        "sessionManifestSHA256": "cf4a974294c95771d08df8dc6959e3f0fa09c2fea17df3cfcb9dd77877e7d6bf",
+        "actualWINEMSYNC": "1",
+        "kind": "address",
+        "threads": 8,
+        "nsPerWorkerIteration": 4230.578671875,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828930810843000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "e995de689528d99da453f24635bcc5d98373d10f51b302c33e65cb2faa58991a",
+        "sessionManifestSHA256": "87c916742dd7a95f6bf112016ba0a9b6a5ce170550e6744179e6498132451509",
+        "actualWINEMSYNC": "0",
+        "kind": "address",
+        "threads": 8,
+        "nsPerWorkerIteration": 3736.90484375,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828948605793000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "29439ef30b55eb4822302819444c815970e1a50816530b2fff237ce0bc876454",
+        "sessionManifestSHA256": "8d07d9941d0ad81b32c51ddb426f9c0e901f497944e312666f69155650841607",
+        "actualWINEMSYNC": "0",
+        "kind": "address",
+        "threads": 8,
+        "nsPerWorkerIteration": 3935.137890625,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828969764560000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "4a814e05e7782570abb78bc930b51ced91fa8eab0a66906f8531c9550fe52804",
+        "sessionManifestSHA256": "ff77558e2f04559355315eb7d804e0722491a4cf46928f5132f88ea9e3499ce2",
+        "actualWINEMSYNC": "1",
+        "kind": "address",
+        "threads": 8,
+        "nsPerWorkerIteration": 3421.849453125,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828987011252000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "55cb96601e89e99c32d9dd134b532f6f1ae8c49afa08ea7b3e8e7baedb616f2e",
+        "sessionManifestSHA256": "0db454fbf25c9cd0ae45c679896d92fd387c5a3f8f68327dbc72a9189d719ab5",
+        "actualWINEMSYNC": "0",
+        "kind": "once",
+        "threads": 8,
+        "nsPerWorkerIteration": 2.495919873,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829011119175000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "da3532e6f4394cf5e5096d54a0906ed7782fa7584d235b7013ea670905fd46a6",
+        "sessionManifestSHA256": "3c36fc0e765e1c9967434a83462475e8cd78b88a62d023ec1635bb526de96525",
+        "actualWINEMSYNC": "1",
+        "kind": "once",
+        "threads": 8,
+        "nsPerWorkerIteration": 7.345619385,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829048700540000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "73524cd1d8c6e75f426b2b2caefd9caf19af430835fe4f201995d916046d62cc",
+        "sessionManifestSHA256": "7fa2899ab498efb4366f80218456342ac03e64a93a0bcdf6af83a11b42b7e1fb",
+        "actualWINEMSYNC": "1",
+        "kind": "once",
+        "threads": 8,
+        "nsPerWorkerIteration": 2.185185938,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829062457015000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "d940e954c892a41010d8e2aaf5fbb51f9e8189e471b6df6b92cacc1d38f34597",
+        "sessionManifestSHA256": "1c1f5287e5100db54d3385bf57ca198211a4dd463ee5af5bf47930bf480504e7",
+        "actualWINEMSYNC": "0",
+        "kind": "once",
+        "threads": 8,
+        "nsPerWorkerIteration": 2.801675098,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829082730598000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "3cb8291fadd1843704dccc06acfef2a15980eebf2aaf9b8daa08efdf66c587b9",
+        "sessionManifestSHA256": "e40009257c626bd0f5a8f7c5cbaa39d4658b7f000a466dfa62394cf2d1fce70b",
+        "actualWINEMSYNC": "0",
+        "kind": "once",
+        "threads": 8,
+        "nsPerWorkerIteration": 2.301503369,
+        "passed": true
+      },
+      {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829095748353000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+        "rawSHA256": "d32be54e5e88312c5d16a19a02827c9740af705bc4266d192e2168f0e4c5d599",
+        "sessionManifestSHA256": "06f6a491f6ace2faef4cd9c9c3cc0df5560949488ac6590bbe2afb20e3ef158a",
+        "actualWINEMSYNC": "1",
+        "kind": "once",
+        "threads": 8,
+        "nsPerWorkerIteration": 2.374652832,
+        "passed": true
+      }
+    ]
+  },
+  "waitWidthsCorrectness": {
+    "build": {
+      "rows": [
+        {
+          "arch": "i686",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/sync-wait-widths.c",
+            "-o",
+            "/Users/cervantes/Cider/out/sync-wait-widths-20261024/sync-wait-widths-i686.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "sourceSHA256": "63918dd4ffef725ea6fa07c9014c78371c7c58094dd1d995b75dd3cf6adbc266",
+          "exeSHA256": "d5054707af6d5e265c391d11a7a1ebd24700fff57202fc596d0eef611bfcc933"
+        },
+        {
+          "arch": "x86_64",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/sync-wait-widths.c",
+            "-o",
+            "/Users/cervantes/Cider/out/sync-wait-widths-20261024/sync-wait-widths-x86_64.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "sourceSHA256": "63918dd4ffef725ea6fa07c9014c78371c7c58094dd1d995b75dd3cf6adbc266",
+          "exeSHA256": "435329fac7a9757e564d8f01ac4a48ecdc9da2a6fec1319dc1e054d5493ada45"
+        }
+      ],
+      "passed": true
+    },
+    "review": {
+      "schema": "cider.sync-wait-widths-source-review/v1",
+      "reviewDate": "2026-10-24",
+      "reviewKind": "bounded actual-source read-only adversarial review",
+      "outcome": "no_concrete_p1_p2_found",
+      "summary": "No concrete remaining P1/P2 found in the exact final source reviewed. The parent correction to the documented WaitAll success range is present and correct.",
+      "source": {
+        "path": "tests/sync/sync-wait-widths.c",
+        "sha256": "63918dd4ffef725ea6fa07c9014c78371c7c58094dd1d995b75dd3cf6adbc266",
+        "bytes": 6033,
+        "lines": 124
+      },
+      "findings": [],
+      "concreteP1": 0,
+      "concreteP2": 0,
+      "reviewedCases": {
+        "waitAnyWidths": [
+          2,
+          8,
+          64
+        ],
+        "waitAllWidths": [
+          2,
+          8
+        ]
+      },
+      "sourceReviewEvidence": [
+        {
+          "subject": "Lowest-index ordering and selected-object effects",
+          "path": "tests/sync/sync-wait-widths.c",
+          "lineStart": 57,
+          "lineEnd": 70,
+          "observation": "All distinct handles are initially nonsignaled, then all are signaled. Each WaitAny expects the next lowest ready index. A selected manual event is verified still signaled and explicitly reset before advancing; selected auto events and max-one semaphores must already be nonsignaled/empty. Later iterations and the drained timeout also expose unexpected consumption of other objects. Check failures accumulate and cannot be cleared by subsequent restoration."
+        },
+        {
+          "subject": "Blocked WaitAll preserves ready resources",
+          "path": "tests/sync/sync-wait-widths.c",
+          "lineStart": 92,
+          "lineEnd": 102,
+          "observation": "The final object is initially empty while the preceding objects are ready. The zero-time WaitAll must time out. Each preceding object must still satisfy a single-object probe; consumable objects are restored after that probe. Failed preservation probes remain failures even if restoration succeeds. The final object is separately verified empty before being signaled. This is an immediate unsatisfied-WaitAll contract check, not proof of a pending kernel wait."
+        },
+        {
+          "subject": "WaitAll success range and final consumption",
+          "path": "tests/sync/sync-wait-widths.c",
+          "lineStart": 103,
+          "lineEnd": 112,
+          "observation": "all_ready_range uses status < WAIT_OBJECT_0+count. Since status is DWORD and WAIT_OBJECT_0 is zero, this accepts exactly the documented success interval and excludes WAIT_TIMEOUT, WAIT_FAILED and abandoned statuses for the tested widths. Subsequent per-object checks require manual preservation and auto/semaphore consumption; another WaitAll must then time out."
+        },
+        {
+          "subject": "Owned peer action and join",
+          "path": "tests/sync/sync-wait-widths.c",
+          "lineStart": 42,
+          "lineEnd": 48,
+          "relatedLocation": {
+            "path": "tests/sync/sync-wait-widths.c",
+            "lineStart": 71,
+            "lineEnd": 86
+          },
+          "observation": "The peer context is initialized before creation and remains on the active any_width stack until after a bounded join. Targets 1, 7 and 63 are events under the index-modulo-three construction. The peer uses SetEvent after its gate, reports wait/set failures by exit code, and is joined before target/gate/thread handles are closed. The main checks both the selected index and post-wait target state. Scheduling may let the signal precede the multi-object wait; no actual kernel park is claimed."
+        },
+        {
+          "subject": "Failure paths and stack lifetime",
+          "path": "tests/sync/sync-wait-widths.c",
+          "lineStart": 13,
+          "lineEnd": 25,
+          "relatedLocation": {
+            "path": "tests/sync/sync-wait-widths.c",
+            "lineStart": 74,
+            "lineEnd": 85
+          },
+          "observation": "A failed/expired late-object wait records failure and still attempts peer join. A failed join, peer-start failure, exit-code API failure or close failure takes the process termination path instead of returning through a live peer context or closing its handles early. Output failure exits the process rather than returning through the caller stack. No TerminateThread or close-during-pending-wait test is present. The fixture itself does not establish a global wall-clock bound for output and process shutdown."
+        },
+        {
+          "subject": "Result acceptance boundary",
+          "path": "tests/sync/sync-wait-widths.c",
+          "lineStart": 115,
+          "lineEnd": 124,
+          "observation": "All five requested cases are invoked. Nonfatal logical failures accumulate into complete.ok=false and a nonzero exit. Final output failures also produce a nonzero exit, so complete.ok alone is insufficient. No performance, timing precision, native-equivalence or full-matrix acceptance claim follows from source inspection."
+        }
+      ],
+      "parentCorrection": {
+        "status": "verified_in_final_source",
+        "path": "tests/sync/sync-wait-widths.c",
+        "lineStart": 103,
+        "lineEnd": 105,
+        "observation": "The earlier index-zero-only WaitAll assertion has been replaced by all_ready_range. The unused peer index member and its assignment are absent. This report applies only to the final hash above."
+      },
+      "primaryContractReferences": [
+        {
+          "title": "Microsoft WaitForMultipleObjects",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitformultipleobjects",
+          "use": "WaitAny lowest ready index, WaitAll success interval, no state modification until all objects are signaled, semaphore consumption, supported handle count and undefined close-during-pending-wait behavior."
+        }
+      ],
+      "operations": {
+        "buildsRun": 0,
+        "runtimeWorkloadsRun": 0,
+        "windowsOperations": 0,
+        "processControlOperations": 0,
+        "subagentsUsed": 0,
+        "sourceEdits": 0,
+        "onlyWrittenArtifact": "out/sync-wait-widths-20261024/review.json",
+        "existingUPerformanceInputsOrWorkloadsModified": false
+      },
+      "limits": [
+        "Static review of the complete final C source and the directly relevant primary wait contract only. No compilation, execution, binary inspection or fault injection was performed.",
+        "No runner, receipt inventory, actual peer scheduling, timeout duration, output-failure shutdown behavior or runtime cleanup result was verified.",
+        "The source was reread after the parent correction and its exact hash was checked before and after this report write. Current U performance work and all other frozen inputs were left untouched."
+      ]
+    },
+    "runnerReview": {
+      "schema": "cider.sync-wait-widths-runner-review/v1",
+      "reviewDate": "2026-10-24",
+      "reviewKind": "bounded read-only source review of wait-widths integration only",
+      "outcome": "no_concrete_p1_p2_found",
+      "summary": "No concrete P1/P2 found in the current wait-widths invocation path, metadata branch, or per-mode/per-width check-name inventory. The successful source path emits exactly 214 checks and matches the runner inventory.",
+      "sources": [
+        {
+          "path": "tests/sync/run-mac.py",
+          "sha256": "8d167df4adbdde03421ae86215f53fb390cd720fa976a7bdc9fd308cb7c2badb",
+          "bytes": 27722,
+          "lines": 470
+        },
+        {
+          "path": "tests/sync/sync-wait-widths.c",
+          "sha256": "63918dd4ffef725ea6fa07c9014c78371c7c58094dd1d995b75dd3cf6adbc266",
+          "bytes": 6033,
+          "lines": 124
+        }
+      ],
+      "findings": [],
+      "concreteP1": 0,
+      "concreteP2": 0,
+      "inventory": {
+        "basis": "Manual counting of the complete current C fixture and comparison with the actual run-mac.py branch; neither file was executed.",
+        "waitAnyFormula": "2*n + floor(n/3) + 5",
+        "waitAllFormulaForSelectedWidths": "2*n + floor((n-1)/3) + 3; the final indexes 1 and 7 are auto events, so signaling the sentinel adds no semaphore-release check.",
+        "groups": [
+          {
+            "mode": "any",
+            "width": 2,
+            "total": 9,
+            "checks": {
+              "initial_timeout": 1,
+              "drained_timeout": 1,
+              "late_peer_index": 1,
+              "peer_exit": 1,
+              "late_object_state": 1,
+              "lowest_ready_index": 2,
+              "selected_object_state": 2,
+              "release_previous_zero": 0
+            }
+          },
+          {
+            "mode": "any",
+            "width": 8,
+            "total": 23,
+            "checks": {
+              "initial_timeout": 1,
+              "drained_timeout": 1,
+              "late_peer_index": 1,
+              "peer_exit": 1,
+              "late_object_state": 1,
+              "lowest_ready_index": 8,
+              "selected_object_state": 8,
+              "release_previous_zero": 2
+            }
+          },
+          {
+            "mode": "any",
+            "width": 64,
+            "total": 154,
+            "checks": {
+              "initial_timeout": 1,
+              "drained_timeout": 1,
+              "late_peer_index": 1,
+              "peer_exit": 1,
+              "late_object_state": 1,
+              "lowest_ready_index": 64,
+              "selected_object_state": 64,
+              "release_previous_zero": 21
+            }
+          },
+          {
+            "mode": "all",
+            "width": 2,
+            "total": 7,
+            "checks": {
+              "blocked_timeout": 1,
+              "blocked_preserves_ready": 1,
+              "sentinel_still_empty": 1,
+              "all_ready_range": 1,
+              "final_object_state": 2,
+              "cannot_consume_twice": 1,
+              "release_previous_zero": 0
+            }
+          },
+          {
+            "mode": "all",
+            "width": 8,
+            "total": 21,
+            "checks": {
+              "blocked_timeout": 1,
+              "blocked_preserves_ready": 7,
+              "sentinel_still_empty": 1,
+              "all_ready_range": 1,
+              "final_object_state": 8,
+              "cannot_consume_twice": 1,
+              "release_previous_zero": 2
+            }
+          }
+        ],
+        "total": 214,
+        "sourceLocations": [
+          {
+            "path": "tests/sync/sync-wait-widths.c",
+            "lineStart": 34,
+            "lineEnd": 40
+          },
+          {
+            "path": "tests/sync/sync-wait-widths.c",
+            "lineStart": 50,
+            "lineEnd": 120
+          }
+        ],
+        "runnerLocation": {
+          "path": "tests/sync/run-mac.py",
+          "lineStart": 417,
+          "lineEnd": 439
+        },
+        "observations": [
+          "The exact group set is any/2, any/8, any/64, all/2 and all/8, with no missing or extra group permitted.",
+          "WaitAny semaphore release counts are floor(n/3), from indexes 2,5,... during initial signaling. Late targets are events, so no extra release_previous_zero record is emitted.",
+          "WaitAll restores each consumable ready object after probing it. The semaphore restoration counts are floor((n-1)/3), and the sentinel is an auto event at both selected widths.",
+          "The expected name is all_ready_range, matching the corrected C fixture rather than its earlier all_ready assertion.",
+          "Each check must have a string name, literal ok:true, and integer actual/expected fields. Per-group Counter equality checks names and multiplicities; the two-object groups have no semaphore checks.",
+          "The aggregate successful count is 9+23+154+7+21=214, matching both metadata and parsed-check-count requirements."
+        ]
+      },
+      "invocationReview": [
+        {
+          "path": "tests/sync/run-mac.py",
+          "lineStart": 23,
+          "lineEnd": 47,
+          "observation": "The existing metadata prefix requires one begin, one complete and matching pointer width. The new branch requires correctness mode, wait-widths-correctness on both records, 214 checks, zero failures and output_error:false."
+        },
+        {
+          "path": "tests/sync/run-mac.py",
+          "lineStart": 123,
+          "lineEnd": 183,
+          "observation": "wait-widths is an accepted suite and maps to sync-wait-widths-<arch>.exe. The correctness-only branch clears guest arguments. Alternative benchmark and lifecycle fixture overrides are rejected for this suite before executable selection can be overridden."
+        },
+        {
+          "path": "tests/sync/run-mac.py",
+          "lineStart": 163,
+          "lineEnd": 204,
+          "observation": "For arch i686 or x86_64, the runner copies root/sync-wait-widths-<arch>.exe into the owned prefix drive_c/CiderTests under the same basename and invokes that Windows path through the packaged ciderctl run -b <owned bottle> --wait path with the existing run-ID binding. No user-bench validator is loaded for wait-widths."
+        },
+        {
+          "path": "tests/sync/run-mac.py",
+          "lineStart": 390,
+          "lineEnd": 439,
+          "observation": "The parser retains all three record types emitted by the fixture: begin, check and complete. The width-group validation extends metadata_ok rather than bypassing the common metadata requirements."
+        },
+        {
+          "path": "tests/sync/run-mac.py",
+          "lineStart": 460,
+          "lineEnd": 470,
+          "observation": "Final acceptance additionally requires CLI exit 0, complete.ok:true, no failed check or reported error, valid JSON/log size, established session binding, a stopped sampler and no timing discontinuity. No obvious false rejection of the corrected all_ready_range successful source path was found."
+        }
+      ],
+      "operations": {
+        "buildsRun": 0,
+        "runtimeWorkloadsRun": 0,
+        "runnerOrValidatorExecutions": 0,
+        "receiptTestsExecuted": 0,
+        "windowsOperations": 0,
+        "processControlOperations": 0,
+        "subagentsUsed": 0,
+        "sourceEdits": 0,
+        "onlyWrittenArtifact": "out/sync-wait-widths-20261024/runner-review.json",
+        "frozenUPerformanceFilesReadOrModified": false
+      },
+      "limits": [
+        "Review is limited to the new wait-widths integration, its immediate invocation/receipt path and the current C fixture as the inventory reference. Other suite changes shown in the public diff were not re-reviewed.",
+        "Inventory arithmetic and invocation matching are static conclusions; no compilation, runtime, imported runner code, receipt mutation tests or binary/source identity verification was performed.",
+        "Per-group inventory validation trusts the fixture check booleans and checks typed actual/expected fields; this report does not claim independent re-execution of each wait assertion.",
+        "No frozen U performance runner, running workload, archived input or other live experiment file was read or modified. Compilation/runtime remains parent work after current performance ends."
+      ]
+    },
+    "initialFailure": {
+      "state": "failed",
+      "runs": [
+        {
+          "arch": "i686",
+          "bottle": "WaitAll LatePark",
+          "args": [
+            "python3",
+            "/Users/cervantes/Cider/out/sync-wait-widths-20261024/runner-v1.py",
+            "--root",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+            "--bottle",
+            "WaitAll LatePark",
+            "--arch",
+            "i686",
+            "--suite",
+            "wait-widths",
+            "--mode",
+            "correctness",
+            "--stats",
+            "--timeout",
+            "150"
+          ],
+          "driverExit": 1,
+          "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829145287236000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json\", \"passed\": false, \"cliExitCode\": 0, \"seconds\": 10.79428625, \"failedChecks\": [], \"measurements\": []}\n",
+          "stderr": ""
+        }
+      ],
+      "passed": false,
+      "error": "AssertionError('{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829145287236000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json\", \"passed\": false, \"cliExitCode\": 0, \"seconds\": 10.79428625, \"failedChecks\": [], \"measurements\": []}\\n')",
+      "cleanup": {
+        "exitCode": 0,
+        "receipt": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [
+              11529
+            ],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        }
+      }
+    },
+    "correction": {
+      "scope": "offline metadata correction only; original raw passed:false unchanged; no actual game/kernel/performance claim",
+      "cause": "System python3 is3.9.6: Counter zero entries equality differs from3.10+",
+      "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829145287236000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json",
+      "rawSHA256": "425d10ceddb0f77c6e4c49e0de0f5caf23a5d2f1ba39ff56fda0c64dfc75acf4",
+      "correctedInventoryPassed": true,
+      "checks": 214,
+      "negative": [
+        {
+          "name": "missing_group",
+          "correctlyRejected": true
+        },
+        {
+          "name": "missing_check",
+          "correctlyRejected": true
+        },
+        {
+          "name": "duplicate_check",
+          "correctlyRejected": true
+        }
+      ],
+      "runnerSHA256": "70c156ba99bdf5bd084450660fea01074df6c7e7bbd42c9aab1a60decba31a5b"
+    },
+    "protocolRemaining": {
+      "scope": "WaitAny2/8/64 and WaitAll2/8 correctness; no timing gates or Windows reference",
+      "declaredUTC": "2026-10-24T08:09:17.977873+00:00",
+      "order": [
+        [
+          "i686",
+          "WaitAll LatePark Server"
+        ],
+        [
+          "x86_64",
+          "WaitAll LatePark Server"
+        ],
+        [
+          "x86_64",
+          "WaitAll LatePark"
+        ]
+      ],
+      "expectedNativeSHA256": {
+        "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+        "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+        "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+        "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+      },
+      "apiTimeoutMs": 5000,
+      "exeSHA256": {
+        "i686": "d5054707af6d5e265c391d11a7a1ebd24700fff57202fc596d0eef611bfcc933",
+        "x86_64": "435329fac7a9757e564d8f01ac4a48ecdc9da2a6fec1319dc1e054d5493ada45"
+      },
+      "runnerSHA256": "70c156ba99bdf5bd084450660fea01074df6c7e7bbd42c9aab1a60decba31a5b",
+      "noAutomaticRetry": true,
+      "fullM1Accepted": false
+    },
+    "summary": {
+      "scope": "four architecture/mode actual executions, no duplicate first run; original false receipt retained with explicit offline correction",
+      "sourceSHA256": "63918dd4ffef725ea6fa07c9014c78371c7c58094dd1d995b75dd3cf6adbc266",
+      "rows": [
+        {
+          "arch": "i686",
+          "bottle": "WaitAll LatePark",
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829145287236000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json",
+          "rawSHA256": "425d10ceddb0f77c6e4c49e0de0f5caf23a5d2f1ba39ff56fda0c64dfc75acf4",
+          "originalRawPassed": false,
+          "offlineInventoryCorrected": true,
+          "all214ChecksPassed": true
+        },
+        {
+          "arch": "i686",
+          "bottle": "WaitAll LatePark Server",
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829358577120000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json",
+          "rawSHA256": "22ccc71d6c86ec40b27fd73a2654e52aa17fa1a9bcc3d67c5776d1bb426fbeac",
+          "originalRawPassed": true,
+          "offlineInventoryCorrected": false,
+          "all214ChecksPassed": true
+        },
+        {
+          "arch": "x86_64",
+          "bottle": "WaitAll LatePark Server",
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829366605631000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+          "rawSHA256": "3421b52d381f7ad24171b5e2522ba655055279a4d39751d34140cb78b7cfcf7b",
+          "originalRawPassed": true,
+          "offlineInventoryCorrected": false,
+          "all214ChecksPassed": true
+        },
+        {
+          "arch": "x86_64",
+          "bottle": "WaitAll LatePark",
+          "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829371541547000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+          "rawSHA256": "ee78ddf2d50bf26fecd101ea0c6a3a2fc3d7f9af288d82522671c2fe0707b1d9",
+          "originalRawPassed": true,
+          "offlineInventoryCorrected": false,
+          "all214ChecksPassed": true
+        }
+      ],
+      "initialFailureRetained": true,
+      "finalCleanup": {
+        "exitCode": 0,
+        "receipt": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [
+              12461
+            ],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        }
+      },
+      "functionalChecksPassed": true,
+      "fullM1Accepted": false
+    }
   },
   "protectedUnchangedNow": true
 }

@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import re
+import runpy
 import shutil
 import subprocess
 import sys
@@ -32,6 +33,18 @@ def valid_metadata(suite, arch, iterations, mode, begins, completes):
                 and complete.get('mode') == 'sync-matrix-correctness'
                 and type(complete.get('checks')) is int and complete['checks'] > 0
                 and complete.get('failures') == 0 and complete.get('output_error') is False)
+    if suite == 'nt-extra':
+        return (mode == 'correctness' and begin.get('mode') == 'nt-extra-correctness'
+                and complete.get('mode') == 'nt-extra-correctness'
+                and complete.get('checks') == 18 and complete.get('failures') == 0
+                and complete.get('output_error') is False)
+    if suite == 'user-bench':
+        return mode == 'bench' and begin.get('benchmark') == 'sync_user'
+    if suite == 'wait-widths':
+        return (mode == 'correctness' and begin.get('mode') == 'wait-widths-correctness'
+                and complete.get('mode') == 'wait-widths-correctness'
+                and complete.get('checks') == 214 and complete.get('failures') == 0
+                and complete.get('output_error') is False)
     if suite == 'single-event':
         expected = {'requested_per_case': iterations, 'created': iterations * 2,
                     'reaped': iterations * 2, 'completed_rounds': iterations,
@@ -112,7 +125,9 @@ parser.add_argument('--root', type=Path, required=True)
 parser.add_argument('--bottle', required=True)
 parser.add_argument('--arch', choices=['i686', 'x86_64'], required=True)
 parser.add_argument('--mode', choices=['correctness', 'stress', 'duration', 'bench'], required=True)
-parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix'], default='waitall')
+parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix', 'nt-extra', 'user-bench', 'wait-widths'], default='waitall')
+parser.add_argument('--user-kind', choices=['cs', 'srw', 'cv', 'address', 'once'], default='cs')
+parser.add_argument('--batches', type=int, default=4)
 parser.add_argument('--stats', action='store_true')
 parser.add_argument('--benchmark-fixture', choices=['v3', 'v4'], default='v3')
 parser.add_argument('--lifecycle-fixture', choices=['standard', 'timeout-diagnostic'], default='standard')
@@ -147,7 +162,8 @@ if args.lifecycle_fixture != 'standard' and (args.suite != 'lifecycle' or args.m
     raise SystemExit('The timeout diagnostic is only valid for lifecycle correctness mode')
 source = root / ({'waitall': 'waitall-', 'lifecycle': 'waitall-lifecycle-',
                   'processes': 'waitall-processes-', 'single-event': 'event-lifecycle-',
-                  'matrix': 'sync-matrix-'}[args.suite] + args.arch + '.exe')
+                  'matrix': 'sync-matrix-', 'nt-extra': 'sync-nt-extra-',
+                  'user-bench': 'sync-user-bench-', 'wait-widths': 'sync-wait-widths-'}[args.suite] + args.arch + '.exe')
 if args.benchmark_fixture == 'v4':
     source = root / ('waitall-bench-v4-' + args.arch + '.exe')
 if args.lifecycle_fixture == 'timeout-diagnostic':
@@ -156,9 +172,14 @@ destination = prefix / 'drive_c/CiderTests' / source.name
 destination.parent.mkdir(exist_ok=True)
 shutil.copy2(source, destination)
 arguments = ['--' + args.mode]
-if args.suite == 'matrix':
+if args.suite == 'user-bench':
+    if (args.mode != 'bench' or args.threads not in [2, 4, 8] or not 1 <= args.batches <= 8
+            or args.stats or args.benchmark_fixture != 'v3' or args.timeout > 120):
+        raise SystemExit('U benchmark needs bounded bench mode without statistics or other fixture selection')
+    arguments = ['--bench', args.user_kind, str(args.iterations), str(args.threads), str(args.batches)]
+elif args.suite in ['matrix', 'nt-extra', 'wait-widths']:
     if args.mode != 'correctness':
-        raise SystemExit('Additional matrix currently supports correctness only')
+        raise SystemExit('Additional contract suites currently support correctness only')
     arguments = []
 elif args.suite in ['lifecycle', 'single-event']:
     maximum = 256 if args.suite == 'single-event' else 4096
@@ -189,7 +210,8 @@ record = {'schema': 'cider.waitall-mac-run/v1', 'state': 'running', 'bottle': co
           'engine': config['engine']['id'], 'sync': config['settings'].get('sync', 'msync'),
           'arch': args.arch, 'arguments': arguments, 'prefix': str(prefix),
           'suite': args.suite, 'statisticsRequested': args.stats,
-          'benchmarkFixture': args.benchmark_fixture if args.mode == 'bench' else None,
+          'benchmarkFixture': args.benchmark_fixture if args.mode == 'bench' and args.suite != 'user-bench' else None,
+          'userBenchmark': {'kind': args.user_kind, 'batches': args.batches} if args.suite == 'user-bench' else None,
           'lifecycleFixture': args.lifecycle_fixture if args.suite == 'lifecycle' else None,
           'diagnosticFailureGraceSeconds': 10 if args.lifecycle_fixture == 'timeout-diagnostic' else 0,
           'runnerSHA256': hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
@@ -208,6 +230,10 @@ if args.suite == 'matrix':
     matrix_inventory_bytes = matrix_inventory_path.read_bytes()
     matrix_inventory = json.loads(matrix_inventory_bytes)
     record['matrixInventorySHA256'] = hashlib.sha256(matrix_inventory_bytes).hexdigest()
+if args.suite == 'user-bench':
+    user_validator_path = Path(__file__).with_name('user-bench-validation.py')
+    record['userValidatorSHA256'] = hashlib.sha256(user_validator_path.read_bytes()).hexdigest()
+    user_validator = runpy.run_path(str(user_validator_path))['valid_user_bench']
 result_path.write_text(json.dumps(record, indent=2) + '\n')
 start = time.monotonic()
 wall_start = time.time()
@@ -366,7 +392,7 @@ if len(session_logs) == 1:
             if line.startswith('{'):
                 try:
                     row = json.loads(line)
-                    if row.get('type') in ['begin', 'check', 'complete', 'stress', 'worker', 'resources', 'bench', 'roundtrip', 'wakeup', 'progress', 'layout', 'limits', 'case', 'result', 'error', 'idle', 'lifecycle-timeout-capture']:
+                    if row.get('type') in ['begin', 'check', 'complete', 'stress', 'worker', 'resources', 'bench', 'roundtrip', 'wakeup', 'progress', 'layout', 'limits', 'case', 'result', 'error', 'idle', 'lifecycle-timeout-capture', 'timeout_observation', 'batch', 'summary']:
                         rows.append(row)
                 except json.JSONDecodeError:
                     record['invalidJSONLine'] = True
@@ -384,10 +410,54 @@ failed = [r for r in rows if r.get('type') == 'check' and not r.get('ok')]
 if args.suite in ['lifecycle', 'single-event']:
     begins = [r for r in rows if r.get('type') == 'limits']
 metadata_ok = valid_metadata(args.suite, args.arch, args.iterations, args.mode, begins, completes)
+if args.suite == 'user-bench':
+    record['userValidatorUnchanged'] = hashlib.sha256(user_validator_path.read_bytes()).hexdigest() == record['userValidatorSHA256']
+    metadata_ok = (metadata_ok and record['userValidatorUnchanged']
+                   and user_validator(rows, args.arch, args.user_kind, args.iterations, args.threads, args.batches))
+if args.suite == 'wait-widths':
+    checks = [r for r in rows if r.get('type') == 'check']
+    groups = {}
+    for row in checks:
+        groups.setdefault((row.get('mode'), row.get('width')), []).append(row)
+    expected_groups = {('any', 2), ('any', 8), ('any', 64), ('all', 2), ('all', 8)}
+    metadata_ok = metadata_ok and set(groups) == expected_groups and len(checks) == 214
+    for (mode, count), group in groups.items():
+        if (mode, count) not in expected_groups:
+            metadata_ok = False
+            continue
+        if mode == 'any':
+            expected = Counter({'initial_timeout': 1, 'drained_timeout': 1, 'late_peer_index': 1,
+                'peer_exit': 1, 'late_object_state': 1, 'lowest_ready_index': count,
+                'selected_object_state': count, 'release_previous_zero': count // 3})
+        else:
+            expected = Counter({'blocked_timeout': 1, 'blocked_preserves_ready': count - 1,
+                'sentinel_still_empty': 1, 'all_ready_range': 1, 'final_object_state': count,
+                'cannot_consume_twice': 1, 'release_previous_zero': (count - 1) // 3})
+        # Python 3.9 compares explicit zero entries; this group may have no semaphore.
+        expected = Counter({name: value for name, value in expected.items() if value})
+        metadata_ok = (metadata_ok and all(type(r.get('name')) is str and r.get('ok') is True
+            and type(r.get('actual')) is int and type(r.get('expected')) is int for r in group)
+            and Counter(r['name'] for r in group) == expected)
 if args.suite == 'matrix':
     record['matrixInventoryUnchanged'] = hashlib.sha256(matrix_inventory_path.read_bytes()).hexdigest() == record['matrixInventorySHA256']
     metadata_ok = (metadata_ok and record['matrixInventoryUnchanged'] and len(completes) == 1
                    and valid_matrix_checks(rows, completes[0], matrix_inventory))
+if args.suite == 'nt-extra':
+    named_checks = [r for r in rows if r.get('type') == 'check']
+    expected_names = Counter({'N.MsgWait.post': 1, 'N.MsgWait.message_payload': 1,
+        'N.MsgWait.event_index': 1, 'N.MsgWait.auto_consumed': 1,
+        'N.SignalWait.handshake': 1, 'N.SignalWait.peer_exit': 1,
+        'N.SignalWait.reply_consumed': 1, 'N.Pulse.initial_signaled': 1, 'N.Pulse.final_reset_only': 1,
+        'N.Timeout.native_api': 1, 'N.Timeout.status': 4, 'N.Timeout.nonnegative_clock': 4})
+    observations = [r for r in rows if r.get('type') == 'timeout_observation']
+    metadata_ok = (metadata_ok and len(named_checks) == 18
+        and all(type(r.get('name')) is str and r.get('ok') is True for r in named_checks)
+        and Counter(r['name'] for r in named_checks) == expected_names
+        and len(observations) == 4
+        and all(type(r.get('requested_100ns')) is int and type(r.get('qpc_ticks')) is int
+            and r['qpc_ticks'] >= 0 and type(r.get('qpc_frequency')) is int
+            and r['qpc_frequency'] > 0 and r.get('precision_gate_applied') is False for r in observations)
+        and sorted(r['requested_100ns'] for r in observations) == [0, 10000, 156000, 1000000])
 record['passed'] = (record['cliExitCode'] == 0 and metadata_ok and completes[0].get('ok') is True
                     and not failed and not reported_errors and not record.get('invalidJSONLine') and not record.get('logTooLargeForAcceptance')
                     and not record.get('statisticsSamplerDidNotStop')
