@@ -32,6 +32,10 @@ F27自己的连续小时已完成并清理：guest3600016ms、78检查0失败，
 
 补充真实Wine live hint已闭合：真正文件复审确认四P2修复后，PE64/PE32各64轮baseline0→登记1→TerminateThread/join42→两次0，128轮均过；故意缺失unwind的negative第0轮join后48读数保持1被正确拒绝，STOP及CLI被终止状态未伪装成功，GUI及两空观察确认。diagnostic正5e80379c…/7b0cb109…、负9d06aa7f…/7b0cb109…；原F27正式5倍/小时证据仍仅64547f41…/7b0cb109…。当前按原research17§7清点更广N/U/S及应用级缺口，不能由一个auto-event gate/CS控制/小时宣布完整M1。Windows仍busy/不能重启，不操作。
 
+已按用户身份skip-ci提交/推送6e8050a（F27原性能+小时+livehint证据/源码）。当前回原research17完整N/U/S矩阵，新增U正确性主程序tests/sync/sync-matrix.c/.h，两架构main组件已编译0警告、尚未链接/运行，不是新性能cohort。run-mac.py只增加matrix correctness入口，旧F27 runner以Git6e8050a/原hash保留。S组代码限定委托Poincare(01a16ca7-6fd0-7292-96c3-270dc5a5441e)写sync-server-cases.c，父代理自己实现U与公共harness；另限定复审U/runner。不重跑原小时/已过Win32基线、不恢复自动化Goal、Windows零操作。详见85。
+
+新增U/S正确性四次（PE32/PE64×msync/server）已各114检查0失败，清单一致，原64547f41…/7b0cb109…不改。新夹具两P2和S即时完成宏契约已修；SRW实际持锁交叉TryAcquire、省略shared锁负例确实失败。完整清单JSON及sum/type校验、离线四回执复核完成；这不是U±3%归因基准或完整M1。实现与结果在85/out/sync-matrix-20261024；下一步按原矩阵补U性能和N/S剩余项或应用级前置，不借旧小时。无子代理活跃、无Windows/定时/Goal操作。
+
 ## 用户紧急暂停（2026-10-23）
 
 用户明确要求紧急暂停。已停止当前私有实验GUI（PID42885，内核退出确认）并连续两次观察到无自有Wine进程；旧实验室亦无pending。不要继续研究、构建、测试、提交/推送或启用自动任务，等待用户新的继续指令。

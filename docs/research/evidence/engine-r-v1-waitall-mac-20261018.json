@@ -87,7 +87,7 @@
     "stats-snapshot.c": "e77ba4a58b6307ca3a1b29b21470ccdc3808ae059c1d8937ec3285587cb8818f",
     "policy-probe.c": "d92f25d528e8422829c3750d040050d7b44f93f6c12f6c1bc72daa2ed8f5384c",
     "owned-processes.swift": "952b542cacdcd0509c7864c995abcee76da070da5a82af0b0361e57bc55f9b09",
-    "run-mac.py": "a8079eb414a51c98a6cc9f9196d016b605b715012b95053b107c57d4cc24d2b7",
+    "run-mac.py": "c0ac7dcb21d8ec199b77fb23e377236fe180f28516cdab902913164fd7e91603",
     "README.md": "907e60d7b8b017e63357c697ed23daae9db9e08c19dfee68c6ff04a95cad1a95",
     "msync-waiter-hint.c": "d4bdfc90183c5500a3637af319e506318f27bc2a9ea4148fa960ab5ff89b90cb",
     "msync-single-waiter.c": "4330fbfc0f5cf9892f0f45d7d5979bb83864b682b978341ed3f038a887dec6ae",
@@ -101,7 +101,11 @@
     "msync-late-park.c": "acc12609f0bb8d43dd03c538003293b87a1638988e85ba600b18cc00aff961b2",
     "live-hint-reap.c": "187efb73d9b3dc2b10750dc813004676b369d8d3fd36ecaa823b72b1fde28898",
     "run-live-hint-reap.py": "4b9dc210c402be84fca12477c021cd5963632f9b2e4b42938e584204e1731080",
-    "check-live-hint-observer.py": "61249dd39ea36a0824ed99c367de0af212dd48bfd776f4a6b97042b751e7f8c5"
+    "check-live-hint-observer.py": "61249dd39ea36a0824ed99c367de0af212dd48bfd776f4a6b97042b751e7f8c5",
+    "sync-matrix.c": "02a68a7c794b8ad5d34a2d5ed06c11050bcccc3bcc3f9782621ea2a59b451de7",
+    "sync-matrix.h": "39a25ed7b1cc190ea284396f9accae2ab3cd2779e25529bb60b86d503cd1b4b1",
+    "sync-server-cases.c": "76bd9750168f361167ed3ed291d0be0ed5792fd96670188584cede08f2c1097e",
+    "sync-matrix-inventory.json": "95564ee4cff9808e9e373e4291a32e14190d58cf48daacb691e6ff8f1c9215d6"
   },
   "protectedBefore": {
     "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": "3febfbf37dd04e8bdc261e7494d4f4cf208afa86386f265894f352404c66064d",
@@ -97945,6 +97949,699 @@
       "log": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-livehintreap-8f6bfab7-e7e3-4db2-bb92-b3a83c8d7a1f/20261024T063905-live-hint-reap-v4-x86_64-6429C79B-5467-4B9F-988A-8A70AF7A86EA/wine.log",
       "logSHA256": "60e42ca22c51f800135bd2deda8b508acff3eb6cf3e71cfb05addc798af84505"
     }
+  },
+  "additionalUSCorrectness": {
+    "scope": "new cases, not broader U timing or fullM1",
+    "build": {
+      "scope": "final U/S correctness build after source review fixes; no timing benchmark",
+      "rows": [
+        {
+          "arch": "i686",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/sync-matrix.c",
+            "/Users/cervantes/Cider/tests/sync/sync-server-cases.c",
+            "-o",
+            "/Users/cervantes/Cider/out/sync-matrix-20261024/sync-matrix-i686.exe"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": "",
+          "sourceSHA256": {
+            "sync-matrix.c": "02a68a7c794b8ad5d34a2d5ed06c11050bcccc3bcc3f9782621ea2a59b451de7",
+            "sync-matrix.h": "39a25ed7b1cc190ea284396f9accae2ab3cd2779e25529bb60b86d503cd1b4b1",
+            "sync-server-cases.c": "76bd9750168f361167ed3ed291d0be0ed5792fd96670188584cede08f2c1097e"
+          },
+          "exeSHA256": "e6d5dba7d5987687e44afd539a692eadb6e9682c935be6f564d8918ee231cd34"
+        },
+        {
+          "arch": "x86_64",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "-O2",
+            "-g",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/sync/sync-matrix.c",
+            "/Users/cervantes/Cider/tests/sync/sync-server-cases.c",
+            "-o",
+            "/Users/cervantes/Cider/out/sync-matrix-20261024/sync-matrix-x86_64.exe"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": "",
+          "sourceSHA256": {
+            "sync-matrix.c": "02a68a7c794b8ad5d34a2d5ed06c11050bcccc3bcc3f9782621ea2a59b451de7",
+            "sync-matrix.h": "39a25ed7b1cc190ea284396f9accae2ab3cd2779e25529bb60b86d503cd1b4b1",
+            "sync-server-cases.c": "76bd9750168f361167ed3ed291d0be0ed5792fd96670188584cede08f2c1097e"
+          },
+          "exeSHA256": "cbb3bf761b75ef678106b2080b2221f0de2bd05496ff514d300f378f30a1e9fd"
+        }
+      ],
+      "passed": true
+    },
+    "sourceContracts": {
+      "schema": "cider.sync-matrix.server-source-notes.v1",
+      "date": "2026-10-24",
+      "component": "tests/sync/sync-server-cases.c",
+      "entry_point": "void matrix_server_cases(matrix_check_fn check, DWORD timeout_ms)",
+      "scope": "Bounded S component only. Parent owns U, common harness, integration and independent review.",
+      "cases": [
+        {
+          "id": "S.timer.synchronization",
+          "coverage": "One-shot relative waitable timer at mixed WaitAny index 1; index 0 is an unsignaled unnamed ordinary auto-reset event. Verify initial timeout, eventual timer wake, consumption, ordinary event selection and cancellation state.",
+          "expected": "Initial WAIT_TIMEOUT, then WAIT_OBJECT_0 + 1 within timeout_ms, then WAIT_TIMEOUT after the synchronization timer is consumed. Signaling the ordinary event selects index 0 and consumes only that event."
+        },
+        {
+          "id": "S.timer.manual",
+          "coverage": "Same mixed wait using a manual-reset timer. When both objects are signaled, the ordinary event at index 0 must win; the timer remains signaled. CancelWaitableTimer does not reset its state.",
+          "expected": "Timer remains WAIT_OBJECT_0 + 1 across repeated mixed waits and cancellation; a signaled lower-index ordinary event returns WAIT_OBJECT_0."
+        },
+        {
+          "id": "S.iocp",
+          "coverage": "Create an unassociated completion port, check initial empty polling, post two packets, dequeue in FIFO order, verify bytes/key/token and final empty polling. First token is non-NULL with a pointer-width key; second token/key/length are NULL/zero.",
+          "expected": "Empty: FALSE, WAIT_TIMEOUT and NULL OVERLAPPED output. Posted packet: TRUE and the exact three posted values, including successful TRUE + NULL for the second packet.",
+          "boundary": "Only PostQueuedCompletionStatus/GetQueuedCompletionStatus operate on the port; it is never passed to a wait function. This case is queue semantics, not a pending device-I/O completion or blocked worker scheduling test."
+        },
+        {
+          "id": "S.pipe",
+          "coverage": "One process owns both endpoints of a unique first-instance inbound byte pipe. Server and client use FILE_FLAG_OVERLAPPED. Connect is issued before opening the client; read is issued before writing payload. Both server operations require actual ERROR_IO_PENDING and use distinct zero-initialized OVERLAPPED structures and manual-reset events mixed with an ordinary auto-reset event.",
+          "expected": "Mixed polls time out before client/data; completion selects event index 1. The ordinary event can be signaled/consumed at index 0 while read stays pending. Read/write sizes equal the binary payload size, memcmp equals zero, and the completed read event stays signaled.",
+          "boundary": "Connect byte count is undefined and is never asserted. A small client write may complete immediately or return ERROR_IO_PENDING; each path checks its actual result. No helper threads, external peer, network pipe or direct wait on a pipe handle."
+        }
+      ],
+      "containment": {
+        "normal_wait_bound_ms": 5000,
+        "timeout_policy": "Use caller timeout_ms directly for each bounded normal wait; zero for polls. Reject INFINITE. Do not enlarge the supplied 5000 ms bound. Timer due time is a relative 10 ms, not a timing precision assertion.",
+        "cleanup_budget": "All pending connect/read/write cancellation drains share a single timeout_ms budget measured with GetTickCount64. Issue CancelIoEx for every pending operation before waiting for any completion.",
+        "storage_lifetime": "Both endpoints, every event, all OVERLAPPED structures, immediate-write count storage, the read buffer and the write payload remain in the owning frame until every pending operation has completed. Neither disconnect nor handle closure is used to force a completion.",
+        "completion_proof": "GetOverlappedResult is always nonblocking. HasOverlappedIoCompleted is consulted only for operations that actually returned ERROR_IO_PENDING. Event signaling or an API error alone never clears the pending flag.",
+        "cancel_race": "CancelIoEx success requests cancellation but does not drain it. ERROR_NOT_FOUND can race completion and still requires draining. Normal completion after cancellation is accepted; ERROR_OPERATION_ABORTED is the expected canceled terminal result. Other terminal errors are failed checks with safe storage release.",
+        "unresolved_pending": "If bounded cleanup cannot establish completion, report a failed check then TerminateProcess(GetCurrentProcess(),125); ExitProcess(125) is a nonreturning fallback. Never return past pending stack I/O.",
+        "unsupported_apis": "A missing CancelIoEx export fails an explicit availability check before any I/O is issued. Other API failures, including ERROR_CALL_NOT_IMPLEMENTED or ERROR_NOT_SUPPORTED, produce failed actual/expected checks and retained error codes; no success substitution or silent skip.",
+        "check_contract": "Every callback carries observed actual/expected scalar values or explicitly normalized BOOL predicates. Real API FALSE is a failed API check even if GetLastError incorrectly reports zero. Failure paths may end their dependent case after reporting the concrete failure."
+      },
+      "primary_sources": [
+        {
+          "title": "WaitForMultipleObjects",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-waitformultipleobjects",
+          "edge_semantics": "Event and waitable timer handles are supported; IOCP is absent from the supported types. WaitAny returns the signaled handle's index and chooses the lowest index when several are ready. Zero timeout polls immediately. Closing a handle during an outstanding wait is undefined and is not tested."
+        },
+        {
+          "title": "Waitable Timer Objects",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/sync/waitable-timer-objects",
+          "edge_semantics": "A synchronization timer's signal is consumed by a successful wait. A manual-reset timer stays signaled until rearmed. Cancellation removes a pending timer without changing its signaled state."
+        },
+        {
+          "title": "SetWaitableTimer",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/synchapi/nf-synchapi-setwaitabletimer",
+          "edge_semantics": "Negative due times are relative intervals in units of 100 ns; period zero means one shot. Timer accuracy is hardware dependent. This component supplies no completion routine and sets fResume to FALSE."
+        },
+        {
+          "title": "CreateIoCompletionPort",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-createiocompletionport",
+          "edge_semantics": "INVALID_HANDLE_VALUE plus NULL ExistingCompletionPort creates an unassociated completion port. The completion key is pointer sized. The component requests concurrency one and associates no file handles."
+        },
+        {
+          "title": "PostQueuedCompletionStatus",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-postqueuedcompletionstatus",
+          "edge_semantics": "The posted byte count, key and OVERLAPPED value are passed through unchanged. The system does not validate these opaque values; a posted token need not represent real asynchronous I/O. NULL is a permitted token."
+        },
+        {
+          "title": "GetQueuedCompletionStatus",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-getqueuedcompletionstatus",
+          "edge_semantics": "An empty zero-time poll returns FALSE and NULL OVERLAPPED output. On FALSE plus NULL the byte count and key are indeterminate and are not inspected. TRUE plus NULL can be a successful user-posted packet. Failed real I/O with non-NULL OVERLAPPED is a different case and is not simulated here."
+        },
+        {
+          "title": "I/O Completion Ports",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/fileio/i-o-completion-ports",
+          "edge_semantics": "Completion packets use a FIFO queue; waiting threads are released in LIFO order. The single calling thread here checks packet order only, without asserting worker release order or scheduler behavior. Closing the port releases this thread's association."
+        },
+        {
+          "title": "CreateNamedPipeA",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-createnamedpipea",
+          "edge_semantics": "An inbound server requires a GENERIC_WRITE client. FILE_FLAG_OVERLAPPED enables asynchronous connect/read/write. FILE_FLAG_FIRST_PIPE_INSTANCE rejects name collisions; the name combines PID, uptime milliseconds and a process-local atomic serial. PIPE_WAIT is used; PIPE_NOWAIT is not asynchronous I/O. The configured default timeout does not bound all I/O."
+        },
+        {
+          "title": "ConnectNamedPipe",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/namedpipeapi/nf-namedpipeapi-connectnamedpipe",
+          "edge_semantics": "Overlapped connect requires a valid OVERLAPPED with a manual-reset event. FALSE plus ERROR_IO_PENDING means pending. ERROR_PIPE_CONNECTED is a valid preconnection race generally, but violates this fixture's owned connect-before-client precondition, so it fails rather than manufacturing an event signal."
+        },
+        {
+          "title": "OVERLAPPED",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/minwinbase/ns-minwinbase-overlapped",
+          "edge_semantics": "Initialize unused fields to zero, use a distinct structure/event for each operation, and keep them alive through completion. Manual-reset events preserve completion signaling across waits and result retrieval; auto-reset completion events can cause lost signaling between those calls."
+        },
+        {
+          "title": "ReadFile",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-readfile",
+          "edge_semantics": "FILE_FLAG_OVERLAPPED requires a valid unique OVERLAPPED. FALSE plus ERROR_IO_PENDING is asynchronous initiation, not terminal failure. The read buffer cannot be accessed or freed before completion. The component passes NULL for the asynchronous immediate byte-count pointer."
+        },
+        {
+          "title": "WriteFile",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-writefile",
+          "edge_semantics": "The write payload stays valid and untouched until completion. FALSE plus ERROR_IO_PENDING requires completion retrieval; other initiation errors fail. For an immediate TRUE result, use the immediate byte count as shown in Microsoft's overlapped named-pipe example; never use it after ERROR_IO_PENDING."
+        },
+        {
+          "title": "Named Pipe Server Using Overlapped I/O",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/ipc/named-pipe-server-using-overlapped-i-o",
+          "edge_semantics": "Microsoft's example distinguishes immediate successful ReadFile/WriteFile results and byte counts from ERROR_IO_PENDING paths, using GetOverlappedResult only for previously pending requests. This component follows that distinction but uses separate operation structures and finite waits."
+        },
+        {
+          "title": "GetOverlappedResult",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-getoverlappedresult",
+          "edge_semantics": "Use the same file handle and OVERLAPPED that initiated the pending operation. bWait FALSE returns ERROR_IO_INCOMPLETE while pending. The output byte count for ConnectNamedPipe is undefined. A dedicated manual event identifies which operation completed."
+        },
+        {
+          "title": "HasOverlappedIoCompleted",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-hasoverlappediocompleted",
+          "edge_semantics": "Use this completion predicate only after initiation returned ERROR_IO_PENDING. A single poll after bounded waiting prevents API failures or unexpected event wakes from being misclassified as safe completion. No unbounded polling loop is used."
+        },
+        {
+          "title": "CancelIoEx",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-cancelioex",
+          "edge_semantics": "Cancellation does not wait for completion. Do not free/reuse the request until completion. ERROR_NOT_FOUND does not prove completion. A canceled request may complete normally, with ERROR_OPERATION_ABORTED, or with another error. The component targets each specific owned request."
+        },
+        {
+          "title": "TerminateProcess",
+          "url": "https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminateprocess",
+          "edge_semantics": "Terminating the current process stops the calling thread and does not return. Termination requests cancellation of outstanding I/O and process exit waits for pending I/O to complete or cancel. This is containment only, never an acceptance success."
+        }
+      ],
+      "local_review": {
+        "kind": "adversarial self-review; parent independent review remains pending",
+        "findings_addressed": [
+          "An event wake alone must not release OVERLAPPED/backing storage; require the documented completion predicate after nonblocking result retrieval.",
+          "Cancellation success or ERROR_NOT_FOUND must not release storage; drain all pending requests within one shared cleanup budget or terminate the owning process.",
+          "FALSE + NULL from GetQueuedCompletionStatus must not lead to checking indeterminate byte/key outputs.",
+          "Connect completion byte count must not be checked, and ERROR_PIPE_CONNECTED must not be converted into a synthetic event completion for this fixture.",
+          "Immediate client write must not be required to signal a pending-operation event; keep its byte count separate from the pending path.",
+          "An API FALSE must be a failed check even if an erroneous backend leaves GetLastError zero."
+        ]
+      },
+      "validation": {
+        "kind": "component compile only, no executable linked or run",
+        "source_sha256": "9efcee775e99d36a829ab87bf690e6dd9cc194ca41646bde31560a83f0450fb7",
+        "compiler_version": "GCC 15.2.0 for both target frontends",
+        "flags": [
+          "-O2",
+          "-Wall",
+          "-Wextra",
+          "-Werror",
+          "-c"
+        ],
+        "output": "/dev/null; no build artifacts retained",
+        "targets": [
+          {
+            "compiler": "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "target": "i686-w64-mingw32",
+            "status": "passed final-source component compile",
+            "exit_code": 0,
+            "diagnostics": ""
+          },
+          {
+            "compiler": "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "target": "x86_64-w64-mingw32",
+            "status": "passed final-source component compile",
+            "exit_code": 0,
+            "diagnostics": ""
+          }
+        ],
+        "runtime": "untested",
+        "unverified": [
+          "Both Wine synchronization backends and both PE bitnesses at runtime",
+          "Windows behavior on the real kernel",
+          "Failure injection, cancellation races and emergency self-termination at runtime",
+          "Blocking mixed-wait registration and cross-thread wake races: no helper threads are created, and a completion can already be ready when the bounded mixed wait starts",
+          "Real device-I/O completion packets, IOCP blocking workers and scheduler order",
+          "Broader original M1 matrix acceptance, performance and application/game workloads"
+        ],
+        "remote_or_windows_work": "none",
+        "runtime_or_workload_tests": "none",
+        "tools_installed": false,
+        "baselines_rerun": false,
+        "subagents_used": false,
+        "other_files_edited": false
+      }
+    },
+    "workerReport": {
+      "previous_status": {
+        "completed": "Changed only:\n\n- [sync-server-cases.c](/Users/cervantes/Cider/tests/sync/sync-server-cases.c)\n- [server-source-notes.json](/Users/cervantes/Cider/out/sync-matrix-20261024/server-source-notes.json)\n\nImplemented timer/event mixed waits, FIFO IOCP checks, and owned overlapped pipe connect/read completion, with bounded cancellation/draining and self-termination containment.\n\nContract findings: connect byte counts are undefined ([Microsoft](https://learn.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-getoverlappedresult)); cancellation does not prove completion ([Microsoft](https://learn.microsoft.com/en-us/windows/win32/api/ioapiset/nf-ioapiset-cancelioex)). All 17 primary sources and edge notes are recorded in JSON.\n\nBoth i686 and x86_64 component compiles passed with GCC 15.2.0, `-O2 -Wall -Wextra -Werror`, without diagnostics.\n\nRuntime, backend behavior, and failure paths remain **untested**. No Windows, remote, or workload execution performed."
+      }
+    },
+    "initialUReview": {
+      "previous_status": {
+        "completed": "Two concrete P2 findings; no P1.\n\n1. **Incomplete matrix receipts can pass.** [run-mac.py:32](/Users/cervantes/Cider/tests/sync/run-mac.py:32) only requires `checks > 0`. A matching begin/complete pair declaring `checks: 24`, zero failures, and `ok: true` passes even with **no check rows**, because [line 338](/Users/cervantes/Cider/tests/sync/run-mac.py:338) produces an empty failure list. Require the matrix check inventory and reconcile emitted rows with completion totals.\n\n2. **SRW shared/exclusive exclusion is not verified.** At [sync-matrix.c:70](/Users/cervantes/Cider/tests/sync/sync-matrix.c:70), readers only check that one increasing counter stays monotonic and bounded. Shared acquire/release becoming no-ops can satisfy those checks while correctly serialized writers satisfy [line 162](/Users/cervantes/Cider/tests/sync/sync-matrix.c:162). Add a cross-mode exclusion assertion or protected consistency invariant.\n\nNo additional concrete P1/P2 found in CV predicate/spurious/timeout handling, WaitOnAddress predicate handling, stack/lock/handle lifetime, or owned-thread cleanup. WaitOnAddress readiness does not establish kernel parking. Matrix selection introduces no baseline rerun.\n\nInspected SHA-256 values, unchanged across both reads:\n\n```text\ntests/sync/sync-matrix.c\n6fb848571d6d3d1b117b1f3b0c7cf1866920468fe678e442e81ab1fb4b9ff20e\ntests/sync/sync-matrix.h\n39a25ed7b1cc190ea284396f9accae2ab3cd2779e25529bb60b86d503cd1b4b1\ntests/sync/run-mac.py\nd57e561079e7aaa80f46d1dc4a0b6a7d60d576377330b21600c85a5b3c86b724\n```\n\nLimits: source review only; driver review restricted to matrix additions and acceptance context. `sync-server-cases.c` excluded. No edits, builds, workloads, Windows operations, process control, or subagents. No runtime, performance, or full-M1 conclusion."
+      }
+    },
+    "integratedReview": {
+      "previous_status": {
+        "completed": "One **P2** found in the actual sources:\n\n- **Immediate writes use a completion predicate outside its documented contract** — [sync-server-cases.c:148](/Users/cervantes/Cider/tests/sync/sync-server-cases.c:148). The `WriteFile(TRUE)` path reaches `s_result` at line 300, which unconditionally calls `HasOverlappedIoCompleted`. [Microsoft restricts this macro to operations that returned `ERROR_IO_PENDING`](https://learn.microsoft.com/en-us/windows/win32/api/winbase/nf-winbase-hasoverlappediocompleted). This adds an unsupported assertion to valid immediate completions and risks a false correctness failure. Evaluate the macro only for previously pending operations; retain `GetOverlappedResult` for the immediate write’s byte count.\n\nNo other concrete P1/P2 found in cancellation/completion lifetime, stack containment, timer/IOCP assumptions, last-error capture, SRW exclusion/join cleanup, or driver inventory/count/failure reconciliation.\n\nRead-only source review completed. No builds or workloads executed; runtime remains unverified."
+      }
+    },
+    "initialMetadataDoubles": {
+      "scope": "pure receipt doubles only",
+      "required": {
+        "U.CS.worker": 4,
+        "U.SRW.worker": 4,
+        "U.CV.worker": 2,
+        "U.WaitOnAddress.worker": 4,
+        "U.InitOnce.worker": 4,
+        "U.SRW.holder-exit": 2,
+        "U.CS.final": 1,
+        "U.SRW.final": 1,
+        "U.CV.final": 1,
+        "U.WaitOnAddress.available": 1,
+        "U.WaitOnAddress.actual-calls": 1,
+        "U.InitOnce.exactly-one": 1,
+        "U.SRW.exclusive_blocks_shared": 1,
+        "U.SRW.shared_blocks_exclusive": 1,
+        "U.SRW.uncontended_shared": 1,
+        "U.SRW.uncontended_exclusive": 1,
+        "S.timer.manual.timer_reset_semantics": 1,
+        "S.timer.synchronization.timer_reset_semantics": 1,
+        "S.timer.manual.cancel_does_not_reset_signaled_state": 1,
+        "S.timer.synchronization.cancel_does_not_reset_signaled_state": 1,
+        "S.iocp.first.bytes": 1,
+        "S.iocp.first.key": 1,
+        "S.iocp.first.token": 1,
+        "S.iocp.null_token.bytes": 1,
+        "S.iocp.null_token.key": 1,
+        "S.iocp.null_token.token": 1,
+        "S.iocp.drained_empty.overlapped_is_null": 1,
+        "S.pipe.connect.start_pending": 1,
+        "S.pipe.connect.result_completed": 1,
+        "S.pipe.read.start_pending": 1,
+        "S.pipe.read.mixed_completion_index": 1,
+        "S.pipe.read.result_completed": 1,
+        "S.pipe.read.bytes": 1,
+        "S.pipe.read.payload_memcmp": 1,
+        "S.pipe.read.manual_completion_event_stays_signaled": 1
+      },
+      "cases": {
+        "full": true,
+        "empty_reject": true,
+        "no_S_reject": true,
+        "count_reject": true,
+        "duplicate_reject": true,
+        "unhashable_name_reject": true
+      },
+      "passed": true
+    },
+    "strictInventoryOffline": {
+      "cases": [
+        {
+          "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792825628139664000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json",
+          "rawSHA256": "4cffc6373a876daff51880e25a742810e97d675df75dec640a4ff6667649bc7a",
+          "inventoryValid": true,
+          "scope": "offline stricter receipt validation; raw pass/result bytes unchanged"
+        },
+        {
+          "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792825639418063000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json",
+          "rawSHA256": "d297a75ba3e3d78a12dd6e4348d32c2150045454b5aec3696851517f0fe14667",
+          "inventoryValid": true,
+          "scope": "offline stricter receipt validation; raw pass/result bytes unchanged"
+        },
+        {
+          "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792825644455651000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+          "rawSHA256": "2b2d223cecc88657cdb0360e8e9cbb4573407c5346ea81b106f42897a111a72d",
+          "inventoryValid": true,
+          "scope": "offline stricter receipt validation; raw pass/result bytes unchanged"
+        },
+        {
+          "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792825649468931000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+          "rawSHA256": "93da74bc552785205726d4d0e250fa148b1d7e1417cf85d83d59f0b0c76122af",
+          "inventoryValid": true,
+          "scope": "offline stricter receipt validation; raw pass/result bytes unchanged"
+        }
+      ],
+      "missing_nonendpoint_check_rejected": true,
+      "inventorySHA256": "95564ee4cff9808e9e373e4291a32e14190d58cf48daacb691e6ff8f1c9215d6",
+      "note": "inventory is source-defined after initial minimum inventory; this is not a new runtime run or retrospectively added API/performance gate"
+    },
+    "protocol": {
+      "scope": "additional U/S correctness only, no timing/attribution benchmark or Windows reference",
+      "declaredUTC": "2026-10-24T07:07:07.948525+00:00",
+      "order": [
+        [
+          "i686",
+          "WaitAll LatePark"
+        ],
+        [
+          "i686",
+          "WaitAll LatePark Server"
+        ],
+        [
+          "x86_64",
+          "WaitAll LatePark Server"
+        ],
+        [
+          "x86_64",
+          "WaitAll LatePark"
+        ]
+      ],
+      "expectedNativeSHA256": {
+        "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+        "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+        "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+        "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+      },
+      "apiTimeoutMs": 5000,
+      "exeSHA256": {
+        "i686": "e6d5dba7d5987687e44afd539a692eadb6e9682c935be6f564d8918ee231cd34",
+        "x86_64": "cbb3bf761b75ef678106b2080b2221f0de2bd05496ff514d300f378f30a1e9fd"
+      },
+      "runnerSHA256": "47071a8433450ec761c9b4aec94a6fc9e8a0b698c098f0cffcd4a612d3d2059d",
+      "noAutomaticRetry": true,
+      "fullM1Accepted": false
+    },
+    "summary": {
+      "scope": "first new U/S correctness cases only, not U timing or fullM1",
+      "allFourPassed": true,
+      "allOutcomeInventoriesEqual": true,
+      "checksPerRun": [
+        114,
+        114,
+        114,
+        114
+      ],
+      "negative": {
+        "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792825919931870000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+        "rawSHA256": "9796dd32edbc6a9aace594dbc3351f1d0fce49b3ff69b1c2e9870f9c3a7a90d0",
+        "passed": false,
+        "requiredFailureObserved": true,
+        "failedChecks": [
+          {
+            "type": "check",
+            "name": "U.SRW.shared_blocks_exclusive",
+            "ok": false,
+            "actual": 1,
+            "expected": 0
+          }
+        ],
+        "cleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [
+              2412
+            ],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        }
+      }
+    },
+    "runtimeTests": [
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792825628139664000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json",
+        "rawResultSHA256": "4cffc6373a876daff51880e25a742810e97d675df75dec640a4ff6667649bc7a",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [],
+        "suite": "matrix",
+        "arch": "i686",
+        "nativeSHA256": {
+          "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+          "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "e6d5dba7d5987687e44afd539a692eadb6e9682c935be6f564d8918ee231cd34",
+        "activeSeconds": 11.057262667,
+        "wallSeconds": 11.057409048080444,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "sync-matrix-correctness",
+            "ok": true,
+            "checks": 114,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 2100,
+            "startAbstime": 2085491039758,
+            "samples": 8,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 2100,
+              "sequence": 0,
+              "allocations": 0,
+              "frees": 0,
+              "current": 0,
+              "peak": 0,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524288,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 6021120,
+              "producerPhysicalFootprintBytes": 5690256,
+              "producerUserTimeNs": 20048,
+              "producerSystemTimeNs": 84511,
+              "producerStartAbstime": 2085491039758,
+              "producerFDCount": 23,
+              "eventHintsAvailable": true,
+              "eventHintSnapshotCoherent": false,
+              "eventHintNonstickySum": 0,
+              "eventHintNonzeroBuckets": 0,
+              "eventHintStickyBuckets": 0
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 2100,
+              "sequence": 292,
+              "allocations": 89,
+              "frees": 57,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 4648960,
+              "producerPhysicalFootprintBytes": 19031192,
+              "producerUserTimeNs": 1740054,
+              "producerSystemTimeNs": 2307995,
+              "producerStartAbstime": 2085491039758,
+              "producerFDCount": 259,
+              "eventHintsAvailable": true,
+              "eventHintSnapshotCoherent": false,
+              "eventHintNonstickySum": 8,
+              "eventHintNonzeroBuckets": 8,
+              "eventHintStickyBuckets": 0
+            },
+            "maxCurrent": 32,
+            "minCurrent": 0,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              23,
+              259
+            ],
+            "RSSRangeBytes": [
+              4444160,
+              17379328
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-latepark-f11d7db3-3680-4ea8-8a93-ccdb7ce55d5d/20261024T070709-sync-matrix-i686-A82A1341-5CA6-4147-9E13-26F191B314D2/wine.log",
+        "rawLogSHA256": "79ae748a1e8779d13d6d393ef52c33f61fe205be7712a6b23f5b3f2f5afec1f6"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792825639418063000-cider-lab-wine11.18-waitall-latepark-x86_64-i686-correctness.json",
+        "rawResultSHA256": "d297a75ba3e3d78a12dd6e4348d32c2150045454b5aec3696851517f0fe14667",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [],
+        "suite": "matrix",
+        "arch": "i686",
+        "nativeSHA256": {
+          "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+          "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "e6d5dba7d5987687e44afd539a692eadb6e9682c935be6f564d8918ee231cd34",
+        "activeSeconds": 4.917170667000001,
+        "wallSeconds": 4.917234897613525,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "sync-matrix-correctness",
+            "ok": true,
+            "checks": 114,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [],
+        "failedChecks": [],
+        "pumpProducers": [],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-latepark-server-188fd9fd-3796-4028-938a-25684a5b305e/20261024T070719-sync-matrix-i686-C6A81BC1-7469-48F7-A371-18E2C56FAB97/wine.log",
+        "rawLogSHA256": "984ade250b32695c08ce8de844dd189348ad17014b37fee61d610b15d32a5e0b"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792825644455651000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+        "rawResultSHA256": "2b2d223cecc88657cdb0360e8e9cbb4573407c5346ea81b106f42897a111a72d",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [],
+        "suite": "matrix",
+        "arch": "x86_64",
+        "nativeSHA256": {
+          "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+          "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "cbb3bf761b75ef678106b2080b2221f0de2bd05496ff514d300f378f30a1e9fd",
+        "activeSeconds": 4.862585875000001,
+        "wallSeconds": 4.862650156021118,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "sync-matrix-correctness",
+            "ok": true,
+            "checks": 114,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [],
+        "failedChecks": [],
+        "pumpProducers": [],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-latepark-server-188fd9fd-3796-4028-938a-25684a5b305e/20261024T070724-sync-matrix-x86_64-E510390C-1093-476F-AF49-D0E29958FB3B/wine.log",
+        "rawLogSHA256": "1cc18fbeef7c0d73001818046b692fa54bf7569272fd72136b5a296e92353714"
+      },
+      {
+        "rawResult": "out/waitall-mac-20261018-admission/runs/1792825649468931000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-correctness.json",
+        "rawResultSHA256": "93da74bc552785205726d4d0e250fa148b1d7e1417cf85d83d59f0b0c76122af",
+        "state": "complete",
+        "passed": true,
+        "cliExitCode": 0,
+        "arguments": [],
+        "suite": "matrix",
+        "arch": "x86_64",
+        "nativeSHA256": {
+          "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+          "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+          "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+          "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+        },
+        "exeSHA256": "cbb3bf761b75ef678106b2080b2221f0de2bd05496ff514d300f378f30a1e9fd",
+        "activeSeconds": 4.941286084,
+        "wallSeconds": 4.941351890563965,
+        "systemPauses": [],
+        "complete": [
+          {
+            "type": "complete",
+            "mode": "sync-matrix-correctness",
+            "ok": true,
+            "checks": 114,
+            "failures": 0,
+            "output_error": false
+          }
+        ],
+        "cases": [],
+        "failedChecks": [],
+        "pumpProducers": [
+          {
+            "producerPID": 2210,
+            "startAbstime": 2085948745101,
+            "samples": 4,
+            "first": {
+              "type": "msync-pump-statistics",
+              "pid": 2210,
+              "sequence": 68,
+              "allocations": 24,
+              "frees": 10,
+              "current": 14,
+              "peak": 14,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524274,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 18952192,
+              "producerPhysicalFootprintBytes": 18465920,
+              "producerUserTimeNs": 1362463,
+              "producerSystemTimeNs": 677247,
+              "producerStartAbstime": 2085948745101,
+              "producerFDCount": 107,
+              "eventHintsAvailable": true,
+              "eventHintSnapshotCoherent": false,
+              "eventHintNonstickySum": 1,
+              "eventHintNonzeroBuckets": 1,
+              "eventHintStickyBuckets": 0
+            },
+            "last": {
+              "type": "msync-pump-statistics",
+              "pid": 2210,
+              "sequence": 292,
+              "allocations": 89,
+              "frees": 57,
+              "current": 32,
+              "peak": 36,
+              "fallbackTotal": 0,
+              "fallbackCurrent": 0,
+              "poolFree": 524256,
+              "capacity": 524288,
+              "producerResourcesAvailable": true,
+              "producerRSSBytes": 5947392,
+              "producerPhysicalFootprintBytes": 18982016,
+              "producerUserTimeNs": 1924296,
+              "producerSystemTimeNs": 1833973,
+              "producerStartAbstime": 2085948745101,
+              "producerFDCount": 259,
+              "eventHintsAvailable": true,
+              "eventHintSnapshotCoherent": false,
+              "eventHintNonstickySum": 8,
+              "eventHintNonzeroBuckets": 8,
+              "eventHintStickyBuckets": 0
+            },
+            "maxCurrent": 32,
+            "minCurrent": 14,
+            "fallbackMaximum": 0,
+            "allocationBalanceValid": true,
+            "FDRange": [
+              107,
+              259
+            ],
+            "RSSRangeBytes": [
+              5947392,
+              19513344
+            ]
+          }
+        ],
+        "rawLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/waitall-latepark-f11d7db3-3680-4ea8-8a93-ccdb7ce55d5d/20261024T070729-sync-matrix-x86_64-CA14C386-3EFF-4EE1-BC64-F23D48809D01/wine.log",
+        "rawLogSHA256": "92e8e55d623af91bea538c64944288294dfea7cac2ca7c340356438cc8b98e82"
+      }
+    ]
   },
   "protectedUnchangedNow": true
 }

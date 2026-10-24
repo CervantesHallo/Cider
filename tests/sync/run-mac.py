@@ -5,6 +5,7 @@ Requires a prepared private CIDER_HOME and private signed Cider.app. It never
 selects a normal user bottle, changes sync mode, or launches Wine directly.
 """
 import argparse
+from collections import Counter
 import fcntl
 import hashlib
 import json
@@ -25,6 +26,12 @@ def valid_metadata(suite, arch, iterations, mode, begins, completes):
     bits = 32 if arch == 'i686' else 64
     if begin.get('pointer_bits') != bits:
         return False
+    if suite == 'matrix':
+        return (mode == 'correctness'
+                and begin.get('mode') == 'sync-matrix-correctness'
+                and complete.get('mode') == 'sync-matrix-correctness'
+                and type(complete.get('checks')) is int and complete['checks'] > 0
+                and complete.get('failures') == 0 and complete.get('output_error') is False)
     if suite == 'single-event':
         expected = {'requested_per_case': iterations, 'created': iterations * 2,
                     'reaped': iterations * 2, 'completed_rounds': iterations,
@@ -61,12 +68,51 @@ def clock_discontinuity(active_delta, wall_delta):
     return abs(wall_delta - active_delta) > 2
 
 
+def valid_matrix_checks(rows, complete, inventory=None):
+    checks = [row for row in rows if row.get('type') == 'check']
+    if (not checks or type(complete.get('checks')) is not int
+            or complete['checks'] != len(checks)
+            or type(complete.get('failures')) is not int
+            or complete['failures'] != sum(row.get('ok') is not True for row in checks)):
+        return False
+    if any(type(row.get('name')) is not str or type(row.get('ok')) is not bool
+           or type(row.get('actual')) is not int or type(row.get('expected')) is not int
+           for row in checks):
+        return False
+    names = Counter(row.get('name') for row in checks)
+    if inventory is None:
+        inventory_path = Path(__file__).with_name('sync-matrix-inventory.json')
+        inventory = json.loads(inventory_path.read_text())
+    expected = Counter(inventory['common'])
+    if not any(names == expected + Counter(alternative) for alternative in inventory['oneOf']):
+        return False
+    required = {'U.CS.worker': 4, 'U.SRW.worker': 4, 'U.CV.worker': 2,
+                'U.WaitOnAddress.worker': 4, 'U.InitOnce.worker': 4, 'U.SRW.holder-exit': 2}
+    for name in ['U.CS.final', 'U.SRW.final', 'U.CV.final', 'U.WaitOnAddress.available',
+                 'U.WaitOnAddress.actual-calls', 'U.InitOnce.exactly-one',
+                 'U.SRW.exclusive_blocks_shared', 'U.SRW.shared_blocks_exclusive',
+                 'U.SRW.uncontended_shared', 'U.SRW.uncontended_exclusive',
+                 'S.timer.manual.timer_reset_semantics',
+                 'S.timer.synchronization.timer_reset_semantics',
+                 'S.timer.manual.cancel_does_not_reset_signaled_state',
+                 'S.timer.synchronization.cancel_does_not_reset_signaled_state',
+                 'S.iocp.first.bytes', 'S.iocp.first.key', 'S.iocp.first.token',
+                 'S.iocp.null_token.bytes', 'S.iocp.null_token.key', 'S.iocp.null_token.token',
+                 'S.iocp.drained_empty.overlapped_is_null',
+                 'S.pipe.connect.start_pending', 'S.pipe.connect.result_completed',
+                 'S.pipe.read.start_pending', 'S.pipe.read.mixed_completion_index',
+                 'S.pipe.read.result_completed', 'S.pipe.read.bytes',
+                 'S.pipe.read.payload_memcmp', 'S.pipe.read.manual_completion_event_stays_signaled']:
+        required[name] = 1
+    return all(names[name] == count for name, count in required.items())
+
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--root', type=Path, required=True)
 parser.add_argument('--bottle', required=True)
 parser.add_argument('--arch', choices=['i686', 'x86_64'], required=True)
 parser.add_argument('--mode', choices=['correctness', 'stress', 'duration', 'bench'], required=True)
-parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event'], default='waitall')
+parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix'], default='waitall')
 parser.add_argument('--stats', action='store_true')
 parser.add_argument('--benchmark-fixture', choices=['v3', 'v4'], default='v3')
 parser.add_argument('--lifecycle-fixture', choices=['standard', 'timeout-diagnostic'], default='standard')
@@ -100,7 +146,8 @@ if args.benchmark_fixture != 'v3' and (args.suite != 'waitall' or args.mode != '
 if args.lifecycle_fixture != 'standard' and (args.suite != 'lifecycle' or args.mode != 'correctness'):
     raise SystemExit('The timeout diagnostic is only valid for lifecycle correctness mode')
 source = root / ({'waitall': 'waitall-', 'lifecycle': 'waitall-lifecycle-',
-                  'processes': 'waitall-processes-', 'single-event': 'event-lifecycle-'}[args.suite] + args.arch + '.exe')
+                  'processes': 'waitall-processes-', 'single-event': 'event-lifecycle-',
+                  'matrix': 'sync-matrix-'}[args.suite] + args.arch + '.exe')
 if args.benchmark_fixture == 'v4':
     source = root / ('waitall-bench-v4-' + args.arch + '.exe')
 if args.lifecycle_fixture == 'timeout-diagnostic':
@@ -109,7 +156,11 @@ destination = prefix / 'drive_c/CiderTests' / source.name
 destination.parent.mkdir(exist_ok=True)
 shutil.copy2(source, destination)
 arguments = ['--' + args.mode]
-if args.suite in ['lifecycle', 'single-event']:
+if args.suite == 'matrix':
+    if args.mode != 'correctness':
+        raise SystemExit('Additional matrix currently supports correctness only')
+    arguments = []
+elif args.suite in ['lifecycle', 'single-event']:
     maximum = 256 if args.suite == 'single-event' else 4096
     if args.mode != 'correctness' or args.iterations > maximum:
         raise SystemExit('Lifecycle requires a bounded correctness run')
@@ -152,6 +203,11 @@ if not engine_root.is_dir():
 record['nativeSHA256'] = {str(p.relative_to(engine_root)): hashlib.sha256(p.read_bytes()).hexdigest()
     for p in [engine_root / 'bin/wineserver', engine_root / 'lib/wine/x86_64-unix/ntdll.so',
               engine_root / 'lib/wine/i386-windows/ntdll.dll', engine_root / 'lib/wine/x86_64-windows/ntdll.dll']}
+if args.suite == 'matrix':
+    matrix_inventory_path = Path(__file__).with_name('sync-matrix-inventory.json')
+    matrix_inventory_bytes = matrix_inventory_path.read_bytes()
+    matrix_inventory = json.loads(matrix_inventory_bytes)
+    record['matrixInventorySHA256'] = hashlib.sha256(matrix_inventory_bytes).hexdigest()
 result_path.write_text(json.dumps(record, indent=2) + '\n')
 start = time.monotonic()
 wall_start = time.time()
@@ -328,6 +384,10 @@ failed = [r for r in rows if r.get('type') == 'check' and not r.get('ok')]
 if args.suite in ['lifecycle', 'single-event']:
     begins = [r for r in rows if r.get('type') == 'limits']
 metadata_ok = valid_metadata(args.suite, args.arch, args.iterations, args.mode, begins, completes)
+if args.suite == 'matrix':
+    record['matrixInventoryUnchanged'] = hashlib.sha256(matrix_inventory_path.read_bytes()).hexdigest() == record['matrixInventorySHA256']
+    metadata_ok = (metadata_ok and record['matrixInventoryUnchanged'] and len(completes) == 1
+                   and valid_matrix_checks(rows, completes[0], matrix_inventory))
 record['passed'] = (record['cliExitCode'] == 0 and metadata_ok and completes[0].get('ok') is True
                     and not failed and not reported_errors and not record.get('invalidJSONLine') and not record.get('logTooLargeForAcceptance')
                     and not record.get('statisticsSamplerDidNotStop')
