@@ -86,7 +86,10 @@ struct SteamCommand: ParsableCommand {
         func run() throws {
             let (store, b, _, exe) = try SteamCommand.steam(bottle)
             let runner = try store.runner(for: b)
-            let session = try runner.launch(runner.plan(program: exe, arguments: SteamLibrary.gameArguments(appID: appID), label: "steam-\(appID)", cwd: CommandContext.required.workingDirectory, extraEnv: SteamLibrary.uiEnvironment))
+            let observation = CommandContext.required.observation
+            let session = try LaunchPreparation.launch(runner.plan(program: exe, arguments: SteamLibrary.gameArguments(appID: appID), label: "steam-\(appID)", cwd: CommandContext.required.workingDirectory, extraEnv: SteamLibrary.uiEnvironment),
+                                                       using: runner, checking: { try observation?.check() },
+                                                       progress: { CommandContext.emit($0) })
             CommandContext.emit("started pid \(session.pid) · log \(session.log.path)")
         }
     }
@@ -98,7 +101,10 @@ struct SteamCommand: ParsableCommand {
         func run() throws {
             let (store, b, _, exe) = try SteamCommand.steam(bottle)
             let runner = try store.runner(for: b)
-            let session = try runner.launch(runner.plan(program: exe, arguments: SteamLibrary.uiArguments + ["steam://install/\(appID)"], label: "steam-install-\(appID)", cwd: CommandContext.required.workingDirectory, extraEnv: SteamLibrary.uiEnvironment))
+            let observation = CommandContext.required.observation
+            let session = try LaunchPreparation.launch(runner.plan(program: exe, arguments: SteamLibrary.uiArguments + ["steam://install/\(appID)"], label: "steam-install-\(appID)", cwd: CommandContext.required.workingDirectory, extraEnv: SteamLibrary.uiEnvironment),
+                                                       using: runner, checking: { try observation?.check() },
+                                                       progress: { CommandContext.emit($0) })
             CommandContext.emit("sent install request · log \(session.log.path)")
         }
     }
@@ -326,14 +332,19 @@ struct Run: ParsableCommand {
         let (target, cwd) = try launchLocation(in: b)
         let args = arguments.first == "--" ? Array(arguments.dropFirst()) : arguments
         let plan = runner.plan(program: target, arguments: args, cwd: cwd, debug: preset, extraEnv: extra)
+        let observation = CommandContext.required.observation
+        let check: @Sendable () throws -> Void = { try observation?.check() }
         if wait {
-            let observation = CommandContext.required.observation
-            let (code, session) = try runner.runToCompletion(plan, observation: observation)
+            let (code, session) = try runner.runToCompletion(plan, observation: observation, launching: {
+                try LaunchPreparation.launch($0, using: runner, checking: check,
+                                             progress: { CommandContext.emit($0) })
+            })
             try runner.waitForIdle(observation: observation)
             CommandContext.emit("exit \(code) · log \(session.log.path)")
             if code != 0 { throw ExitCode(code) }
         } else {
-            let session = try runner.launch(plan)
+            let session = try LaunchPreparation.launch(plan, using: runner, checking: check,
+                                                       progress: { CommandContext.emit($0) })
             if let warning = session.warning { CommandContext.emit(warning, stderr: true) }
             CommandContext.emit("started pid \(session.pid) · log \(session.log.path)")
         }

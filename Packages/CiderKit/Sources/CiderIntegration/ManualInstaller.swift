@@ -57,7 +57,7 @@ public struct ManualInstaller: Sendable {
         let tool = try collector ?? WindowsExitCollector.bundled(cpuBackend: runner.engine.manifest.cpuBackend)
         let capture = try runner.prepareWindowsExitCapture(plan, collector: tool.executable,
             expectedSHA256: tool.sha256, timeoutMilliseconds: 3_600_000)
-        let session = try runner.launch(capture.plan)
+        let session = try LaunchPreparation.launch(capture.plan, using: runner)
         return Running(session: session, capture: capture, activity: activity, isMSI: isMSI, title: file.lastPathComponent)
     }
 }

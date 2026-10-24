@@ -70,6 +70,19 @@ def valid_metadata(suite, arch, iterations, mode, begins, completes):
                 and type(complete.get('checks')) is int and complete['checks'] == 39
                 and type(complete.get('failures')) is int and complete['failures'] == 0
                 and complete.get('ok') is True and complete.get('output_error') is False)
+    if suite == 'wma-dmo':
+        return (mode == 'correctness' and begin.get('subject') == 'wma-dmo'
+                and begin.get('mode') == 'correctness' and begin.get('payload_requested') is True
+                and complete.get('mode') == 'correctness'
+                and type(complete.get('checks')) is int and complete['checks'] == 32
+                and type(complete.get('empty_checks')) is int and complete['empty_checks'] == 32
+                and complete.get('ok') is True
+                and type(complete.get('decoded_bytes')) is int and 8192 <= complete['decoded_bytes'] <= 32768
+                and complete.get('exhausted') is True and complete.get('reference_checked') is True
+                and type(complete.get('reference_difference')) is int and 0 <= complete['reference_difference'] <= 10
+                and type(complete.get('output_refs')) is int and complete['output_refs'] == 1
+                and type(complete.get('input_refs')) is int and complete['input_refs'] == 1
+                and complete.get('output_error') is False)
     if suite == 'single-event':
         expected = {'requested_per_case': iterations, 'created': iterations * 2,
                     'reaped': iterations * 2, 'completed_rounds': iterations,
@@ -178,7 +191,7 @@ parser.add_argument('--root', type=Path, required=True)
 parser.add_argument('--bottle', required=True)
 parser.add_argument('--arch', choices=['i686', 'x86_64'], required=True)
 parser.add_argument('--mode', choices=['correctness', 'stress', 'duration', 'bench'], required=True)
-parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix', 'nt-extra', 'user-bench', 'wait-widths', 'profile-args', 'renderer-smoke', 'gs-boundary', 'winmm-startup'], default='waitall')
+parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix', 'nt-extra', 'user-bench', 'wait-widths', 'profile-args', 'renderer-smoke', 'gs-boundary', 'winmm-startup', 'wma-dmo'], default='waitall')
 parser.add_argument('--audio-first', choices=['wave', 'instance'], default='wave')
 parser.add_argument('--user-kind', choices=['cs', 'srw', 'cv', 'address', 'once'], default='cs')
 parser.add_argument('--batches', type=int, default=4)
@@ -189,7 +202,7 @@ parser.add_argument('--iterations', type=int, default=10000)
 parser.add_argument('--threads', type=int, default=4)
 parser.add_argument('--timeout', type=int, default=150)
 args = parser.parse_args()
-requires_owned_cleanup = args.suite in ['profile-args', 'renderer-smoke', 'gs-boundary', 'winmm-startup']
+requires_owned_cleanup = args.suite in ['profile-args', 'renderer-smoke', 'gs-boundary', 'winmm-startup', 'wma-dmo']
 root = args.root.resolve(strict=True)
 owner = json.loads((root / 'owner.json').read_text())
 if not root.name.startswith('waitall-mac-') or owner['root'] != str(root):
@@ -220,7 +233,8 @@ source = root / ({'waitall': 'waitall-', 'lifecycle': 'waitall-lifecycle-',
                   'matrix': 'sync-matrix-', 'nt-extra': 'sync-nt-extra-',
                   'user-bench': 'sync-user-bench-', 'wait-widths': 'sync-wait-widths-',
                   'profile-args': 'profile-args-', 'renderer-smoke': 'renderer-smoke-',
-                  'gs-boundary': 'gs-boundary-', 'winmm-startup': 'winmm-startup-'}[args.suite] + args.arch + '.exe')
+                  'gs-boundary': 'gs-boundary-', 'winmm-startup': 'winmm-startup-',
+                  'wma-dmo': 'wma-dmo-'}[args.suite] + args.arch + '.exe')
 if args.benchmark_fixture == 'v4':
     source = root / ('waitall-bench-v4-' + args.arch + '.exe')
 if args.lifecycle_fixture == 'timeout-diagnostic':
@@ -234,10 +248,12 @@ if args.suite == 'user-bench':
             or args.stats or args.benchmark_fixture != 'v3' or args.timeout > 120):
         raise SystemExit('U benchmark needs bounded bench mode without statistics or other fixture selection')
     arguments = ['--bench', args.user_kind, str(args.iterations), str(args.threads), str(args.batches)]
-elif args.suite in ['matrix', 'nt-extra', 'wait-widths', 'profile-args', 'renderer-smoke', 'gs-boundary', 'winmm-startup']:
+elif args.suite in ['matrix', 'nt-extra', 'wait-widths', 'profile-args', 'renderer-smoke', 'gs-boundary', 'winmm-startup', 'wma-dmo']:
     if args.mode != 'correctness':
         raise SystemExit('Additional contract suites currently support correctness only')
     arguments = [args.audio_first] if args.suite == 'winmm-startup' else []
+    if args.suite == 'wma-dmo':
+        arguments = ['C:\\CiderTests\\wmaencdata.bin', 'C:\\CiderTests\\wmadecdata.bin']
 elif args.suite in ['lifecycle', 'single-event']:
     maximum = 256 if args.suite == 'single-event' else 4096
     if args.mode != 'correctness' or args.iterations > maximum:
@@ -555,6 +571,14 @@ if args.suite == 'winmm-startup':
             and type(r.get('actual')) is int and type(r.get('expected')) is int
             and r['actual'] == r['expected'] for r in checks)
         and Counter(r['name'] for r in checks) == expected)
+if args.suite == 'wma-dmo':
+    checks = [r for r in rows if r.get('type') == 'check']
+    metadata_ok = (metadata_ok and len(checks) == 32
+        and all(r.get('name') == 'dmo.empty' and r.get('ok') is True
+            and type(r.get('index')) is int and r['index'] == i + 1
+            and type(r.get('hresult')) is int and r['hresult'] == 1
+            and type(r.get('flags')) is int and r['flags'] == 0
+            and type(r.get('length')) is int and r['length'] == 0 for i, r in enumerate(checks)))
 if args.suite == 'wait-widths':
     checks = [r for r in rows if r.get('type') == 'check']
     groups = {}

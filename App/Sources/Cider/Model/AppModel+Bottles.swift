@@ -50,7 +50,8 @@ extension AppModel {
     func snapshots(of bottle: Bottle) -> [BottleSnapshot] { BottleStore(paths: paths).snapshots(of: bottle) }
 
     /// Runs a CiderKit operation off the main actor with a busy key and a result message, then refreshes.
-    private func perform(_ key: String, _ start: String?, bottleID: String? = nil, done: @escaping @Sendable (Bottle?) -> String,
+    private func perform(_ key: String, _ start: String?, bottleID: String? = nil,
+                         feedback suppliedFeedback: AppLaunchFeedback? = nil, done: @escaping @Sendable (Bottle?) -> String,
                          _ work: @escaping @Sendable (BottleStore) throws -> Bottle?) {
         let paths = self.paths
         // Bottle operation keys start with <operation>:<bottle>. Imports have no existing bottle yet.
@@ -63,25 +64,40 @@ extension AppModel {
         if let activityKey { busy.insert(activityKey) }
         busy.insert(key)
         if let start { message = start }
+        let feedback = suppliedFeedback ?? feedbackOwner()
         Task {
             defer { busy.remove(key); if let activityKey { busy.remove(activityKey) } }
             do {
                 let result = try await Task.detached { try work(BottleStore(paths: paths)) }.value
-                message = done(result)
+                _ = updateFeedback(done(result), owning: feedback.generation)
                 await refresh()
             } catch {
-                message = "操作失败：\(error)"
+                _ = updateFeedback(error is CancellationError ? "操作已取消。" : "操作失败：\(error)", owning: feedback.generation)
             }
         }
     }
 
     func runTool(_ tool: WindowsTool, in bottle: Bottle) {
         let (program, arguments) = tool.command
-        perform("tool:\(bottle.config.id):\(tool.rawValue)", nil, done: { _ in "已打开\(tool.title)。" }) { store in
-            let runner = try store.runner(for: bottle)
-            _ = try runner.launch(runner.plan(program: program, arguments: arguments, label: tool.rawValue))
-            return nil
-        }
+        do {
+            let activity = try RecipeInstaller.beginActivity(in: bottle)
+            message = "正在打开\(tool.title)…"
+            let feedback = feedbackOwner()
+            perform("tool:\(bottle.config.id):\(tool.rawValue)", nil, feedback: feedback,
+                    done: { _ in "已打开\(tool.title)。" }) { [weak self = self] store in
+                try activity.completing {
+                    let runner = try store.runner(for: bottle).checkingLaunches { try activity.checkCancellation() }
+                    _ = try LaunchPreparation.launch(runner.plan(program: program, arguments: arguments, label: tool.rawValue),
+                                                     using: runner, progress: { step in
+                        Task { @MainActor in
+                            guard let self, (try? activity.checkCancellation()) != nil else { return }
+                            feedback.generation = self.updateFeedback(step, owning: feedback.generation)
+                        }
+                    })
+                    return nil
+                }
+            }
+        } catch { message = "启动准备失败：\(error)" }
     }
 
     /// "运行命令" / "带选项运行": starts a program with arguments; `verbose` records a detailed Wine log.
@@ -89,26 +105,39 @@ extension AppModel {
         let paths = self.paths
         let key = "activity:\(bottle.config.id)"
         guard !busy.contains(key) else { message = "这个瓶子的操作正在进行，请稍候。"; return }
+        let activity: RecipeInstaller.Activity
+        do { activity = try RecipeInstaller.beginActivity(in: bottle) }
+        catch { message = "启动准备失败：\(error)"; return }
         busy.insert(key)
         message = "正在启动 \(program)…"
+        let feedback = feedbackOwner()
         Task {
             defer { busy.remove(key) }
             do {
-                let log = try await Task.detached { () -> URL in
+                let log = try await withTaskCancellationHandler {
+                    try await Task.detached { () -> URL in
+                    try activity.completing {
                     let store = BottleStore(paths: paths)
-                    let runner = try store.runner(for: bottle)
+                    let runner = try store.runner(for: bottle).checkingLaunches { try activity.checkCancellation() }
                     let label = URL(fileURLWithPath: program.replacingOccurrences(of: "\\", with: "/")).deletingPathExtension().lastPathComponent
-                    return try runner.launch(runner.plan(program: program, arguments: arguments, label: label,
-                                                         debug: verbose ? .verbose : .default)).log
-                }.value
-                message = verbose ? "已启动，详细日志：\(log.path)" : "已启动 \(program)。"
+                    return try LaunchPreparation.launch(runner.plan(program: program, arguments: arguments, label: label,
+                                                                    debug: verbose ? .verbose : .default), using: runner,
+                                                        progress: { [weak self = self] step in
+                        Task { @MainActor in
+                            guard let self, (try? activity.checkCancellation()) != nil else { return }
+                            feedback.generation = self.updateFeedback(step, owning: feedback.generation)
+                        }
+                    }).log
+                    }
+                    }.value
+                } onCancel: { activity.cancel() }
+                _ = updateFeedback(verbose ? "已启动，详细日志：\(log.path)" : "已启动 \(program)。", owning: feedback.generation)
                 lastCommandLog = log
                 await scanProcesses()
             } catch let block as Preflight.Block {
-                message = nil
-                showRouteCard(block)
+                if ownsFeedback(feedback.generation) { message = nil; showRouteCard(block) }
             } catch {
-                message = "启动失败：\(error)"
+                _ = updateFeedback(error is CancellationError ? "操作已取消。" : "启动失败：\(error)", owning: feedback.generation)
             }
         }
     }
@@ -355,7 +384,7 @@ extension AppModel {
                     if !outcome.requiresRestart, let program = recipe.launch, let item = items.first(where: {
                         $0.bottleID == bottle.config.id && $0.launchProgram.caseInsensitiveCompare(program) == .orderedSame
                     }) {
-                        if let task = launch(item, checking: { try activity.checkCancellation() }) { await task.value }
+                        if let task = launch(item, using: activity) { await task.value }
                     }
                     try activity.checkCancellation()
                     guard recipeWorkers[target.config.id]?.owner == owner else { throw CancellationError() }

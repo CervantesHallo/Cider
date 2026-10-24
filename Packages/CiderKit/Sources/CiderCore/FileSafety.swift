@@ -99,11 +99,25 @@ public enum FileOperationLock {
     }
     private static let registry = Registry()
 
-    public static func withLock<T>(at url: URL, timeout: TimeInterval = 30, _ body: () throws -> T) throws -> T {
+    public static func isHeldByCurrentThread(at url: URL) -> Bool {
+        let key = url.standardizedFileURL.resolvingSymlinksInPath().path
+        return Thread.current.threadDictionary["org.cider.operation-lock:" + key] != nil
+    }
+
+    public static func withLock<T>(at url: URL, timeout: TimeInterval = 30,
+                                   checking check: () throws -> Void = {}, _ body: () throws -> T) throws -> T {
+        guard timeout.isFinite, timeout >= 0 else { throw CiderError.invalid("操作等待时间无效。") }
+        try check()
         let key = url.standardizedFileURL.resolvingSymlinksInPath().path
         let local = registry.lock(for: key)
-        guard local.lock(before: Date().addingTimeInterval(timeout)) else { throw CiderError.invalid("另一个操作正在处理此数据，请稍后重试。") }
+        let localDeadline = Date().addingTimeInterval(timeout)
+        while !local.try() {
+            try check()
+            guard Date() < localDeadline else { throw CiderError.invalid("另一个操作正在处理此数据，请稍后重试。") }
+            usleep(20_000)
+        }
         defer { local.unlock() }
+        try check()
         let threadKey = "org.cider.operation-lock:" + key
         if Thread.current.threadDictionary[threadKey] != nil { return try body() }
         try FileManager.default.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
@@ -113,12 +127,14 @@ public enum FileOperationLock {
         let deadline = ProcessInfo.processInfo.systemUptime + timeout
         while flock(descriptor, LOCK_EX | LOCK_NB) != 0 {
             guard errno == EINTR || errno == EWOULDBLOCK || errno == EAGAIN else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+            try check()
             guard ProcessInfo.processInfo.systemUptime < deadline else { throw CiderError.invalid("另一个操作正在处理此数据，请稍后重试。") }
             usleep(20_000)
         }
         defer { _ = flock(descriptor, LOCK_UN) }
         Thread.current.threadDictionary[threadKey] = true
         defer { Thread.current.threadDictionary.removeObject(forKey: threadKey) }
+        try check()
         return try body()
     }
 }

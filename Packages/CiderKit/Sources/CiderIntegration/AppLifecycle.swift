@@ -1,4 +1,5 @@
 import CiderRuntime
+import CiderSchema
 import Darwin
 import Foundation
 
@@ -15,15 +16,20 @@ public enum AppLifecycle {
     }
 
     /// Returns nil for an existing instance instead of spawning another single-instance launcher.
-    public static func start(_ app: CatalogApp, using runner: WineRunner, cwd: URL?) throws -> SessionHandle? {
-        try runner.withBottleOperation {
-        try start(matching: { ProcessScanner.scan().filter { $0.prefixPath == runner.prefix.path && app.owns($0) } }) {
-            let isSteam: Bool = { if case .program = app.kind { return false }; return true }()
-            return try runner.launch(runner.plan(program: app.launchProgram, arguments: app.launchArguments,
-                                                 label: app.title, cwd: cwd,
-                                                 extraEnv: (isSteam ? SteamLibrary.uiEnvironment : [:])
-                                                    .merging(app.launchEnvironment) { $1 }))
+    public static func start(_ app: CatalogApp, using runner: WineRunner, cwd: URL?,
+                             progress: @Sendable (String) -> Void = { _ in }) throws -> SessionHandle? {
+        // Existing clients do not need dependency work; retain the authoritative
+        // single-instance check in the final bottle transaction too.
+        if !ProcessScanner.scan().filter({ $0.prefixPath == runner.prefix.path && app.owns($0) }).isEmpty {
+            return nil
         }
+        let plan = launchPlan(app, using: runner, cwd: cwd)
+        return try LaunchPreparation.perform(plan: plan, using: runner, progress: progress) { prepared in
+            try prepared.withBottleOperation(checking: { try InstallationActivity.checkCancellation() }) {
+                try start(matching: { ProcessScanner.scan().filter { $0.prefixPath == prepared.prefix.path && app.owns($0) } }) {
+                    try prepared.launch(plan)
+                }
+            }
         }
     }
 
@@ -43,11 +49,25 @@ public enum AppLifecycle {
         try drain(matching: matching, terminate: { ProcessScanner.terminate($0) }, pause: { usleep(200_000) })
     }
 
-    public static func restart(_ app: CatalogApp, using runner: WineRunner, cwd: URL?) throws -> SessionHandle? {
-        try runner.withBottleOperation {
-            try stopLocked(app, using: runner)
-            return try start(app, using: runner, cwd: cwd)
+    public static func restart(_ app: CatalogApp, using runner: WineRunner, cwd: URL?,
+                               progress: @Sendable (String) -> Void = { _ in }) throws -> SessionHandle? {
+        let plan = launchPlan(app, using: runner, cwd: cwd)
+        return try LaunchPreparation.perform(plan: plan, using: runner, progress: progress) { prepared in
+            try prepared.withBottleOperation(checking: { try InstallationActivity.checkCancellation() }) {
+                try stopLocked(app, using: runner)
+                try InstallationActivity.checkCancellation()
+                return try start(matching: { ProcessScanner.scan().filter { $0.prefixPath == prepared.prefix.path && app.owns($0) } }) {
+                    try prepared.launch(plan)
+                }
+            }
         }
+    }
+
+    private static func launchPlan(_ app: CatalogApp, using runner: WineRunner, cwd: URL?) -> LaunchPlan {
+        let isSteam: Bool = { if case .program = app.kind { return false }; return true }()
+        return runner.plan(program: app.launchProgram, arguments: app.launchArguments,
+                           label: app.title, cwd: cwd,
+                           extraEnv: (isSteam ? SteamLibrary.uiEnvironment : [:]).merging(app.launchEnvironment) { $1 })
     }
 
     static func start<T>(matching: () -> [WineProcess], spawn: () throws -> T) rethrows -> T? {

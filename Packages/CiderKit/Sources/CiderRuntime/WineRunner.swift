@@ -87,6 +87,7 @@ public struct WineRunner: Sendable {
     /// (docs/plan/00 principle 1: what changes lives in data). Profiles are red-line linted on load.
     public let compat: CompatDB?
     private var launchCheck: @Sendable () throws -> Void = {}
+    private var mediaPrepared = false
 
     /// Add a cooperative check to this operation's runner. It runs again under the
     /// bottle lock immediately before spawn, so Stop cannot be followed by a late launch.
@@ -94,6 +95,49 @@ public struct WineRunner: Sendable {
         var copy = self
         let previous = launchCheck
         copy.launchCheck = { try previous(); try check() }
+        return copy
+    }
+
+    /// Dependency phase for a product-owned launch. Call before its outermost
+    /// bottle lock; keep the same checked runner through the eventual spawn.
+    public func preparingMedia(for plan: LaunchPlan,
+                               progress: @Sendable (String) -> Void = { _ in }) throws -> WineRunner {
+        let previous = launchCheck
+        let check: @Sendable () throws -> Void = { try Task.checkCancellation(); try previous() }
+        try check()
+        guard plan.bottleID == bottleID, plan.engineID == engine.manifest.id,
+              plan.loader == engine.wine.path || plan.loader == engine.bin.appendingPathComponent("wine").path else {
+            throw CiderError.invalid("启动计划与瓶子引擎不一致。")
+        }
+        if let block = plan.argv.lazy.compactMap({ Preflight.check(program: $0, db: nil) }).first { throw block }
+        let validated = try validatedConfiguration()
+        try PatchState.requireRecovered(in: validated.prefix.deletingLastPathComponent())
+        if validated.config.settings["cloneSteamBlocked"] == "1" && plan.argv.contains(where: { Preflight.imageName(of: $0) == "steam.exe" }) {
+            throw CiderError.invalid("此瓶子是 Steam 前缀的副本，不能在副本中启动 Steam。")
+        }
+        // Explicit expert overrides retain their behavior; do not scan external
+        // plugin paths or rewrite an explicitly selected registry automatically.
+        if let gst = engine.bundledGStreamer {
+            let expected = ["GST_PLUGIN_SYSTEM_PATH": gst.appendingPathComponent("lib/gstreamer-1.0").path,
+                            "GST_PLUGIN_SCANNER": gst.appendingPathComponent("libexec/gstreamer-1.0/gst-plugin-scanner").path,
+                            "GST_REGISTRY": paths.caches.appendingPathComponent("gstreamer/\(engine.manifest.id)/registry.bin").path]
+            let actual = environment(extra: plan.env)
+            if expected.contains(where: { actual[$0.key] != $0.value })
+                || actual.contains(where: { $0.key.hasPrefix("GST_") && !expected.keys.contains($0.key)
+                    && !["GST_DEBUG", "GST_DEBUG_NO_COLOR"].contains($0.key) && !$0.value.isEmpty }) {
+                var copy = self; copy.launchCheck = check; copy.mediaPrepared = false; return copy
+            }
+            if FileSafety.exists(gst.appendingPathComponent("cider-media-runtime.json")),
+               FileOperationLock.isHeldByCurrentThread(at: paths.state.appendingPathComponent("locks/bottles/\(bottleID).lock")) {
+                throw CiderError.invalid("媒体组件必须在瓶子启动事务之前准备。")
+            }
+        }
+        let outcome = try MediaRuntimePreparation.prepare(engine: engine, paths: paths,
+                                                          checking: check, progress: progress)
+        try check()
+        var copy = self
+        copy.launchCheck = check
+        copy.mediaPrepared = outcome != .unmanaged
         return copy
     }
 
@@ -134,6 +178,9 @@ public struct WineRunner: Sendable {
         if let gst = engine.bundledGStreamer {
             env["GST_PLUGIN_SYSTEM_PATH"] = gst.appendingPathComponent("lib/gstreamer-1.0").path
             env["GST_PLUGIN_SCANNER"] = gst.appendingPathComponent("libexec/gstreamer-1.0/gst-plugin-scanner").path
+            if FileSafety.exists(gst.appendingPathComponent("cider-media-runtime.json")) {
+                env["GST_PLUGIN_PATH"] = ""
+            }
         } else if !engine.bundlesGStreamer, FileManager.default.fileExists(atPath: Self.gstreamerFramework) {
             let gst = "\(Self.gstreamerFramework)/Versions/Current"
             env["GST_PLUGIN_SYSTEM_PATH"] = "\(gst)/lib/gstreamer-1.0"
@@ -203,16 +250,16 @@ public struct WineRunner: Sendable {
     /// Spawns the plan, recording `session.json` and an audit line. Returns immediately.
     public func launch(_ plan: LaunchPlan) throws -> SessionHandle {
         try launchCheck()
-        return try withBottleOperation {
-            try FileOperationLock.withLock(at: EngineStore(paths: paths).operationLock(for: engine.manifest.id)) {
+        return try withBottleOperation(checking: launchCheck) {
+            try FileOperationLock.withLock(at: EngineStore(paths: paths).operationLock(for: engine.manifest.id), checking: launchCheck) {
                 try launchLocked(plan)
             }
         }
     }
 
-    public func withBottleOperation<T>(_ work: () throws -> T) throws -> T {
+    public func withBottleOperation<T>(checking check: () throws -> Void = {}, _ work: () throws -> T) throws -> T {
         _ = try FileSafety.component(bottleID)
-        return try FileOperationLock.withLock(at: paths.state.appendingPathComponent("locks/bottles/\(bottleID).lock"), work)
+        return try FileOperationLock.withLock(at: paths.state.appendingPathComponent("locks/bottles/\(bottleID).lock"), checking: check, work)
     }
 
     private var cloneBlocksSteam: Bool {
@@ -221,27 +268,36 @@ public struct WineRunner: Sendable {
         return config.settings["cloneSteamBlocked"] == "1"
     }
 
-    private func launchLocked(_ plan: LaunchPlan) throws -> SessionHandle {
-        // R3 preflight: gated games never start (any argv element counts, so `cmd /c start x.exe` is caught too).
-        if let block = plan.argv.lazy.compactMap({ Preflight.check(program: $0, db: nil) }).first {
-            throw block
-        }
-        let configURL = paths.bottles.appendingPathComponent(bottleID + "/cider-bottle.json")
-        let current = try JSONFile.read(BottleConfig.self, from: configURL)
+    private func validatedConfiguration() throws -> (config: BottleConfig, prefix: URL) {
+        _ = try FileSafety.component(bottleID)
+        let configURL = try FileSafety.child(bottleID + "/cider-bottle.json", in: paths.bottles, rejectSymlinks: true)
+        let current = try JSONFile.readMetadata(BottleConfig.self, from: configURL)
         let expectedPrefix = try FileSafety.child(bottleID + "/prefix", in: paths.bottles, rejectSymlinks: true)
-        // Foundation preserves a directory URL's trailing slash, which differs
-        // before wineboot creates the prefix. Compare filesystem paths after
-        // validating the expected boundary, not URL directory-hint metadata.
         guard current.id == bottleID, prefix.isFileURL,
               expectedPrefix.standardizedFileURL.path == prefix.standardizedFileURL.path,
               current.engine.id == engine.manifest.id, current.locale == locale,
               SyncMode(setting: current.settings[SyncMode.settingKey]) == sync else {
             throw CiderError.invalid("瓶子设置已改变，请重新发起启动。")
         }
+        return (current, expectedPrefix)
+    }
+
+    private func launchLocked(_ plan: LaunchPlan) throws -> SessionHandle {
+        // R3 preflight: gated games never start (any argv element counts, so `cmd /c start x.exe` is caught too).
+        if let block = plan.argv.lazy.compactMap({ Preflight.check(program: $0, db: nil) }).first {
+            throw block
+        }
+        let validated = try validatedConfiguration()
+        let current = validated.config
+        let expectedPrefix = validated.prefix
+        // Foundation preserves a directory URL's trailing slash, which differs
+        // before wineboot creates the prefix. Compare filesystem paths after
+        // validating the expected boundary, not URL directory-hint metadata.
         if current.settings["cloneSteamBlocked"] == "1" && plan.argv.contains(where: { Preflight.imageName(of: $0) == "steam.exe" }) {
             throw CiderError.invalid("此瓶子是 Steam 前缀的副本，为保护原登录，不能在副本中启动 Steam。请新建瓶子并重新安装登录。")
         }
         try EnginePolicy.requireChildPreflight(engine)
+        if mediaPrepared { try MediaRuntimePreparation.requirePrepared(engine: engine, paths: paths) }
         try PatchState.requireRecovered(in: expectedPrefix.deletingLastPathComponent())
         // Upgrade host metadata before starting any Wine child, including existing engines.
         // Do this only on launch: stopping a process must not depend on writable engine metadata.
@@ -293,10 +349,13 @@ public struct WineRunner: Sendable {
     }
 
     /// Runs a plan to completion and returns its exit code.
-    public func runToCompletion(_ plan: LaunchPlan, observation: CommandObservation? = nil) throws -> (code: Int32, session: SessionHandle) {
+    public func runToCompletion(_ plan: LaunchPlan, observation: CommandObservation? = nil,
+                                launching launcher: ((LaunchPlan) throws -> SessionHandle)? = nil) throws -> (code: Int32, session: SessionHandle) {
         try Task.checkCancellation()
         try observation?.check()
-        let session = try launch(plan)
+        // The product callback can prepare dependencies before taking any
+        // bottle lock. Invoke it once; disconnect never replays submission.
+        let session = try launcher?(plan) ?? launch(plan)
         // Cancellation may race with spawn; stop this prefix before handing the cancelled result back.
         if Task.isCancelled { try killAll() }
         let code = try Spawn.wait(session.pid, observation: observation)

@@ -81,6 +81,10 @@ int main(int argc, char **argv)
     HRESULT hr;
     HANDLE timer;
     int result = 1;
+    unsigned empty_checks = 0;
+    DWORD decoded_bytes = 0;
+    BOOL output_exhausted = FALSE, reference_checked = FALSE;
+    unsigned long long reference_difference = 0;
     BYTE input_format[sizeof(WAVEFORMATEX) + 10] = {0};
     WAVEFORMATEX *input = (WAVEFORMATEX *)input_format;
     WAVEFORMATEX pcm = {WAVE_FORMAT_PCM, 2, 22050, 88200, 4, 16, 0};
@@ -89,6 +93,9 @@ int main(int argc, char **argv)
     static const BYTE codec_data[10] = {0, 0x44, 0, 0, 0x17, 0, 0, 0, 0, 0};
 
     if (argc != 1 && argc != 3) return 2;
+    printf("{\"type\":\"begin\",\"subject\":\"wma-dmo\",\"mode\":\"correctness\",\"pointer_bits\":%u,\"pid\":%lu,\"payload_requested\":%s}\n",
+            (unsigned)(sizeof(void *) * 8), GetCurrentProcessId(), argc == 3 ? "true" : "false");
+    if (fflush(stdout) || ferror(stdout)) return 2;
     if (argc == 3)
     {
         FILE *file = fopen(argv[1], "rb");
@@ -110,10 +117,14 @@ int main(int argc, char **argv)
     output.refs = compressed.refs = 1;
     timer = CreateThread(NULL, 0, watchdog, NULL, 0, NULL);
     if (!timer) return 2;
+    printf("phase=CoInitialize.begin\n"); fflush(stdout);
     hr = CoInitialize(NULL);
+    printf("phase=CoInitialize.end hr=%#lx\n", hr); fflush(stdout);
     if (FAILED(hr)) goto finish;
+    printf("phase=CoCreate.begin\n"); fflush(stdout);
     hr = CoCreateInstance(&wma_decoder_clsid, NULL, CLSCTX_INPROC_SERVER,
             &IID_IMediaObject, (void **)&dmo);
+    printf("phase=CoCreate.end hr=%#lx\n", hr); fflush(stdout);
     if (FAILED(hr)) goto cleanup;
     input->wFormatTag = 0x161;
     input->nChannels = 2;
@@ -136,9 +147,11 @@ int main(int argc, char **argv)
     output_type.lSampleSize = pcm.nBlockAlign;
     output_type.cbFormat = sizeof(pcm);
     output_type.pbFormat = (BYTE *)&pcm;
+    printf("phase=SetInputType.begin\n"); fflush(stdout);
     hr = IMediaObject_SetInputType(dmo, 0, &input_type, 0);
     printf("SetInputType=%#lx\n", hr); fflush(stdout);
     if (FAILED(hr)) goto cleanup;
+    printf("phase=SetOutputType.begin\n"); fflush(stdout);
     hr = IMediaObject_SetOutputType(dmo, 0, &output_type, 0);
     printf("SetOutputType=%#lx\n", hr); fflush(stdout);
     if (FAILED(hr)) goto cleanup;
@@ -150,12 +163,16 @@ int main(int argc, char **argv)
         output.length = 0;
         hr = IMediaObject_ProcessOutput(dmo, 0, 1, &data, &status);
         printf("empty=%u hr=%#lx flags=%#lx length=%lu\n", i + 1, hr, data.dwStatus, output.length);
+        printf("{\"type\":\"check\",\"name\":\"dmo.empty\",\"index\":%u,\"ok\":%s,\"hresult\":%lu,\"flags\":%lu,\"length\":%lu}\n",
+                i + 1, hr == S_FALSE && !data.dwStatus && !output.length ? "true" : "false",
+                (DWORD)hr, data.dwStatus, output.length);
         fflush(stdout);
         if (hr != S_FALSE || data.dwStatus || output.length)
         {
             result = 1;
             break;
         }
+        ++empty_checks;
     }
     if (!result && argc == 3)
     {
@@ -199,11 +216,15 @@ int main(int argc, char **argv)
                  * slightly with the bundled FFmpeg version. */
                 unsigned long long diff_percent = difference * 100 / 65536 / (output.length / 2);
                 printf("pcm_reference_diff_percent=%llu\n", diff_percent);
+                reference_checked = TRUE;
+                reference_difference = diff_percent;
                 if (diff_percent > 10 || !nonzero) { result = 1; break; }
             }
             bytes += output.length;
         }
         printf("decoded_bytes=%lu exhausted=%d\n", bytes, exhausted);
+        decoded_bytes = bytes;
+        output_exhausted = exhausted;
         if (bytes < 8192 || bytes > 32768 || !exhausted || compressed.refs != 1) result = 1;
     }
 cleanup:
@@ -214,5 +235,10 @@ finish:
     InterlockedExchange(&done, 1);
     WaitForSingleObject(timer, INFINITE);
     CloseHandle(timer);
-    return result;
+    if (output.refs != 1 || compressed.refs != 1) result = 1;
+    printf("{\"type\":\"complete\",\"mode\":\"correctness\",\"ok\":%s,\"checks\":%u,\"empty_checks\":%u,\"decoded_bytes\":%lu,\"exhausted\":%s,\"reference_checked\":%s,\"reference_difference\":%llu,\"output_refs\":%ld,\"input_refs\":%ld,\"output_error\":%s}\n",
+            !result && !ferror(stdout) ? "true" : "false", empty_checks, empty_checks,
+            decoded_bytes, output_exhausted ? "true" : "false", reference_checked ? "true" : "false",
+            reference_difference, output.refs, compressed.refs, ferror(stdout) ? "true" : "false");
+    return result || fflush(stdout) || ferror(stdout) ? 1 : 0;
 }

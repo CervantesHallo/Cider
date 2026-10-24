@@ -199,7 +199,7 @@ public struct RecipeInstaller: Sendable {
     private func install(_ recipe: Recipe, in bottle: Bottle, progress: @Sendable (String) -> Void) throws -> Bool {
         try InstallationActivity.checkCancellation()
         if isInstalled(recipe, in: bottle) { return false }
-        let runner = try store.runner(for: bottle).checkingLaunches { try InstallationActivity.checkCancellation() }
+        var runner = try store.runner(for: bottle).checkingLaunches { try InstallationActivity.checkCancellation() }
         // Resolve before downloading; a malformed/missing App tool is a preparation
         // failure. It must not silently fall back to an 8-bit Unix success alias.
         let collector: WindowsExitCollector?
@@ -235,6 +235,7 @@ public struct RecipeInstaller: Sendable {
                 guard let collector else { throw CiderError.notFound("安装状态采集工具") }
                 let capture = try runner.prepareWindowsExitCapture(plan, collector: collector.executable,
                     expectedSHA256: collector.sha256, timeoutMilliseconds: 3_600_000)
+                runner = try runner.preparingMedia(for: capture.plan, progress: progress)
                 let completed = try runner.runToCompletion(capture.plan)
                 do { try capture.recordEvidence(in: completed.session) }
                 catch { CiderDiagnostics.warning("安装状态记录未能加入会话诊断，原始记录保留在 \(capture.directory.path)：\(error)") }
@@ -244,11 +245,13 @@ public struct RecipeInstaller: Sendable {
                 requiresRestart = requiresRestart || restart
             }
             if let sets = step.registry, !sets.isEmpty {
+                runner = try runner.preparingMedia(for: runner.plan(program: "regedit"), progress: progress)
                 let grouped = Dictionary(grouping: sets, by: \.key)
                 try PrefixSetup.importRegistry(grouped.map { ($0.key, $0.value.map { ($0.name, RegValue.string($0.value)) }) },
                                                named: "recipe-\(recipe.id)", bottle: bottle, runner: runner)
             }
             if let winver = step.winver {
+                runner = try runner.preparingMedia(for: runner.plan(program: "winecfg"), progress: progress)
                 _ = try runner.runToCompletion(runner.plan(program: "winecfg", arguments: ["/v", winver], label: "winver-\(recipe.id)"))
             }
         }

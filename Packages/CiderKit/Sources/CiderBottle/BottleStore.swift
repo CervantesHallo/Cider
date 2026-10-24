@@ -126,7 +126,9 @@ public struct BottleStore: Sendable {
             let check: InitializationCheck = { try Task.checkCancellation(); try checkOwnership(); try callerCheck() }
             try check()
             try JSONFile.write(config, to: bottle.configURL)
-            let runner = WineRunner(paths: paths, engine: engine, prefix: bottle.prefix, bottleID: id, locale: locale).checkingLaunches(check)
+            var runner = WineRunner(paths: paths, engine: engine, prefix: bottle.prefix, bottleID: id, locale: locale).checkingLaunches(check)
+            progress("准备媒体组件")
+            runner = try runner.preparingMedia(for: runner.plan(program: "wineboot", arguments: ["--init"], label: "wineboot"))
 
             progress("wineboot")
             initializationStarted = true

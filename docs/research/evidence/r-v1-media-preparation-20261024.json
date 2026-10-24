@@ -1,0 +1,2117 @@
+{
+  "schema": "cider.r-v1-media-preparation/v1",
+  "scope": "Original engine media preparation and prepared WMA subset; no default adoption, full cold-use/game/Windows acceptance",
+  "artifacts": [
+    {
+      "path": "out/media-preparation-20261024/fixture-v1.json",
+      "sha256": "e8562e50e83d6441796ccb3b39ee286d16a1241744dc4d14f1986bed10fb3973",
+      "bytes": 1938,
+      "record": {
+        "args": [
+          "/Users/cervantes/Cider/engine/bundle-gstreamer.sh",
+          "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64",
+          "/Library/Frameworks/GStreamer.framework/Versions/1.0"
+        ],
+        "exitCode": 0,
+        "stdout": "bundled 32 plugins, 42 libraries:  62M\n",
+        "stderr": "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/lib/libMoltenVK.dylib: replacing existing signature\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/engine/lib/wine/x86_64-unix/winegstreamer.so\n/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/engine/lib/wine/x86_64-unix/winegstreamer.so\n/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/engine/lib/wine/x86_64-unix/winegstreamer.so: replacing existing signature\n",
+        "home": "/Users/cervantes/Cider/out/media-preparation-20261024/home",
+        "engineID": "cider-media-preparation-fixture-r1-x86_64",
+        "directory": "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64",
+        "scope": "Owned approved engine copy for real native service validation; no bottle or Steam prefix copied",
+        "descriptionSHA256": "5c24782283b63a46b15505fee1603614c53adb2b1829f3184b4d2bf2f8e1f6e4",
+        "inventoryCount": 76
+      }
+    },
+    {
+      "path": "out/media-preparation-20261024/service-cold-v1.json",
+      "sha256": "e08254fad17959704341d56822ba4be56b000ea6cd4b4801e966e65fe69592cb",
+      "bytes": 219,
+      "record": {
+        "elapsedSeconds": 54.66501675,
+        "engineID": "cider-media-preparation-fixture-r1-x86_64",
+        "mode": "prepare",
+        "outcome": "prepared",
+        "readiness": true,
+        "success": true,
+        "wineExecuted": false
+      }
+    },
+    {
+      "path": "out/media-preparation-20261024/fault-results-v1.json",
+      "sha256": "c6705d658e0c33cd72297cb4c954077e50cd20e698d61866084952a6dd4c5ce0",
+      "bytes": 3886,
+      "record": {
+        "cached": {
+          "elapsedSeconds": 0.61419575,
+          "engineID": "cider-media-preparation-fixture-r1-x86_64",
+          "mode": "prepare",
+          "outcome": "cached",
+          "readiness": true,
+          "success": true,
+          "wineExecuted": false
+        },
+        "ready": {
+          "elapsedSeconds": 0.057719375,
+          "engineID": "cider-media-preparation-fixture-r1-x86_64",
+          "mode": "ready",
+          "outcome": "ready",
+          "success": true,
+          "wineExecuted": false
+        },
+        "badRegistry": {
+          "cancelled": false,
+          "elapsedSeconds": 0.025602292,
+          "engineID": "cider-media-preparation-fixture-r1-x86_64",
+          "error": "invalid: 媒体缓存已改变，请重新准备后启动。",
+          "mode": "ready",
+          "success": false,
+          "wineExecuted": false
+        },
+        "restoredRegistry": {
+          "elapsedSeconds": 0.024198916,
+          "engineID": "cider-media-preparation-fixture-r1-x86_64",
+          "mode": "ready",
+          "outcome": "ready",
+          "success": true,
+          "wineExecuted": false
+        },
+        "cancelPublished": {
+          "cancelled": true,
+          "elapsedSeconds": 2.27869675,
+          "engineID": "cider-media-preparation-fixture-r1-x86_64",
+          "error": "CancellationError()",
+          "mode": "cancel-published",
+          "success": false,
+          "wineExecuted": false
+        },
+        "backup": {
+          "transaction": "/Users/cervantes/Cider/out/media-preparation-20261024/home/Caches/gstreamer/cider-media-preparation-fixture-r1-x86_64/preparing-9B239388-8118-46A0-8364-B1A0C6F5045F",
+          "priorRegistrySHA256": "f05ad2beb70377c68ee5e9fca45e22ead44fbdc5010a7439d36c9c838aa6b43b",
+          "priorReceiptSHA256": "5f3378814fd14a5080474576e1398adc95a41400100e098feec2dad4a183bcb5",
+          "recovery": {
+            "cause": "CancellationError()",
+            "engine": "cider-media-preparation-fixture-r1-x86_64",
+            "liveReceipt": "/Users/cervantes/Cider/out/media-preparation-20261024/home/Caches/gstreamer/cider-media-preparation-fixture-r1-x86_64/preparation.json",
+            "liveRegistry": "/Users/cervantes/Cider/out/media-preparation-20261024/home/Caches/gstreamer/cider-media-preparation-fixture-r1-x86_64/registry.bin",
+            "priorReceipt": "/Users/cervantes/Cider/out/media-preparation-20261024/home/Caches/gstreamer/cider-media-preparation-fixture-r1-x86_64/preparing-9B239388-8118-46A0-8364-B1A0C6F5045F/prior-preparation.json",
+            "priorRegistry": "/Users/cervantes/Cider/out/media-preparation-20261024/home/Caches/gstreamer/cider-media-preparation-fixture-r1-x86_64/preparing-9B239388-8118-46A0-8364-B1A0C6F5045F/registry.bin",
+            "recovery": "Retained prior bytes; retry preparation from verified runtime files. No destination overwritten during failure recovery."
+          }
+        },
+        "afterCancellation": {
+          "cancelled": false,
+          "elapsedSeconds": 0.026481459,
+          "engineID": "cider-media-preparation-fixture-r1-x86_64",
+          "error": "invalid: 媒体组件准备状态已改变，请重新启动操作。",
+          "mode": "ready",
+          "success": false,
+          "wineExecuted": false
+        },
+        "badComponent": {
+          "cancelled": false,
+          "elapsedSeconds": 0.02520975,
+          "engineID": "cider-media-preparation-fixture-r1-x86_64",
+          "error": "invalid: 媒体组件文件已改变，请重新安装引擎。",
+          "mode": "prepare",
+          "success": false,
+          "wineExecuted": false
+        },
+        "restoredComponentStaleReceipt": {
+          "cancelled": false,
+          "elapsedSeconds": 0.02460725,
+          "engineID": "cider-media-preparation-fixture-r1-x86_64",
+          "error": "invalid: 媒体组件准备状态已改变，请重新启动操作。",
+          "mode": "ready",
+          "success": false,
+          "wineExecuted": false
+        },
+        "scope": "Real native service on owned approved-core copy; no Wine or GUI launch; changed file identity intentionally leaves receipt stale."
+      }
+    },
+    {
+      "path": "out/media-preparation-20261024/product-result-v1.json",
+      "sha256": "ef222d608a847bbb0a5cb8983d9e6fc2438d0fb0aae5a4489919a8b6994a71b4",
+      "bytes": 4319,
+      "record": {
+        "state": "complete",
+        "passed": true,
+        "root": "/Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024",
+        "scope": "Native preparation through real GUI/XPC creation and run entry; no user bottle/game/default changes",
+        "cases": [
+          {
+            "case": "stop-during-first-media-preparation",
+            "helperObserved": "84545 84519 /Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024/private-home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/bin/gst-inspect-1.0 --gst-disable-registry-fork --exists decodebin",
+            "stop": {
+              "args": [
+                "kill",
+                "-b",
+                "Media Stop Fixture"
+              ],
+              "exit": 0,
+              "stdout": "stopped\n",
+              "stderr": "",
+              "elapsedSeconds": 0.793566792
+            },
+            "creationExit": 1,
+            "wineSpawns": 0,
+            "lateHelper": false
+          },
+          {
+            "case": "first-execution-prepare-and-initialize",
+            "result": {
+              "args": [
+                "bottle",
+                "create",
+                "Media Ready Fixture",
+                "--engine",
+                "cider-media-preparation-fixture-r1-x86_64"
+              ],
+              "exit": 0,
+              "stdout": "created media-ready-fixture-0147e7b2-90d1-4765-944f-43452762a0fc (Media Ready Fixture, zh_CN.UTF-8, cider-media-preparation-fixture-r1-x86_64)\n",
+              "stderr": "… 准备媒体组件\n… wineboot\n… shell folders\n… fonts\n",
+              "elapsedSeconds": 93.209669083
+            }
+          },
+          {
+            "case": "run-wait-cached-media",
+            "marker": "cider-media-product-32f188a42b8c43ba8b494eee9b64994f",
+            "result": {
+              "args": [
+                "run",
+                "-b",
+                "Media Ready Fixture",
+                "--wait",
+                "cmd",
+                "/c",
+                "echo",
+                "cider-media-product-32f188a42b8c43ba8b494eee9b64994f"
+              ],
+              "exit": 0,
+              "stdout": "exit 0 · log /Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024/private-home/Logs/sessions/media-ready-fixture-0147e7b2-90d1-4765-944f-43452762a0fc/20261024T153309-cmd-14BE3DDF-2A47-4C24-8615-C51F293D053F/wine.log\n",
+              "stderr": "",
+              "elapsedSeconds": 6.012047916
+            },
+            "log": "/Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024/private-home/Logs/sessions/media-ready-fixture-0147e7b2-90d1-4765-944f-43452762a0fc/20261024T153309-cmd-14BE3DDF-2A47-4C24-8615-C51F293D053F/wine.log",
+            "logSHA256": "9385f6b11a7e4a0d5e42f2a7464949edaf914f440f9c9434d158a9d8d62dd483"
+          },
+          {
+            "case": "normal-stop",
+            "result": {
+              "args": [
+                "kill",
+                "-b",
+                "Media Ready Fixture"
+              ],
+              "exit": 0,
+              "stdout": "stopped\n",
+              "stderr": "",
+              "elapsedSeconds": 0.4712162080000013
+            }
+          }
+        ],
+        "preCleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024/source/out/Cider.app",
+            "capturedPIDs": [],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024"
+        },
+        "finalCleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024/source/out/Cider.app",
+            "capturedPIDs": [
+              84519
+            ],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024"
+        },
+        "protectedUnchanged": {
+          "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": true,
+          "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": true,
+          "/Users/cervantes/Library/Application Support/Cider/Bottles/steam-hb-2574/cider-bottle.json": true,
+          "/Users/cervantes/Library/Application Support/Cider/Bottles/bottle-ca8f/cider-bottle.json": true
+        }
+      }
+    },
+    {
+      "path": "out/media-preparation-20261024/product-stop-run-v1.json",
+      "sha256": "22ddb9f2b2f4b0695db455d19e81a8e8e20159b8b4237f6c3683b897cab114e2",
+      "bytes": 1375,
+      "record": {
+        "passed": true,
+        "scope": "actual run entry Stop during native media preparation; only owned private home",
+        "marker": "cider-media-cancel-a9b1b7b769b74f80a4498ee9b05a248d",
+        "helperObserved": "84990 84950 /Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024/private-home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/bin/gst-inspect-1.0 --gst-disable-registry-fork --exists decodebin",
+        "stopExit": 0,
+        "stopStdout": "stopped\n",
+        "stopStderr": "",
+        "stopSeconds": 0.48961200000000016,
+        "runExit": 1,
+        "applicationSpawnDelta": 0,
+        "markerExecuted": false,
+        "helperGone": true,
+        "cleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024/source/out/Cider.app",
+            "capturedPIDs": [
+              84950
+            ],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-media-preparation-20261024"
+        },
+        "auditBeforeSHA256": "bb6a192a0087f48a9c9b34fc1b78b5ff6c311fff4a808a0ee75a5c898e779757",
+        "auditAfterSHA256": "bb6a192a0087f48a9c9b34fc1b78b5ff6c311fff4a808a0ee75a5c898e779757"
+      }
+    },
+    {
+      "path": "out/media-preparation-20261024/native-load-trace-v1.json",
+      "sha256": "c35c628d6d8e548a8b3c60dd2af874eb773c02ecc8cf1feac60a6d5d2ac1e179",
+      "bytes": 53303,
+      "record": {
+        "exitCode": 0,
+        "loadedPaths": [
+          "/System/Library/Frameworks/AVFAudio.framework/Versions/A/AVFAudio",
+          "/System/Library/Frameworks/AVFoundation.framework/Versions/A/AVFoundation",
+          "/System/Library/Frameworks/AVRouting.framework/Versions/A/AVRouting",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Accelerate",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vImage.framework/Versions/A/Libraries/libCGInterfaces.dylib",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vImage.framework/Versions/A/vImage",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBLAS.dylib",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libBNNS.dylib",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLAPACK.dylib",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libLinearAlgebra.dylib",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libQuadrature.dylib",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libSparse.dylib",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libSparseBLAS.dylib",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvDSP.dylib",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/libvMisc.dylib",
+          "/System/Library/Frameworks/Accelerate.framework/Versions/A/Frameworks/vecLib.framework/Versions/A/vecLib",
+          "/System/Library/Frameworks/Accessibility.framework/Versions/A/Accessibility",
+          "/System/Library/Frameworks/Accounts.framework/Versions/A/Accounts",
+          "/System/Library/Frameworks/AppIntents.framework/Versions/A/AppIntents",
+          "/System/Library/Frameworks/AppKit.framework/Versions/C/AppKit",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/ApplicationServices",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/ATS",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATS.framework/Versions/A/Resources/libFontRegistry.dylib",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ATSUI.framework/Versions/A/ATSUI",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/ColorSyncLegacy.framework/Versions/A/ColorSyncLegacy",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/HIServices.framework/Versions/A/HIServices",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/PrintCore.framework/Versions/A/PrintCore",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/QD.framework/Versions/A/QD",
+          "/System/Library/Frameworks/ApplicationServices.framework/Versions/A/Frameworks/SpeechSynthesis.framework/Versions/A/SpeechSynthesis",
+          "/System/Library/Frameworks/AudioToolbox.framework/Versions/A/AudioToolbox",
+          "/System/Library/Frameworks/AudioUnit.framework/Versions/A/AudioUnit",
+          "/System/Library/Frameworks/CFNetwork.framework/Versions/A/CFNetwork",
+          "/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/HIToolbox.framework/Versions/A/HIToolbox",
+          "/System/Library/Frameworks/Carbon.framework/Versions/A/Frameworks/SpeechRecognition.framework/Versions/A/SpeechRecognition",
+          "/System/Library/Frameworks/ClassKit.framework/Versions/A/ClassKit",
+          "/System/Library/Frameworks/CloudKit.framework/Versions/A/CloudKit",
+          "/System/Library/Frameworks/ColorSync.framework/Versions/A/ColorSync",
+          "/System/Library/Frameworks/Combine.framework/Versions/A/Combine",
+          "/System/Library/Frameworks/Contacts.framework/Versions/A/Contacts",
+          "/System/Library/Frameworks/CoreAudio.framework/Versions/A/CoreAudio",
+          "/System/Library/Frameworks/CoreBluetooth.framework/Versions/A/CoreBluetooth",
+          "/System/Library/Frameworks/CoreData.framework/Versions/A/CoreData",
+          "/System/Library/Frameworks/CoreDisplay.framework/Versions/A/CoreDisplay",
+          "/System/Library/Frameworks/CoreFoundation.framework/Versions/A/CoreFoundation",
+          "/System/Library/Frameworks/CoreGraphics.framework/Versions/A/CoreGraphics",
+          "/System/Library/Frameworks/CoreImage.framework/Versions/A/CoreImage",
+          "/System/Library/Frameworks/CoreLocation.framework/Versions/A/CoreLocation",
+          "/System/Library/Frameworks/CoreMIDI.framework/Versions/A/CoreMIDI",
+          "/System/Library/Frameworks/CoreML.framework/Versions/A/CoreML",
+          "/System/Library/Frameworks/CoreMedia.framework/Versions/A/CoreMedia",
+          "/System/Library/Frameworks/CoreMediaIO.framework/Versions/A/CoreMediaIO",
+          "/System/Library/Frameworks/CoreMotion.framework/Versions/A/CoreMotion",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/CoreServices",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/AE.framework/Versions/A/AE",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/CarbonCore.framework/Versions/A/CarbonCore",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/DictionaryServices.framework/Versions/A/DictionaryServices",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/FSEvents.framework/Versions/A/FSEvents",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/LaunchServices.framework/Versions/A/LaunchServices",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Metadata",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/OSServices.framework/Versions/A/OSServices",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SearchKit.framework/Versions/A/SearchKit",
+          "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/SharedFileList.framework/Versions/A/SharedFileList",
+          "/System/Library/Frameworks/CoreSpotlight.framework/Versions/A/CoreSpotlight",
+          "/System/Library/Frameworks/CoreTelephony.framework/Versions/A/CoreTelephony",
+          "/System/Library/Frameworks/CoreText.framework/Versions/A/CoreText",
+          "/System/Library/Frameworks/CoreTransferable.framework/Versions/A/CoreTransferable",
+          "/System/Library/Frameworks/CoreVideo.framework/Versions/A/CoreVideo",
+          "/System/Library/Frameworks/CoreWLAN.framework/Versions/A/CoreWLAN",
+          "/System/Library/Frameworks/CryptoKit.framework/Versions/A/CryptoKit",
+          "/System/Library/Frameworks/CryptoTokenKit.framework/Versions/A/CryptoTokenKit",
+          "/System/Library/Frameworks/DataDetection.framework/Versions/A/DataDetection",
+          "/System/Library/Frameworks/DeveloperToolsSupport.framework/Versions/A/DeveloperToolsSupport",
+          "/System/Library/Frameworks/DiscRecording.framework/Versions/A/DiscRecording",
+          "/System/Library/Frameworks/DiskArbitration.framework/Versions/A/DiskArbitration",
+          "/System/Library/Frameworks/ExtensionFoundation.framework/Versions/A/ExtensionFoundation",
+          "/System/Library/Frameworks/FileProvider.framework/Versions/A/FileProvider",
+          "/System/Library/Frameworks/Foundation.framework/Versions/C/Foundation",
+          "/System/Library/Frameworks/GSS.framework/Versions/A/GSS",
+          "/System/Library/Frameworks/GeoToolbox.framework/Versions/A/GeoToolbox",
+          "/System/Library/Frameworks/IOBluetooth.framework/Versions/A/IOBluetooth",
+          "/System/Library/Frameworks/IOKit.framework/Versions/A/IOKit",
+          "/System/Library/Frameworks/IOSurface.framework/Versions/A/IOSurface",
+          "/System/Library/Frameworks/ImageIO.framework/Versions/A/ImageIO",
+          "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libGIF.dylib",
+          "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libJP2.dylib",
+          "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libJPEG.dylib",
+          "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libPng.dylib",
+          "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libRadiance.dylib",
+          "/System/Library/Frameworks/ImageIO.framework/Versions/A/Resources/libTIFF.dylib",
+          "/System/Library/Frameworks/Intents.framework/Versions/A/Intents",
+          "/System/Library/Frameworks/Kerberos.framework/Versions/A/Kerberos",
+          "/System/Library/Frameworks/Kerberos.framework/Versions/A/Libraries/libHeimdalProxy.dylib",
+          "/System/Library/Frameworks/LDAP.framework/Versions/A/LDAP",
+          "/System/Library/Frameworks/LightweightCodeRequirements.framework/Versions/A/LightweightCodeRequirements",
+          "/System/Library/Frameworks/LocalAuthentication.framework/Support/SharedUtils.framework/Versions/A/SharedUtils",
+          "/System/Library/Frameworks/LocalAuthentication.framework/Versions/A/LocalAuthentication",
+          "/System/Library/Frameworks/MLCompute.framework/Versions/A/MLCompute",
+          "/System/Library/Frameworks/MediaAccessibility.framework/Versions/A/MediaAccessibility",
+          "/System/Library/Frameworks/MediaToolbox.framework/Versions/A/MediaToolbox",
+          "/System/Library/Frameworks/Metal.framework/Versions/A/Metal",
+          "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSBenchmarkLoop.framework/Versions/A/MPSBenchmarkLoop",
+          "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSCore.framework/Versions/A/MPSCore",
+          "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSFunctions.framework/Versions/A/MPSFunctions",
+          "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSHost.framework/Versions/A/MPSHost",
+          "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSImage.framework/Versions/A/MPSImage",
+          "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSMatrix.framework/Versions/A/MPSMatrix",
+          "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSNDArray.framework/Versions/A/MPSNDArray",
+          "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSNeuralNetwork.framework/Versions/A/MPSNeuralNetwork",
+          "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/Frameworks/MPSRayIntersector.framework/Versions/A/MPSRayIntersector",
+          "/System/Library/Frameworks/MetalPerformanceShaders.framework/Versions/A/MetalPerformanceShaders",
+          "/System/Library/Frameworks/MetalPerformanceShadersGraph.framework/Versions/A/MetalPerformanceShadersGraph",
+          "/System/Library/Frameworks/NaturalLanguage.framework/Versions/A/NaturalLanguage",
+          "/System/Library/Frameworks/NetFS.framework/Versions/A/NetFS",
+          "/System/Library/Frameworks/Network.framework/Versions/A/Network",
+          "/System/Library/Frameworks/NetworkExtension.framework/Versions/A/NetworkExtension",
+          "/System/Library/Frameworks/OSLog.framework/Versions/A/OSLog",
+          "/System/Library/Frameworks/OpenCL.framework/Versions/A/OpenCL",
+          "/System/Library/Frameworks/OpenDirectory.framework/Versions/A/Frameworks/CFOpenDirectory.framework/Versions/A/CFOpenDirectory",
+          "/System/Library/Frameworks/OpenDirectory.framework/Versions/A/OpenDirectory",
+          "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCVMSPluginSupport.dylib",
+          "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreFSCache.dylib",
+          "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libCoreVMClient.dylib",
+          "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGFXShared.dylib",
+          "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGL.dylib",
+          "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLImage.dylib",
+          "/System/Library/Frameworks/OpenGL.framework/Versions/A/Libraries/libGLU.dylib",
+          "/System/Library/Frameworks/OpenGL.framework/Versions/A/OpenGL",
+          "/System/Library/Frameworks/PushKit.framework/Versions/A/PushKit",
+          "/System/Library/Frameworks/QuartzCore.framework/Versions/A/QuartzCore",
+          "/System/Library/Frameworks/QuickLookThumbnailing.framework/Versions/A/QuickLookThumbnailing",
+          "/System/Library/Frameworks/RelevanceKit.framework/Versions/A/RelevanceKit",
+          "/System/Library/Frameworks/Security.framework/Versions/A/Security",
+          "/System/Library/Frameworks/SecurityFoundation.framework/Versions/A/SecurityFoundation",
+          "/System/Library/Frameworks/ServiceManagement.framework/Versions/A/ServiceManagement",
+          "/System/Library/Frameworks/SharedWithYouCore.framework/Versions/A/SharedWithYouCore",
+          "/System/Library/Frameworks/SwiftData.framework/Versions/A/SwiftData",
+          "/System/Library/Frameworks/SwiftUICore.framework/Versions/A/SwiftUICore",
+          "/System/Library/Frameworks/Symbols.framework/Versions/A/Symbols",
+          "/System/Library/Frameworks/SystemConfiguration.framework/Versions/A/SystemConfiguration",
+          "/System/Library/Frameworks/TabularData.framework/Versions/A/TabularData",
+          "/System/Library/Frameworks/UniformTypeIdentifiers.framework/Versions/A/UniformTypeIdentifiers",
+          "/System/Library/Frameworks/UserNotifications.framework/Versions/A/UserNotifications",
+          "/System/Library/Frameworks/VideoToolbox.framework/Versions/A/VideoToolbox",
+          "/System/Library/Frameworks/Vision.framework/Versions/A/Vision",
+          "/System/Library/Frameworks/Vision.framework/libfaceCore.dylib",
+          "/System/Library/Frameworks/_AppIntents_AppKit.framework/Versions/A/_AppIntents_AppKit",
+          "/System/Library/Frameworks/_LocationEssentials.framework/Versions/A/_LocationEssentials",
+          "/System/Library/PrivateFrameworks/AAAFoundation.framework/Versions/A/AAAFoundation",
+          "/System/Library/PrivateFrameworks/AAAFoundationSwift.framework/Versions/A/AAAFoundationSwift",
+          "/System/Library/PrivateFrameworks/AFKUser.framework/Versions/A/AFKUser",
+          "/System/Library/PrivateFrameworks/ANECompiler.framework/Versions/A/ANECompiler",
+          "/System/Library/PrivateFrameworks/ANEServices.framework/Versions/A/ANEServices",
+          "/System/Library/PrivateFrameworks/AOSKit.framework/Versions/A/AOSKit",
+          "/System/Library/PrivateFrameworks/APFS.framework/Versions/A/APFS",
+          "/System/Library/PrivateFrameworks/AVFCapture.framework/Versions/A/AVFCapture",
+          "/System/Library/PrivateFrameworks/AVFCore.framework/Versions/A/AVFCore",
+          "/System/Library/PrivateFrameworks/AXCoreUtilities.framework/Versions/A/AXCoreUtilities",
+          "/System/Library/PrivateFrameworks/AccelerateGPU.framework/Versions/A/AccelerateGPU",
+          "/System/Library/PrivateFrameworks/AggregateDictionary.framework/Versions/A/AggregateDictionary",
+          "/System/Library/PrivateFrameworks/AppIntentSchemas.framework/Versions/A/AppIntentSchemas",
+          "/System/Library/PrivateFrameworks/AppIntentsTypeSupport.framework/Versions/A/AppIntentsTypeSupport",
+          "/System/Library/PrivateFrameworks/AppSSOCore.framework/Versions/A/AppSSOCore",
+          "/System/Library/PrivateFrameworks/AppServerSupport.framework/Versions/A/AppServerSupport",
+          "/System/Library/PrivateFrameworks/AppSupport.framework/Versions/A/AppSupport",
+          "/System/Library/PrivateFrameworks/Apple80211.framework/Versions/A/Apple80211",
+          "/System/Library/PrivateFrameworks/AppleAccount.framework/Versions/A/AppleAccount",
+          "/System/Library/PrivateFrameworks/AppleDeviceQuerySupport.framework/Versions/A/AppleDeviceQuerySupport",
+          "/System/Library/PrivateFrameworks/AppleFSCompression.framework/Versions/A/AppleFSCompression",
+          "/System/Library/PrivateFrameworks/AppleFlatBuffers.framework/Versions/A/AppleFlatBuffers",
+          "/System/Library/PrivateFrameworks/AppleIDAuthSupport.framework/Versions/A/AppleIDAuthSupport",
+          "/System/Library/PrivateFrameworks/AppleIDSSOAuthentication.framework/Versions/A/AppleIDSSOAuthentication",
+          "/System/Library/PrivateFrameworks/AppleIntelligenceReporting.framework/Versions/A/AppleIntelligenceReporting",
+          "/System/Library/PrivateFrameworks/AppleJPEG.framework/Versions/A/AppleJPEG",
+          "/System/Library/PrivateFrameworks/AppleJPEGXL.framework/Versions/A/AppleJPEGXL",
+          "/System/Library/PrivateFrameworks/AppleKeyStore.framework/Versions/A/AppleKeyStore",
+          "/System/Library/PrivateFrameworks/AppleLDAP.framework/Versions/A/AppleLDAP",
+          "/System/Library/PrivateFrameworks/AppleMobileFileIntegrity.framework/Versions/A/AppleMobileFileIntegrity",
+          "/System/Library/PrivateFrameworks/AppleNeuralEngine.framework/Versions/A/AppleNeuralEngine",
+          "/System/Library/PrivateFrameworks/ApplePushService.framework/Versions/A/ApplePushService",
+          "/System/Library/PrivateFrameworks/AppleSauce.framework/Versions/A/AppleSauce",
+          "/System/Library/PrivateFrameworks/AppleSystemInfo.framework/Versions/A/AppleSystemInfo",
+          "/System/Library/PrivateFrameworks/AppleVA.framework/Versions/A/AppleVA",
+          "/System/Library/PrivateFrameworks/AppleVPA.framework/Versions/A/AppleVPA",
+          "/System/Library/PrivateFrameworks/ArgumentParserInternal.framework/Versions/A/ArgumentParserInternal",
+          "/System/Library/PrivateFrameworks/AssertionServices.framework/Versions/A/AssertionServices",
+          "/System/Library/PrivateFrameworks/AssistantServices.framework/Versions/A/AssistantServices",
+          "/System/Library/PrivateFrameworks/AsyncAlgorithmsInternal.framework/Versions/A/AsyncAlgorithmsInternal",
+          "/System/Library/PrivateFrameworks/AtomicsInternal.framework/Versions/A/AtomicsInternal",
+          "/System/Library/PrivateFrameworks/AttributeGraph.framework/Versions/A/AttributeGraph",
+          "/System/Library/PrivateFrameworks/AudioAccessoryServices.framework/Versions/A/AudioAccessoryServices",
+          "/System/Library/PrivateFrameworks/AudioAnalytics.framework/Versions/A/AudioAnalytics",
+          "/System/Library/PrivateFrameworks/AudioDSPGraph.framework/Versions/A/AudioDSPGraph",
+          "/System/Library/PrivateFrameworks/AudioSession.framework/Versions/A/AudioSession",
+          "/System/Library/PrivateFrameworks/AudioSession.framework/libSessionUtility.dylib",
+          "/System/Library/PrivateFrameworks/AudioToolboxCore.framework/Versions/A/AudioToolboxCore",
+          "/System/Library/PrivateFrameworks/AuthKit.framework/Versions/A/AuthKit",
+          "/System/Library/PrivateFrameworks/AvailabilityKit.framework/Versions/A/AvailabilityKit",
+          "/System/Library/PrivateFrameworks/BackBoardHIDEventFoundation.framework/Versions/A/BackBoardHIDEventFoundation",
+          "/System/Library/PrivateFrameworks/BackBoardServices.framework/Versions/A/BackBoardServices",
+          "/System/Library/PrivateFrameworks/BackgroundSystemTasks.framework/Versions/A/BackgroundSystemTasks",
+          "/System/Library/PrivateFrameworks/BackgroundTaskManagement.framework/Versions/A/BackgroundTaskManagement",
+          "/System/Library/PrivateFrameworks/BaseBoard.framework/Versions/A/BaseBoard",
+          "/System/Library/PrivateFrameworks/BiomeDSL.framework/Versions/A/BiomeDSL",
+          "/System/Library/PrivateFrameworks/BiomeFoundation.framework/Versions/A/BiomeFoundation",
+          "/System/Library/PrivateFrameworks/BiomeLibrary.framework/Versions/A/BiomeLibrary",
+          "/System/Library/PrivateFrameworks/BiomePubSub.framework/Versions/A/BiomePubSub",
+          "/System/Library/PrivateFrameworks/BiomeStorage.framework/Versions/A/BiomeStorage",
+          "/System/Library/PrivateFrameworks/BiomeStreams.framework/Versions/A/BiomeStreams",
+          "/System/Library/PrivateFrameworks/BiomeSync.framework/Versions/A/BiomeSync",
+          "/System/Library/PrivateFrameworks/BoardServices.framework/Versions/A/BoardServices",
+          "/System/Library/PrivateFrameworks/Bom.framework/Versions/A/Bom",
+          "/System/Library/PrivateFrameworks/BulkSymbolication.framework/Versions/A/BulkSymbolication",
+          "/System/Library/PrivateFrameworks/C2.framework/Versions/A/C2",
+          "/System/Library/PrivateFrameworks/CMCapture.framework/Versions/A/CMCapture",
+          "/System/Library/PrivateFrameworks/CMCaptureCore.framework/Versions/A/CMCaptureCore",
+          "/System/Library/PrivateFrameworks/CMCaptureDevice.framework/Versions/A/CMCaptureDevice",
+          "/System/Library/PrivateFrameworks/CMImaging.framework/Versions/A/CMImaging",
+          "/System/Library/PrivateFrameworks/CMPhoto.framework/Versions/A/CMPhoto",
+          "/System/Library/PrivateFrameworks/CVNLP.framework/Versions/A/CVNLP",
+          "/System/Library/PrivateFrameworks/CacheDelete.framework/Versions/A/CacheDelete",
+          "/System/Library/PrivateFrameworks/CaptiveNetwork.framework/Versions/A/CaptiveNetwork",
+          "/System/Library/PrivateFrameworks/CascadeSets.framework/Versions/A/CascadeSets",
+          "/System/Library/PrivateFrameworks/CinematicFraming.framework/Versions/A/CinematicFraming",
+          "/System/Library/PrivateFrameworks/CloudAsset.framework/Versions/A/CloudAsset",
+          "/System/Library/PrivateFrameworks/CloudCoreInternal.framework/Versions/A/CloudCoreInternal",
+          "/System/Library/PrivateFrameworks/CloudDocs.framework/Versions/A/CloudDocs",
+          "/System/Library/PrivateFrameworks/CloudServices.framework/Versions/A/CloudServices",
+          "/System/Library/PrivateFrameworks/CloudTelemetry.framework/Versions/A/CloudTelemetry",
+          "/System/Library/PrivateFrameworks/CloudTelemetryShared.dylib",
+          "/System/Library/PrivateFrameworks/CloudTelemetryTools.framework/Versions/A/CloudTelemetryTools",
+          "/System/Library/PrivateFrameworks/CollectionViewCore.framework/Versions/A/CollectionViewCore",
+          "/System/Library/PrivateFrameworks/CollectionsInternal.framework/Versions/A/CollectionsInternal",
+          "/System/Library/PrivateFrameworks/CommonAuth.framework/Versions/A/CommonAuth",
+          "/System/Library/PrivateFrameworks/CommonUtilities.framework/Versions/A/CommonUtilities",
+          "/System/Library/PrivateFrameworks/ConfigProfileHelper.framework/Versions/A/ConfigProfileHelper",
+          "/System/Library/PrivateFrameworks/ContactsFoundation.framework/Versions/A/ContactsFoundation",
+          "/System/Library/PrivateFrameworks/ContactsMetrics.framework/Versions/A/ContactsMetrics",
+          "/System/Library/PrivateFrameworks/ContactsPersistence.framework/Versions/A/ContactsPersistence",
+          "/System/Library/PrivateFrameworks/CoreAUC.framework/Versions/A/CoreAUC",
+          "/System/Library/PrivateFrameworks/CoreAVCHD.framework/Versions/A/CoreAVCHD",
+          "/System/Library/PrivateFrameworks/CoreAnalytics.framework/Versions/A/CoreAnalytics",
+          "/System/Library/PrivateFrameworks/CoreAudioOrchestration.framework/Versions/A/CoreAudioOrchestration",
+          "/System/Library/PrivateFrameworks/CoreAutoLayout.framework/Versions/A/CoreAutoLayout",
+          "/System/Library/PrivateFrameworks/CoreBrightness.framework/Versions/A/CoreBrightness",
+          "/System/Library/PrivateFrameworks/CoreDuet.framework/Versions/A/CoreDuet",
+          "/System/Library/PrivateFrameworks/CoreDuetContext.framework/Versions/A/CoreDuetContext",
+          "/System/Library/PrivateFrameworks/CoreDuetDaemonProtocol.framework/Versions/A/CoreDuetDaemonProtocol",
+          "/System/Library/PrivateFrameworks/CoreEmoji.framework/Versions/A/CoreEmoji",
+          "/System/Library/PrivateFrameworks/CoreMaterial.framework/Versions/A/CoreMaterial",
+          "/System/Library/PrivateFrameworks/CoreNLP.framework/Versions/A/CoreNLP",
+          "/System/Library/PrivateFrameworks/CorePhoneNumbers.framework/Versions/A/CorePhoneNumbers",
+          "/System/Library/PrivateFrameworks/CoreSVG.framework/Versions/A/CoreSVG",
+          "/System/Library/PrivateFrameworks/CoreSceneUnderstanding.framework/Versions/A/CoreSceneUnderstanding",
+          "/System/Library/PrivateFrameworks/CoreServicesInternal.framework/Versions/A/CoreServicesInternal",
+          "/System/Library/PrivateFrameworks/CoreServicesStore.framework/Versions/A/CoreServicesStore",
+          "/System/Library/PrivateFrameworks/CoreSuggestions.framework/Versions/A/CoreSuggestions",
+          "/System/Library/PrivateFrameworks/CoreSymbolication.framework/Versions/A/CoreSymbolication",
+          "/System/Library/PrivateFrameworks/CoreTime.framework/Versions/A/CoreTime",
+          "/System/Library/PrivateFrameworks/CoreUI.framework/Versions/A/CoreUI",
+          "/System/Library/PrivateFrameworks/CoreUtils.framework/Versions/A/CoreUtils",
+          "/System/Library/PrivateFrameworks/CoreUtilsExtras.framework/Versions/A/CoreUtilsExtras",
+          "/System/Library/PrivateFrameworks/CoreWiFi.framework/Versions/A/CoreWiFi",
+          "/System/Library/PrivateFrameworks/CrashReporterSupport.framework/Versions/A/CrashReporterSupport",
+          "/System/Library/PrivateFrameworks/CryptoKitCBridging.framework/Versions/A/CryptoKitCBridging",
+          "/System/Library/PrivateFrameworks/CryptoKitPrivate.framework/Versions/A/CryptoKitPrivate",
+          "/System/Library/PrivateFrameworks/DFRFoundation.framework/Versions/A/DFRFoundation",
+          "/System/Library/PrivateFrameworks/DSExternalDisplay.framework/Versions/A/DSExternalDisplay",
+          "/System/Library/PrivateFrameworks/Darwinup.framework/Versions/A/Darwinup",
+          "/System/Library/PrivateFrameworks/DataDetectorsCore.framework/Versions/A/DataDetectorsCore",
+          "/System/Library/PrivateFrameworks/DebugSymbols.framework/Versions/A/DebugSymbols",
+          "/System/Library/PrivateFrameworks/Dendrite.framework/Versions/A/Dendrite",
+          "/System/Library/PrivateFrameworks/DesignLibrary.framework/Versions/A/DesignLibrary",
+          "/System/Library/PrivateFrameworks/DesktopServicesPriv.framework/Versions/A/DesktopServicesPriv",
+          "/System/Library/PrivateFrameworks/DeviceIdentity.framework/Versions/A/DeviceIdentity",
+          "/System/Library/PrivateFrameworks/DeviceRecovery.framework/Versions/A/DeviceRecovery",
+          "/System/Library/PrivateFrameworks/DiskImages.framework/Versions/A/DiskImages",
+          "/System/Library/PrivateFrameworks/DiskManagement.framework/Versions/A/DiskManagement",
+          "/System/Library/PrivateFrameworks/DistributedSensing.framework/Versions/A/DistributedSensing",
+          "/System/Library/PrivateFrameworks/DoNotDisturb.framework/Versions/A/DoNotDisturb",
+          "/System/Library/PrivateFrameworks/DuetActivityScheduler.framework/Versions/A/DuetActivityScheduler",
+          "/System/Library/PrivateFrameworks/EAP8021X.framework/Versions/A/EAP8021X",
+          "/System/Library/PrivateFrameworks/EFILogin.framework/Versions/A/EFILogin",
+          "/System/Library/PrivateFrameworks/Engram.framework/Versions/A/Engram",
+          "/System/Library/PrivateFrameworks/Espresso.framework/Versions/A/Espresso",
+          "/System/Library/PrivateFrameworks/FMCoreLite.framework/Versions/A/FMCoreLite",
+          "/System/Library/PrivateFrameworks/FTAWD.framework/Versions/A/FTAWD",
+          "/System/Library/PrivateFrameworks/FTServices.framework/Versions/A/FTServices",
+          "/System/Library/PrivateFrameworks/FaceTimeNameUtility.framework/Versions/A/FaceTimeNameUtility",
+          "/System/Library/PrivateFrameworks/FeatureFlags.framework/Versions/A/FeatureFlags",
+          "/System/Library/PrivateFrameworks/FeatureFlagsSupport.framework/Versions/A/FeatureFlagsSupport",
+          "/System/Library/PrivateFrameworks/FeedbackLogger.framework/Versions/A/FeedbackLogger",
+          "/System/Library/PrivateFrameworks/FindMyDevice.framework/Versions/A/FindMyDevice",
+          "/System/Library/PrivateFrameworks/FocusEngine.framework/Versions/A/FocusEngine",
+          "/System/Library/PrivateFrameworks/FontServices.framework/Versions/A/FontServices",
+          "/System/Library/PrivateFrameworks/FontServices.framework/libFontParser.dylib",
+          "/System/Library/PrivateFrameworks/FontServices.framework/libXTFontStaticRegistryData.dylib",
+          "/System/Library/PrivateFrameworks/FramePacing.framework/Versions/A/FramePacing",
+          "/System/Library/PrivateFrameworks/FrontBoard.framework/Versions/A/FrontBoard",
+          "/System/Library/PrivateFrameworks/FrontBoardServices.framework/Versions/A/FrontBoardServices",
+          "/System/Library/PrivateFrameworks/Futhark.framework/Versions/A/Futhark",
+          "/System/Library/PrivateFrameworks/GPUCompiler.framework/Versions/32023/Libraries/libGPUCompilerUtils.dylib",
+          "/System/Library/PrivateFrameworks/GPUCompiler.framework/Versions/32023/Libraries/libllvm-flatbuffers.dylib",
+          "/System/Library/PrivateFrameworks/GPURawCounter.framework/Versions/A/GPURawCounter",
+          "/System/Library/PrivateFrameworks/GPUWrangler.framework/Versions/A/GPUWrangler",
+          "/System/Library/PrivateFrameworks/GRDBInternal.framework/Versions/A/GRDBInternal",
+          "/System/Library/PrivateFrameworks/GenerationalStorage.framework/Versions/A/GenerationalStorage",
+          "/System/Library/PrivateFrameworks/GenerativeFunctions.framework/Versions/A/GenerativeFunctions",
+          "/System/Library/PrivateFrameworks/GenerativeFunctionsFoundation.framework/Versions/A/GenerativeFunctionsFoundation",
+          "/System/Library/PrivateFrameworks/GenerativeFunctionsInstrumentation.framework/Versions/A/GenerativeFunctionsInstrumentation",
+          "/System/Library/PrivateFrameworks/GenerativeModels.framework/Versions/A/GenerativeModels",
+          "/System/Library/PrivateFrameworks/GenerativeModelsFoundation.framework/Versions/A/GenerativeModelsFoundation",
+          "/System/Library/PrivateFrameworks/GeoServices.framework/Versions/A/GeoServices",
+          "/System/Library/PrivateFrameworks/GeoServicesCore.framework/Versions/A/GeoServicesCore",
+          "/System/Library/PrivateFrameworks/Gestures.framework/Versions/A/Gestures",
+          "/System/Library/PrivateFrameworks/GraphVisualizer.framework/Versions/A/GraphVisualizer",
+          "/System/Library/PrivateFrameworks/GraphicsServices.framework/Versions/A/GraphicsServices",
+          "/System/Library/PrivateFrameworks/HID.framework/Versions/A/HID",
+          "/System/Library/PrivateFrameworks/HIDDisplay.framework/Versions/A/HIDDisplay",
+          "/System/Library/PrivateFrameworks/Heimdal.framework/Versions/A/Heimdal",
+          "/System/Library/PrivateFrameworks/IDS.framework/Versions/A/IDS",
+          "/System/Library/PrivateFrameworks/IDSFoundation.framework/Versions/A/IDSFoundation",
+          "/System/Library/PrivateFrameworks/IMFoundation.framework/Versions/A/IMFoundation",
+          "/System/Library/PrivateFrameworks/IO80211.framework/Versions/A/IO80211",
+          "/System/Library/PrivateFrameworks/IOAccelMemoryInfo.framework/Versions/A/IOAccelMemoryInfo",
+          "/System/Library/PrivateFrameworks/IOAccelerator.framework/Versions/A/IOAccelerator",
+          "/System/Library/PrivateFrameworks/IOKitten.framework/Versions/A/IOKitten",
+          "/System/Library/PrivateFrameworks/IOMobileFramebuffer.framework/Versions/A/IOMobileFramebuffer",
+          "/System/Library/PrivateFrameworks/IOPresentment.framework/Versions/A/IOPresentment",
+          "/System/Library/PrivateFrameworks/IOSurfaceAccelerator.framework/Versions/A/IOSurfaceAccelerator",
+          "/System/Library/PrivateFrameworks/IPConfiguration.framework/Versions/A/IPConfiguration",
+          "/System/Library/PrivateFrameworks/IconFoundation.framework/Versions/A/IconFoundation",
+          "/System/Library/PrivateFrameworks/IconRendering.framework/Versions/A/IconRendering",
+          "/System/Library/PrivateFrameworks/IconServices.framework/Versions/A/IconServices",
+          "/System/Library/PrivateFrameworks/InertiaCam.framework/Versions/A/InertiaCam",
+          "/System/Library/PrivateFrameworks/InstalledContentLibrary.framework/Versions/A/InstalledContentLibrary",
+          "/System/Library/PrivateFrameworks/IntelligencePlatformLibrary.framework/Versions/A/IntelligencePlatformLibrary",
+          "/System/Library/PrivateFrameworks/IntentsCore.framework/Versions/A/IntentsCore",
+          "/System/Library/PrivateFrameworks/IntentsFoundation.framework/Versions/A/IntentsFoundation",
+          "/System/Library/PrivateFrameworks/InternalSwiftProtobuf.framework/Versions/A/InternalSwiftProtobuf",
+          "/System/Library/PrivateFrameworks/InternationalSupport.framework/Versions/A/InternationalSupport",
+          "/System/Library/PrivateFrameworks/InternationalTextSearch.framework/Versions/A/InternationalTextSearch",
+          "/System/Library/PrivateFrameworks/IsolatedCoreAudioClient.framework/Versions/A/IsolatedCoreAudioClient",
+          "/System/Library/PrivateFrameworks/KeychainCircle.framework/Versions/A/KeychainCircle",
+          "/System/Library/PrivateFrameworks/LanguageModeling.framework/Versions/A/LanguageModeling",
+          "/System/Library/PrivateFrameworks/Lexicon.framework/Versions/A/Lexicon",
+          "/System/Library/PrivateFrameworks/LinguisticData.framework/Versions/A/LinguisticData",
+          "/System/Library/PrivateFrameworks/LinkMetadata.framework/Versions/A/LinkMetadata",
+          "/System/Library/PrivateFrameworks/LinkServices.framework/Versions/A/LinkServices",
+          "/System/Library/PrivateFrameworks/LocalAuthenticationCore.framework/Versions/A/LocalAuthenticationCore",
+          "/System/Library/PrivateFrameworks/LocalAuthenticationCredentialServices.framework/Versions/A/LocalAuthenticationCredentialServices",
+          "/System/Library/PrivateFrameworks/LocationLogEncryption.framework/Versions/A/LocationLogEncryption",
+          "/System/Library/PrivateFrameworks/LocationSupport.framework/Versions/A/LocationSupport",
+          "/System/Library/PrivateFrameworks/LoggingSupport.framework/Versions/A/LoggingSupport",
+          "/System/Library/PrivateFrameworks/MIL.framework/Versions/A/MIL",
+          "/System/Library/PrivateFrameworks/MLAssetIO.framework/Versions/A/MLAssetIO",
+          "/System/Library/PrivateFrameworks/MLCompilerRuntime.framework/Versions/A/MLCompilerRuntime",
+          "/System/Library/PrivateFrameworks/MLCompilerServices.framework/Versions/A/MLCompilerServices",
+          "/System/Library/PrivateFrameworks/MLModelAsset.framework/Versions/A/MLModelAsset",
+          "/System/Library/PrivateFrameworks/MSUDataAccessor.framework/Versions/A/MSUDataAccessor",
+          "/System/Library/PrivateFrameworks/MallocStackLogging.framework/Versions/A/MallocStackLogging",
+          "/System/Library/PrivateFrameworks/ManagedOrganizationContacts.framework/Versions/A/ManagedOrganizationContacts",
+          "/System/Library/PrivateFrameworks/Mangrove.framework/Versions/A/Mangrove",
+          "/System/Library/PrivateFrameworks/Marco.framework/Versions/A/Marco",
+          "/System/Library/PrivateFrameworks/MediaExperience.framework/Versions/A/MediaExperience",
+          "/System/Library/PrivateFrameworks/MediaKit.framework/Versions/A/MediaKit",
+          "/System/Library/PrivateFrameworks/MediaRemote.framework/Versions/A/MediaRemote",
+          "/System/Library/PrivateFrameworks/MediaServices.framework/Versions/A/MediaServices",
+          "/System/Library/PrivateFrameworks/MessageSecurity.framework/Versions/A/MessageSecurity",
+          "/System/Library/PrivateFrameworks/MetadataUtilities.framework/Versions/A/MetadataUtilities",
+          "/System/Library/PrivateFrameworks/MetalTools.framework/Versions/A/MetalTools",
+          "/System/Library/PrivateFrameworks/MobileAsset.framework/Versions/A/MobileAsset",
+          "/System/Library/PrivateFrameworks/MobileBluetooth.framework/Versions/A/MobileBluetooth",
+          "/System/Library/PrivateFrameworks/MobileKeyBag.framework/Versions/A/MobileKeyBag",
+          "/System/Library/PrivateFrameworks/MobileSystemServices.framework/Versions/A/MobileSystemServices",
+          "/System/Library/PrivateFrameworks/ModelCatalog.framework/Versions/A/ModelCatalog",
+          "/System/Library/PrivateFrameworks/ModelManagerServices.framework/Versions/A/ModelManagerServices",
+          "/System/Library/PrivateFrameworks/Montreal.framework/Versions/A/Montreal",
+          "/System/Library/PrivateFrameworks/MultitouchSupport.framework/Versions/A/MultitouchSupport",
+          "/System/Library/PrivateFrameworks/MultiverseSupport.framework/Versions/A/MultiverseSupport",
+          "/System/Library/PrivateFrameworks/NetAuth.framework/Versions/A/NetAuth",
+          "/System/Library/PrivateFrameworks/Netrb.framework/Versions/A/Netrb",
+          "/System/Library/PrivateFrameworks/NetworkScore.framework/Versions/A/NetworkScore",
+          "/System/Library/PrivateFrameworks/NetworkServiceProxy.framework/Versions/A/NetworkServiceProxy",
+          "/System/Library/PrivateFrameworks/ODIE.framework/Versions/A/ODIE",
+          "/System/Library/PrivateFrameworks/OSAnalytics.framework/Versions/A/OSAnalytics",
+          "/System/Library/PrivateFrameworks/OSEligibility.framework/Versions/A/OSEligibility",
+          "/System/Library/PrivateFrameworks/OTSVG.framework/Versions/A/OTSVG",
+          "/System/Library/PrivateFrameworks/OctagonTrust.framework/Versions/A/OctagonTrust",
+          "/System/Library/PrivateFrameworks/Osprey.framework/Versions/A/Osprey",
+          "/System/Library/PrivateFrameworks/ParsingInternal.framework/Versions/A/ParsingInternal",
+          "/System/Library/PrivateFrameworks/PerformanceAnalysis.framework/Versions/A/PerformanceAnalysis",
+          "/System/Library/PrivateFrameworks/PersistentConnection.framework/Versions/A/PersistentConnection",
+          "/System/Library/PrivateFrameworks/PhoneNumbers.framework/Versions/A/PhoneNumbers",
+          "/System/Library/PrivateFrameworks/PhotosensitivityProcessing.framework/Versions/A/PhotosensitivityProcessing",
+          "/System/Library/PrivateFrameworks/PlugInKit.framework/Versions/A/PlugInKit",
+          "/System/Library/PrivateFrameworks/PoirotSQLite.framework/Versions/A/PoirotSQLite",
+          "/System/Library/PrivateFrameworks/PoirotSchematizer.framework/Versions/A/PoirotSchematizer",
+          "/System/Library/PrivateFrameworks/PoirotUDFs.framework/Versions/A/PoirotUDFs",
+          "/System/Library/PrivateFrameworks/PowerLog.framework/Versions/A/PowerLog",
+          "/System/Library/PrivateFrameworks/ProDisplayLibrary.framework/Versions/A/ProDisplayLibrary",
+          "/System/Library/PrivateFrameworks/ProactiveDaemonSupport.framework/Versions/A/ProactiveDaemonSupport",
+          "/System/Library/PrivateFrameworks/ProactiveEventTracker.framework/Versions/A/ProactiveEventTracker",
+          "/System/Library/PrivateFrameworks/ProactiveSupport.framework/Versions/A/ProactiveSupport",
+          "/System/Library/PrivateFrameworks/PromptKit.framework/Versions/A/PromptKit",
+          "/System/Library/PrivateFrameworks/ProtectedCloudStorage.framework/Versions/A/ProtectedCloudStorage",
+          "/System/Library/PrivateFrameworks/ProtocolBuffer.framework/Versions/A/ProtocolBuffer",
+          "/System/Library/PrivateFrameworks/Quagga.framework/Versions/A/Quagga",
+          "/System/Library/PrivateFrameworks/RTCReporting.framework/Versions/A/RTCReporting",
+          "/System/Library/PrivateFrameworks/Rapport.framework/Versions/A/Rapport",
+          "/System/Library/PrivateFrameworks/ReflectionInternal.framework/Versions/A/ReflectionInternal",
+          "/System/Library/PrivateFrameworks/RemoteServiceDiscovery.framework/Versions/A/RemoteServiceDiscovery",
+          "/System/Library/PrivateFrameworks/RemoteXPC.framework/Versions/A/RemoteXPC",
+          "/System/Library/PrivateFrameworks/RenderBox.framework/Versions/A/RenderBox",
+          "/System/Library/PrivateFrameworks/RunningBoardServices.framework/Versions/A/RunningBoardServices",
+          "/System/Library/PrivateFrameworks/RuntimeInternal.framework/Versions/A/RuntimeInternal",
+          "/System/Library/PrivateFrameworks/SAObjects.framework/Versions/A/SAObjects",
+          "/System/Library/PrivateFrameworks/SFSymbols.framework/Versions/A/SFSymbols",
+          "/System/Library/PrivateFrameworks/SampleAnalysis.framework/Versions/A/SampleAnalysis",
+          "/System/Library/PrivateFrameworks/SensitiveContentAnalysisML.framework/Versions/A/SensitiveContentAnalysisML",
+          "/System/Library/PrivateFrameworks/SentencePieceInternal.framework/Versions/A/SentencePieceInternal",
+          "/System/Library/PrivateFrameworks/Sharing.framework/Versions/A/Sharing",
+          "/System/Library/PrivateFrameworks/SignpostSupport.framework/Versions/A/SignpostSupport",
+          "/System/Library/PrivateFrameworks/SiriAnalytics.framework/Versions/A/SiriAnalytics",
+          "/System/Library/PrivateFrameworks/SiriCrossDeviceArbitration.framework/Versions/A/SiriCrossDeviceArbitration",
+          "/System/Library/PrivateFrameworks/SiriCrossDeviceArbitrationFeedback.framework/Versions/A/SiriCrossDeviceArbitrationFeedback",
+          "/System/Library/PrivateFrameworks/SiriInstrumentation.framework/Versions/A/SiriInstrumentation",
+          "/System/Library/PrivateFrameworks/SiriPowerInstrumentation.framework/Versions/A/SiriPowerInstrumentation",
+          "/System/Library/PrivateFrameworks/SiriTTS.framework/Versions/A/SiriTTS",
+          "/System/Library/PrivateFrameworks/SiriTTSService.framework/Versions/A/SiriTTSService",
+          "/System/Library/PrivateFrameworks/SkyLight.framework/Versions/A/SkyLight",
+          "/System/Library/PrivateFrameworks/SoftLinking.framework/Versions/A/SoftLinking",
+          "/System/Library/PrivateFrameworks/SoftwareUpdateCoreConnect.framework/Versions/A/SoftwareUpdateCoreConnect",
+          "/System/Library/PrivateFrameworks/SoftwareUpdateCoreSupport.framework/Versions/A/SoftwareUpdateCoreSupport",
+          "/System/Library/PrivateFrameworks/SonicFoundation.framework/Versions/A/SonicFoundation",
+          "/System/Library/PrivateFrameworks/StatusKit.framework/Versions/A/StatusKit",
+          "/System/Library/PrivateFrameworks/StreamingExtractor.framework/Versions/A/StreamingExtractor",
+          "/System/Library/PrivateFrameworks/StreamingZip.framework/Versions/A/StreamingZip",
+          "/System/Library/PrivateFrameworks/SwiftASN1Internal.framework/Versions/A/SwiftASN1Internal",
+          "/System/Library/PrivateFrameworks/Symbolication.framework/Versions/A/Symbolication",
+          "/System/Library/PrivateFrameworks/SymptomDiagnosticReporter.framework/Versions/A/SymptomDiagnosticReporter",
+          "/System/Library/PrivateFrameworks/SymptomReporter.framework/Versions/A/SymptomReporter",
+          "/System/Library/PrivateFrameworks/Symptoms.framework/Versions/A/Frameworks/SymptomAnalytics.framework/Versions/A/SymptomAnalytics",
+          "/System/Library/PrivateFrameworks/SystemPolicy.framework/Versions/A/SystemPolicy",
+          "/System/Library/PrivateFrameworks/SystemStatus.framework/Versions/A/SystemStatus",
+          "/System/Library/PrivateFrameworks/TCC.framework/Versions/A/TCC",
+          "/System/Library/PrivateFrameworks/TailspinSymbolication.framework/Versions/A/TailspinSymbolication",
+          "/System/Library/PrivateFrameworks/TextInput.framework/Versions/A/TextInput",
+          "/System/Library/PrivateFrameworks/TextRecognition.framework/Versions/A/TextRecognition",
+          "/System/Library/PrivateFrameworks/TextureIO.framework/Versions/A/TextureIO",
+          "/System/Library/PrivateFrameworks/Tightbeam.framework/Versions/A/Tightbeam",
+          "/System/Library/PrivateFrameworks/TimeSync.framework/Versions/A/TimeSync",
+          "/System/Library/PrivateFrameworks/TokenGeneration.framework/Versions/A/TokenGeneration",
+          "/System/Library/PrivateFrameworks/TokenGenerationCore.framework/Versions/A/TokenGenerationCore",
+          "/System/Library/PrivateFrameworks/Trial.framework/Versions/A/Trial",
+          "/System/Library/PrivateFrameworks/TrialProto.framework/Versions/A/TrialProto",
+          "/System/Library/PrivateFrameworks/TrustEvaluationAgent.framework/Versions/A/TrustEvaluationAgent",
+          "/System/Library/PrivateFrameworks/UIFoundation.framework/Versions/A/UIFoundation",
+          "/System/Library/PrivateFrameworks/UIIntelligenceSupport.framework/Versions/A/UIIntelligenceSupport",
+          "/System/Library/PrivateFrameworks/UIKitServices.framework/Versions/A/UIKitServices",
+          "/System/Library/PrivateFrameworks/URLFormatting.framework/Versions/A/URLFormatting",
+          "/System/Library/PrivateFrameworks/UnifiedAssetFramework.framework/Versions/A/UnifiedAssetFramework",
+          "/System/Library/PrivateFrameworks/UpdateCycle.framework/Versions/A/UpdateCycle",
+          "/System/Library/PrivateFrameworks/UserActivity.framework/Versions/A/UserActivity",
+          "/System/Library/PrivateFrameworks/UserManagement.framework/Versions/A/UserManagement",
+          "/System/Library/PrivateFrameworks/VideoToolboxParavirtualizationSupport.framework/Versions/A/VideoToolboxParavirtualizationSupport",
+          "/System/Library/PrivateFrameworks/ViewBridge.framework/Versions/A/ViewBridge",
+          "/System/Library/PrivateFrameworks/VisionCore.framework/Versions/A/VisionCore",
+          "/System/Library/PrivateFrameworks/WatchdogClient.framework/Versions/A/WatchdogClient",
+          "/System/Library/PrivateFrameworks/WiFiPeerToPeer.framework/Versions/A/WiFiPeerToPeer",
+          "/System/Library/PrivateFrameworks/WindowManagement.framework/Versions/A/WindowManagement",
+          "/System/Library/PrivateFrameworks/WritingTools.framework/Versions/A/WritingTools",
+          "/System/Library/PrivateFrameworks/XCTTargetBootstrap.framework/Versions/A/XCTTargetBootstrap",
+          "/System/Library/PrivateFrameworks/XPCDistributed.framework/Versions/A/XPCDistributed",
+          "/System/Library/PrivateFrameworks/XPCSupport.framework/Versions/A/XPCSupport",
+          "/System/Library/PrivateFrameworks/caulk.framework/Versions/A/caulk",
+          "/System/Library/PrivateFrameworks/kperf.framework/Versions/A/kperf",
+          "/System/Library/PrivateFrameworks/kperfdata.framework/Versions/A/kperfdata",
+          "/System/Library/PrivateFrameworks/ktrace.framework/Versions/A/ktrace",
+          "/System/Library/PrivateFrameworks/login.framework/Versions/A/Frameworks/loginsupport.framework/Versions/A/loginsupport",
+          "/System/Library/PrivateFrameworks/login.framework/Versions/A/login",
+          "/System/Library/PrivateFrameworks/perfdata.framework/Versions/A/perfdata",
+          "/System/Library/PrivateFrameworks/vCard.framework/Versions/A/vCard",
+          "/System/Library/SubFrameworks/UIUtilities.framework/Versions/A/UIUtilities",
+          "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/bin/gst-inspect-1.0",
+          "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/lib/libffi.7.dylib",
+          "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/lib/libglib-2.0.0.dylib",
+          "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/lib/libgmodule-2.0.0.dylib",
+          "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/lib/libgobject-2.0.0.dylib",
+          "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/lib/libgstreamer-1.0.0.dylib",
+          "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/lib/libintl.8.dylib",
+          "/Users/cervantes/Cider/out/media-preparation-20261024/home/AppSupport/Engines/cider-media-preparation-fixture-r1-x86_64/frameworks/gstreamer/lib/libpcre2-8.0.dylib",
+          "/usr/lib/libAXSafeCategoryBundle.dylib",
+          "/usr/lib/libAccessibility.dylib",
+          "/usr/lib/libAccessibilityBaseImplementations.dylib",
+          "/usr/lib/libAppleArchive.dylib",
+          "/usr/lib/libAudioStatistics.dylib",
+          "/usr/lib/libAudioToolboxUtility.dylib",
+          "/usr/lib/libCRFSuite.dylib",
+          "/usr/lib/libCheckFix.dylib",
+          "/usr/lib/libCoreEntitlements.dylib",
+          "/usr/lib/libCoreStorage.dylib",
+          "/usr/lib/libDiagnosticMessagesClient.dylib",
+          "/usr/lib/libFDR.dylib",
+          "/usr/lib/libIOReport.dylib",
+          "/usr/lib/libMatch.1.dylib",
+          "/usr/lib/libMemoryResourceException.dylib",
+          "/usr/lib/libMobileGestalt.dylib",
+          "/usr/lib/libParallelCompression.dylib",
+          "/usr/lib/libRosetta.dylib",
+          "/usr/lib/libSMC.dylib",
+          "/usr/lib/libSpatial.dylib",
+          "/usr/lib/libSystem.B.dylib",
+          "/usr/lib/libTLE.dylib",
+          "/usr/lib/libTelephonyUtilDynamic.dylib",
+          "/usr/lib/libThaiTokenizer.dylib",
+          "/usr/lib/libamsupport.dylib",
+          "/usr/lib/libapp_launch_measurement.dylib",
+          "/usr/lib/libapple_nghttp2.dylib",
+          "/usr/lib/libarchive.2.dylib",
+          "/usr/lib/libate.dylib",
+          "/usr/lib/libbootpolicy.dylib",
+          "/usr/lib/libboringssl.dylib",
+          "/usr/lib/libbsm.0.dylib",
+          "/usr/lib/libbz2.1.0.dylib",
+          "/usr/lib/libc++.1.dylib",
+          "/usr/lib/libc++abi.dylib",
+          "/usr/lib/libcharset.1.dylib",
+          "/usr/lib/libcmark-gfm.dylib",
+          "/usr/lib/libcmph.dylib",
+          "/usr/lib/libcompression.dylib",
+          "/usr/lib/libcoretls.dylib",
+          "/usr/lib/libcoretls_cfhelpers.dylib",
+          "/usr/lib/libcrypto.46.dylib",
+          "/usr/lib/libcsfde.dylib",
+          "/usr/lib/libcupolicy.dylib",
+          "/usr/lib/libcups.2.dylib",
+          "/usr/lib/libcurl.4.dylib",
+          "/usr/lib/libdns_services.dylib",
+          "/usr/lib/libdscsym.dylib",
+          "/usr/lib/libedit.3.dylib",
+          "/usr/lib/libenergytrace.dylib",
+          "/usr/lib/libexpat.1.dylib",
+          "/usr/lib/libfakelink.dylib",
+          "/usr/lib/libgermantok.dylib",
+          "/usr/lib/libheimdal-asn1.dylib",
+          "/usr/lib/libhvf.dylib",
+          "/usr/lib/libiconv.2.dylib",
+          "/usr/lib/libicucore.A.dylib",
+          "/usr/lib/liblangid.dylib",
+          "/usr/lib/liblzma.5.dylib",
+          "/usr/lib/libmecab.dylib",
+          "/usr/lib/libmis.dylib",
+          "/usr/lib/libmrc.dylib",
+          "/usr/lib/libncurses.5.4.dylib",
+          "/usr/lib/libnetworkextension.dylib",
+          "/usr/lib/libnwswifttls.dylib",
+          "/usr/lib/liboah.dylib",
+          "/usr/lib/libobjc.A.dylib",
+          "/usr/lib/libpam.2.dylib",
+          "/usr/lib/libpartition2_dynamic.dylib",
+          "/usr/lib/libpcap.A.dylib",
+          "/usr/lib/libperfcheck.dylib",
+          "/usr/lib/libquic.dylib",
+          "/usr/lib/libresolv.9.dylib",
+          "/usr/lib/libsandbox.1.dylib",
+          "/usr/lib/libsasl2.2.dylib",
+          "/usr/lib/libspindump.dylib",
+          "/usr/lib/libsqlite3.dylib",
+          "/usr/lib/libssl.48.dylib",
+          "/usr/lib/libswiftPrespecialized.dylib",
+          "/usr/lib/libtailspin.dylib",
+          "/usr/lib/libtidy.A.dylib",
+          "/usr/lib/libusrtcp.dylib",
+          "/usr/lib/libutil.dylib",
+          "/usr/lib/libxar.1.dylib",
+          "/usr/lib/libxml2.2.dylib",
+          "/usr/lib/libxslt.1.dylib",
+          "/usr/lib/libz.1.dylib",
+          "/usr/lib/swift/libswiftAVFoundation.dylib",
+          "/usr/lib/swift/libswiftAccelerate.dylib",
+          "/usr/lib/swift/libswiftCompression.dylib",
+          "/usr/lib/swift/libswiftCore.dylib",
+          "/usr/lib/swift/libswiftCoreAudio.dylib",
+          "/usr/lib/swift/libswiftCoreFoundation.dylib",
+          "/usr/lib/swift/libswiftCoreGraphics.dylib",
+          "/usr/lib/swift/libswiftCoreImage.dylib",
+          "/usr/lib/swift/libswiftCoreLocation.dylib",
+          "/usr/lib/swift/libswiftCoreMIDI.dylib",
+          "/usr/lib/swift/libswiftCoreMedia.dylib",
+          "/usr/lib/swift/libswiftDarwin.dylib",
+          "/usr/lib/swift/libswiftDispatch.dylib",
+          "/usr/lib/swift/libswiftDistributed.dylib",
+          "/usr/lib/swift/libswiftFoundation.dylib",
+          "/usr/lib/swift/libswiftIOKit.dylib",
+          "/usr/lib/swift/libswiftIntents.dylib",
+          "/usr/lib/swift/libswiftMLCompute.dylib",
+          "/usr/lib/swift/libswiftMetal.dylib",
+          "/usr/lib/swift/libswiftNaturalLanguage.dylib",
+          "/usr/lib/swift/libswiftOSLog.dylib",
+          "/usr/lib/swift/libswiftObjectiveC.dylib",
+          "/usr/lib/swift/libswiftObservation.dylib",
+          "/usr/lib/swift/libswiftQuartzCore.dylib",
+          "/usr/lib/swift/libswiftRegexBuilder.dylib",
+          "/usr/lib/swift/libswiftSpatial.dylib",
+          "/usr/lib/swift/libswiftSwiftOnoneSupport.dylib",
+          "/usr/lib/swift/libswiftSynchronization.dylib",
+          "/usr/lib/swift/libswiftSystem.dylib",
+          "/usr/lib/swift/libswiftUniformTypeIdentifiers.dylib",
+          "/usr/lib/swift/libswiftVideoToolbox.dylib",
+          "/usr/lib/swift/libswiftXPC.dylib",
+          "/usr/lib/swift/libswift_Builtin_float.dylib",
+          "/usr/lib/swift/libswift_Concurrency.dylib",
+          "/usr/lib/swift/libswift_DarwinFoundation1.dylib",
+          "/usr/lib/swift/libswift_DarwinFoundation2.dylib",
+          "/usr/lib/swift/libswift_DarwinFoundation3.dylib",
+          "/usr/lib/swift/libswift_RegexParser.dylib",
+          "/usr/lib/swift/libswift_StringProcessing.dylib",
+          "/usr/lib/swift/libswiftos.dylib",
+          "/usr/lib/swift/libswiftsimd.dylib",
+          "/usr/lib/swift/libswiftsys_time.dylib",
+          "/usr/lib/system/libcache.dylib",
+          "/usr/lib/system/libcommonCrypto.dylib",
+          "/usr/lib/system/libcompiler_rt.dylib",
+          "/usr/lib/system/libcopyfile.dylib",
+          "/usr/lib/system/libcorecrypto.dylib",
+          "/usr/lib/system/libdispatch.dylib",
+          "/usr/lib/system/libdyld.dylib",
+          "/usr/lib/system/libkeymgr.dylib",
+          "/usr/lib/system/libkxld.dylib",
+          "/usr/lib/system/libmacho.dylib",
+          "/usr/lib/system/libquarantine.dylib",
+          "/usr/lib/system/libremovefile.dylib",
+          "/usr/lib/system/libsystem_asl.dylib",
+          "/usr/lib/system/libsystem_blocks.dylib",
+          "/usr/lib/system/libsystem_c.dylib",
+          "/usr/lib/system/libsystem_collections.dylib",
+          "/usr/lib/system/libsystem_configuration.dylib",
+          "/usr/lib/system/libsystem_containermanager.dylib",
+          "/usr/lib/system/libsystem_coreservices.dylib",
+          "/usr/lib/system/libsystem_darwin.dylib",
+          "/usr/lib/system/libsystem_darwindirectory.dylib",
+          "/usr/lib/system/libsystem_dnssd.dylib",
+          "/usr/lib/system/libsystem_eligibility.dylib",
+          "/usr/lib/system/libsystem_featureflags.dylib",
+          "/usr/lib/system/libsystem_info.dylib",
+          "/usr/lib/system/libsystem_kernel.dylib",
+          "/usr/lib/system/libsystem_m.dylib",
+          "/usr/lib/system/libsystem_malloc.dylib",
+          "/usr/lib/system/libsystem_networkextension.dylib",
+          "/usr/lib/system/libsystem_notify.dylib",
+          "/usr/lib/system/libsystem_platform.dylib",
+          "/usr/lib/system/libsystem_pthread.dylib",
+          "/usr/lib/system/libsystem_sandbox.dylib",
+          "/usr/lib/system/libsystem_sanitizers.dylib",
+          "/usr/lib/system/libsystem_secinit.dylib",
+          "/usr/lib/system/libsystem_symptoms.dylib",
+          "/usr/lib/system/libsystem_trace.dylib",
+          "/usr/lib/system/libsystem_trial.dylib",
+          "/usr/lib/system/libunwind.dylib",
+          "/usr/lib/system/libxpc.dylib"
+        ],
+        "unexpectedPaths": [],
+        "traceSHA256": "8db74c111e01dd7b7c9d297ebc43dccfa24c990bc6ae7222adc6b792deb13974",
+        "scope": "actual bundled gst-inspect avdec_wmav2 load trace only; no claim for all codec branches"
+      }
+    },
+    {
+      "path": "out/engine-wma-dmo-20261024/runtime-v1.json",
+      "sha256": "b8176bf82217484e2dc2fedfa0789f2052033bb3b58c6bdecaed7b7ca17370a1",
+      "bytes": 2195,
+      "record": {
+        "state": "failed",
+        "passed": false,
+        "runs": [
+          {
+            "arch": "x86_64",
+            "args": [
+              "python3",
+              "/Users/cervantes/Cider/out/engine-wma-dmo-20261024/runner-v1.py",
+              "--root",
+              "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "--bottle",
+              "Audio Metadata",
+              "--arch",
+              "x86_64",
+              "--suite",
+              "wma-dmo",
+              "--mode",
+              "correctness",
+              "--timeout",
+              "90"
+            ],
+            "driverExit": 1,
+            "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792844239315802000-cider-lab-wine11.18-audio-metadata-r1-x86_64-x86_64-correctness.json\", \"passed\": false, \"cliExitCode\": 124, \"seconds\": 34.869072667, \"failedChecks\": [], \"measurements\": []}\n",
+            "stderr": ""
+          }
+        ],
+        "preCleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        },
+        "error": "AssertionError('{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792844239315802000-cider-lab-wine11.18-audio-metadata-r1-x86_64-x86_64-correctness.json\", \"passed\": false, \"cliExitCode\": 124, \"seconds\": 34.869072667, \"failedChecks\": [], \"measurements\": []}\\n')",
+        "finalCleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        }
+      }
+    },
+    {
+      "path": "out/engine-wma-dmo-20261024/runtime-v2.json",
+      "sha256": "2aa3f261ce934ebacc508345fed6684eee61e04d397bff403b3c7cdf321f59f4",
+      "bytes": 4090,
+      "record": {
+        "state": "complete",
+        "passed": true,
+        "runs": [
+          {
+            "arch": "x86_64",
+            "args": [
+              "python3",
+              "/Users/cervantes/Cider/out/engine-wma-dmo-20261024/runner-v2.py",
+              "--root",
+              "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "--bottle",
+              "Media Bundle",
+              "--arch",
+              "x86_64",
+              "--suite",
+              "wma-dmo",
+              "--mode",
+              "correctness",
+              "--timeout",
+              "90"
+            ],
+            "driverExit": 0,
+            "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792846862371594000-cider-lab-wine11.18-audio-gstreamer-r1-x86_64-x86_64-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 20.597562333, \"failedChecks\": [], \"measurements\": []}\n",
+            "stderr": "",
+            "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792846862371594000-cider-lab-wine11.18-audio-gstreamer-r1-x86_64-x86_64-correctness.json",
+            "rawSHA256": "dac28d13e22cdda582cb975888a8e0c38d1f30d07f852033351ffd1a8d9e2946",
+            "complete": [
+              {
+                "type": "complete",
+                "mode": "correctness",
+                "ok": true,
+                "checks": 32,
+                "empty_checks": 32,
+                "decoded_bytes": 32768,
+                "exhausted": true,
+                "reference_checked": true,
+                "reference_difference": 7,
+                "output_refs": 1,
+                "input_refs": 1,
+                "output_error": false
+              }
+            ]
+          },
+          {
+            "arch": "i686",
+            "args": [
+              "python3",
+              "/Users/cervantes/Cider/out/engine-wma-dmo-20261024/runner-v2.py",
+              "--root",
+              "/Users/cervantes/Cider/out/waitall-mac-20261018-admission",
+              "--bottle",
+              "Media Bundle",
+              "--arch",
+              "i686",
+              "--suite",
+              "wma-dmo",
+              "--mode",
+              "correctness",
+              "--timeout",
+              "90"
+            ],
+            "driverExit": 0,
+            "stdout": "{\"result\": \"/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792846883545199000-cider-lab-wine11.18-audio-gstreamer-r1-x86_64-i686-correctness.json\", \"passed\": true, \"cliExitCode\": 0, \"seconds\": 10.401803166, \"failedChecks\": [], \"measurements\": []}\n",
+            "stderr": "",
+            "rawResult": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792846883545199000-cider-lab-wine11.18-audio-gstreamer-r1-x86_64-i686-correctness.json",
+            "rawSHA256": "bbc8077e2b513da4b1f74ef1cef808cade15f9257a7d45a6eb7aa99cebf03a03",
+            "complete": [
+              {
+                "type": "complete",
+                "mode": "correctness",
+                "ok": true,
+                "checks": 32,
+                "empty_checks": 32,
+                "decoded_bytes": 32768,
+                "exhausted": true,
+                "reference_checked": true,
+                "reference_difference": 7,
+                "output_refs": 1,
+                "input_refs": 1,
+                "output_error": false
+              }
+            ]
+          }
+        ],
+        "preCleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        },
+        "mediaPreparationSHA256": "e291d4a312a7d00fc0c9db32676971c9b147d7dd87ce35dcee5a0e4dc006c897",
+        "finalCleanup": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        }
+      }
+    },
+    {
+      "path": "out/engine-wma-dmo-20261024/installed-media-preparation-v1.json",
+      "sha256": "e291d4a312a7d00fc0c9db32676971c9b147d7dd87ce35dcee5a0e4dc006c897",
+      "bytes": 1750,
+      "record": {
+        "scope": "explicit media setup at final paths; not a cold-use or decode acceptance",
+        "engineID": "cider-lab-wine11.18-audio-gstreamer-r1-x86_64",
+        "cacheExistedBefore": false,
+        "nativeLibrarySHA256": "8097fb5714aa3ca4cd3e7943c0ad00caad77b9cbea98d736567946dae3a70dae",
+        "helperSHA256": "54ab0fc6d6230af0195ea8b6c13ea16688fbd7e15095badecf8ff0ca4ac5f49a",
+        "gstreamerEnvironment": {
+          "GST_PLUGIN_SYSTEM_PATH": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-audio-gstreamer-r1-x86_64/frameworks/gstreamer/lib/gstreamer-1.0",
+          "GST_PLUGIN_SCANNER": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-audio-gstreamer-r1-x86_64/frameworks/gstreamer/libexec/gstreamer-1.0/gst-plugin-scanner",
+          "GST_REGISTRY": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Caches/gstreamer/cider-lab-wine11.18-audio-gstreamer-r1-x86_64/registry.bin",
+          "GST_DEBUG": "2",
+          "GST_DEBUG_NO_COLOR": "1"
+        },
+        "args": [
+          "/usr/bin/arch",
+          "-x86_64",
+          "/Users/cervantes/Cider/out/engine-wma-dmo-20261024/native-gst-long-diagnostic",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-audio-gstreamer-r1-x86_64/frameworks/gstreamer/lib/libgstreamer-1.0.0.dylib"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "phase=dlopen.begin\nphase=dlopen.end\nversion=GStreamer 1.28.7\nphase=gst_init.begin\nphase=gst_init.end ok=1 error=0x0\n",
+        "elapsedSeconds": 45.066953833999996,
+        "cacheExistsAfter": true,
+        "cacheSHA256": "ebfc332807ecda7c62b00782da3b5c40bc99ff9eaeb5cf4c534b3ce2814bc438",
+        "cacheBytes": 526798,
+        "prepared": true
+      }
+    },
+    {
+      "path": "out/engine-wma-dmo-20261024/archive-comparison-v1.json",
+      "sha256": "0868bc586cc2f6bd152e1acfedcf897243dd15af3c4c31b81a8855b9fcdc9f74",
+      "bytes": 1752,
+      "record": {
+        "archiveSHA256": "be19d188e0bfb7939f8ace82e9450030ae3d78ba872c7b28a3fd56b99bf133bb",
+        "rows": [
+          {
+            "file": "dlls/winegstreamer/wg_sample.c",
+            "archiveSHA256": "3c58ebdf5c82f7b81b71e16396b522437b799b118cddaa07ffe02482215c6bc8",
+            "canonicalSHA256": "241e08c21dedb97db3cc29e91904e46e7ecb7ae1f1a5062787cdefb425e48d5e",
+            "unpackSHA256": "241e08c21dedb97db3cc29e91904e46e7ecb7ae1f1a5062787cdefb425e48d5e",
+            "actualUnpackIsOriginal": false
+          },
+          {
+            "file": "dlls/winegstreamer/wma_decoder.c",
+            "archiveSHA256": "3e949645a01666aa1dfa0dc7fe8835a36c68b24009f3bf622b771da7a152e9ef",
+            "canonicalSHA256": "3e949645a01666aa1dfa0dc7fe8835a36c68b24009f3bf622b771da7a152e9ef",
+            "unpackSHA256": "3e949645a01666aa1dfa0dc7fe8835a36c68b24009f3bf622b771da7a152e9ef",
+            "actualUnpackIsOriginal": true
+          },
+          {
+            "file": "dlls/mf/tests/wmaencdata.bin",
+            "archiveSHA256": "6779b11e83469e2adc0fb728002213da1c50bcd1bfb385993662a6ef2fcfdf2c",
+            "canonicalSHA256": "6779b11e83469e2adc0fb728002213da1c50bcd1bfb385993662a6ef2fcfdf2c",
+            "unpackSHA256": "6779b11e83469e2adc0fb728002213da1c50bcd1bfb385993662a6ef2fcfdf2c",
+            "actualUnpackIsOriginal": true
+          },
+          {
+            "file": "dlls/mf/tests/wmadecdata.bin",
+            "archiveSHA256": "207ab29b5cce8df1f26d9c05486cd4bcd043c0d28464e31549206b2a794bc049",
+            "canonicalSHA256": "207ab29b5cce8df1f26d9c05486cd4bcd043c0d28464e31549206b2a794bc049",
+            "unpackSHA256": "207ab29b5cce8df1f26d9c05486cd4bcd043c0d28464e31549206b2a794bc049",
+            "actualUnpackIsOriginal": true
+          }
+        ],
+        "lesson": "unpack is a prepared tree, not an immutable upstream reference; original members here are read from verified archive without changing old trees"
+      }
+    },
+    {
+      "path": "out/engine-wma-dmo-20261024/bundle-validation-v1.json",
+      "sha256": "711d18ae32790ec845111c7af59be376e141ae3d19e54b155963709328546204",
+      "bytes": 13788,
+      "record": {
+        "passed": true,
+        "rows": [
+          {
+            "path": "frameworks/gstreamer/libexec/gstreamer-1.0/gst-plugin-scanner",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libtheoraenc.1.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstaudio-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstmpegts-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libswresample.5.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstsdp-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libvorbisenc.2.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstreamer-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libpcre2-8.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libdav1d.7.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libglib-2.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libtheoradec.1.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libmpg123.1.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgobject-2.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgsttag-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstvideo-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libavformat.61.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstrtp-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstapp-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstrtsp-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libswscale.8.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgmodule-2.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libMoltenVK.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libintl.8.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstbase-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstcodecparsers-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libvorbis.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libffi.7.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstriff-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libavutil.59.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libbz2.1.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libavcodec.61.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libavfilter.10.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libFLAC.8.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/liborc-0.4.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libvpx.9.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libz.1.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstvulkan-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstgl-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libogg.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgstpbutils-1.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libgio-2.0.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/libopus.0.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstvideofilter.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstvpx.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstplayback.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstwavparse.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstmpg123.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstaudioparsers.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstisomp4.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstpbtypes.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstmpegtsdemux.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstlibav.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstvolume.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstrawparse.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstdeinterlace.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstogg.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstflac.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstdav1d.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstaudioresample.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgsttheora.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstapplemedia.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstapp.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstasf.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstid3demux.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstopus.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstvideorate.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstvideoparsersbad.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstvorbis.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstmpegpsdemux.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstmatroska.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstcoreelements.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgsttypefindfunctions.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstaudioconvert.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "frameworks/gstreamer/lib/gstreamer-1.0/libgstvideoconvertscale.dylib",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          },
+          {
+            "path": "engine/lib/wine/x86_64-unix/winegstreamer.so",
+            "archExit": 0,
+            "archs": "x86_64",
+            "signatureExit": 0,
+            "signatureError": ""
+          }
+        ]
+      }
+    },
+    {
+      "path": "out/engine-wma-dmo-20261024/media-service-source-review-v3.json",
+      "sha256": "01f042d868ca2f1c2d87b759dddc55f5a3436cc8c13c3cdffb24a0ab933de6cf",
+      "bytes": 3566,
+      "record": {
+        "review": "narrow SOURCE closure of recoverable media registry publication failure handling",
+        "startedAtUTC": "2026-10-24T15:16:29Z",
+        "scope": {
+          "sourceOnly": true,
+          "onlyFileWrittenForThisReview": "out/engine-wma-dmo-20261024/media-service-source-review-v3.json",
+          "buildsTestsOrRuntimePerformed": false,
+          "excluded": [
+            "new broad service/command audit",
+            "product integration, covered separately",
+            "Windows/network/UI operations",
+            "candidate adoption"
+          ]
+        },
+        "inputs": [
+          {
+            "path": "Packages/CiderKit/Sources/CiderRuntime/MediaRuntimePreparation.swift",
+            "sha256": "ece85a818a3827d880f31f994bdfc9f9c9a0ada0a4018c27f76b78fe57cb4934",
+            "reviewedRegions": "owned transaction and publication recovery, 123-126 and 159-215"
+          },
+          {
+            "path": "Packages/CiderKit/Sources/CiderCore/FileSafety.swift",
+            "sha256": "bb7d3051b5665d68e7da08be216ee043dbdc8b2a32123bbea7433ec004ca8105",
+            "role": "reserveDirectory and commit contracts retained from prior review"
+          },
+          {
+            "path": "Packages/CiderKit/Sources/CiderCore/JSONFile.swift",
+            "sha256": "2b48d467aca85ae475b3f969dc39aeb790980b3e23177afdaa902f422820b502",
+            "role": "atomic raw snapshot/writeMetadata contracts"
+          }
+        ],
+        "verdict": {
+          "status": "previous_finding_closed_in_source_by_recoverable_alternative",
+          "P1": 0,
+          "P2": 0,
+          "findings": []
+        },
+        "closure": {
+          "id": "MEDIA-PREP-SRC-03",
+          "status": "closed_in_source",
+          "evidence": [
+            "A fresh exclusively reserved transaction directory owns the staged registry. Its removal defer is conditional on preserveTransaction.",
+            "Before publication, existing receipt bytes are bounded and copied raw into the transaction. The registry swap's returned prior-file location is retained in oldRegistry.",
+            "After successful publication, the final-path helper, validation and readiness publication remain inside a do/catch. Any Swift error in that region sets preserveTransaction before attempting recovery metadata, emits a diagnostic naming the transaction, and rethrows the original error.",
+            "The failure path neither restores nor deletes the live registry/receipt, so it does not clobber an independently changed destination. The prior registry and receipt bytes survive in the owned directory when present.",
+            "Successful completion leaves preserveTransaction false, allowing best-effort cleanup of the prior backup directory. No automatic rollback is claimed."
+          ],
+          "refs": [
+            "MediaRuntimePreparation.swift:123-126",
+            "MediaRuntimePreparation.swift:162-171",
+            "MediaRuntimePreparation.swift:174-214",
+            "FileSafety.swift:63-75"
+          ]
+        },
+        "limits": [
+          "Recovery metadata writing uses try? and can fail under storage errors; the preserve flag is already set and the diagnostic still names the retained directory. This is recoverable prior-byte retention, not a guarantee that recovery.json can always be written on a failing filesystem.",
+          "No live-cache restoration or automatic recovery is performed. A later authorized preparation must validate/regenerate current runtime state; the retained bytes are diagnostic/recovery material, not an adopted ready state.",
+          "Success-directory removal is best effort. An unremoved successful transaction is not evidence of a preparation failure.",
+          "No helper, fault injection, registry swap, cancellation, build or runtime result was executed or independently audited. Earlier broader reports remain their recorded snapshots."
+        ]
+      }
+    },
+    {
+      "path": "out/engine-wma-dmo-20261024/integration-source-review-v1.json",
+      "sha256": "d61168415d1633571aaee425c55690281f124421746fa491d94cc2e3b665ff78",
+      "bytes": 12222,
+      "record": {
+        "review": "bounded SOURCE audit of media preparation product-callsite integration",
+        "startedAtUTC": "2026-10-24T15:16:29Z",
+        "scope": {
+          "sourceOnly": true,
+          "onlyFileWrittenForThisReview": "out/engine-wma-dmo-20261024/integration-source-review-v1.json",
+          "buildsTestsHelpersOrRuntimePerformed": false,
+          "windowsNetworkUIOrNewAgents": false,
+          "reviewed": [
+            "LaunchPreparation activity ownership",
+            "AppLifecycle start/restart lock placement",
+            "CLI Run/Steam integration and launch callback",
+            "new-bottle, ManualInstaller and RecipeInstaller preparation",
+            "GUI early activity/inherited handoff and feedback owner"
+          ],
+          "excluded": [
+            "new broad service/DMO audit",
+            "old bookkeeping and maintenance-control redesign",
+            "automatic preparation of stop/control paths",
+            "runtime acceptance or candidate adoption"
+          ]
+        },
+        "inputs": [
+          {
+            "path": "Packages/CiderKit/Sources/CiderIntegration/LaunchPreparation.swift",
+            "sha256": "31833615d035b3c8e2d24c47de4cae38255236c37baf44d9ee6116dfa10e9874"
+          },
+          {
+            "path": "Packages/CiderKit/Sources/CiderIntegration/InstallationActivity.swift",
+            "sha256": "137a2983214ecce240202971151d271553b5ebf66cfe58a1b34bf30f2f9e1944"
+          },
+          {
+            "path": "Packages/CiderKit/Sources/CiderIntegration/AppLifecycle.swift",
+            "sha256": "8361571db12f81f95fd6188d5220c94d4151e9c38c012a2475b706d635f21971"
+          },
+          {
+            "path": "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift",
+            "sha256": "d6611cad9a8d4ac338cae7107ffc3f77b35758ac5ce9dcacb6d13864981c5846"
+          },
+          {
+            "path": "Packages/CiderKit/Sources/CiderIntegration/ManualInstaller.swift",
+            "sha256": "e14cd278f4a8e30cdcf0654b2722ddf75e8e138a51be0b76ba2e2f3b5fb984e7"
+          },
+          {
+            "path": "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift",
+            "sha256": "d02866a294c5d10f8bb9d5246f0fce1463a3086eb76977c34441f5f6eddf6e23"
+          },
+          {
+            "path": "Packages/CiderKit/Sources/CiderBottle/BottleStore.swift",
+            "sha256": "94884a448dcccef82a57b9d10e186d0949c2a6e9725fe23cac24fd769b98ba7a"
+          },
+          {
+            "path": "App/Sources/Cider/Model/AppModel.swift",
+            "sha256": "411ca24710c7535d8526c14d717b902f61d55a837c54ccbb3070d603c4896d39"
+          },
+          {
+            "path": "App/Sources/Cider/Model/AppModel+Bottles.swift",
+            "sha256": "07eb4652ed7f1581114a8620bd0d800d8e0df04ef70cd6b81344b1fe14cb4a48"
+          },
+          {
+            "path": "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift",
+            "sha256": "0a415e7fc65ff03fc4cd860653b101f39c3beffb01a15e7b7873739af3d01d6b"
+          }
+        ],
+        "verdict": {
+          "status": "no_concrete_P1_or_P2_in_bounded_integration_review",
+          "P1": 0,
+          "P2": 0,
+          "findings": [],
+          "basis": "The reviewed new launch paths own preparation and spawn with activity checks, place cold preparation before the outer bottle transactions, preserve original caller checks and CLI wait semantics, and leave stop/control launches without automatic cold work. This is source assessment only, not proof of actual cancellation, UI behavior, helper execution, or Wine/media acceptance."
+        },
+        "checkedProperties": [
+          {
+            "area": "coordinator ownership and composed guard",
+            "result": "LaunchPreparation verifies the bottle/prefix/engine relationship, then enters InstallationActivity.perform around preparation and work(prepared). Its checked runner appends activity and caller checks to the incoming runner. The internal perform reuses an inherited same-bottle ticket, checks before/after work and orders finish against cancellation; otherwise it creates and finishes a ticket. Preparation remains within that ownership interval rather than occurring in a detached untracked helper operation.",
+            "refs": [
+              "LaunchPreparation.swift:10-37",
+              "InstallationActivity.swift:17-42, 79-107, 128-159"
+            ]
+          },
+          {
+            "area": "AppLifecycle start/restart before outer lock",
+            "result": "Start's initial read-only existing-instance scan can avoid needless preparation, but the authoritative matching/spawn decision is repeated inside prepared.withBottleOperation after preparation. Restart also calls LaunchPreparation before entering that outer bottle transaction; it then performs the existing stop, checks cancellation and makes the final matching/spawn decision under the lock. No slow service invocation occurs in the final locked closure. Stop itself and Steam -shutdown retain their ordinary no-auto-preparation path.",
+            "refs": [
+              "AppLifecycle.swift:19-37, 40-63"
+            ]
+          },
+          {
+            "area": "runner dependency phase and final launch guard",
+            "result": "preparingMedia composes Task cancellation with the previous runner check, retains that check in returned copies, validates plan/current configuration/preflight/clone/PatchState, and rejects managed cold preparation under its calling bottle lock. Explicit expert GST overrides retain their skip behavior. A prepared runner only performs read-only requirePrepared under final bottle->engine authority. Bottle/engine lock waits and the final pre-Spawn point use the retained launchCheck. The new integration does not replace existing guards or make launch automatically run the cold helper.",
+            "refs": [
+              "WineRunner.swift:94-141, 251-262, 270-310, 333-336"
+            ]
+          },
+          {
+            "area": "CLI Run --wait callback and no replay",
+            "result": "Run still builds its original plan/environment/cwd and uses the original runner.runToCompletion for --wait. The optional launching callback invokes LaunchPreparation once; because its return type is nonoptional, a thrown callback does not fall back to a second launch. With no callback the original launch path remains. After callback launch, the existing session PID wait, observation behavior, original runner post-wait check, Task cancellation handling and bottle idle wait remain present. The inner launch activity can finish at spawn without making a finished-ticket check poison the later wait.",
+            "refs": [
+              "Ciderctl.swift:321-349",
+              "WineRunner.swift:352-364"
+            ]
+          },
+          {
+            "area": "CLI non-wait Run and both Steam entry points",
+            "result": "Non-wait Run, Steam game launch and Steam install request now explicitly enter LaunchPreparation with the existing runner and observer check. Progress remains on the GUI-hosted command context. No standalone CLI/bridge Wine-spawning path is introduced by these callsites. Observer detachment during prelaunch work can abort that work; after a program has launched the original wait/observation semantics remain separate from an explicit bottle Stop.",
+            "refs": [
+              "Ciderctl.swift:86-108, 335-349"
+            ]
+          },
+          {
+            "area": "new bottle reservation and first Wine child",
+            "result": "BottleStore.create retains its reservation/caller ownership check in the runner, writes configuration, prepares media, and only then marks initializationStarted and invokes the first wineboot. This stage is before an outer bottle-operation transaction. The existing BottlePreparation reservation activity therefore remains the owner when used by product creation, while lower-level callers retain their supplied initialization check. No preparation is added to engine import or runner construction.",
+            "refs": [
+              "BottleStore.swift:125-139"
+            ]
+          },
+          {
+            "area": "ManualInstaller and recipe installer guards",
+            "result": "ManualInstaller keeps its caller Activity check on the incoming runner and routes the captured collector plan through LaunchPreparation; its Running result still retains the original outer activity for wait/status handling. If a TaskLocal is not inherited there can be an additional coordinator ticket, but both belong to the same stop domain and the original caller check remains composed. RecipeInstaller already owns InstallationActivity.perform; its checked runner explicitly prepares before installer, registry and winver launches, keeping those preparations outside the corresponding prefix-operation calls. Existing collector/status evidence is not replaced with native helper success.",
+            "refs": [
+              "ManualInstaller.swift:20-44, 48-61",
+              "RecipeInstaller.swift:120-124, 199-207, 235-255"
+            ]
+          },
+          {
+            "area": "GUI early Activity and cancellation into detached work",
+            "result": "Library start/restart registers or accepts its activity before setting busy state and creating the asynchronous task. The worker explicitly executes activity.performing and retains both incoming launchCheck and activity.checkCancellation on its runner. Cancellation handlers cancel that activity, reaching helper polling even though Task.detached does not inherit the parent's cancellation automatically. Tool, custom command and patch-installer paths likewise register before dispatch and use the completing ownership wrapper for prep+spawn. Existing Stop can see registered work rather than only a busy flag.",
+            "refs": [
+              "AppModel.swift:398-478, 696-733",
+              "AppModel+Bottles.swift:80-140",
+              "InstallationActivity.swift:169-196"
+            ]
+          },
+          {
+            "area": "recipe handoff does not finish borrowed ownership",
+            "result": "The new GUI launch(item, using: activity) passes the existing Activity as preparationActivity. The launch action computes ownsActivity=false for that inherited case and uses performing rather than completing. The recipe task retains ownership across refresh/auto-launch, rechecks cancellation/owner UUID afterwards and performs the final activity.finish itself. One-shot GUI launches finish their own activity after the worker's prep/spawn phase; later feedback/process observation does not schedule another Wine launch.",
+            "refs": [
+              "AppModel.swift:385-389, 415-426, 474-480, 501-511",
+              "AppModel+Bottles.swift:375-395",
+              "InstallationActivity.swift:184-197"
+            ]
+          },
+          {
+            "area": "feedback owner actor box",
+            "result": "AppLaunchFeedback is MainActor-isolated. New worker progress callbacks hop to MainActor, check the activity where appropriate and update the same generation box through updateFeedback; final messages use that owner. The box is feedback ownership, not the cancellation authority: activity and runner checks remain responsible for Stop/spawn safety. No concrete new cross-actor mutable-generation race was found in the inspected callbacks.",
+            "refs": [
+              "AppModel.swift:17-20, 309-315, 437-452, 478-511, 710-740",
+              "AppModel+Bottles.swift:67-75, 91-95, 113-140"
+            ]
+          }
+        ],
+        "controlAndScopeBoundaries": [
+          "Existing Kill/bottle Stop remains the shared stoppingInstallations + Windows drain path. The reviewed code does not automatically run media preparation in killAll, wineserver -k/-w, or AppLifecycle.stop. A canceled helper must still be reaped before its owning preparation returns; that is the previously reviewed service/command contract, not runtime evidence supplied here.",
+          "Old maintenance/bookkeeping Wine calls are outside this newly wired launch scope and were not reported as missing DMO/product preparation hooks. No request to add automatic cold work to those controls is made.",
+          "The ticket domain guarantees cancellation for already-owned work. This audit does not establish a new global admission generation ordering every queued request before or after Stop; UI feedbackGeneration is not such a fence.",
+          "The same checked runner must be retained for the actual prepared plan and final spawn. Expert GST overrides are not certified by a default managed-registry preparation receipt.",
+          "Some GUI activity ownership ends at successful one-shot spawn while refresh/pending-message bookkeeping follows. This report does not turn that bookkeeping into helper/Wine execution or claim broader UI state-machine acceptance.",
+          "No source compilation, tests, helper execution, actual Stop/late-launch interleaving, UI behavior, Wine launch, DMO/codec result, package identity or runtime receipt was executed or independently audited. The parent's vendor-helper positive/negative work remains separate evidence."
+        ],
+        "evidenceLimits": [
+          "Only the changed integration callsites, their direct activity/runner contracts and the narrow service backup change were read. No new broad DMO, old control, scheduler, Windows or kernel audit was performed.",
+          "No implementation or test files, engines, bottles, defaults or runtime state were edited. Only this report and the separately requested media-service-source-review-v3.json were produced for the two scoped reviews."
+        ]
+      }
+    },
+    {
+      "path": "out/engine-wma-dmo-20261024/media-host-tests-v1.log",
+      "sha256": "16013538b51c6b6cbe14fbf0deb27a2a576087458300321c3a456c4f34df06c9",
+      "bytes": 1483
+    },
+    {
+      "path": "out/media-preparation-20261024/harness-build-v1.log",
+      "sha256": "3014a52b76e26837af928e4ff83199f1b3e354fe99cd0551db4cc9e0e6044674",
+      "bytes": 9613
+    },
+    {
+      "path": "out/media-preparation-20261024/harness-build-v2.log",
+      "sha256": "d89f10f1c8843316d97f78344d80e2f41aa2854a7306a90f3b07505b0a46fdf3",
+      "bytes": 312
+    },
+    {
+      "path": "out/media-preparation-20261024/app-build-v3.log",
+      "sha256": "3297747b2bef9a7754d12ccad250b640b5e4063b9d2fad170c2dc5a37b26aa0c",
+      "bytes": 103
+    },
+    {
+      "path": "out/media-preparation-20261024/commands-build-v2.log",
+      "sha256": "b0439b9cadd9b6fedc3c7278baa355d1bd0dfab9b16aa86cffe802599459cbc6",
+      "bytes": 192
+    }
+  ],
+  "sources": [
+    {
+      "path": "Packages/CiderKit/Sources/CiderRuntime/MediaRuntimePreparation.swift",
+      "sha256": "ece85a818a3827d880f31f994bdfc9f9c9a0ada0a4018c27f76b78fe57cb4934"
+    },
+    {
+      "path": "Packages/CiderKit/Sources/CiderRuntime/WineRunner.swift",
+      "sha256": "d6611cad9a8d4ac338cae7107ffc3f77b35758ac5ce9dcacb6d13864981c5846"
+    },
+    {
+      "path": "Packages/CiderKit/Sources/CiderCore/FileSafety.swift",
+      "sha256": "bb7d3051b5665d68e7da08be216ee043dbdc8b2a32123bbea7433ec004ca8105"
+    },
+    {
+      "path": "Packages/CiderKit/Sources/CiderStore/Command.swift",
+      "sha256": "0d3ed6bf4cd89e90067d31e11c3ab3fd6b94befc6ca609260ac8208f4bd41d1c"
+    },
+    {
+      "path": "Packages/CiderKit/Sources/CiderIntegration/LaunchPreparation.swift",
+      "sha256": "31833615d035b3c8e2d24c47de4cae38255236c37baf44d9ee6116dfa10e9874"
+    },
+    {
+      "path": "Packages/CiderKit/Sources/CiderIntegration/AppLifecycle.swift",
+      "sha256": "8361571db12f81f95fd6188d5220c94d4151e9c38c012a2475b706d635f21971"
+    },
+    {
+      "path": "Packages/CiderKit/Sources/CiderIntegration/InstallationActivity.swift",
+      "sha256": "137a2983214ecce240202971151d271553b5ebf66cfe58a1b34bf30f2f9e1944"
+    },
+    {
+      "path": "Packages/CiderKit/Sources/CiderIntegration/ManualInstaller.swift",
+      "sha256": "e14cd278f4a8e30cdcf0654b2722ddf75e8e138a51be0b76ba2e2f3b5fb984e7"
+    },
+    {
+      "path": "Packages/CiderKit/Sources/CiderIntegration/RecipeInstaller.swift",
+      "sha256": "d02866a294c5d10f8bb9d5246f0fce1463a3086eb76977c34441f5f6eddf6e23"
+    },
+    {
+      "path": "Packages/CiderKit/Sources/CiderBottle/BottleStore.swift",
+      "sha256": "94884a448dcccef82a57b9d10e186d0949c2a6e9725fe23cac24fd769b98ba7a"
+    },
+    {
+      "path": "Tools/CiderCommands/Sources/CiderCommands/Ciderctl.swift",
+      "sha256": "0a415e7fc65ff03fc4cd860653b101f39c3beffb01a15e7b7873739af3d01d6b"
+    },
+    {
+      "path": "App/Sources/Cider/Model/AppModel.swift",
+      "sha256": "411ca24710c7535d8526c14d717b902f61d55a837c54ccbb3070d603c4896d39"
+    },
+    {
+      "path": "App/Sources/Cider/Model/AppModel+Bottles.swift",
+      "sha256": "07eb4652ed7f1581114a8620bd0d800d8e0df04ef70cd6b81344b1fe14cb4a48"
+    },
+    {
+      "path": "Packages/CiderKit/Tests/CiderKitTests/MediaHostToolTests.swift",
+      "sha256": "3f2b21822a8601e6e45e59e651e9684884f941190c337946a43ac1c0149ab10f"
+    },
+    {
+      "path": "engine/bundle-gstreamer.sh",
+      "sha256": "55f208ed0f69b6e3e0a5cf0edd6e3bd24c60f3aeb926cd428e05ca18ccb1b62f"
+    },
+    {
+      "path": "tests/media/wma-dmo-empty-output.c",
+      "sha256": "4afff49336a6749771218dabbe550b3887f53d0b5c426149215859269a402f32"
+    },
+    {
+      "path": "tests/sync/run-mac.py",
+      "sha256": "820042f9bf14de962691354902641c512d2e93f5f9f3cfe6fa1ff3bd51c11e25"
+    }
+  ],
+  "verificationTools": [
+    {
+      "path": "out/media-preparation-20261024/fault-checks.py",
+      "sha256": "81d2450a4bc6a17f9d03c93556ac53d526c49855f8cd198349b610b9631bbf37"
+    },
+    {
+      "path": "out/media-preparation-20261024/product-checks.py",
+      "sha256": "c96ce5b2af832db7729fdb4e4eaca33000b854b8942a888c510eb04cab1d2c09"
+    },
+    {
+      "path": "out/media-preparation-20261024/product-stop-run.py",
+      "sha256": "3a3ad22fe1bf80b4f079b050c888d399c177576ede7c1db7093858268f53771c"
+    },
+    {
+      "path": "out/media-preparation-20261024/harness/Sources/MediaPreparationHarness/main.swift",
+      "sha256": "6ce8f340b2e8e53e1d3f7eaf33cbcb4f1bad3f5e0b1779254f7ce27ca4174fcf"
+    }
+  ],
+  "windowsOperations": 0,
+  "actionsRunsTriggered": 0,
+  "defaultAdoption": false,
+  "originalFailureRetained": true
+}

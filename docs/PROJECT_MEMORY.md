@@ -4,6 +4,14 @@
 
 ## 最新实际运行接续（2026-10-24）
 
+最新媒体进行点已闭合并归档research91：新base原WMA冷入口20s/CLI124失败保留，LLDB超时未取栈也保留，不能叫互锁或冷用通过。原ADR012 bundle的独立native扫描32.14s，最终路径显式准备45.07s；随后Media Bundle双PE各32空输出检查/32768真实PCM/耗尽/原参考metric7≤10/最终refs1均通过，原20s不改，模块/核心/EXE/runner/runID/时钟与GUI退出/两空清理已核对。仅准备后DMO子集，不提升视频/完整MF/游戏/默认状态。
+
+产品托管媒体准备代码也已完成：新增随包vendor gst-inspect/描述库存76文件；导入不执行，授权执行工作流在外层瓶子锁之前有活动归属、逐文件校验、显式env和可取消/限时/限输出helper；最终瓶子事务仅只读核对就绪。CLI/库start-restart/GUI命令工具/新瓶子/配方/手动安装接入，Stop/维护控制不冷扫。发布后失败保留旧registry/旧收据/恢复说明，不猜测覆盖其他writer。限定服务v3及接入v1独立源审无具体P1/P2；父代理5项底层取消/超时/输出/环境/锁检查过，App/Commands构建过。实际原生服务首次54.67s、复用0.61s（非基准），坏缓存/改组件/发布后取消/恢复内容但旧身份等10条记录符合预期。
+
+实际GUI/XPC在新的out/waitall-mac-media-preparation-20261024验证：创建中见真实inspect后Stop0.79s、创建非零/无Windows应用spawn；正常创建和run--wait唯一cmd标记正常；已有瓶普通run在inspect中Stop0.49s、请求非零/marker未执行/审计增量0/helper消失。两批GUI退出/两空清理确认，四受保护摘要一致。创建取消的旧onStop会detach观察，CLI“输出未完整收到”保留为文本交付限制；普通run取消明确CancellationError。没有替换生产App或切默认。原生loadtrace仅缓存availability路径，不能称每个decoder已运行。所有子代理已关闭，Windows/Actions/定时/Goal零操作。下一步继续Highball0010 MF allocator/视频与CEF窗口原主题迁移，U8/15原结论不变，不重跑无变化90轮/小时。
+
+重要对照经验：unpack是含早期端口的准备树，WG sample在那里241e…不是未改上游；已用原归档be19d188…直接取4成员并对照官方固定commit，WG原件3c58…、prepared241e…符合清单；wma_decoder及两测试向量逐字同archive。原wma_decoder新上游本身有NEED_MORE_INPUT时清状态，不能盲称只有0007使这条路径正确；待按实际覆盖记录。未覆盖/重命名旧树，原始副本在out/engine-wma-dmo-20261024/archive-original，README加了参考政策。Windows/用户数据/默认引擎/Actions/定时/Goal仍不动。
+
 524bc58已提交推送音频主题88/离线归因89。后续90的原生CPU来源实验：self kernel64身份用pthread/Mach核对，libproc选择器15；两架构busy/sleep的libproc/Mach及显式秒微秒单位子检查正常，进程CPU替身均拒绝，但组合实验x86_64因CLOCK_THREAD_CPUTIME_ID约4.8ms对比约200ms失败，v1/v2失败和原门槛保留，不默认“修正系数”或称整体通过。ARM timebase125/3、Rosetta1/1已留证；根因仍仅转换边界假说，不能解释未使用该clock的旧U90队列。源审当前CPU文件无具体P1/P2，所有代理关闭；未接入Wine或重跑正式比较。接续可准备有kernel64绑定的只读CPU诊断；同时检查原媒体：canonical wg_sample.c已含0007修复，Audio Metadata候选两PE winegstreamer.dll与build-msync逐字同哈希，先复用该实际产物做新base WMA/DMO受影响验收，不重复构建未变代码或借旧v0结果。Windows/用户瓶子/Actions/定时/Goal不动。
 
 本轮接续88/89：WinMM元数据与工作线程启动、MMDevice通知就绪/有效角色比较已独立迁移；限定源审给出的失败回滚、默认变化、通信索引、DebugInfo、provider瞬时失败和首个capture查询依赖均已修。WinMM v4/provider v3双PE完整组件/精确补丁重建/独立DLL链接过；私有新candidate `cider-lab-wine11.18-audio-metadata-r1-x86_64`、全新Audio Metadata瓶已初始化。真实PE32/64各cold wave/instance两入口，四次各39检查零失败，随后四caller mixer正常、模块/核心/EXE/runner/runID/时钟/GUI两空清理均核对。没有音频buffer或capture流/游戏验收。源审与运行器末次复审无具体P1/P2，fixture最后连续部分失败oracle已补schedule，最终native-v7两宿主各93场景通过，no-reset负例在两者均被重复free检查拒绝，final-fixture-review-v2限定源审无具体P1/P2，所有子代理已关闭。旧失败原件保留，候选不默认采用/格式策略及全部通知并发仍待。共享runnerSIGINT/TERM异常路径改为受保护finally清理；真实唯一marker存活后SIGINT130/GUI退出/两空通过，初控制器list pending含活PID误判的失败/救援保留。U90原回执离线720batch/3360worker全保留、10/15配对方向有变化但8/15超±3%原结论不变；纯public analyzer复现派生表一致，不归因为噪声。新增文档88/89、两补丁/夹具/runner/清单及真实证据已归档；接续原媒体与可信线程CPU计量准备。用户引擎/两瓶/Windows账本四摘要仍相同，Windows/Actions/定时/Goal零操作；原HY顺序和最终游戏目标保持。

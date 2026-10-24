@@ -14,6 +14,11 @@ import Observation
 
 typealias LibraryItem = CatalogApp
 
+@MainActor final class AppLaunchFeedback {
+    var generation: UInt64
+    init(_ generation: UInt64) { self.generation = generation }
+}
+
 extension CatalogApp {
     var source: String {
         switch kind {
@@ -301,11 +306,13 @@ final class AppModel {
         }
     }
 
-    private func updateFeedback(_ text: String, owning generation: UInt64) -> UInt64 {
+    func updateFeedback(_ text: String, owning generation: UInt64) -> UInt64 {
         guard feedbackGeneration == generation else { return generation }
         message = text
         return feedbackGeneration
     }
+    func ownsFeedback(_ generation: UInt64) -> Bool { feedbackGeneration == generation }
+    func feedbackOwner() -> AppLaunchFeedback { AppLaunchFeedback(feedbackGeneration) }
 
     /// Process observation acknowledges the real app, not Steam's short-lived
     /// forwarding process. Window visibility is not inferred from a PID.
@@ -378,6 +385,9 @@ final class AppModel {
     func launch(_ item: LibraryItem, checking check: @escaping @Sendable () throws -> Void) -> Task<Void, Never>? {
         perform(item, action: .start, launchCheck: check)
     }
+    func launch(_ item: LibraryItem, using activity: RecipeInstaller.Activity) -> Task<Void, Never>? {
+        perform(item, action: .start, launchCheck: { try activity.checkCancellation() }, preparationActivity: activity)
+    }
     func restart(_ item: LibraryItem) { perform(item, action: .restart) }
     func stop(_ item: LibraryItem) { perform(item, action: .stop) }
 
@@ -385,7 +395,8 @@ final class AppModel {
 
     @discardableResult
     private func perform(_ item: LibraryItem, action: AppAction,
-                         launchCheck: (@Sendable () throws -> Void)? = nil) -> Task<Void, Never>? {
+                         launchCheck: (@Sendable () throws -> Void)? = nil,
+                         preparationActivity inheritedActivity: RecipeInstaller.Activity? = nil) -> Task<Void, Never>? {
         let paths = self.paths
         let snapshot = compat
         // Catalog aliases can refer to the same executable. Serialize by bottle as well as item.
@@ -401,6 +412,18 @@ final class AppModel {
             pendingLaunches[item.id] = pending
             return nil
         }
+        let activity: RecipeInstaller.Activity?
+        let ownsActivity = action != .stop && inheritedActivity == nil
+        do {
+            if action == .stop { activity = nil }
+            else if let inheritedActivity { try inheritedActivity.checkCancellation(); activity = inheritedActivity }
+            else {
+                guard let bottle = bottles.first(where: { $0.config.id == item.bottleID }) else {
+                    throw CiderError.notFound("瓶子 \(item.bottleID)")
+                }
+                activity = try RecipeInstaller.beginActivity(in: bottle)
+            }
+        } catch { message = "启动准备失败：\(error)"; return nil }
         pendingLaunches.removeValue(forKey: item.id)
         busy.insert(bottleKey)
         busy.insert(item.id)
@@ -411,7 +434,7 @@ final class AppModel {
         case .stop: message = "正在停止 \(item.title)…"
         case .restart: message = "正在重启 \(item.title)…"
         }
-        let feedback = feedbackGeneration
+        let feedback = AppLaunchFeedback(feedbackGeneration)
         return Task {
             defer {
                 busy.remove(item.id); busy.remove(actionKey)
@@ -419,55 +442,74 @@ final class AppModel {
             }
             do {
                 try launchCheck?()
-                let started = try await Task.detached { () -> (started: Bool, warning: String?) in
-                    let store = BottleStore(paths: paths, compat: snapshot)
-                    let bottle = try store.bottle(item.bottleID)
-                    var runner = try store.runner(for: bottle)
-                    if let launchCheck { runner = runner.checkingLaunches(launchCheck) }
-                    let cwd: URL?
-                    if action == .stop { cwd = nil }
-                    else { cwd = try WindowsPath.workingDirectory(item.workingDirectory, in: bottle) }
-                    switch action {
-                    case .start:
-                        let session = try AppLifecycle.start(item, using: runner, cwd: cwd)
-                        return (session != nil, session?.warning)
-                    case .restart:
-                        let session = try AppLifecycle.restart(item, using: runner, cwd: cwd)
-                        return (session != nil, session?.warning)
-                    case .stop: try AppLifecycle.stop(item, using: runner); return (false, nil)
+                let started = try await withTaskCancellationHandler {
+                    try await Task.detached { () -> (started: Bool, warning: String?) in
+                    let report: @Sendable (String) -> Void = { [weak self = self] step in
+                        Task { @MainActor in
+                            guard let self, self.busy.contains(actionKey),
+                                  !self.busy.contains("stop-bottle:\(item.bottleID)") else { return }
+                            if let activity, (try? activity.checkCancellation()) == nil { return }
+                            feedback.generation = self.updateFeedback(step, owning: feedback.generation)
+                        }
                     }
-                }.value
+                    func work() throws -> (started: Bool, warning: String?) {
+                        let store = BottleStore(paths: paths, compat: snapshot)
+                        let bottle = try store.bottle(item.bottleID)
+                        var runner = try store.runner(for: bottle)
+                        if let launchCheck { runner = runner.checkingLaunches(launchCheck) }
+                        if let activity { runner = runner.checkingLaunches { try activity.checkCancellation() } }
+                        let cwd: URL?
+                        if action == .stop { cwd = nil }
+                        else { cwd = try WindowsPath.workingDirectory(item.workingDirectory, in: bottle) }
+                        switch action {
+                        case .start:
+                            let session = try AppLifecycle.start(item, using: runner, cwd: cwd, progress: report)
+                            return (session != nil, session?.warning)
+                        case .restart:
+                            let session = try AppLifecycle.restart(item, using: runner, cwd: cwd, progress: report)
+                            return (session != nil, session?.warning)
+                        case .stop: try AppLifecycle.stop(item, using: runner); return (false, nil)
+                        }
+                    }
+                    if let activity { return try activity.performing(work) }
+                    return try work()
+                    }.value
+                } onCancel: { activity?.cancel() }
+                if ownsActivity { try activity?.finish() }
                 let observed = await scanProcesses(after: ProcessInfo.processInfo.systemUptime)
                 try launchCheck?()
                 if action == .stop {
-                    _ = updateFeedback("已停止 \(item.title)。", owning: feedback)
+                    _ = updateFeedback("已停止 \(item.title)。", owning: feedback.generation)
                 } else if started.started {
                     if !(observed[item.id] ?? []).isEmpty {
-                        _ = updateFeedback("\(item.title) 已开始运行。" + (started.warning.map { " " + $0 } ?? ""), owning: feedback)
+                        _ = updateFeedback("\(item.title) 已开始运行。" + (started.warning.map { " " + $0 } ?? ""), owning: feedback.generation)
                     } else {
                         let steamGame: Bool = { if case .steamGame = item.kind { return true }; return false }()
                         let waiting = steamGame
                             ? "已发送 \(item.title) 的启动请求，正在等待 Steam 启动游戏。"
                             : "已发送 \(item.title) 的启动请求，正在等待程序响应。"
                         let displayed = waiting + (started.warning.map { " " + $0 } ?? "")
-                        let owner = updateFeedback(displayed, owning: feedback)
+                        let owner = updateFeedback(displayed, owning: feedback.generation)
                         pendingLaunches[item.id] = PendingLaunch(
                             title: item.title, bottleID: item.bottleID, steamGame: steamGame,
                             deadline: ProcessInfo.processInfo.systemUptime + 120,
                             feedback: owner, warning: started.warning)
                     }
                 } else {
-                    _ = updateFeedback("\(item.title) 已在运行；需要重新启动时，请使用“重启”。", owning: feedback)
+                    _ = updateFeedback("\(item.title) 已在运行；需要重新启动时，请使用“重启”。", owning: feedback.generation)
                 }
-            } catch is CancellationError {
+            } catch let error as CancellationError {
+                if ownsActivity { try? activity?.finish(error: error) }
                 pendingLaunches.removeValue(forKey: item.id)
                 await scanProcesses()
-                _ = updateFeedback("操作已取消。", owning: feedback)
+                _ = updateFeedback("操作已取消。", owning: feedback.generation)
             } catch let block as Preflight.Block {
-                if feedbackGeneration == feedback { showRouteCard(block) }
+                if ownsActivity { try? activity?.finish(error: block) }
+                if feedbackGeneration == feedback.generation { showRouteCard(block) }
             } catch {
+                if ownsActivity { try? activity?.finish(error: error) }
                 await scanProcesses()
-                _ = updateFeedback("操作未完成：\(error)", owning: feedback)
+                _ = updateFeedback("操作未完成：\(error)", owning: feedback.generation)
             }
         }
     }
@@ -655,30 +697,47 @@ final class AppModel {
         let paths = self.paths
         let key = "activity:\(item.bottleID)"
         guard !busy.contains(key) else { message = "这个瓶子的操作正在进行，请稍候。"; return }
+        let activity: RecipeInstaller.Activity
+        do {
+            guard let bottle = bottles.first(where: { $0.config.id == item.bottleID }) else {
+                throw CiderError.notFound("瓶子 \(item.bottleID)")
+            }
+            activity = try RecipeInstaller.beginActivity(in: bottle)
+        } catch { message = "启动准备失败：\(error)"; return }
         busy.insert(key)
         busy.insert("patch:\(item.id)")
         message = "正在瓶子「\(item.bottleName)」里运行补丁安装程序 \(url.lastPathComponent)，按它的提示把目标目录选为游戏目录…"
+        let feedback = AppLaunchFeedback(feedbackGeneration)
         Task {
             var holdsActivity = true
             defer { busy.remove("patch:\(item.id)"); if holdsActivity { busy.remove(key) } }
             do {
-                let session = try await Task.detached { () -> SessionHandle in
+                let session = try await withTaskCancellationHandler {
+                    try await Task.detached { () -> SessionHandle in
+                    try activity.completing {
                     let store = BottleStore(paths: paths)
-                    let runner = try store.runner(for: try store.bottle(item.bottleID))
+                    let runner = try store.runner(for: try store.bottle(item.bottleID)).checkingLaunches { try activity.checkCancellation() }
                     let isMSI = url.pathExtension.lowercased() == "msi"
                     let label = "patch-" + url.deletingPathExtension().lastPathComponent
                     let plan = isMSI
                         ? runner.plan(program: "msiexec", arguments: ["/i", url.path], label: label, cwd: gameRoot)
                         : runner.plan(program: url.path, label: label, cwd: gameRoot)
-                    return try runner.launch(plan)
-                }.value
+                    return try LaunchPreparation.launch(plan, using: runner, progress: { [weak self = self] step in
+                        Task { @MainActor in
+                            guard let self, (try? activity.checkCancellation()) != nil else { return }
+                            feedback.generation = self.updateFeedback(step, owning: feedback.generation)
+                        }
+                    })
+                    }
+                    }.value
+                } onCancel: { activity.cancel() }
                 // Installation is now a running program. Keep the install indicator, but allow Stop.
                 busy.remove(key)
                 holdsActivity = false
                 let code = await Task.detached { Spawn.wait(session.pid) }.value
-                message = code == 0 ? "补丁安装程序已结束（安装程序改动的文件由它自己管理，Cider 无法撤销）。" : "补丁安装程序退出，代码 \(code)。"
+                _ = updateFeedback(code == 0 ? "补丁安装程序已结束（安装程序改动的文件由它自己管理，Cider 无法撤销）。" : "补丁安装程序退出，代码 \(code)。", owning: feedback.generation)
             } catch {
-                message = "补丁安装程序运行失败：\(error)"
+                _ = updateFeedback(error is CancellationError ? "操作已取消。" : "补丁安装程序运行失败：\(error)", owning: feedback.generation)
             }
         }
     }

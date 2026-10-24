@@ -867,5 +867,16 @@
     "outside3Percent": 8,
     "attributionAccepted": false,
     "noBenchmarkReruns": true
+  },
+  "mediaRuntimePreparation": {
+    "status": "product-integration-and-bounded-mac-validation-passed",
+    "research": "docs/research/91-r-v1-media-preparation-20261024.md",
+    "evidence": "docs/research/evidence/r-v1-media-preparation-20261024.json",
+    "engineImportExecutesHelpers": false,
+    "publishedEnginePackage": false,
+    "defaultAdopted": false,
+    "preparedWmaSubsetPassed": true,
+    "zeroCacheWineUsePassed": false,
+    "fullMfVideoGamePassed": false
   }
 }

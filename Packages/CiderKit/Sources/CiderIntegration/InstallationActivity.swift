@@ -169,6 +169,7 @@ extension RecipeInstaller {
         public func checkCancellation() throws {
             try Task.checkCancellation(); try ticket.check()
         }
+        public func cancel() { ticket.cancel() }
         public func performing<T>(_ work: () throws -> T) throws -> T {
             try InstallationActivity.$current.withValue(ticket) {
                 try checkCancellation()
@@ -179,6 +180,19 @@ extension RecipeInstaller {
         }
         public func finish(error: Error? = nil) throws {
             if let outcome = InstallationActivity.finish(ticket, error: error) { throw outcome }
+        }
+        /// One-shot ownership for a GUI task registered before dispatch. An
+        /// inherited installer activity must continue using performing/finish.
+        public func completing<T>(_ work: () throws -> T) throws -> T {
+            do {
+                let value = try performing(work)
+                try finish()
+                return value
+            } catch {
+                let original = error
+                try finish(error: original)
+                throw original
+            }
         }
         deinit { _ = InstallationActivity.finish(ticket, error: CancellationError()) }
     }
