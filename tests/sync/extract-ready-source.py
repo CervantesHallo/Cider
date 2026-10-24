@@ -64,13 +64,57 @@ def atomic_write(path, data):
             temporary.unlink(missing_ok=True)
 
 
+def extract_set_event(source, data, output, directory):
+    """Extract three exact, disjoint definitions; surrounding APIs are doubles."""
+    specifications = (
+        ("signal_all", rb"static inline int"),
+        ("coord_finish", rb"static void"),
+        ("msync_try_set_event_obj", rb"NTSTATUS"),
+    )
+    blocks, records = [], []
+    for name, declaration in specifications:
+        pattern = rb"(?m)^" + declaration + rb"[ \t]+" + name.encode() + rb"[ \t]*\("
+        matches = list(re.finditer(pattern, data))
+        if len(matches) != 1:
+            raise RuntimeError(f"expected one definition of {name}")
+        start = matches[0].start()
+        # These selected Wine functions have their closing brace at column zero.
+        end_match = re.search(rb"(?m)^\}[ \t]*\r?$", data[start:])
+        if end_match is None:
+            raise RuntimeError(f"missing function end for {name}")
+        end = start + end_match.end()
+        block = data[start:end]
+        if not re.search(rb"\)[ \t\r\n]*\{", block):
+            raise RuntimeError(f"selected declaration is not a definition: {name}")
+        line = data[:start].count(b"\n") + 1
+        blocks.append(f"#line {line} {json.dumps(str(source))}\n".encode("ascii") + block + b"\n")
+        records.append({"function": name, "start_byte": start,
+                        "end_byte_exclusive": end, "start_line": line,
+                        "block_sha256": digest(block)})
+    header = b"/* Exact production functions WITH EXPLICIT NATIVE DOUBLES. */\n" + b"\n".join(blocks)
+    path = output / "set-event-extracted.h"
+    record = {"kind": "native-exact-set-event-with-stubs",
+              "scope": "not Wine/API/signal-handler/Windows equivalence",
+              "source": str(source), "source_sha256": digest(data),
+              "functions": records, "header": str(path),
+              "header_sha256": digest(header),
+              "harness_sha256": digest(stable_read(directory / "msync-set-event.c")),
+              "extractor_sha256": digest(stable_read(Path(__file__).resolve()))}
+    atomic_write(path, header)
+    atomic_write(output / "set-event-extracted.sha256.json",
+                 (json.dumps(record, indent=2, sort_keys=True) + "\n").encode())
+    json.dump(record, sys.stdout, sort_keys=True)
+    sys.stdout.write("\n")
+    sys.stdout.flush()
+
+
 def main():
     directory = Path(__file__).resolve().parent
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", type=Path, default=directory,
                         help="existing directory for the header and source-hash record")
     parser.add_argument("--source", type=Path, required=True, help="explicit applied Wine source file")
-    parser.add_argument("--part", choices=["frame", "event"], default="frame")
+    parser.add_argument("--part", choices=["frame", "event", "set-event"], default="frame")
     args = parser.parse_args()
     output = args.output_dir.resolve(strict=True)
     if not output.is_dir():
@@ -79,6 +123,9 @@ def main():
     # Read the selected production source; do not rewrite a modeled substitute.
     source = args.source.resolve(strict=True)
     data = stable_read(source)
+    if args.part == "set-event":
+        extract_set_event(source, data, output, directory)
+        return
     if args.part == "frame":
         start_pattern = rb"(?m)^struct inproc_frame[ \t]*\r?\n\{"
         end_pattern = rb"(?m)^void inproc_thread_cleanup[ \t]*\([ \t]*void[ \t]*\)"

@@ -14,6 +14,12 @@ F25/0121 revision2已实现：load-before-CAS、有界1..512，零超时caller�
 
 F25覆盖细分已完成：另一个私有插桩pair0da573e7…/1798e22d…，ping22052次中成功1016、owner预算耗尽11231、未就绪9800；dirty/same-token/fork关闭均0，manual10000次就绪全命中。两个诊断真实完成/身份/时钟及GUI退出+两次空观察通过，只取全局快照最大值，不能当未插桩占比或性能。Darwin限定源码调查与本机arm64/x86_64原生探针支持预解析raw wake/yield不提前交付DEFERRED取消，read正对照会交付；不代表整帧、信号或所有macOS安全。独立审查发现real-waiter有效性缺口，r2改为无rescue先join并要求target/waiter均返回0，双架构通过；v1保留。接续只审查cached普通SetEvent的封闭调用链，不先扩张保护、不删yield；完整M1仍未过。详见80/81。
 
+F26/0122 revision2已进入限定cached普通SetEvent候选：预解析/预热raw wake及yield，原真正commit/通知/调度提示保持；实际Mach消息分支先mask。独立源审P2指出阻塞恢复仍持短control，r2修为完整mask后恢复原control交付边界，再执行原finish；r1从未Wine运行。两架构精确原生各32线程548检查通过，四负例拒绝；静态double对齐SIGBUS及unused构建失败保留，不作引擎结果。原ready caller已直接pin没有closed-cache漏洞，新caller沿用该顺序；早先口头“现有问题”已更正。组件/300导出/重建通过，实际binary复审及自己的Wine仍待，不采用；详见82。
+
+F26 r2后续独立实际source/x86 binary复审无具体P1/P2，r1 control问题闭合；f7589506…/1798e22d…自己的13阶段与11份实际pair/PE/EXE/时钟均过、策略负例1260。固定六轮AC/LPM0性能正在执行，无并行构建/压力、无自己的小时或采用。生产App/两瓶/Windows账本四摘要仍相同。
+
+F26固定六轮已完成：server10000/candidate2100ns=4.761904762倍未达5，CS1.118/1.036ns/op=−7.334525939%超±3%，两项失败；不采用/不跑自己的小时。原记录/原门槛保持，私有GUI内核退出和两次空观察确认。接续仅SetEvent实际命中/回退诊断，原F26产物冻结，不借观察数据当性能。
+
 ## 用户紧急暂停（2026-10-23）
 
 用户明确要求紧急暂停。已停止当前私有实验GUI（PID42885，内核退出确认）并连续两次观察到无自有Wine进程；旧实验室亦无pending。不要继续研究、构建、测试、提交/推送或启用自动任务，等待用户新的继续指令。

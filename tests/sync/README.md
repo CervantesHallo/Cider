@@ -29,12 +29,24 @@ separate from Wine/Windows API equivalence and the candidate's own runtime hour.
 | `msync-ready-event.c` | Exact extracted ready-event function with explicit doubles and a constructed epoch-retirement interleaving. |
 | `extract-ready-source.py` | Reads an explicitly selected applied Wine source, extracts exact function bytes and records source/header/harness hashes. Does not build or run code. |
 | `darwin-cancel-boundary.c` | Self-owned native queued-cancellation observations around pre-resolved raw ulock wake and sched_yield, with a known read cancellation-point control. Not Wine, signal-safety or release-wide proof. |
+| `msync-set-event.c` | Exact extracted SetEvent/notify/finish/frame plus the production coordinator, explicit Wine/Mach doubles, queued cancellation and recovery control-boundary checks. |
 | `stats-snapshot.c` | Reads the actual pump's seqlock counters and kernel process resource observations. A missing/disabled snapshot is unavailable, not zero occupancy. |
 | `owned-processes.swift` | Uses production process identity and prefix checks to observe/stop only the owned laboratory. Never spawns Wine. |
 | `policy-probe.c` | Negative child-launch check using a copy of this harmless fixture named `C:\CiderTests\yuanshen.exe` in an otherwise empty laboratory. Never point it at an installed game. |
 | `run-mac.py` | Invokes the laboratory's packaged `ciderctl` through its actual GUI/XPC spawner, records exact native-module and EXE hashes, validates completion, and performs bounded timeout cleanup. |
 
 ## Build
+
+For optional candidate0122, prepare one existing output directory twice with
+`extract-ready-source.py`: `--part frame --source <applied-sync.c>` and
+`--part set-event --source <applied-msync.c>`, each with that `--output-dir`.
+Compile `msync-set-event.c` against the generated headers and the exact applied
+`wine/msync_coord.h`, using the native flags below for both architectures.
+Use a fresh owned session with a 35-second outer deadline; its own alarm is
+25 seconds. Constructed recovery sends use a real private-pipe read cancellation
+point and must expose control depth0 while retaining the full cancellation mask.
+The event double retains real field offsets and eight-byte atomic alignment.
+Exact helper tests do not replace Wine, signal or Windows reference results.
 
 For `darwin-cancel-boundary.c`, use the existing macOS15.4 SDK, deployment14,
 `-std=c11 -O2 -g -Wall -Wextra -Werror`, separately for arm64 and x86_64.

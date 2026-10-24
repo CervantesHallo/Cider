@@ -728,6 +728,16 @@
       "status": "native six executions/negatives and own13 runtime stages/11 identities passed; fixed six-run AC4.545454545x speed failed, CS-0.40733198percent passed; no own hour/adoption",
       "selectedByRecipe": false,
       "productionPolicyBound": false
+    },
+    "optionalCachedSetEventFrameCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0122-msync-cached-set-event-native-guard.patch",
+      "sha256": "52e03195c046359cc1ad2231f320a93edb04d84dfb63b445ae5ef6afde8640ef",
+      "requires": "0121 revision2",
+      "revision": 2,
+      "sharedCoordMagicVersion": 3,
+      "status": "revision2 actual binary review/native32threads548checks per arch/negatives and own13 stages/11 identities passed; fixed six-run AC4.761904762x and CS-7.334525939percent both failed; no own hour/adoption",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
     }
   }
 }

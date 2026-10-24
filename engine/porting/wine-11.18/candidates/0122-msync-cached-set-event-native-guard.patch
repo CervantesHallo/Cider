@@ -1,0 +1,168 @@
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -799,6 +799,9 @@
+     }
+ }
+ 
++static int (*ready_event_wake)( uint32_t, void *, uint64_t );
++static int (*ready_event_yield)(void);
++
+ static int coord_notify( unsigned int idx, void *shm, int blocking );
+ 
+ static void coord_enter( struct msync_coord_guard *guard )
+@@ -885,6 +888,17 @@
+     {
+         ERR("Cannot allocate msync page table\n");
+         exit(1);
++    }
++
++    ready_event_wake = (void *)dlsym( dlhandle, "__ulock_wake" );
++    ready_event_yield = (void *)dlsym( dlhandle, "sched_yield" );
++    if (ready_event_wake && ready_event_yield)
++    {
++        unsigned int warmup = 0;
++        /* No guest obligations here. Resolve the error return and scheduler
++         * callees before either can run inside the short native guard. */
++        ready_event_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, &warmup, 0 );
++        ready_event_yield();
+     }
+ 
+     /* Bootstrap mach wineserver communication */
+@@ -932,17 +946,26 @@
+     }
+ }
+ 
++/* Resolved and prewarmed before guest execution. Only the explicitly closed
++ * SetEvent attempt may call these with an enabled, deferred cancellation state. */
++
+ static inline int signal_all( void *shm, unsigned int shm_idx, int blocking )
+ {
+     mach_msg_header_t send_header = {0};
+     struct event *event_obj = (struct event *)shm;
+     mach_msg_return_t result;
+ 
+-    __ulock_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, shm, 0 );
++    if (ready_event_wake)
++        ready_event_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, shm, 0 );
++    else
++        __ulock_wake( UL_COMPARE_AND_WAIT_SHARED | ULF_WAKE_ALL, shm, 0 );
+ 
+     if (!__atomic_load_n( &event_obj->multiple_waiters, __ATOMIC_SEQ_CST ))
+         return 1;
+ 
++    /* The waiter population may change after entry. Escalate at the actual
++     * message branch, before any Mach message exchange or its error handling. */
++    inproc_prepare_kernel();
+     send_header.msgh_bits = msgh_bits_send;
+     send_header.msgh_id = shm_idx;
+     send_header.msgh_size = sizeof(send_header);
+@@ -1157,6 +1180,67 @@
+     }
+ }
+ 
++/* A cached ordinary SetEvent may commit under a deferred-type frame.
++ * All imports used below are resolved/prewarmed before guest execution. No
++ * cold map, TLS init, lease probe, recovery, or guest pointer is reachable.
++ * A dirty/unavailable gate returns PENDING before any event mutation. */
++NTSTATUS msync_try_set_event_obj( int obj, LONG *prev_state )
++{
++    struct coord_fd_record *record;
++    struct thread_data *data = get_thread_data();
++    struct msync_coord_guard guard;
++    struct msync_coord_entry entry;
++    struct event *event;
++    unsigned int tid = GetCurrentThreadId();
++    LONG current;
++    int yield;
++    if (!ready_event_wake || !ready_event_yield ||
++        !__atomic_load_n( &coord_fd_key_ready, __ATOMIC_ACQUIRE ) ||
++        !(record = pthread_getspecific( coord_fd_key ))) return STATUS_PENDING;
++    if (record->retired || !data->msync_private_frames || !data->msync_control_depth ||
++        record->thread_data != data || !data->msync_epoch || (data->msync_epoch & 1) ||
++        tid >= MSYNC_COORD_TIDS ||
++        __atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) != data->msync_epoch ||
++        !(event = coord_slot( obj, 0 ))) return STATUS_PENDING;
++    __atomic_store_n( &data->msync_in_transaction, 1, __ATOMIC_SEQ_CST );
++    if (!__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST ) &&
++        msync_coord_try_clean_bounded( &coord, record->fd, record->token, &guard, MSYNC_COORD_TRY_SPINS ))
++    {
++        if (__atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) == data->msync_epoch &&
++            (event->msync_type == MSYNC_AUTO_EVENT || event->msync_type == MSYNC_MANUAL_EVENT))
++        {
++            current = event->signaled;
++            yield = !current && event->msync_type == MSYNC_AUTO_EVENT;
++            entry = (struct msync_coord_entry){ obj, !current, msync_coord_value( 1, event->unused ) };
++            msync_coord_commit( &coord, &entry, 1 );
++            /* A committed call is never replayed. A failed nonblocking send
++             * retains the original synchronous recovery/wake completion. */
++            if (coord.header->state != MSYNC_COORD_CLEAN)
++            {
++                inproc_prepare_kernel();
++                /* Recovery may block outside owner. Match the original Wine
++                 * control-delivery boundary while the full mask and frame pins
++                 * stay active; the committed operation is never restarted. */
++                msync_control_end_data( data );
++                coord_finish( &guard );
++                msync_control_begin_data( data );
++            }
++            else
++            {
++                msync_coord_give( &guard );
++                coord_depart( data );
++            }
++            /* Keep Highball's existing 0-to-1 auto-event scheduling hint. */
++            if (yield) ready_event_yield();
++            if (prev_state) *prev_state = current; /* native result, never guest */
++            return STATUS_SUCCESS;
++        }
++        msync_coord_give( &guard );
++    }
++    coord_depart( data );
++    return STATUS_PENDING;
++}
++
+ /* Caller has a pinned cached event and holds its short Wine control guard.
+  * No slow descriptor/TLV initialization, mapping, kernel wait, recovery or notification
+  * may occur. Anything outside this closed CPU path retries under the old mask. */
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -978,7 +978,28 @@
+     NTSTATUS ret;
+ 
+     if (inproc_device_fd < 0) return STATUS_NOT_IMPLEMENTED;
+-    inproc_frame_enter( &frame );
++    if (op == INPROC_SET_EVENT && do_msync())
++    {
++        unsigned int entry, idx = inproc_sync_handle_to_index( handle, &entry );
++        inproc_frame_enter_ready( &frame );
++        /* As in the ready-wait caller, pin directly: the general cache helper
++         * can release a closed entry before its pin is recorded in a frame. */
++        if (entry < INPROC_SYNC_CACHE_ENTRIES && inproc_sync_cache[entry] &&
++            (sync = &inproc_sync_cache[entry][idx]) &&
++            interlocked_inc_if_nonzero( &sync->refcount ))
++        {
++            frame.pins[frame.count++] = sync;
++            if (!sync->closed && sync->type == INPROC_SYNC_EVENT &&
++                (sync->access & EVENT_MODIFY_STATE) &&
++                (ret = msync_try_set_event_obj( sync->fd, &result->previous )) != STATUS_PENDING)
++            {
++                inproc_frame_leave( &frame );
++                return ret;
++            }
++        }
++        inproc_frame_promote( &frame );
++    }
++    else inproc_frame_enter( &frame );
+     if (!(ret = get_inproc_sync( handle, types[op], access[op], &stack, &sync )))
+     {
+         frame.pins[frame.count++] = sync;
+--- a/dlls/ntdll/unix/msync.h
++++ b/dlls/ntdll/unix/msync.h
+@@ -52,6 +52,7 @@
+ extern NTSTATUS msync_release_semaphore_obj( int obj, ULONG count, ULONG *prev_count );
+ extern NTSTATUS msync_query_semaphore_obj( int obj, SEMAPHORE_BASIC_INFORMATION *info );
+ extern NTSTATUS msync_set_event_obj( int obj, LONG *prev_state );
++extern NTSTATUS msync_try_set_event_obj( int obj, LONG *prev_state );
+ extern NTSTATUS msync_reset_event_obj( int obj, LONG *prev_state );
+ extern NTSTATUS msync_pulse_event_obj( int obj, LONG *prev_state );
+ extern NTSTATUS msync_query_event_obj( int obj, EVENT_BASIC_INFORMATION *info );
