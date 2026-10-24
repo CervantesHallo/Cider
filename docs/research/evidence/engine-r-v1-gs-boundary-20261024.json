@@ -1,0 +1,2464 @@
+{
+  "schema": "cider.engine-r-v1-gs-boundary/v1",
+  "date": "2026-10-24",
+  "scope": "bounded PE x86/x64 FiberData and LastError runtime regressions; no all-signals, host-QoS, game, full-M1 or engine adoption claim",
+  "sources": {
+    "tests/runtime/gs-boundary/probe.c": "7689a77e4b44f67bb7c883d81b7ebea3b5bcdb7ff2075d5ea52eed5978b10a95",
+    "tests/sync/run-mac.py": "db4053375aee51b91e1ba72683d3a0e52fcd30cb498309510819be323550ef80",
+    "out/engine-gs-boundary-20261024/runner-v1.py": "db4053375aee51b91e1ba72683d3a0e52fcd30cb498309510819be323550ef80",
+    "out/engine-gs-boundary-20261024/negative-runner-v1.py": "8ca2ec1d9cf3fd9c55bbd25de89ac19acf5c30f4dd60a135b456b5db480cb868"
+  },
+  "builds": {
+    "build-v1.json": {
+      "sourceSHA256": "2cafb355e18d9756331885a3b1c5791f7321994bc14333bae1d92442243968e1",
+      "rows": [
+        {
+          "arch": "i686",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c",
+            "-luser32",
+            "-o",
+            "/Users/cervantes/Cider/out/engine-gs-boundary-20261024/gs-boundary-i686.exe"
+          ],
+          "exitCode": 1,
+          "stdout": "",
+          "stderr": "/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c: In function 'main':\n/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c:172:5: error: this 'if' clause does not guard... [-Werror=misleading-indentation]\n  172 |     if(!GetExitCodeThread(thread,&code))fatal();check(\"outer\",\"worker.exit\",code==0,code,0);\n      |     ^~\n/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c:172:49: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'\n  172 |     if(!GetExitCodeThread(thread,&code))fatal();check(\"outer\",\"worker.exit\",code==0,code,0);\n      |                                                 ^~~~~\n/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c:173:5: error: this 'if' clause does not guard... [-Werror=misleading-indentation]\n  173 |     if(!CloseHandle(thread))fatal();check(\"outer\",\"worker.close\",1,1,1);\n      |     ^~\n/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c:173:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'\n  173 |     if(!CloseHandle(thread))fatal();check(\"outer\",\"worker.close\",1,1,1);\n      |                                     ^~~~~\ncc1: all warnings being treated as errors\n"
+        },
+        {
+          "arch": "x86_64",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c",
+            "-luser32",
+            "-o",
+            "/Users/cervantes/Cider/out/engine-gs-boundary-20261024/gs-boundary-x86_64.exe"
+          ],
+          "exitCode": 1,
+          "stdout": "",
+          "stderr": "/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c: In function 'main':\n/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c:172:5: error: this 'if' clause does not guard... [-Werror=misleading-indentation]\n  172 |     if(!GetExitCodeThread(thread,&code))fatal();check(\"outer\",\"worker.exit\",code==0,code,0);\n      |     ^~\n/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c:172:49: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'\n  172 |     if(!GetExitCodeThread(thread,&code))fatal();check(\"outer\",\"worker.exit\",code==0,code,0);\n      |                                                 ^~~~~\n/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c:173:5: error: this 'if' clause does not guard... [-Werror=misleading-indentation]\n  173 |     if(!CloseHandle(thread))fatal();check(\"outer\",\"worker.close\",1,1,1);\n      |     ^~\n/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c:173:37: note: ...this statement, but the latter is misleadingly indented as if it were guarded by the 'if'\n  173 |     if(!CloseHandle(thread))fatal();check(\"outer\",\"worker.close\",1,1,1);\n      |                                     ^~~~~\ncc1: all warnings being treated as errors\n"
+        }
+      ],
+      "passed": false
+    },
+    "build-v2.json": {
+      "sourceSHA256": "7689a77e4b44f67bb7c883d81b7ebea3b5bcdb7ff2075d5ea52eed5978b10a95",
+      "rows": [
+        {
+          "arch": "i686",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c",
+            "-luser32",
+            "-o",
+            "/Users/cervantes/Cider/out/engine-gs-boundary-20261024/gs-boundary-i686.exe"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": "",
+          "exeSHA256": "74b39a233f32dcc8a740daf0a656b5da19002b85c22ce72dd78454ca7f2466d1"
+        },
+        {
+          "arch": "x86_64",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/tests/runtime/gs-boundary/probe.c",
+            "-luser32",
+            "-o",
+            "/Users/cervantes/Cider/out/engine-gs-boundary-20261024/gs-boundary-x86_64.exe"
+          ],
+          "exitCode": 0,
+          "stdout": "",
+          "stderr": "",
+          "exeSHA256": "4ff08380d8b8875a1ae14dd09f6da28b70b4d482bd97b1511123bf1268d459f1"
+        }
+      ],
+      "passed": true,
+      "runnerASTParsed": true
+    },
+    "negative-build-v1.json": {
+      "sourceSHA256": "7f6949c8e7a3ce2c9df2face60d57f23886201a960f6515a49fdec951906b2d0",
+      "rows": [
+        {
+          "arch": "i686",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/out/engine-gs-boundary-20261024/probe-bad-slot.c",
+            "-luser32",
+            "-o",
+            "/Users/cervantes/Cider/out/engine-gs-boundary-20261024/gs-boundary-bad-slot-i686.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "exeSHA256": "45df23ea90ced1127e7fa5a04f1fe596758d47869c9a2981506a1cd268285e47"
+        },
+        {
+          "arch": "x86_64",
+          "args": [
+            "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+            "-O2",
+            "-Wall",
+            "-Wextra",
+            "-Werror",
+            "/Users/cervantes/Cider/out/engine-gs-boundary-20261024/probe-bad-slot.c",
+            "-luser32",
+            "-o",
+            "/Users/cervantes/Cider/out/engine-gs-boundary-20261024/gs-boundary-bad-slot-x86_64.exe"
+          ],
+          "exitCode": 0,
+          "stderr": "",
+          "exeSHA256": "011cd1844a076730070ae9a4c78dcab07f7b1a9a0d5ba1ec76de4232b82cdc31"
+        }
+      ],
+      "passed": true,
+      "scope": "fixture raw-fiber read-result double; engine and real TEB unchanged"
+    }
+  },
+  "protocol": {
+    "scope": "GS/FS FiberData and LastError ABI in main/new thread, own window/exception/APC callbacks; not host QoS/all asynchronous signals/game/performance acceptance",
+    "declaredUTC": "2026-10-24T10:24:58.996690+00:00",
+    "queue": [
+      [
+        "x86_64",
+        "Profile Ports"
+      ],
+      [
+        "i686",
+        "Profile Ports"
+      ]
+    ],
+    "sourceSHA256": "7689a77e4b44f67bb7c883d81b7ebea3b5bcdb7ff2075d5ea52eed5978b10a95",
+    "runnerSHA256": "db4053375aee51b91e1ba72683d3a0e52fcd30cb498309510819be323550ef80",
+    "exeSHA256": {
+      "i686": "74b39a233f32dcc8a740daf0a656b5da19002b85c22ce72dd78454ca7f2466d1",
+      "x86_64": "4ff08380d8b8875a1ae14dd09f6da28b70b4d482bd97b1511123bf1268d459f1"
+    },
+    "expectedCore": {
+      "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+      "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+      "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+      "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+    },
+    "noRetry": true
+  },
+  "validation": {
+    "scope": "pure protocol doubles, not Wine execution",
+    "positiveAccepted": true,
+    "expectedCheckCount": 108,
+    "mutations": [
+      {
+        "name": "missing",
+        "rejected": true
+      },
+      {
+        "name": "duplicate",
+        "rejected": true
+      },
+      {
+        "name": "wrong-role",
+        "rejected": true
+      },
+      {
+        "name": "false-ok",
+        "rejected": true
+      },
+      {
+        "name": "truthy-ok",
+        "rejected": true
+      },
+      {
+        "name": "bool-actual",
+        "rejected": true
+      },
+      {
+        "name": "wrong-value",
+        "rejected": true
+      },
+      {
+        "name": "bool-count",
+        "rejected": true
+      },
+      {
+        "name": "bool-failures",
+        "rejected": true
+      },
+      {
+        "name": "false-complete",
+        "rejected": true
+      },
+      {
+        "name": "partial-count",
+        "rejected": true
+      }
+    ],
+    "passed": true
+  },
+  "runtime": [
+    {
+      "arch": "x86_64",
+      "rawFile": "out/waitall-mac-20261018-admission/runs/1792837499685483000-cider-lab-wine11.18-profile-renderer-r1-x86_64-x86_64-correctness.json",
+      "rawSHA256": "54f9e25d311b8bd633f8e11abb4ca68abfdb419a98033738b815f49210f23514",
+      "runnerSHA256": "db4053375aee51b91e1ba72683d3a0e52fcd30cb498309510819be323550ef80",
+      "exeSHA256": "4ff08380d8b8875a1ae14dd09f6da28b70b4d482bd97b1511123bf1268d459f1",
+      "nativeSHA256": {
+        "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+        "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+        "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+        "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+      },
+      "runID": "ac0efb5a-d92e-445e-87e3-3abf2b4d4589",
+      "sessionLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T102501-gs-boundary-x86_64-B95B2166-4D86-4749-835E-EEEAB6AF6C2E/wine.log",
+      "cliExitCode": 0,
+      "passed": true,
+      "negativeControlMet": null,
+      "elapsedActive": 17.443748000000003,
+      "elapsedWall": 17.443771839141846,
+      "timingDiscontinuity": false,
+      "ownedCleanup": {
+        "ownedRoot": {
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [
+                53506
+              ],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          }
+        },
+        "confirmed": true
+      },
+      "rows": [
+        {
+          "type": "begin",
+          "mode": "correctness",
+          "subject": "gs-boundary",
+          "pointer_bits": 64,
+          "pid": 32
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "tls.alloc",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "tls.set",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "initial_plain_thread",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "convert",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_api",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_slot",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_teb",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_data",
+          "ok": true,
+          "actual": 2227584,
+          "expected": 2227584
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "set_error.api",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "set_error.slot",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "set_error.teb",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "after_sleep.api",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "after_sleep.slot",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "after_sleep.teb",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "missing_error.api",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "missing_error.slot",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "missing_error.teb",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "missing.handle",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "fiber.create",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.thread",
+          "ok": true,
+          "actual": 36,
+          "expected": 36
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.fiber_api",
+          "ok": true,
+          "actual": 2416896,
+          "expected": 2416896
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.fiber_slot",
+          "ok": true,
+          "actual": 2416896,
+          "expected": 2416896
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.fiber_teb",
+          "ok": true,
+          "actual": 2416896,
+          "expected": 2416896
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.fiber_data",
+          "ok": true,
+          "actual": 2227584,
+          "expected": 2227584
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child_error.api",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child_error.slot",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child_error.teb",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.seen",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "restored.fiber_api",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "restored.fiber_slot",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "restored.fiber_teb",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "restored.fiber_data",
+          "ok": true,
+          "actual": 2227584,
+          "expected": 2227584
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.register",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.thread",
+          "ok": true,
+          "actual": 36,
+          "expected": 36
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.fiber_api",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.fiber_slot",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.fiber_teb",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.fiber_data",
+          "ok": true,
+          "actual": 2227584,
+          "expected": 2227584
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window_error.api",
+          "ok": true,
+          "actual": 13689,
+          "expected": 13689
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window_error.slot",
+          "ok": true,
+          "actual": 13689,
+          "expected": 13689
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window_error.teb",
+          "ok": true,
+          "actual": 13689,
+          "expected": 13689
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.create",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.seen",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.destroy",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.unregister",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.add",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.thread",
+          "ok": true,
+          "actual": 36,
+          "expected": 36
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.fiber_api",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.fiber_slot",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.fiber_teb",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.fiber_data",
+          "ok": true,
+          "actual": 2227584,
+          "expected": 2227584
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception_error.api",
+          "ok": true,
+          "actual": 18058,
+          "expected": 18058
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception_error.slot",
+          "ok": true,
+          "actual": 18058,
+          "expected": 18058
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception_error.teb",
+          "ok": true,
+          "actual": 18058,
+          "expected": 18058
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.seen",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.remove",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.queue",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.thread",
+          "ok": true,
+          "actual": 36,
+          "expected": 36
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.fiber_api",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.fiber_slot",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.fiber_teb",
+          "ok": true,
+          "actual": 2415520,
+          "expected": 2415520
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.fiber_data",
+          "ok": true,
+          "actual": 2227584,
+          "expected": 2227584
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc_error.api",
+          "ok": true,
+          "actual": 22427,
+          "expected": 22427
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc_error.slot",
+          "ok": true,
+          "actual": 22427,
+          "expected": 22427
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc_error.teb",
+          "ok": true,
+          "actual": 22427,
+          "expected": 22427
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.seen",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "convert_back",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "plain_after_convert",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "tls.clear",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "tls.set",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "initial_plain_thread",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "convert",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "main.fiber_api",
+          "ok": true,
+          "actual": 2415792,
+          "expected": 2415792
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "main.fiber_slot",
+          "ok": true,
+          "actual": 2415792,
+          "expected": 2415792
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "main.fiber_teb",
+          "ok": true,
+          "actual": 2415792,
+          "expected": 2415792
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "main.fiber_data",
+          "ok": true,
+          "actual": 25034368,
+          "expected": 25034368
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "set_error.api",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "set_error.slot",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "set_error.teb",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "after_sleep.api",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "after_sleep.slot",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "after_sleep.teb",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "missing_error.api",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "missing_error.slot",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "missing_error.teb",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "missing.handle",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "fiber.create",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.thread",
+          "ok": true,
+          "actual": 308,
+          "expected": 308
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.fiber_api",
+          "ok": true,
+          "actual": 20321040,
+          "expected": 20321040
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.fiber_slot",
+          "ok": true,
+          "actual": 20321040,
+          "expected": 20321040
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.fiber_teb",
+          "ok": true,
+          "actual": 20321040,
+          "expected": 20321040
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.fiber_data",
+          "ok": true,
+          "actual": 25034368,
+          "expected": 25034368
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child_error.api",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child_error.slot",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child_error.teb",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.seen",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "restored.fiber_api",
+          "ok": true,
+          "actual": 2415792,
+          "expected": 2415792
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "restored.fiber_slot",
+          "ok": true,
+          "actual": 2415792,
+          "expected": 2415792
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "restored.fiber_teb",
+          "ok": true,
+          "actual": 2415792,
+          "expected": 2415792
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "restored.fiber_data",
+          "ok": true,
+          "actual": 25034368,
+          "expected": 25034368
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "convert_back",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "plain_after_convert",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "tls.clear",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "worker.create",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "worker.join",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "worker.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "worker.close",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "tls.free",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "complete",
+          "mode": "correctness",
+          "ok": true,
+          "checks": 108,
+          "failures": 0,
+          "output_error": false
+        }
+      ]
+    },
+    {
+      "arch": "i686",
+      "rawFile": "out/waitall-mac-20261018-admission/runs/1792837517259958000-cider-lab-wine11.18-profile-renderer-r1-x86_64-i686-correctness.json",
+      "rawSHA256": "c703a129cdeeea630cf05b1322e6414f352ac2bb209280d36045a631dfc46c93",
+      "runnerSHA256": "db4053375aee51b91e1ba72683d3a0e52fcd30cb498309510819be323550ef80",
+      "exeSHA256": "74b39a233f32dcc8a740daf0a656b5da19002b85c22ce72dd78454ca7f2466d1",
+      "nativeSHA256": {
+        "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+        "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+        "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+        "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+      },
+      "runID": "c3e0e963-2131-4b53-b75a-2d5b739c2874",
+      "sessionLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T102518-gs-boundary-i686-416D74AB-D745-430A-9BD6-ACF88906D93D/wine.log",
+      "cliExitCode": 0,
+      "passed": true,
+      "negativeControlMet": null,
+      "elapsedActive": 9.408078792,
+      "elapsedWall": 9.408092021942139,
+      "timingDiscontinuity": false,
+      "ownedCleanup": {
+        "ownedRoot": {
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [
+                53584
+              ],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          }
+        },
+        "confirmed": true
+      },
+      "rows": [
+        {
+          "type": "begin",
+          "mode": "correctness",
+          "subject": "gs-boundary",
+          "pointer_bits": 32,
+          "pid": 236
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "tls.alloc",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "tls.set",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "initial_plain_thread",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "convert",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_api",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_slot",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_teb",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_data",
+          "ok": true,
+          "actual": 3603976,
+          "expected": 3603976
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "set_error.api",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "set_error.slot",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "set_error.teb",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "after_sleep.api",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "after_sleep.slot",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "after_sleep.teb",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "missing_error.api",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "missing_error.slot",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "missing_error.teb",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "missing.handle",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "fiber.create",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.thread",
+          "ok": true,
+          "actual": 240,
+          "expected": 240
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.fiber_api",
+          "ok": true,
+          "actual": 1418048,
+          "expected": 1418048
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.fiber_slot",
+          "ok": true,
+          "actual": 1418048,
+          "expected": 1418048
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.fiber_teb",
+          "ok": true,
+          "actual": 1418048,
+          "expected": 1418048
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.fiber_data",
+          "ok": true,
+          "actual": 3603976,
+          "expected": 3603976
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child_error.api",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child_error.slot",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child_error.teb",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "child.seen",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "restored.fiber_api",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "restored.fiber_slot",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "restored.fiber_teb",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "restored.fiber_data",
+          "ok": true,
+          "actual": 3603976,
+          "expected": 3603976
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.register",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.thread",
+          "ok": true,
+          "actual": 240,
+          "expected": 240
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.fiber_api",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.fiber_slot",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.fiber_teb",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.fiber_data",
+          "ok": true,
+          "actual": 3603976,
+          "expected": 3603976
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window_error.api",
+          "ok": true,
+          "actual": 13689,
+          "expected": 13689
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window_error.slot",
+          "ok": true,
+          "actual": 13689,
+          "expected": 13689
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window_error.teb",
+          "ok": true,
+          "actual": 13689,
+          "expected": 13689
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.create",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.seen",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.destroy",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "window.unregister",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.add",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.thread",
+          "ok": true,
+          "actual": 240,
+          "expected": 240
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.fiber_api",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.fiber_slot",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.fiber_teb",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.fiber_data",
+          "ok": true,
+          "actual": 3603976,
+          "expected": 3603976
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception_error.api",
+          "ok": true,
+          "actual": 18058,
+          "expected": 18058
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception_error.slot",
+          "ok": true,
+          "actual": 18058,
+          "expected": 18058
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception_error.teb",
+          "ok": true,
+          "actual": 18058,
+          "expected": 18058
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.seen",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "exception.remove",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.queue",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.thread",
+          "ok": true,
+          "actual": 240,
+          "expected": 240
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.fiber_api",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.fiber_slot",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.fiber_teb",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.fiber_data",
+          "ok": true,
+          "actual": 3603976,
+          "expected": 3603976
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc_error.api",
+          "ok": true,
+          "actual": 22427,
+          "expected": 22427
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc_error.slot",
+          "ok": true,
+          "actual": 22427,
+          "expected": 22427
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc_error.teb",
+          "ok": true,
+          "actual": 22427,
+          "expected": 22427
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "apc.seen",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "convert_back",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "plain_after_convert",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "tls.clear",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "tls.set",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "initial_plain_thread",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "convert",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "main.fiber_api",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "main.fiber_slot",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "main.fiber_teb",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "main.fiber_data",
+          "ok": true,
+          "actual": 26148560,
+          "expected": 26148560
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "set_error.api",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "set_error.slot",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "set_error.teb",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "after_sleep.api",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "after_sleep.slot",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "after_sleep.teb",
+          "ok": true,
+          "actual": 4951,
+          "expected": 4951
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "missing_error.api",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "missing_error.slot",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "missing_error.teb",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "missing.handle",
+          "ok": true,
+          "actual": 2,
+          "expected": 2
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "fiber.create",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.thread",
+          "ok": true,
+          "actual": 320,
+          "expected": 320
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.fiber_api",
+          "ok": true,
+          "actual": 21377976,
+          "expected": 21377976
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.fiber_slot",
+          "ok": true,
+          "actual": 21377976,
+          "expected": 21377976
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.fiber_teb",
+          "ok": true,
+          "actual": 21377976,
+          "expected": 21377976
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.fiber_data",
+          "ok": true,
+          "actual": 26148560,
+          "expected": 26148560
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child_error.api",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child_error.slot",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child_error.teb",
+          "ok": true,
+          "actual": 9320,
+          "expected": 9320
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "child.seen",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "restored.fiber_api",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "restored.fiber_slot",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "restored.fiber_teb",
+          "ok": true,
+          "actual": 1409344,
+          "expected": 1409344
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "restored.fiber_data",
+          "ok": true,
+          "actual": 26148560,
+          "expected": 26148560
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "convert_back",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "plain_after_convert",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "worker",
+          "name": "tls.clear",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "worker.create",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "worker.join",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "worker.exit",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "worker.close",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "tls.free",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "complete",
+          "mode": "correctness",
+          "ok": true,
+          "checks": 108,
+          "failures": 0,
+          "output_error": false
+        }
+      ]
+    }
+  ],
+  "negativeControls": [
+    {
+      "arch": "x86_64",
+      "rawFile": "out/waitall-mac-20261018-admission/runs/1792837593852645000-cider-lab-wine11.18-profile-renderer-r1-x86_64-x86_64-correctness.json",
+      "rawSHA256": "d43ff08597489b476e3c0fcca80cfd4e0edd35698a2e1641a6565e35c53c5b75",
+      "runnerSHA256": "8ca2ec1d9cf3fd9c55bbd25de89ac19acf5c30f4dd60a135b456b5db480cb868",
+      "exeSHA256": "011cd1844a076730070ae9a4c78dcab07f7b1a9a0d5ba1ec76de4232b82cdc31",
+      "nativeSHA256": {
+        "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+        "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+        "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+        "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+      },
+      "runID": "d255fe6c-bfd0-4afe-b649-7e8744ca9e97",
+      "sessionLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T102635-gs-boundary-bad-slot-x86_64-E22DAD24-F7E0-4EE8-93EF-0D420DBC6A57/wine.log",
+      "cliExitCode": 121,
+      "passed": false,
+      "negativeControlMet": true,
+      "elapsedActive": 10.395682459000001,
+      "elapsedWall": 10.395695686340332,
+      "timingDiscontinuity": false,
+      "ownedCleanup": {
+        "ownedRoot": {
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [
+                53710
+              ],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          }
+        },
+        "confirmed": true
+      },
+      "rows": [
+        {
+          "type": "begin",
+          "mode": "correctness",
+          "subject": "gs-boundary",
+          "pointer_bits": 64,
+          "pid": 32
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "tls.alloc",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "tls.set",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "initial_plain_thread",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "convert",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_api",
+          "ok": true,
+          "actual": 2414384,
+          "expected": 2414384
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_slot",
+          "ok": false,
+          "actual": 8447,
+          "expected": 2414384
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_teb",
+          "ok": true,
+          "actual": 2414384,
+          "expected": 2414384
+        }
+      ]
+    },
+    {
+      "arch": "i686",
+      "rawFile": "out/waitall-mac-20261018-admission/runs/1792837604339526000-cider-lab-wine11.18-profile-renderer-r1-x86_64-i686-correctness.json",
+      "rawSHA256": "716df065fe8d6ec74e9924e6537869a61f074c5e31ae62ab4270d401201bdf44",
+      "runnerSHA256": "8ca2ec1d9cf3fd9c55bbd25de89ac19acf5c30f4dd60a135b456b5db480cb868",
+      "exeSHA256": "45df23ea90ced1127e7fa5a04f1fe596758d47869c9a2981506a1cd268285e47",
+      "nativeSHA256": {
+        "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+        "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+        "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+        "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+      },
+      "runID": "5949ba7e-61af-4843-b2f1-c0bf47dcb534",
+      "sessionLog": "out/waitall-mac-20261018-admission/private-home/Logs/sessions/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/20261024T102645-gs-boundary-bad-slot-i686-4B987CE7-0B0B-44E3-974E-5129E986D497/wine.log",
+      "cliExitCode": 121,
+      "passed": false,
+      "negativeControlMet": true,
+      "elapsedActive": 7.029213833,
+      "elapsedWall": 7.029223203659058,
+      "timingDiscontinuity": false,
+      "ownedCleanup": {
+        "ownedRoot": {
+          "exitCode": 0,
+          "receipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [
+                53756
+              ],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          }
+        },
+        "confirmed": true
+      },
+      "rows": [
+        {
+          "type": "begin",
+          "mode": "correctness",
+          "subject": "gs-boundary",
+          "pointer_bits": 32,
+          "pid": 236
+        },
+        {
+          "type": "check",
+          "role": "outer",
+          "name": "tls.alloc",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "tls.set",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "initial_plain_thread",
+          "ok": true,
+          "actual": 0,
+          "expected": 0
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "convert",
+          "ok": true,
+          "actual": 1,
+          "expected": 1
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_api",
+          "ok": true,
+          "actual": 1408024,
+          "expected": 1408024
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_slot",
+          "ok": false,
+          "actual": 8447,
+          "expected": 1408024
+        },
+        {
+          "type": "check",
+          "role": "main",
+          "name": "main.fiber_teb",
+          "ok": true,
+          "actual": 1408024,
+          "expected": 1408024
+        }
+      ]
+    }
+  ],
+  "operations": {
+    "windows": 0,
+    "actions": 0,
+    "productionEngineOrUserBottleChanges": false
+  },
+  "remaining": [
+    "all asynchronous signals and nested callbacks",
+    "native host TLS/QoS interactions and platform-interface failure paths",
+    "U fixed attribution gate (8/15 outside +-3%)",
+    "full M1 and application/game sessions"
+  ],
+  "runtimeCleanup": {
+    "captured": [],
+    "emptyObservations": 2,
+    "hostShutdown": {
+      "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+      "capturedPIDs": [],
+      "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+      "confirmed": true,
+      "kernelIdentityReadable": true,
+      "terminationRequested": true
+    },
+    "mode": "stop-runtime",
+    "pending": [],
+    "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+  },
+  "negativeControlsCleanup": {
+    "captured": [],
+    "emptyObservations": 2,
+    "hostShutdown": {
+      "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+      "capturedPIDs": [],
+      "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+      "confirmed": true,
+      "kernelIdentityReadable": true,
+      "terminationRequested": true
+    },
+    "mode": "stop-runtime",
+    "pending": [],
+    "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+  },
+  "independentReview": {
+    "schema": "cider.gs-boundary-source-review/v1",
+    "status": "completed_bounded_source_review_no_concrete_p1_p2_found",
+    "reviewDate": "2026-10-24",
+    "summary": "No concrete reachable P1/P2 found in the complete probe source and the gs-boundary additions to run-mac.py actually read. This is a bounded source review, not independent runtime acceptance. The report is finalized from the evidence already read, without further source exploration or execution.",
+    "sourcesAsActuallyRead": [
+      {
+        "path": "tests/runtime/gs-boundary/probe.c",
+        "sha256": "7689a77e4b44f67bb7c883d81b7ebea3b5bcdb7ff2075d5ea52eed5978b10a95",
+        "bytes": 9721,
+        "lines": 190,
+        "coverage": "Complete current file was read, including numbered source."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "sha256": "db4053375aee51b91e1ba72683d3a0e52fcd30cb498309510819be323550ef80",
+        "bytes": 33260,
+        "lines": 550,
+        "coverage": "Actual gs-boundary diff/additions and immediate invocation, mandatory cleanup and final acceptance context were read. Other runner functionality was not re-reviewed."
+      }
+    ],
+    "snapshotBoundary": "Hashes are the actual source snapshots returned by the last completed read. They were not rechecked after the user timebox instruction; this final tool only writes the report.",
+    "findings": [],
+    "concreteP1": 0,
+    "concreteP2": 0,
+    "reviewEvidence": [
+      {
+        "path": "tests/runtime/gs-boundary/probe.c",
+        "lineStart": 51,
+        "lineEnd": 70,
+        "subject": "Fiber validity and dereference guard",
+        "observation": "fiber_state compares the API, read-only raw slot and TEB field with the expected live fiber. It fatally rejects null/mismatched state before GetFiberData dereferences the current fiber. Callback thread identity is checked before callback fiber observations."
+      },
+      {
+        "path": "tests/runtime/gs-boundary/probe.c",
+        "lineStart": 146,
+        "lineEnd": 169,
+        "subject": "Valid fiber lifecycle",
+        "observation": "Each case first requires a plain thread, converts successfully, creates a distinct child fiber, switches to it and returns to the main fiber before deleting the suspended child. Conversion back precedes the final IsThreadAFiber check and TLS clearing. GetCurrentFiber/GetFiberData are not used before conversion or after conversion back. The context remains live on the case stack throughout."
+      },
+      {
+        "path": "tests/runtime/gs-boundary/probe.c",
+        "lineStart": 72,
+        "lineEnd": 85,
+        "relatedLines": [
+          154,
+          160
+        ],
+        "subject": "LastError semantics",
+        "observation": "API/raw/TEB error values are captured before logging. Explicit setters use known expected values. After Sleep, the sampled API value is used only for consistency; no undocumented preservation is asserted. The failed OPEN_EXISTING file call captures LastError before logging and separately requires ERROR_FILE_NOT_FOUND. LastError is not treated as fiber-local preserved state."
+      },
+      {
+        "path": "tests/runtime/gs-boundary/probe.c",
+        "lineStart": 89,
+        "lineEnd": 144,
+        "subject": "Window, VEH and APC lifetime",
+        "observation": "The window creation callback uses the supplied live context; the window is destroyed and its class unregistered before the case returns. The VEH filters its own continuable exception, obtains the current case through TLS, and is removed after the synchronous RaiseException returns. The self-thread APC is queued once and awaited in an alertable loop with one fixed five-second deadline; the callback completes before that loop returns. Unprovable callback completion terminates the process rather than returning past the context storage."
+      },
+      {
+        "path": "tests/runtime/gs-boundary/probe.c",
+        "lineStart": 171,
+        "lineEnd": 189,
+        "subject": "Owned worker join",
+        "observation": "The worker runs a separate case after the main case finishes. Its thread handle is joined with a five-second wait before exit-code inspection, handle close and TLS-index free. Failed join takes process-fatal containment, so it does not return past a live owned worker. This is a finite join attempt, not a standalone whole-program wall-time guarantee; mandatory suite cleanup remains required."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 100,
+        "lineEnd": 125,
+        "subject": "Exact grouped inventory",
+        "observation": "The validator requires exactly 108 check rows, literal ok:true, string role/name, integer actual/expected, actual==expected, and exact Counter equality over role/name pairs. Name/type checks precede Counter construction. The source-derived inventory is main 68, worker 34 and outer 6: common 10 + 12 fiber-state + 12 error-state checks per case, plus main-only 10 boundary-control and 24 callback-observation checks."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 56,
+        "lineEnd": 63,
+        "relatedLines": [
+          182,
+          213,
+          227,
+          230,
+          488,
+          489
+        ],
+        "subject": "New invocation and metadata branch",
+        "observation": "gs-boundary selects gs-boundary-<arch>.exe, accepts correctness mode with no guest arguments, requires subject/mode gs-boundary/correctness, a positive integer pid and integer completion counts 108/0 with successful output flags. It applies valid_gs_checks and joins the mandatory owned-cleanup suite set."
+      },
+      {
+        "path": "tests/sync/run-mac.py",
+        "lineStart": 392,
+        "lineEnd": 411,
+        "relatedLines": [
+          534,
+          544
+        ],
+        "subject": "Mandatory runtime cleanup and acceptance",
+        "observation": "The added cleanup membership makes ordinary success/failure enter stop-runtime as well as interruption. Acceptance requires the cleanup receipt with helper exit 0, confirmed GUI shutdown, no pending processes, at least two empty observations, and no unconfirmed client reap. The final active/wall clock check includes cleanup. Exit 0, metadata/check success and the existing final rejection gates remain required."
+      }
+    ],
+    "inventory": {
+      "mainCommon": 34,
+      "mainExtra": 34,
+      "mainTotal": 68,
+      "workerTotal": 34,
+      "outerTotal": 6,
+      "total": 108
+    },
+    "parentReportedEvidenceNotIndependentlyAudited": {
+      "positivePE32AndPE64": "User reports each completed 108 checks with zero failures and owned cleanup.",
+      "rawSlotReaderDoubles": "User reports each stopped with exit 121 after seven checks, before GetFiberData.",
+      "protocolMutations": "User reports eleven pure mutations rejected.",
+      "useInThisReview": "Recorded as parent-reported context only. No raw runtime receipt or mutation result was inspected or rerun to establish these findings."
+    },
+    "explicitUnreviewedScope": [
+      "Built executables, generated machine code, engine patch changes and binary/source binding.",
+      "Independent validation of parent runtime receipts, mutation negatives, actual cleanup observations or Windows behavior.",
+      "Cleanup-helper implementation, outer cohort implementation, and unrelated old runner branches.",
+      "All signals, private host QoS/TSD, alternate host interfaces, performance, games or complete architecture/M1 acceptance."
+    ],
+    "operations": {
+      "buildsRun": 0,
+      "WineOrProbeExecutions": 0,
+      "WindowsOperations": 0,
+      "UIOperations": 0,
+      "networkOperations": 0,
+      "processControlOperations": 0,
+      "sourceEdits": 0,
+      "labMutations": 0,
+      "subagentsUsed": 0,
+      "onlyWrittenArtifact": "out/engine-gs-boundary-20261024/review-v1.json"
+    },
+    "runtimeInference": "None. Source review and parent-reported runtime evidence remain distinct."
+  },
+  "reviewedSourcesUnchanged": true,
+  "parentRuntimeVerification": "Raw receipts were opened, SHA256 checked against cohort results, and core/executable/runner/runID/clock/cleanup fields retained. Independent source review does not attest runtime."
+}

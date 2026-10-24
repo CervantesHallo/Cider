@@ -237,7 +237,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "upstream-whole-gsbase-source-mapped-runtime-pending"
+      "v1Status": "upstream-whole-gsbase-source-mapped-bounded-pe-runtime-passed"
     },
     {
       "patch": "highball/0009-macos-swap-fiberdata-and-qos-slot.patch",
@@ -250,7 +250,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "upstream-whole-gsbase-source-mapped-runtime-pending"
+      "v1Status": "upstream-whole-gsbase-source-mapped-bounded-pe-runtime-passed"
     },
     {
       "patch": "highball/0010-mfreadwrite-video-processor-sample-allocator.patch",
@@ -276,7 +276,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "upstream-whole-gsbase-source-mapped-runtime-pending"
+      "v1Status": "upstream-whole-gsbase-source-mapped-bounded-pe-runtime-passed"
     },
     {
       "patch": "highball/0012-ntdll-x87sidecar-cooperative-attach.patch",
@@ -772,7 +772,7 @@
     }
   },
   "upstreamABIReplacements": {
-    "scope": "source mapping only, v0 not changed",
+    "scope": "source mapping plus bounded PE32/64 runtime regression; v0 unchanged; full ABI acceptance remains open",
     "evidence": "docs/research/evidence/engine-r-v1-profile-ports-20261024.json",
     "sourceReviewSHA256": "c29cc7295718fa008151b266d409c45be700a8d9996603108a9938369c40ff4f",
     "notPortedLegacySlots": [
@@ -780,7 +780,18 @@
       "0009",
       "0011"
     ],
-    "runtimeAccepted": false
+    "runtimeAccepted": false,
+    "boundedRuntimeRegression": {
+      "evidence": "docs/research/evidence/engine-r-v1-gs-boundary-20261024.json",
+      "arches": [
+        "i686",
+        "x86_64"
+      ],
+      "checksPerArch": 108,
+      "rawReaderNegativeControls": 2,
+      "sourceReviewNoConcreteP1P2": true,
+      "allSignalsOrHostQoSAccepted": false
+    }
   },
   "profileRendererPrivateRuntime": {
     "evidence": "docs/research/evidence/engine-r-v1-profile-ports-20261024.json",

@@ -53,6 +53,14 @@ def valid_metadata(suite, arch, iterations, mode, begins, completes):
         return (mode == 'correctness' and begin.get('subject') == 'd3d9-readback'
                 and complete.get('mode') == 'correctness' and complete.get('checks') == 16
                 and complete.get('failures') == 0 and complete.get('output_error') is False)
+    if suite == 'gs-boundary':
+        return (mode == 'correctness' and begin.get('subject') == 'gs-boundary'
+                and begin.get('mode') == 'correctness'
+                and type(begin.get('pid')) is int and begin['pid'] > 0
+                and complete.get('mode') == 'correctness' and complete.get('checks') == 108
+                and type(complete.get('checks')) is int and type(complete.get('failures')) is int
+                and complete.get('ok') is True and complete.get('failures') == 0
+                and complete.get('output_error') is False)
     if suite == 'single-event':
         expected = {'requested_per_case': iterations, 'created': iterations * 2,
                     'reaped': iterations * 2, 'completed_rounds': iterations,
@@ -87,6 +95,34 @@ def clock_discontinuity(active_delta, wall_delta):
     # mach_absolute_time stops during macOS sleep; wall time can also jump in
     # either direction. Neither establishes an uninterrupted bounded test.
     return abs(wall_delta - active_delta) > 2
+
+
+def valid_gs_checks(rows):
+    common = ['tls.set', 'initial_plain_thread', 'convert', 'fiber.create',
+              'child.thread', 'child.seen', 'missing.handle', 'convert_back',
+              'plain_after_convert', 'tls.clear']
+    common += [stage + '.fiber_' + part for stage in ['main', 'child', 'restored']
+               for part in ['api', 'slot', 'teb', 'data']]
+    common += [stage + '.' + part for stage in ['set_error', 'after_sleep', 'missing_error', 'child_error']
+               for part in ['api', 'slot', 'teb']]
+    extra = ['window.register', 'window.create', 'window.seen', 'window.destroy',
+             'window.unregister', 'exception.add', 'exception.seen', 'exception.remove',
+             'apc.queue', 'apc.seen']
+    for stage in ['window', 'exception', 'apc']:
+        extra += [stage + '.thread']
+        extra += [stage + '.fiber_' + part for part in ['api', 'slot', 'teb', 'data']]
+        extra += [stage + '_error.' + part for part in ['api', 'slot', 'teb']]
+    outer = ['tls.alloc', 'worker.create', 'worker.join', 'worker.exit', 'worker.close', 'tls.free']
+    expected = Counter([('main', name) for name in common + extra]
+                       + [('worker', name) for name in common]
+                       + [('outer', name) for name in outer])
+    checks = [r for r in rows if r.get('type') == 'check']
+    return (len(checks) == 108
+            and all(type(r.get('role')) is str and type(r.get('name')) is str
+                    and r.get('ok') is True and type(r.get('actual')) is int
+                    and type(r.get('expected')) is int and r['actual'] == r['expected']
+                    for r in checks)
+            and Counter((r['role'], r['name']) for r in checks) == expected)
 
 
 def valid_matrix_checks(rows, complete, inventory=None):
@@ -133,7 +169,7 @@ parser.add_argument('--root', type=Path, required=True)
 parser.add_argument('--bottle', required=True)
 parser.add_argument('--arch', choices=['i686', 'x86_64'], required=True)
 parser.add_argument('--mode', choices=['correctness', 'stress', 'duration', 'bench'], required=True)
-parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix', 'nt-extra', 'user-bench', 'wait-widths', 'profile-args', 'renderer-smoke'], default='waitall')
+parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix', 'nt-extra', 'user-bench', 'wait-widths', 'profile-args', 'renderer-smoke', 'gs-boundary'], default='waitall')
 parser.add_argument('--user-kind', choices=['cs', 'srw', 'cv', 'address', 'once'], default='cs')
 parser.add_argument('--batches', type=int, default=4)
 parser.add_argument('--stats', action='store_true')
@@ -143,7 +179,7 @@ parser.add_argument('--iterations', type=int, default=10000)
 parser.add_argument('--threads', type=int, default=4)
 parser.add_argument('--timeout', type=int, default=150)
 args = parser.parse_args()
-requires_owned_cleanup = args.suite in ['profile-args', 'renderer-smoke']
+requires_owned_cleanup = args.suite in ['profile-args', 'renderer-smoke', 'gs-boundary']
 root = args.root.resolve(strict=True)
 owner = json.loads((root / 'owner.json').read_text())
 if not root.name.startswith('waitall-mac-') or owner['root'] != str(root):
@@ -173,7 +209,8 @@ source = root / ({'waitall': 'waitall-', 'lifecycle': 'waitall-lifecycle-',
                   'processes': 'waitall-processes-', 'single-event': 'event-lifecycle-',
                   'matrix': 'sync-matrix-', 'nt-extra': 'sync-nt-extra-',
                   'user-bench': 'sync-user-bench-', 'wait-widths': 'sync-wait-widths-',
-                  'profile-args': 'profile-args-', 'renderer-smoke': 'renderer-smoke-'}[args.suite] + args.arch + '.exe')
+                  'profile-args': 'profile-args-', 'renderer-smoke': 'renderer-smoke-',
+                  'gs-boundary': 'gs-boundary-'}[args.suite] + args.arch + '.exe')
 if args.benchmark_fixture == 'v4':
     source = root / ('waitall-bench-v4-' + args.arch + '.exe')
 if args.lifecycle_fixture == 'timeout-diagnostic':
@@ -187,7 +224,7 @@ if args.suite == 'user-bench':
             or args.stats or args.benchmark_fixture != 'v3' or args.timeout > 120):
         raise SystemExit('U benchmark needs bounded bench mode without statistics or other fixture selection')
     arguments = ['--bench', args.user_kind, str(args.iterations), str(args.threads), str(args.batches)]
-elif args.suite in ['matrix', 'nt-extra', 'wait-widths', 'profile-args', 'renderer-smoke']:
+elif args.suite in ['matrix', 'nt-extra', 'wait-widths', 'profile-args', 'renderer-smoke', 'gs-boundary']:
     if args.mode != 'correctness':
         raise SystemExit('Additional contract suites currently support correctness only')
     arguments = []
@@ -448,6 +485,8 @@ if args.suite == 'renderer-smoke':
         and all(type(r.get('name')) is str and r.get('ok') is True
             and type(r.get('actual')) is int and type(r.get('expected')) is int for r in checks)
         and Counter(r['name'] for r in checks) == expected)
+if args.suite == 'gs-boundary':
+    metadata_ok = metadata_ok and valid_gs_checks(rows)
 if args.suite == 'wait-widths':
     checks = [r for r in rows if r.get('type') == 'check']
     groups = {}
