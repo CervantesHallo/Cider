@@ -1,0 +1,154 @@
+#!/usr/bin/env python3
+"""Extract exact candidate0120 source for native helpers with explicit stubs.
+
+Select --part frame --source <applied-Wine>/dlls/ntdll/unix/sync.c, or
+--part event --source <applied-Wine>/dlls/ntdll/unix/msync.c. The existing
+--output-dir receives the header and a source/hash record. No build or execution
+is performed. Compile the corresponding msync-ready-{frame,event}.c with this
+output directory and the exact applied Wine include directory on its search path.
+Run helpers only in a fresh owned process session with an outer deadline.
+These helpers do not establish Wine/API/signal-handler/Windows equivalence.
+"""
+
+import argparse
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import sys
+import tempfile
+
+
+FUNCTIONS = (
+    "inproc_frame_enter",
+    "inproc_frame_enter_ready",
+    "inproc_frame_mask",
+    "inproc_prepare_kernel",
+    "inproc_frame_promote",
+    "inproc_frame_leave",
+)
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def identity(stat):
+    return (stat.st_dev, stat.st_ino, stat.st_size, stat.st_mtime_ns, stat.st_ctime_ns)
+
+
+def stable_read(path):
+    with path.open("rb") as stream:
+        before = os.fstat(stream.fileno())
+        data = stream.read()
+        after = os.fstat(stream.fileno())
+    if identity(before) != identity(after) or identity(after) != identity(path.stat()):
+        raise RuntimeError(f"source changed during extraction: {path}; prepare again")
+    return data
+
+
+def atomic_write(path, data):
+    temporary = None
+    try:
+        with tempfile.NamedTemporaryFile(prefix=f".{path.name}.", dir=path.parent,
+                                         delete=False) as stream:
+            temporary = Path(stream.name)
+            stream.write(data)
+            stream.flush()
+            os.fsync(stream.fileno())
+        os.replace(temporary, path)
+        temporary = None
+    finally:
+        if temporary is not None:
+            temporary.unlink(missing_ok=True)
+
+
+def main():
+    directory = Path(__file__).resolve().parent
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output-dir", type=Path, default=directory,
+                        help="existing directory for the header and source-hash record")
+    parser.add_argument("--source", type=Path, required=True, help="explicit applied Wine source file")
+    parser.add_argument("--part", choices=["frame", "event"], default="frame")
+    args = parser.parse_args()
+    output = args.output_dir.resolve(strict=True)
+    if not output.is_dir():
+        parser.error("--output-dir must be a directory")
+
+    # Read the selected production source; do not rewrite a modeled substitute.
+    source = args.source.resolve(strict=True)
+    data = stable_read(source)
+    if args.part == "frame":
+        start_pattern = rb"(?m)^struct inproc_frame[ \t]*\r?\n\{"
+        end_pattern = rb"(?m)^void inproc_thread_cleanup[ \t]*\([ \t]*void[ \t]*\)"
+        functions, declaration = FUNCTIONS, rb"(?:static[ \t]+)?void"
+    else:
+        start_pattern = rb"(?m)^NTSTATUS msync_try_wait_ready_event[ \t]*\("
+        end_pattern = rb"(?m)^NTSTATUS msync_wait_objs[ \t]*\("
+        functions, declaration = ("msync_try_wait_ready_event",), rb"NTSTATUS"
+    starts = list(re.finditer(start_pattern, data))
+    if len(starts) != 1:
+        raise RuntimeError("expected one source start boundary")
+    start = starts[0].start()
+    # A later non-Apple empty cleanup definition is outside the selected block.
+    ending = re.search(end_pattern, data[start:])
+    if ending is None:
+        raise RuntimeError("missing source end boundary after selected start")
+    end = start + ending.start()
+    block = data[start:end]
+    for name in functions:
+        definitions = re.findall(rb"(?m)^" + declaration + rb"[ \t]+" + name.encode()
+                                 + rb"[ \t]*\([^;{}]*\)[ \t\r\n]*\{", block)
+        if len(definitions) != 1:
+            raise RuntimeError(f"expected exactly one extracted definition of {name}")
+
+    source_sha, block_sha = digest(data), digest(block)
+    first_line = data[:start].count(b"\n") + 1
+    stem = "frame-extracted" if args.part == "frame" else "ready-event-extracted"
+    header_path = output / (stem + ".h")
+    record_path = output / (stem + ".sha256.json")
+    tag = "FRAME_FIXTURE" if args.part == "frame" else "READY_FIXTURE"
+    prefix = (
+        "/* GENERATED: native exact-frame helper WITH STUBS; prepare before each build.\n"
+        " * The block below is byte-for-byte sync.c, not a reimplemented model. */\n"
+        f"#ifndef CIDER_{tag}_EXTRACTED_H\n"
+        f"#define CIDER_{tag}_EXTRACTED_H\n"
+        f"#define {tag}_EXTRACT_VERSION 1\n"
+        f"#define {tag}_SOURCE_PATH {json.dumps(str(source))}\n"
+        f'#define {tag}_SOURCE_SHA256 "{source_sha}"\n'
+        f'#define {tag}_BLOCK_SHA256 "{block_sha}"\n'
+        f"#line {first_line} {json.dumps(str(source))}\n"
+    ).encode("ascii")
+    suffix = b'\n#line 1 "frame-extracted.h:generated-end"\n#endif\n'
+    header = prefix + block + suffix
+    record = {
+        "kind": "native-exact-frame-helper-with-stubs",
+        "scope": "not Wine/API/signal-handler/Windows equivalence",
+        "source": str(source),
+        "source_sha256": source_sha,
+        "block_sha256": block_sha,
+        "block_start_byte": start,
+        "block_end_byte_exclusive": end,
+        "block_start_line": first_line,
+        "block_end_line_exclusive": data[:end].count(b"\n") + 1,
+        "functions": functions,
+        "header": str(header_path),
+        "header_sha256": digest(header),
+        "harness_sha256": digest(stable_read(directory / ("msync-ready-frame.c" if args.part == "frame" else "msync-ready-event.c"))),
+        "extractor_sha256": digest(stable_read(Path(__file__).resolve())),
+    }
+    # The record is published last and hashes the complete generated header.
+    atomic_write(header_path, header)
+    atomic_write(record_path, (json.dumps(record, indent=2, sort_keys=True) + "\n").encode())
+    json.dump(record, sys.stdout, sort_keys=True)
+    sys.stdout.write("\n")
+    sys.stdout.flush()  # A broken output stream must fail preparation.
+
+
+if __name__ == "__main__":
+    try:
+        main()
+    except (OSError, RuntimeError) as error:
+        print(f"frame extraction failed: {error}", file=sys.stderr, flush=True)
+        raise SystemExit(1)

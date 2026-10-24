@@ -24,6 +24,10 @@ separate from Wine/Windows API equivalence and the candidate's own runtime hour.
 | `waitall-processes.c` | Four actual self child Wine processes with four role threads each, named shared objects, atomic counters and final permit accounting; bounded owned Job cleanup. |
 | `msync-coordinator.c` | Includes the **production** Darwin coordinator header. Tests interrupted commits, notification recovery, stale helpers, stopped live owners, killed contenders and thread/process concurrency. This is not Wine API or Windows equivalence evidence. |
 | `msync-single-waiter.c` | Candidate0118's exact production hint helpers: collision, saturation, fork, conservative process-death residue, owned cleanup and a real Darwin ulock payload ABA. Native helper evidence, separate from Wine and Windows equivalence. |
+| `msync-ready-clean.c` | Candidate0120's production try-clean helper with constructed journal states and a guarded kernel wake. |
+| `msync-ready-frame.c` | Exact extracted native frame functions, explicit Wine/reference/control doubles and 28 owned pthread cases including pending cancellation. |
+| `msync-ready-event.c` | Exact extracted ready-event function with explicit doubles and a constructed epoch-retirement interleaving. |
+| `extract-ready-source.py` | Reads an explicitly selected applied Wine source, extracts exact function bytes and records source/header/harness hashes. Does not build or run code. |
 | `stats-snapshot.c` | Reads the actual pump's seqlock counters and kernel process resource observations. A missing/disabled snapshot is unavailable, not zero occupancy. |
 | `owned-processes.swift` | Uses production process identity and prefix checks to observe/stop only the owned laboratory. Never spawns Wine. |
 | `policy-probe.c` | Negative child-launch check using a copy of this harmless fixture named `C:\CiderTests\yuanshen.exe` in an otherwise empty laboratory. Never point it at an installed game. |
@@ -50,6 +54,26 @@ Never test mutations in an installed engine. The additional hash buckets are
 conservative hints, not kernel waiters or object references. `stats-snapshot.c`
 compiled with this header explicitly marks its bucket aggregates as noncoherent;
 a missing mapping is unavailable. An old-format reader must reject this layout.
+
+For optional candidate0120, prepare a fresh owned output directory and extract
+from the actual applied source before each architecture's build:
+
+```sh
+python3 tests/sync/extract-ready-source.py --part frame --source "$WINE/dlls/ntdll/unix/sync.c" --output-dir "$FRAME_OUT"
+python3 tests/sync/extract-ready-source.py --part event --source "$WINE/dlls/ntdll/unix/msync.c" --output-dir "$EVENT_OUT"
+```
+
+Compile the corresponding `msync-ready-frame.c` / `msync-ready-event.c` with
+`-std=c11 -O2 -g -Wall -Wextra -Werror -pthread`, the selected architecture and
+SDK15.4, plus `-I` for the extracted directory and exact Wine include directory.
+The clean helper only needs the Wine include directory. Run in a fresh process
+session with a bounded outer deadline. The frame helper also has its own
+25-second alarm and must complete/join all 28 workers; never disable assertions.
+It uses an explicit cancellation point after all modeled obligations drain.
+Nested cases have no pending request; pending nonterminal cases are separate.
+These tests exercise real pthread cancellation and exact selected functions,
+with clearly declared native test doubles. They do not establish actual Wine
+signal dispatch, full API/Windows equivalence, or performance acceptance.
 
 Build `waitall-processes.c` with the same per-architecture C flags into
 `waitall-processes-{arch}.exe`. Invoke it through the driver with

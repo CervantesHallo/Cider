@@ -1,0 +1,303 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [Cider candidate] Try cached ready events in a closed native CPU frame
+
+Requires0117, excludes0116/0118/0119. Not selected by a recipe.
+All slow, waiting, recovery and unproved paths retain full state cancellation
+protection. Shared magic3 and original acquisition/recovery are unchanged.
+
+--- a/dlls/ntdll/unix/msync.c
++++ b/dlls/ntdll/unix/msync.c
+@@ -585,6 +585,7 @@
+     int fd;
+     uint64_t token;
+     struct thread_data *thread_data; /* protected by coord_fd_mutex until unlink */
++    unsigned int retired; /* ready path never resolves a TLV */
+ };
+ /* Also quiesce this process before fork: a child paused before its atfork
+  * callback must never inherit an actively held OFD transaction gate. */
+@@ -593,6 +594,7 @@
+ static pthread_mutex_t coord_fd_mutex = PTHREAD_MUTEX_INITIALIZER;
+ static struct coord_fd_record *coord_fds;
+ static __thread struct coord_fd_record *coord_record;
++static unsigned int coord_fd_key_ready;
+ static __thread sigset_t coord_fork_signals;
+ static __thread int coord_fork_cancel_state;
+ 
+@@ -603,7 +605,10 @@
+ {
+     __atomic_store_n( &data->msync_in_transaction, 0, __ATOMIC_SEQ_CST );
+     if (__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST ))
++    {
++        inproc_prepare_kernel();
+         __ulock_wake( 1 | ULF_WAKE_ALL, (void *)&data->msync_in_transaction, 0 );
++    }
+ }
+ 
+ static void coord_admit(void)
+@@ -673,7 +678,11 @@
+     struct coord_fd_record *record;
+     /* fork inherits OTHER threads' open descriptions too. CLOEXEC is too late:
+      * a stopped pre-exec child must not retain its parent's transaction lock. */
+-    for (record = coord_fds; record; record = record->next) close( record->fd );
++    for (record = coord_fds; record; record = record->next)
++    {
++        record->retired = 1;
++        close( record->fd );
++    }
+     coord_fds = coord_record = NULL;
+     coord_retired = 1; /* child must exec/_exit; never enter the old Wine instance */
+     coord_fork_parent();
+@@ -709,6 +718,7 @@
+     if (pthread_key_create( &coord_fd_key, coord_close_fd ) ||
+         pthread_atfork( coord_fork_prepare, coord_fork_parent, coord_fork_child ))
+         msync_coord_fatal( "TLS/fork registration" );
++    __atomic_store_n( &coord_fd_key_ready, 1, __ATOMIC_RELEASE );
+ }
+ 
+ void msync_unwind_waits(void)
+@@ -747,6 +757,7 @@
+         if (pthread_once( &coord_key_once, coord_make_key )) msync_coord_fatal( "TLS init" );
+         if (!(coord_record = malloc( sizeof(*coord_record) ))) msync_coord_fatal( "fd record allocation" );
+         if (pthread_mutex_lock( &coord_fd_mutex )) msync_coord_fatal( "fd registry lock" );
++        coord_record->retired = 0;
+         coord_record->thread_data = get_thread_data();
+         coord_record->fd = msync_coord_open( inproc_device_fd );
+         coord_record->token = msync_coord_new_lease( &coord, coord_record->fd );
+@@ -900,6 +911,7 @@
+     coord.slot = coord_slot;
+     coord.notify = coord_notify;
+     coord.cancellation_managed = 1;
++    coord.before_wake = inproc_prepare_kernel;
+     coord.set_active = coord_set_active;
+     coord.get_fd = coord_fd;
+     coord.get_token = coord_token;
+@@ -1142,6 +1154,50 @@
+         msync_coord_fatal( "object type" );
+         return 0;
+     }
++}
++
++/* Caller has a pinned cached event and holds its short Wine control guard.
++ * No slow descriptor/TLV initialization, mapping, wait, recovery or notification
++ * may occur. Anything outside this closed CPU path retries under the old mask. */
++NTSTATUS msync_try_wait_ready_event( int obj )
++{
++    struct coord_fd_record *record;
++    struct thread_data *data = get_thread_data();
++    struct msync_coord_guard guard;
++    struct msync_coord_entry entry;
++    struct event *event;
++    unsigned int tid = GetCurrentThreadId();
++    NTSTATUS status = STATUS_PENDING;
++    if (!__atomic_load_n( &coord_fd_key_ready, __ATOMIC_ACQUIRE ) ||
++        !(record = pthread_getspecific( coord_fd_key ))) return STATUS_PENDING;
++    /* No TLV expression here: the compiler may hoist its resolver across an
++     * earlier NULL-key branch. Fork-child retirement is copied into the existing
++     * pthread record before its inherited descriptor closes. */
++    if (record->retired || !data->msync_private_frames || !data->msync_control_depth ||
++        record->thread_data != data || !data->msync_epoch || (data->msync_epoch & 1) ||
++        tid >= MSYNC_COORD_TIDS ||
++        __atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) != data->msync_epoch ||
++        !(event = coord_slot( obj, 0 ))) return STATUS_PENDING;
++    __atomic_store_n( &data->msync_in_transaction, 1, __ATOMIC_SEQ_CST );
++    if (!__atomic_load_n( &coord_forking, __ATOMIC_SEQ_CST ) &&
++        msync_coord_try_clean( &coord, record->fd, record->token, &guard ))
++    {
++        /* The server can retire an epoch before this attempt acquires owner.
++         * Validate again inside owner, exactly like the ordinary entry path. */
++        if (__atomic_load_n( &msync_coord_epochs( &coord )[tid], __ATOMIC_ACQUIRE ) == data->msync_epoch &&
++            (event->msync_type == MSYNC_AUTO_EVENT || event->msync_type == MSYNC_MANUAL_EVENT) &&
++            event->signaled)
++        {
++            entry = (struct msync_coord_entry){ obj, 0,
++                msync_coord_value( event->msync_type == MSYNC_AUTO_EVENT ? 0 : event->signaled,
++                                   event->unused ) };
++            msync_coord_commit( &coord, &entry, 1 );
++            status = STATUS_SUCCESS;
++        }
++        msync_coord_give( &guard );
++    }
++    coord_depart( data );
++    return status;
+ }
+ 
+ NTSTATUS msync_wait_objs( const DWORD count, const int *objs, BOOLEAN wait_any,
+--- a/dlls/ntdll/unix/sync.c
++++ b/dlls/ntdll/unix/sync.c
+@@ -843,6 +843,7 @@
+     struct inproc_sync *pins[MAXIMUM_WAIT_OBJECTS];
+     unsigned int count;
+     int cancel_state;
++    int cancel_type; /* -1 for the original full-state guard */
+ };
+ #define inproc_frames (get_thread_data()->msync_frames)
+ 
+@@ -851,6 +852,7 @@
+     struct thread_data *data = get_thread_data();
+     msync_control_begin_data( data );
+     if (pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &frame->cancel_state )) _exit(1);
++    frame->cancel_type = -1;
+     frame->data = data;
+     frame->prev = frame->data->msync_frames;
+     frame->count = 0;
+@@ -858,15 +860,78 @@
+     frame->data->msync_private_frames++;
+ }
+ 
++/* Only the ready-only attempt uses this mode. Controls remain deferred until
++ * its pins/owner/admission are drained; it cannot call a cancellation point. */
++static void inproc_frame_enter_ready( struct inproc_frame *frame )
++{
++    struct thread_data *data = get_thread_data();
++    msync_control_begin_data( data );
++    if (pthread_setcanceltype( PTHREAD_CANCEL_DEFERRED, &frame->cancel_type )) _exit(1);
++    frame->cancel_state = -1;
++    frame->data = data;
++    frame->prev = data->msync_frames;
++    frame->count = 0;
++    data->msync_frames = frame;
++    data->msync_private_frames++;
++}
++
++static void inproc_frame_mask( struct inproc_frame *frame )
++{
++    if (frame->cancel_state == -1 &&
++        pthread_setcancelstate( PTHREAD_CANCEL_DISABLE, &frame->cancel_state )) _exit(1);
++}
++
++/* Called before the ready attempt can cross any kernel-wake boundary. Once
++ * escalated, its original state is restored only after complete frame cleanup. */
++void inproc_prepare_kernel(void)
++{
++    struct inproc_frame *frame = get_thread_data()->msync_frames;
++    if (frame && frame->cancel_type != -1) inproc_frame_mask( frame );
++}
++
++static void inproc_frame_promote( struct inproc_frame *frame )
++{
++    inproc_frame_mask( frame );
++    /* Never restore an incoming ASYNCHRONOUS type while enabled on fallback. */
++    if (frame->cancel_type != -1)
++    {
++        if (pthread_setcanceltype( frame->cancel_type, NULL )) _exit(1);
++        frame->cancel_type = -1;
++    }
++    while (frame->count) release_inproc_sync( frame->pins[--frame->count] );
++}
++
+ /* The caller has deferred controls since acquiring its first unrecorded pin. */
+ static void inproc_frame_leave( struct inproc_frame *frame )
+ {
+     struct thread_data *data = frame->data;
+     assert( data->msync_frames == frame );
+-    while (frame->count) release_inproc_sync( frame->pins[--frame->count] );
++    while (frame->count)
++    {
++        struct inproc_sync *sync = frame->pins[frame->count - 1];
++        unsigned int attempts;
++        LONG old;
++        if (frame->cancel_type != -1 && frame->cancel_state == -1)
++        {
++            /* Only a nonterminal decrement is CP-free. Do not touch sync after
++             * a successful CAS; another thread may release the surviving ref. */
++            old = InterlockedCompareExchange( &sync->refcount, 0, 0 );
++            for (attempts = 0; old > 1 && attempts < 8; ++attempts)
++            {
++                LONG actual = InterlockedCompareExchange( &sync->refcount, old - 1, old );
++                if (actual == old) break;
++                old = actual;
++            }
++            if (old > 1 && attempts < 8) { --frame->count; continue; }
++            /* Mask BEFORE removing the final pin accounting or close delivery. */
++            inproc_frame_mask( frame );
++        }
++        release_inproc_sync( frame->pins[--frame->count] );
++    }
+     data->msync_frames = frame->prev;
+     data->msync_private_frames--;
+-    if (pthread_setcancelstate( frame->cancel_state, NULL )) _exit(1);
++    if (frame->cancel_state != -1 && pthread_setcancelstate( frame->cancel_state, NULL )) _exit(1);
++    if (frame->cancel_type != -1 && pthread_setcanceltype( frame->cancel_type, NULL )) _exit(1);
+     msync_control_end_data( data );
+ }
+ 
+@@ -1139,7 +1204,25 @@
+     assert( count <= MAXIMUM_WAIT_OBJECTS );
+     memcpy( local_handles, handles, count * sizeof(HANDLE) );
+     if (timeout) local_timeout = *timeout;
+-    inproc_frame_enter( &frame );
++    if (count == 1 && !alertable && (type == WaitAny || type == WaitAll) && do_msync())
++    {
++        unsigned int entry, idx = inproc_sync_handle_to_index( local_handles[0], &entry );
++        inproc_frame_enter_ready( &frame );
++        /* No allocation, RPC, logging, or closed-cache release in this lookup. */
++        if (entry < INPROC_SYNC_CACHE_ENTRIES && inproc_sync_cache[entry] &&
++            (sync = &inproc_sync_cache[entry][idx]) &&
++            interlocked_inc_if_nonzero( &sync->refcount ))
++        {
++            frame.pins[frame.count++] = sync;
++            if (!sync->closed && sync->type == INPROC_SYNC_EVENT &&
++                (sync->access & SYNCHRONIZE) &&
++                (ret = msync_try_wait_ready_event( sync->fd )) != STATUS_PENDING) goto done;
++        }
++        /* Retain the frame and disable state BEFORE restoring type, releasing
++         * any speculative pin, enabling controls or entering the original path. */
++        inproc_frame_promote( &frame );
++    }
++    else inproc_frame_enter( &frame );
+     for (i = 0; i < count; i++)
+     {
+         if ((ret = get_inproc_sync( local_handles[i], INPROC_SYNC_UNKNOWN, SYNCHRONIZE, &stack[i], &sync ))) goto done;
+--- a/dlls/ntdll/unix/msync.h
++++ b/dlls/ntdll/unix/msync.h
+@@ -57,6 +57,8 @@
+ extern NTSTATUS msync_query_event_obj( int obj, EVENT_BASIC_INFORMATION *info );
+ extern NTSTATUS msync_release_mutex_obj( int obj, LONG *prev_count );
+ extern NTSTATUS msync_query_mutex_obj( int obj, MUTANT_BASIC_INFORMATION *info );
++extern void inproc_prepare_kernel(void);
++extern NTSTATUS msync_try_wait_ready_event( int obj );
+ extern NTSTATUS msync_wait_objs( const DWORD count, const int *objs, BOOLEAN wait_any,
+                                  int alert_obj, const LARGE_INTEGER *timeout );
+ 
+--- a/include/wine/msync_coord.h
++++ b/include/wine/msync_coord.h
+@@ -90,7 +90,8 @@
+     void (*set_active)( int active );
+     int (*get_fd)(void); /* refreshed under local quiescence after a fork */
+     uint64_t (*get_token)(void);
+-    int cancellation_managed; /* client caller frame already disables POSIX cancellation */
++    int cancellation_managed; /* ordinary client frame owns cancellation protection */
++    void (*before_wake)(void); /* optional native guard escalation, before kernel wake */
+ };
+ 
+ struct msync_coord_guard
+@@ -257,8 +258,29 @@
+         __atomic_exchange_n( &header->wait_hint, 0, __ATOMIC_SEQ_CST ))
+     {
+         __atomic_add_fetch( &header->wake_sequence, 1, __ATOMIC_SEQ_CST );
++        if (guard->coord->before_wake) guard->coord->before_wake();
+         __ulock_wake( MSYNC_COORD_UL_SHARED | MSYNC_COORD_UL_WAKE_ALL, &header->wake_sequence, 0 );
+     }
++}
++
++/* Caller protects controls/cancellation and its admission for this CPU-only
++ * attempt. No waiting, fd probe, mapping, journal recovery or notification.
++ * A failed attempt leaves the journal untouched; an acquired dirty gate is
++ * released, including the original wake sequence and guarded kernel wake. */
++static inline int msync_coord_try_clean( struct msync_coord *coord, int fd, uint64_t token,
++                                        struct msync_coord_guard *guard )
++{
++    uint64_t expected = 0;
++    if (!token) return 0;
++    guard->coord = coord;
++    guard->fd = fd;
++    guard->token = token;
++    guard->cancel_state = -1;
++    if (!__atomic_compare_exchange_n( &coord->header->owner, &expected, token, 0,
++                                      __ATOMIC_SEQ_CST, __ATOMIC_SEQ_CST )) return 0;
++    if (__atomic_load_n( &coord->header->state, __ATOMIC_ACQUIRE ) == MSYNC_COORD_CLEAN) return 1;
++    msync_coord_give( guard );
++    return 0;
+ }
+ 
+ static inline struct msync_coord_header *msync_coord_map( int fd )

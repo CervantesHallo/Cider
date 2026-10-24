@@ -707,6 +707,15 @@
       "status": "13 stages/11 actual pair records passed; six-run v4 speed4.5x/CS+33.2061percent both fail; no own hour/adoption",
       "selectedByRecipe": false,
       "productionPolicyBound": false
+    },
+    "optionalReadyOnlyNativeFrameCandidate": {
+      "patch": "engine/porting/wine-11.18/candidates/0120-msync-try-ready-event-with-closed-native-frame.patch",
+      "sha256": "4a5a082aab0422ae833f30f7d39ba611c8e09fd3acd06e9092f938c3ceacaec6",
+      "requires": "0117; original O2; excludes0116/0118/0119",
+      "sharedCoordMagicVersion": 3,
+      "status": "revision2 source/disassembly review, native guards/extracted fixtures and own13 stages/11 identities passed; fixed six-run AC v4 speed4.434782609x/CS+11.0273327percent fail; no own hour/adoption",
+      "selectedByRecipe": false,
+      "productionPolicyBound": false
     }
   }
 }
