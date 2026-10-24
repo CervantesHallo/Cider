@@ -1,0 +1,640 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [porting] winmm: Stage endpoint metadata before callbacks and worker startup.
+
+Cider-Topic: audio/winmm
+Base: wine-mirror/wine 7b3fff76fa5178f6ce0141b2c776afa2a822f101.
+Status: candidate source port, not selected by a recipe or runtime-accepted.
+Preserve new-base format mapping/masks and enumerator lifetime. Rebase old
+Cider 0008 metadata cleanup/publication and 0014 startup ordering; explicit
+shared-format probing policy remains a separate unresolved porting topic.
+
+--- a/dlls/winmm/waveform.c
++++ b/dlls/winmm/waveform.c
+@@ -145,6 +145,11 @@
+ static WINMM_Device *g_in_mapper_devices[MAX_DEVICES];
+ static UINT g_in_voicecom_id;
+ 
++/* Notification callbacks may arrive before InitOnce commits the metadata. */
++static BOOL g_metadata_committed;
++static ULONGLONG g_default_change_serial;
++static WINMM_MMDevice *g_out_voicecom_device, *g_in_voicecom_device;
++
+ static IMMDeviceEnumerator *g_devenum;
+ 
+ static CRITICAL_SECTION g_devthread_lock;
+@@ -483,17 +488,71 @@
+     }
+ 
+     hr = IMMDevice_GetId(device, &dev->dev_id);
+-    if(FAILED(hr))
++    if (FAILED(hr))
++        goto failed;
++
++    if (FAILED(hr = CoCreateGuid(&dev->session)))
++        goto failed;
++
++    dev->index = index;
++
++    if (!InitializeCriticalSectionEx(&dev->lock, 0, RTL_CRITICAL_SECTION_FLAG_FORCE_DEBUG_INFO))
++    {
++        hr = E_OUTOFMEMORY;
++        goto failed;
++    }
++    /* The new base can initialize a lock successfully without debug storage.
++     * Other WinMM users expect it, so unwind the live lock before retrying. */
++    if (!dev->lock.DebugInfo)
++    {
++        DeleteCriticalSection(&dev->lock);
++        hr = E_OUTOFMEMORY;
++        goto failed;
++    }
++    dev->lock.DebugInfo->Spare[0] = (DWORD_PTR)(__FILE__ ": WINMM_Device.lock");
++
++    return S_OK;
++
++failed:
++    CoTaskMemFree(dev->dev_id);
++    dev->dev_id = NULL;
++    return hr;
++}
++
++/* Only successfully initialized, unpublished metadata enters this helper. */
++static void WINMM_FreeMMDevices(WINMM_MMDevice *devices, UINT count)
++{
++    UINT i;
++
++    for (i = 0; i < count; ++i)
++    {
++        CoTaskMemFree(devices[i].dev_id);
++        devices[i].lock.DebugInfo->Spare[0] = 0;
++        DeleteCriticalSection(&devices[i].lock);
++    }
++    free(devices);
++}
++
++static HRESULT WINMM_GetDefaultDeviceID(IMMDeviceEnumerator *devenum, EDataFlow flow,
++        ERole role, WCHAR **id)
++{
++    IMMDevice *device;
++    HRESULT hr;
++
++    *id = NULL;
++    hr = IMMDeviceEnumerator_GetDefaultAudioEndpoint(devenum, flow, role, &device);
++    if (hr == E_NOTFOUND)
++        return S_OK;
++    if (FAILED(hr))
+         return hr;
+-
+-    CoCreateGuid(&dev->session);
+-
+-    dev->index = index;
+-
+-    InitializeCriticalSectionEx(&dev->lock, 0, RTL_CRITICAL_SECTION_FLAG_FORCE_DEBUG_INFO);
+-    dev->lock.DebugInfo->Spare[0] = (DWORD_PTR)(__FILE__ ": WINMM_Device.lock");
+-
+-    return S_OK;
++    hr = IMMDevice_GetId(device, id);
++    IMMDevice_Release(device);
++    if (FAILED(hr))
++    {
++        CoTaskMemFree(*id);
++        *id = NULL;
++    }
++    return hr;
+ }
+ 
+ static HRESULT WINMM_EnumDevices(WINMM_MMDevice **devices,
+@@ -501,70 +560,80 @@
+         IMMDeviceEnumerator *devenum)
+ {
+     IMMDeviceCollection *devcoll;
++    WINMM_MMDevice *staged_devices = NULL;
++    WINMM_MMDevice **staged_map = NULL;
++    WCHAR *default_id = NULL, *voice_id = NULL;
++    UINT total, n, initialized = 0;
+     HRESULT hr;
+ 
+-    hr = IMMDeviceEnumerator_EnumAudioEndpoints(devenum, flow,
+-            DEVICE_STATE_ACTIVE, &devcoll);
+-    if(FAILED(hr))
++    *devices = NULL;
++    *map = NULL;
++    *devcount = 0;
++    *voicecom_id = ~0u;
++    hr = IMMDeviceEnumerator_EnumAudioEndpoints(devenum, flow, DEVICE_STATE_ACTIVE, &devcoll);
++    if (FAILED(hr))
+         return hr;
+-
+-    hr = IMMDeviceCollection_GetCount(devcoll, devcount);
+-    if(FAILED(hr)){
+-        IMMDeviceCollection_Release(devcoll);
+-        return hr;
+-    }
+-
+-    *voicecom_id = -1;
+-
+-    if(*devcount > 0){
+-        UINT n, idx, count = 1;
+-        IMMDevice *def_dev = NULL;
+-        IMMDevice *voicecom_dev = NULL;
+-
+-        *devices = calloc(*devcount, sizeof(WINMM_MMDevice));
+-        if(!*devices){
+-            IMMDeviceCollection_Release(devcoll);
+-            return E_OUTOFMEMORY;
+-        }
+-
+-        *map = calloc(*devcount, sizeof(WINMM_MMDevice *));
+-        if(!*map){
+-            IMMDeviceCollection_Release(devcoll);
+-            free(*devices);
+-            return E_OUTOFMEMORY;
+-        }
+-
+-        /* make sure that device 0 is the default device */
+-        IMMDeviceEnumerator_GetDefaultAudioEndpoint(devenum,
+-                flow, eConsole, &def_dev);
+-        IMMDeviceEnumerator_GetDefaultAudioEndpoint(devenum,
+-                flow, eCommunications, &voicecom_dev);
+-
+-        for(n = 0; n < *devcount; ++n){
+-            IMMDevice *device;
+-
+-            hr = IMMDeviceCollection_Item(devcoll, n, &device);
+-            if(SUCCEEDED(hr)){
+-                WINMM_InitMMDevice(flow, device, &(*devices)[n], n);
+-
+-                idx = device == def_dev ? 0 : count++;
+-                (*map)[idx] = &(*devices)[n];
+-                if(device == voicecom_dev)
+-                    *voicecom_id = idx;
+-
+-                IMMDevice_Release(device);
+-            }
+-        }
+-
+-        IMMDevice_Release(voicecom_dev);
+-        IMMDevice_Release(def_dev);
+-
+-        *devcount = count;
+-    }
+-
++    if (FAILED(hr = IMMDeviceCollection_GetCount(devcoll, &total)) || !total)
++        goto done;
++
++    staged_devices = calloc(total, sizeof(*staged_devices));
++    staged_map = calloc(total, sizeof(*staged_map));
++    if (!staged_devices || !staged_map)
++    {
++        hr = E_OUTOFMEMORY;
++        goto done;
++    }
++    if (FAILED(hr = WINMM_GetDefaultDeviceID(devenum, flow, eConsole, &default_id)))
++        goto done;
++    if (FAILED(hr = WINMM_GetDefaultDeviceID(devenum, flow, eCommunications, &voice_id)))
++        goto done;
++
++    for (n = 0; n < total; ++n)
++    {
++        IMMDevice *device;
++
++        if (FAILED(hr = IMMDeviceCollection_Item(devcoll, n, &device)))
++            goto done;
++        hr = WINMM_InitMMDevice(flow, device, &staged_devices[n], n);
++        IMMDevice_Release(device);
++        if (FAILED(hr))
++            goto done;
++
++        /* Endpoint IDs survive distinct COM wrappers. No reserved empty slot
++         * when the collection has no console default. */
++        if (default_id && !wcscmp(staged_devices[n].dev_id, default_id))
++        {
++            memmove(staged_map + 1, staged_map, initialized * sizeof(*staged_map));
++            staged_map[0] = &staged_devices[n];
++        }
++        else
++            staged_map[initialized] = &staged_devices[n];
++        ++initialized;
++    }
++    for (n = 0; voice_id && n < initialized; ++n)
++    {
++        if (!wcscmp(staged_map[n]->dev_id, voice_id))
++        {
++            *voicecom_id = n;
++            break;
++        }
++    }
++
++    *devices = staged_devices;
++    *map = staged_map;
++    *devcount = initialized;
++    staged_devices = NULL;
++    staged_map = NULL;
++    initialized = 0;
++    hr = S_OK;
++
++done:
++    CoTaskMemFree(default_id);
++    CoTaskMemFree(voice_id);
++    WINMM_FreeMMDevices(staged_devices, initialized);
++    free(staged_map);
+     IMMDeviceCollection_Release(devcoll);
+-
+-    return S_OK;
++    return hr;
+ }
+ 
+ static HRESULT WINAPI notif_QueryInterface(IMMNotificationClient *iface,
+@@ -605,31 +674,25 @@
+     return S_OK;
+ }
+ 
+-static HRESULT update_mapping(WINMM_MMDevice ***map, UINT count,
+-        const WCHAR *default_id)
+-{
+-    WINMM_MMDevice *prev;
++static HRESULT update_mapping(WINMM_MMDevice ***map, UINT count, const WCHAR *default_id)
++{
++    WINMM_MMDevice *device;
+     UINT i;
+ 
+-    prev = (*map)[0];
+-    for(i = 0; i < count; ++i){
+-        WINMM_MMDevice *tmp;
+-
+-        if(!wcscmp((*map)[i]->dev_id, default_id)){
+-            (*map)[0] = (*map)[i];
+-            (*map)[i] = prev;
+-
++    if (!default_id)
++        return S_FALSE;
++    for (i = 0; i < count; ++i)
++    {
++        if (!wcscmp((*map)[i]->dev_id, default_id))
++        {
++            device = (*map)[i];
++            memmove(*map + 1, *map, i * sizeof(**map));
++            (*map)[0] = device;
+             return S_OK;
+         }
+-
+-        tmp = (*map)[i];
+-        (*map)[i] = prev;
+-        prev = tmp;
+-    }
+-
+-    WARN("Couldn't find new default device! Rearranged map for no reason.\n");
+-    (*map)[0] = prev;
+-
++    }
++    /* A notification for an endpoint outside this snapshot does not reorder
++     * any existing endpoint or invent a new device. */
+     return S_FALSE;
+ }
+ 
+@@ -730,28 +793,67 @@
+ static HRESULT WINAPI notif_OnDefaultDeviceChanged(IMMNotificationClient *iface,
+         EDataFlow flow, ERole role, const WCHAR *device_id)
+ {
+-    UINT i;
++    WINMM_MMDevice **map, **voice_device;
++    UINT count, *voice_id, i;
++    HRESULT mapped = S_FALSE;
+ 
+     TRACE("%u %u %s\n", flow, role, wine_dbgstr_w(device_id));
+-
+-    if(role != eConsole)
++    if ((role != eConsole && role != eCommunications) || (flow != eRender && flow != eCapture))
+         return S_OK;
+ 
+     EnterCriticalSection(&g_devthread_lock);
+-
+-    if(flow == eRender)
+-        update_mapping(&g_out_map, g_outmmdevices_count, device_id);
++    ++g_default_change_serial;
++    if (!g_metadata_committed)
++    {
++        LeaveCriticalSection(&g_devthread_lock);
++        return S_OK;
++    }
++    if (flow == eRender)
++    {
++        map = g_out_map;
++        count = g_outmmdevices_count;
++        voice_device = &g_out_voicecom_device;
++        voice_id = &g_out_voicecom_id;
++    }
+     else
+-        update_mapping(&g_in_map, g_inmmdevices_count, device_id);
+-
+-    for(i = 0; i < MAX_DEVICES && g_out_mapper_devices[i]; ++i)
+-        reroute_mapper_device(g_out_mapper_devices[i], TRUE);
+-
+-    for(i = 0; i < MAX_DEVICES && g_in_mapper_devices[i]; ++i)
+-        reroute_mapper_device(g_in_mapper_devices[i], FALSE);
+-
++    {
++        map = g_in_map;
++        count = g_inmmdevices_count;
++        voice_device = &g_in_voicecom_device;
++        voice_id = &g_in_voicecom_id;
++    }
++    if (role == eConsole)
++        mapped = update_mapping(&map, count, device_id);
++    else
++    {
++        *voice_device = NULL;
++        for (i = 0; device_id && i < count; ++i)
++        {
++            if (!wcscmp(map[i]->dev_id, device_id))
++            {
++                *voice_device = map[i];
++                break;
++            }
++        }
++    }
++    *voice_id = ~0u;
++    for (i = 0; i < count; ++i)
++    {
++        if (map[i] == *voice_device)
++        {
++            *voice_id = i;
++            break;
++        }
++    }
++
++    if (role == eConsole && mapped == S_OK)
++    {
++        for (i = 0; i < MAX_DEVICES && g_out_mapper_devices[i]; ++i)
++            reroute_mapper_device(g_out_mapper_devices[i], TRUE);
++        for (i = 0; i < MAX_DEVICES && g_in_mapper_devices[i]; ++i)
++            reroute_mapper_device(g_in_mapper_devices[i], FALSE);
++    }
+     LeaveCriticalSection(&g_devthread_lock);
+-
+     return S_OK;
+ }
+ 
+@@ -777,44 +879,77 @@
+ 
+ static BOOL WINAPI WINMM_InitMMDevices(INIT_ONCE *once, void *param, void **context)
+ {
++    WINMM_MMDevice *out_devices = NULL, *in_devices = NULL;
++    WINMM_MMDevice **out_map = NULL, **in_map = NULL;
++    UINT out_count = 0, in_count = 0, out_voice = ~0u, in_voice = ~0u;
++    IMMDeviceEnumerator *devenum = NULL;
++    BOOL complete = FALSE, subscribed = FALSE;
++    ULONGLONG serial;
+     HRESULT hr, init_hr;
+ 
+     init_hr = CoInitialize(NULL);
+-
+-    hr = CoCreateInstance(&CLSID_MMDeviceEnumerator, NULL,
+-            CLSCTX_INPROC_SERVER, &IID_IMMDeviceEnumerator, (void**)&g_devenum);
+-    if(FAILED(hr))
+-        goto exit;
+-
+-    hr = IMMDeviceEnumerator_RegisterEndpointNotificationCallback(g_devenum, &g_notif);
+-    if(FAILED(hr))
+-        goto exit;
+-
+-    hr = WINMM_EnumDevices(&g_out_mmdevices, &g_out_map, &g_outmmdevices_count, &g_out_voicecom_id,
+-            eRender, g_devenum);
+-    if(FAILED(hr)){
+-        g_outmmdevices_count = 0;
+-        g_inmmdevices_count = 0;
+-        goto exit;
+-    }
+-
+-    hr = WINMM_EnumDevices(&g_in_mmdevices, &g_in_map, &g_inmmdevices_count, &g_in_voicecom_id,
+-            eCapture, g_devenum);
+-    if(FAILED(hr)){
+-        g_inmmdevices_count = 0;
+-        goto exit;
+-    }
+-
+-exit:
+-    if(FAILED(hr) && g_devenum){
+-        IMMDeviceEnumerator_UnregisterEndpointNotificationCallback(g_devenum, &g_notif);
+-        IMMDeviceEnumerator_Release(g_devenum);
+-        g_devenum = NULL;
+-    }
+-    if(SUCCEEDED(init_hr))
++    if (FAILED(init_hr) && init_hr != RPC_E_CHANGED_MODE)
++        goto done;
++    hr = CoCreateInstance(&CLSID_MMDeviceEnumerator, NULL, CLSCTX_INPROC_SERVER,
++            &IID_IMMDeviceEnumerator, (void **)&devenum);
++    if (FAILED(hr))
++        goto done;
++    /* Subscribe before sampling defaults. Early callbacks mark the attempt
++     * dirty without reading or publishing incomplete device tables. Never
++     * call the notification provider while holding its callback's map lock. */
++    hr = IMMDeviceEnumerator_RegisterEndpointNotificationCallback(devenum, &g_notif);
++    if (FAILED(hr))
++        goto done;
++    subscribed = TRUE;
++    EnterCriticalSection(&g_devthread_lock);
++    serial = g_default_change_serial;
++    LeaveCriticalSection(&g_devthread_lock);
++    hr = WINMM_EnumDevices(&out_devices, &out_map, &out_count, &out_voice, eRender, devenum);
++    if (FAILED(hr))
++        goto done;
++    hr = WINMM_EnumDevices(&in_devices, &in_map, &in_count, &in_voice, eCapture, devenum);
++    if (FAILED(hr))
++        goto done;
++    if (!out_count && !in_count)
++        goto done;
++
++    EnterCriticalSection(&g_devthread_lock);
++    if (serial != g_default_change_serial)
++    {
++        LeaveCriticalSection(&g_devthread_lock);
++        goto done; /* A later InitOnce caller retries one whole snapshot. */
++    }
++    g_out_mmdevices = out_devices;
++    g_out_map = out_map;
++    g_outmmdevices_count = out_count;
++    g_out_voicecom_id = out_voice;
++    g_out_voicecom_device = out_voice < out_count ? out_map[out_voice] : NULL;
++    g_in_mmdevices = in_devices;
++    g_in_map = in_map;
++    g_inmmdevices_count = in_count;
++    g_in_voicecom_id = in_voice;
++    g_in_voicecom_device = in_voice < in_count ? in_map[in_voice] : NULL;
++    g_devenum = devenum;
++    g_metadata_committed = TRUE;
++    LeaveCriticalSection(&g_devthread_lock);
++    out_devices = in_devices = NULL;
++    out_map = in_map = NULL;
++    out_count = in_count = 0;
++    devenum = NULL;
++    complete = TRUE;
++
++done:
++    if (!complete && subscribed)
++        IMMDeviceEnumerator_UnregisterEndpointNotificationCallback(devenum, &g_notif);
++    WINMM_FreeMMDevices(out_devices, out_count);
++    WINMM_FreeMMDevices(in_devices, in_count);
++    free(out_map);
++    free(in_map);
++    if (devenum)
++        IMMDeviceEnumerator_Release(devenum);
++    if (SUCCEEDED(init_hr))
+         CoUninitialize();
+-
+-    return SUCCEEDED(hr);
++    return complete;
+ }
+ 
+ static inline BOOL WINMM_IsMapper(UINT device)
+@@ -2287,11 +2422,6 @@
+         FreeLibraryAndExitThread(g_devthread_module, 1);
+     }
+ 
+-    if(!InitOnceExecuteOnce(&init_once, WINMM_InitMMDevices, NULL, NULL)){
+-        CoUninitialize();
+-        FreeLibraryAndExitThread(g_devthread_module, 1);
+-    }
+-
+     g_devices_hwnd = CreateWindowW(L"Message", NULL, 0, 0, 0, 0, 0,
+             HWND_MESSAGE, NULL, NULL, NULL);
+     if(!g_devices_hwnd){
+@@ -2342,6 +2472,11 @@
+     HANDLE events[2];
+     DWORD wait;
+ 
++    /* Metadata publication takes the same lock as worker startup. Complete it
++     * before holding that lock or waiting for the worker. */
++    if (!InitOnceExecuteOnce(&init_once, WINMM_InitMMDevices, NULL, NULL))
++        return FALSE;
++
+     EnterCriticalSection(&g_devthread_lock);
+ 
+     if(g_devices_hwnd){
+@@ -3015,55 +3150,48 @@
+     UINT count;
+     WINMM_MMDevice **devices;
+ 
+-    TRACE("(%u, %p, %d)\n", device, len, is_out);
+-
+-    if(is_out){
+-        count = g_outmmdevices_count;
+-        devices = g_out_map;
+-    }else{
+-        count = g_inmmdevices_count;
+-        devices = g_in_map;
+-    }
+-
+-    if(device >= count)
++    if (!len)
++        return MMSYSERR_INVALPARAM;
++    if (!InitOnceExecuteOnce(&init_once, WINMM_InitMMDevices, NULL, NULL))
++        return MMSYSERR_NODRIVER;
++    EnterCriticalSection(&g_devthread_lock);
++    count = is_out ? g_outmmdevices_count : g_inmmdevices_count;
++    devices = is_out ? g_out_map : g_in_map;
++    if (device >= count)
++    {
++        LeaveCriticalSection(&g_devthread_lock);
+         return MMSYSERR_INVALHANDLE;
+-
+-    EnterCriticalSection(&g_devthread_lock);
++    }
+     *len = (lstrlenW(devices[device]->dev_id) + 1) * sizeof(WCHAR);
+     LeaveCriticalSection(&g_devthread_lock);
+-
+     return MMSYSERR_NOERROR;
+ }
+ 
+-static UINT WINMM_QueryInstanceID(UINT device, WCHAR *str, DWORD_PTR len,
+-        BOOL is_out)
++static UINT WINMM_QueryInstanceID(UINT device, WCHAR *str, DWORD_PTR len, BOOL is_out)
+ {
+     UINT count, id_len;
+     WINMM_MMDevice **devices;
+ 
+-    TRACE("(%u, %p, %d)\n", device, str, is_out);
+-
+-    if(is_out){
+-        count = g_outmmdevices_count;
+-        devices = g_out_map;
+-    }else{
+-        count = g_inmmdevices_count;
+-        devices = g_in_map;
+-    }
+-
+-    if(device >= count)
++    if (!str)
++        return MMSYSERR_INVALPARAM;
++    if (!InitOnceExecuteOnce(&init_once, WINMM_InitMMDevices, NULL, NULL))
++        return MMSYSERR_NODRIVER;
++    EnterCriticalSection(&g_devthread_lock);
++    count = is_out ? g_outmmdevices_count : g_inmmdevices_count;
++    devices = is_out ? g_out_map : g_in_map;
++    if (device >= count)
++    {
++        LeaveCriticalSection(&g_devthread_lock);
+         return MMSYSERR_INVALHANDLE;
+-
+-    EnterCriticalSection(&g_devthread_lock);
++    }
+     id_len = (lstrlenW(devices[device]->dev_id) + 1) * sizeof(WCHAR);
+-    if(len < id_len){
++    if (len < id_len)
++    {
+         LeaveCriticalSection(&g_devthread_lock);
+         return MMSYSERR_ERROR;
+     }
+-
+     memcpy(str, devices[device]->dev_id, id_len);
+     LeaveCriticalSection(&g_devthread_lock);
+-
+     return MMSYSERR_NOERROR;
+ }
+ 
+@@ -3114,6 +3242,9 @@
+         if(!dwParam1 || !dwParam2)
+             return MMSYSERR_INVALPARAM;
+ 
++        if (!InitOnceExecuteOnce(&init_once, WINMM_InitMMDevices, NULL, NULL))
++            return MMSYSERR_NODRIVER;
++
+         if(g_outmmdevices_count > 0)
+             /* Device 0 is always the default device */
+             *(DWORD *)dwParam1 = 0;
+@@ -3128,8 +3259,12 @@
+         if(!dwParam1 || !dwParam2)
+             return MMSYSERR_INVALPARAM;
+ 
++        if (!InitOnceExecuteOnce(&init_once, WINMM_InitMMDevices, NULL, NULL))
++            return MMSYSERR_NODRIVER;
++        EnterCriticalSection(&g_devthread_lock);
+         /* Device ID */
+         *(DWORD *)dwParam1 = g_out_voicecom_id;
++        LeaveCriticalSection(&g_devthread_lock);
+         /* Status flags */
+         *(DWORD *)dwParam2 = 0;
+ 
+@@ -3527,6 +3662,9 @@
+         if(!dwParam1 || !dwParam2)
+             return MMSYSERR_INVALPARAM;
+ 
++        if (!InitOnceExecuteOnce(&init_once, WINMM_InitMMDevices, NULL, NULL))
++            return MMSYSERR_NODRIVER;
++
+         if(g_inmmdevices_count > 0)
+             /* Device 0 is always the default device */
+             *(DWORD *)dwParam1 = 0;
+@@ -3541,8 +3679,12 @@
+         if(!dwParam1 || !dwParam2)
+             return MMSYSERR_INVALPARAM;
+ 
++        if (!InitOnceExecuteOnce(&init_once, WINMM_InitMMDevices, NULL, NULL))
++            return MMSYSERR_NODRIVER;
++        EnterCriticalSection(&g_devthread_lock);
+         /* Device ID */
+         *(DWORD *)dwParam1 = g_in_voicecom_id;
++        LeaveCriticalSection(&g_devthread_lock);
+         /* Status flags */
+         *(DWORD *)dwParam2 = 0;
+ 

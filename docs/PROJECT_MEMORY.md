@@ -4,6 +4,8 @@
 
 ## 最新实际运行接续（2026-10-24）
 
+本轮接续88/89：WinMM元数据与工作线程启动、MMDevice通知就绪/有效角色比较已独立迁移；限定源审给出的失败回滚、默认变化、通信索引、DebugInfo、provider瞬时失败和首个capture查询依赖均已修。WinMM v4/provider v3双PE完整组件/精确补丁重建/独立DLL链接过；私有新candidate `cider-lab-wine11.18-audio-metadata-r1-x86_64`、全新Audio Metadata瓶已初始化。真实PE32/64各cold wave/instance两入口，四次各39检查零失败，随后四caller mixer正常、模块/核心/EXE/runner/runID/时钟/GUI两空清理均核对。没有音频buffer或capture流/游戏验收。源审与运行器末次复审无具体P1/P2，fixture最后连续部分失败oracle已补schedule，最终native-v7两宿主各93场景通过，no-reset负例在两者均被重复free检查拒绝，final-fixture-review-v2限定源审无具体P1/P2，所有子代理已关闭。旧失败原件保留，候选不默认采用/格式策略及全部通知并发仍待。共享runnerSIGINT/TERM异常路径改为受保护finally清理；真实唯一marker存活后SIGINT130/GUI退出/两空通过，初控制器list pending含活PID误判的失败/救援保留。U90原回执离线720batch/3360worker全保留、10/15配对方向有变化但8/15超±3%原结论不变；纯public analyzer复现派生表一致，不归因为噪声。新增文档88/89、两补丁/夹具/runner/清单及真实证据已归档；接续原媒体与可信线程CPU计量准备。用户引擎/两瓶/Windows账本四摘要仍相同，Windows/Actions/定时/Goal零操作；原HY顺序和最终游戏目标保持。
+
 原GS/FS主题的限定实际回归已完成：[research87](research/87-r-v1-gs-boundary-20261024.md)在私有新profile/renderer组合下PE32/64各108检查0失败，覆盖转换后的Fiber/LastError、主/新线程及自己的窗口/异常/APC。两个原始指针读数double均第7项拒绝/退出121/未解引用，11个纯协议变体拒绝；GUI退出/两次空观察与native/PE/EXE/runner/runID/时钟已核对。初版Werror两处失败保留，修后零诊断；限定独立源码审查报告摘要一致/无具体P1/P2，未独立审实际回执或清理器，父代理另核真实结果。新基线整体GSBASE替代旧槽镜像，原v0不改；所有异步信号/宿主QoS、U8/15归因和完整M1/游戏仍未过，不默认采用或解除门禁。上一批f2d7e0b推送已重试成功。当前无实验Wine/活跃子代理，Windows/Actions/定时/Goal零操作，接续原媒体主题及性能归因。
 
 94ca0f2已推送原主题两个源码端口和新探针。实际回执已归档：参数追加PE32/64各23检查零失败，未迁移Wine11.18实验基线五项预期失败；D3D9新双位宽/旧实验基线PE64各16检查、4096RGB读回匹配，非物理后端/呈现/着色器/FPS/游戏证明。清理P2经真实nonce/PID/childStillActive后断CLI，普通失败下9.586秒回收、GUI及两空观察确认；初版--wait按prefix空闲语义触发40秒超时，保留且不作目标通过。研究86及其evidence/out保存完整边界。当前无活跃子代理或实验Wine。更广U8/15超±3%仍未过，不默认采用/不提升游戏评级；接续原GS intrinsic/Fiber/异常/回调及媒体主题。Windows仍busy/零操作，定时/Goal不恢复，原HY顺序与目标保持。

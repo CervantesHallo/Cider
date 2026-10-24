@@ -1,0 +1,4378 @@
+{
+  "schema": "cider.u-cohort-offline-attribution/v1",
+  "originalAnalyzerSHA256": "aecea345c4f85dd10341476e2a675eafaae918f048b70b98d547ea66085e095c",
+  "publicAnalyzerSHA256": "ef1695384964a89f63a12ad01eba372833bdbff19ea55faee12709f88a6b17eb",
+  "parentReproductionIdentical": true,
+  "counts": {
+    "runs": 90,
+    "cells": 15,
+    "outside_original_3_percent": 8,
+    "within_original_3_percent": 7,
+    "batch_rows": 720,
+    "worker_intervals": 3360,
+    "receipt_rows": 12762
+  },
+  "inputs": [
+    {
+      "path": "/Users/cervantes/Cider/out/sync-user-bench-20261024/performance-protocol-v1.json",
+      "sha256": "7fddc013514ad58bfd92b8987b8e5c006092a49431f34b0e5678b47ec757b6bc",
+      "bytes": 18521,
+      "verified": true
+    },
+    {
+      "path": "/Users/cervantes/Cider/out/sync-user-bench-20261024/performance-result-v1.json",
+      "sha256": "c35a07dfca5cc69ed0d2904d75cbfc869b3a7d67ca4ae170d36776b2e2a4e945",
+      "bytes": 353415,
+      "verified": true
+    },
+    {
+      "path": "/Users/cervantes/Cider/out/sync-user-bench-20261024/performance-inputs-v1/sync-user-bench.c",
+      "sha256": "ae2157e1f665ac82bc36acce4543a9330f54401bfa9257a4a42f90aca9834397",
+      "bytes": 34660,
+      "verified": true
+    },
+    {
+      "run_index": 0,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828114230771000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "3f0fd6bb10744e3f005863eb3ac49c4fd99c7ae8fa2e30e6feb8c7a10a532af0",
+      "sha256": "3f0fd6bb10744e3f005863eb3ac49c4fd99c7ae8fa2e30e6feb8c7a10a532af0",
+      "bytes": 32252,
+      "verified": true
+    },
+    {
+      "run_index": 1,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828126763191000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "4a475e8e166844fed7dd0ed4fc6a90995996cb2682b1bbfe386b7267d4e8a3c1",
+      "sha256": "4a475e8e166844fed7dd0ed4fc6a90995996cb2682b1bbfe386b7267d4e8a3c1",
+      "bytes": 32206,
+      "verified": true
+    },
+    {
+      "run_index": 2,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828133898369000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "141fbf1ca58e080613541eeb96b9c5a3d55e8ac91855eb3c32851b8dce5b697c",
+      "sha256": "141fbf1ca58e080613541eeb96b9c5a3d55e8ac91855eb3c32851b8dce5b697c",
+      "bytes": 32201,
+      "verified": true
+    },
+    {
+      "run_index": 3,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828141522250000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "3d6a3f3e6691698e96aca9d820fffc00443ac02b3aaaf19004562ee6aa1e0080",
+      "sha256": "3d6a3f3e6691698e96aca9d820fffc00443ac02b3aaaf19004562ee6aa1e0080",
+      "bytes": 32221,
+      "verified": true
+    },
+    {
+      "run_index": 4,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828148739911000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "d5aeb79fbf0dfbf3b82b1795bf4d326f0407ed059448de06e9c9d2e3af93cdd7",
+      "sha256": "d5aeb79fbf0dfbf3b82b1795bf4d326f0407ed059448de06e9c9d2e3af93cdd7",
+      "bytes": 32226,
+      "verified": true
+    },
+    {
+      "run_index": 5,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828155648479000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "28f9d1c65aa5be5f31f161a0a0c716b2a97a93a62f4babfaf78ad3f6e17af741",
+      "sha256": "28f9d1c65aa5be5f31f161a0a0c716b2a97a93a62f4babfaf78ad3f6e17af741",
+      "bytes": 32202,
+      "verified": true
+    },
+    {
+      "run_index": 6,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828163913806000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "828bc7e0ed9235f1c9b649b914e1d4f8aa2af8ccb2a33d815b346cea709ad5e9",
+      "sha256": "828bc7e0ed9235f1c9b649b914e1d4f8aa2af8ccb2a33d815b346cea709ad5e9",
+      "bytes": 31784,
+      "verified": true
+    },
+    {
+      "run_index": 7,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828170126246000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "7a3787c7423659bc28e0b95c0e06975bd9a6aece572840e6fa5a6d1b4a6e168b",
+      "sha256": "7a3787c7423659bc28e0b95c0e06975bd9a6aece572840e6fa5a6d1b4a6e168b",
+      "bytes": 31754,
+      "verified": true
+    },
+    {
+      "run_index": 8,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828176454553000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "04260bfa9b08f4c8d8f4f1fc550eaa7bf6720ef2089b18332d02cd2e6a77b14a",
+      "sha256": "04260bfa9b08f4c8d8f4f1fc550eaa7bf6720ef2089b18332d02cd2e6a77b14a",
+      "bytes": 31768,
+      "verified": true
+    },
+    {
+      "run_index": 9,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828183105848000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "1599646d38806acd411d2e4a423fccd3a60ada8d602fe410e680a3f9b5bca277",
+      "sha256": "1599646d38806acd411d2e4a423fccd3a60ada8d602fe410e680a3f9b5bca277",
+      "bytes": 31802,
+      "verified": true
+    },
+    {
+      "run_index": 10,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828193425615000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "fc6394190ec990dd5c34e49d8a66f0e480f0e42e1e9fceb50bc58338db258497",
+      "sha256": "fc6394190ec990dd5c34e49d8a66f0e480f0e42e1e9fceb50bc58338db258497",
+      "bytes": 31793,
+      "verified": true
+    },
+    {
+      "run_index": 11,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828200874025000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "65f52b9112c3a904dbdbba20d2996630b588497bc2ae4adcc78e04bc0881d47e",
+      "sha256": "65f52b9112c3a904dbdbba20d2996630b588497bc2ae4adcc78e04bc0881d47e",
+      "bytes": 31760,
+      "verified": true
+    },
+    {
+      "run_index": 12,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828207060656000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "369681c9e6b8a54f9fd29e0efadbd47328208f6a8bb8339d026856fdd6694f5d",
+      "sha256": "369681c9e6b8a54f9fd29e0efadbd47328208f6a8bb8339d026856fdd6694f5d",
+      "bytes": 32741,
+      "verified": true
+    },
+    {
+      "run_index": 13,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828212918518000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "96f0c69d70f82b5595740cd26e41cf4260e4e0cf41a1639b6ab21ee13c8e5b19",
+      "sha256": "96f0c69d70f82b5595740cd26e41cf4260e4e0cf41a1639b6ab21ee13c8e5b19",
+      "bytes": 32710,
+      "verified": true
+    },
+    {
+      "run_index": 14,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828218703487000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "d794c61d6311cd4d9c0f190aa0363b68c4cb9c2c5a584b671b2996ef6631affc",
+      "sha256": "d794c61d6311cd4d9c0f190aa0363b68c4cb9c2c5a584b671b2996ef6631affc",
+      "bytes": 32711,
+      "verified": true
+    },
+    {
+      "run_index": 15,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828224811151000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "cf4b0495e276566cfaebe00046fbaa71eb1274e96d54ea7ce0ab6e87e4b39889",
+      "sha256": "cf4b0495e276566cfaebe00046fbaa71eb1274e96d54ea7ce0ab6e87e4b39889",
+      "bytes": 32734,
+      "verified": true
+    },
+    {
+      "run_index": 16,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828230450817000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "71afdba99717ddd5e511741428a1bede1738a60ef415d7e2be733430d82da612",
+      "sha256": "71afdba99717ddd5e511741428a1bede1738a60ef415d7e2be733430d82da612",
+      "bytes": 32737,
+      "verified": true
+    },
+    {
+      "run_index": 17,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828236084585000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "4d6c361357b7b8c0dd0ea73dd14fc4f2d2933e4149bdad6d1c7887434681236e",
+      "sha256": "4d6c361357b7b8c0dd0ea73dd14fc4f2d2933e4149bdad6d1c7887434681236e",
+      "bytes": 32725,
+      "verified": true
+    },
+    {
+      "run_index": 18,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828241702831000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "e85c167dff29bff9c892615b5dc6753469b163558e22a529b3c24330ce558c55",
+      "sha256": "e85c167dff29bff9c892615b5dc6753469b163558e22a529b3c24330ce558c55",
+      "bytes": 33203,
+      "verified": true
+    },
+    {
+      "run_index": 19,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828247781450000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "e8f858d1652af9e3f54b49e3c6c7fe246d0b21abc82b3dadbb2198de07f4c256",
+      "sha256": "e8f858d1652af9e3f54b49e3c6c7fe246d0b21abc82b3dadbb2198de07f4c256",
+      "bytes": 33162,
+      "verified": true
+    },
+    {
+      "run_index": 20,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828253852132000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "93b0a616899401c9dda2bf1048425b13c7dac7c86dc0dea4b5ab0f497b20310f",
+      "sha256": "93b0a616899401c9dda2bf1048425b13c7dac7c86dc0dea4b5ab0f497b20310f",
+      "bytes": 33159,
+      "verified": true
+    },
+    {
+      "run_index": 21,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828260139617000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "8479c3c1a161cfa9285be976e3823f9bb37057cb6a07fb98807ab83ca30ab110",
+      "sha256": "8479c3c1a161cfa9285be976e3823f9bb37057cb6a07fb98807ab83ca30ab110",
+      "bytes": 33199,
+      "verified": true
+    },
+    {
+      "run_index": 22,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828266321112000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "855eae174fc473d64829952a3d53e9b7487866e15852463fe85ebba422d4330d",
+      "sha256": "855eae174fc473d64829952a3d53e9b7487866e15852463fe85ebba422d4330d",
+      "bytes": 33211,
+      "verified": true
+    },
+    {
+      "run_index": 23,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828272416627000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "14e7ac38a96cd8e5535c9b82699f629cf1f06a705af240bd7f31c10d9b37dc96",
+      "sha256": "14e7ac38a96cd8e5535c9b82699f629cf1f06a705af240bd7f31c10d9b37dc96",
+      "bytes": 33177,
+      "verified": true
+    },
+    {
+      "run_index": 24,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828278360825000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "585b05173ca1ee50226756fd5d8ef4a9563a1bec5b176aed3bee749cab10f7c6",
+      "sha256": "585b05173ca1ee50226756fd5d8ef4a9563a1bec5b176aed3bee749cab10f7c6",
+      "bytes": 30997,
+      "verified": true
+    },
+    {
+      "run_index": 25,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828284800277000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "75f298ad523100e918e9dd20cdb2a7f8aaf51c3242980c68ffd3819b288b8dc4",
+      "sha256": "75f298ad523100e918e9dd20cdb2a7f8aaf51c3242980c68ffd3819b288b8dc4",
+      "bytes": 30955,
+      "verified": true
+    },
+    {
+      "run_index": 26,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828291082222000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "11a710c9fd6876f14c25f34c5ba54810f5f6089abb266464ba7af969f50282d3",
+      "sha256": "11a710c9fd6876f14c25f34c5ba54810f5f6089abb266464ba7af969f50282d3",
+      "bytes": 30961,
+      "verified": true
+    },
+    {
+      "run_index": 27,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828297629583000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "3e48651a6a728ac95c7193db7d72880fa8f09cb30a321d5847a2fefa04f39eff",
+      "sha256": "3e48651a6a728ac95c7193db7d72880fa8f09cb30a321d5847a2fefa04f39eff",
+      "bytes": 30987,
+      "verified": true
+    },
+    {
+      "run_index": 28,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828304602871000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "3e4d7190e43db13b2c0a676b6f7f6c9994c2cd4ea64aa74fa74a460a7d48848e",
+      "sha256": "3e4d7190e43db13b2c0a676b6f7f6c9994c2cd4ea64aa74fa74a460a7d48848e",
+      "bytes": 30991,
+      "verified": true
+    },
+    {
+      "run_index": 29,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828310961894000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "68d3830bce9e51edbdc713bebf997fb4152d38231f2d0c25aad7fa8d44bffd37",
+      "sha256": "68d3830bce9e51edbdc713bebf997fb4152d38231f2d0c25aad7fa8d44bffd37",
+      "bytes": 30955,
+      "verified": true
+    },
+    {
+      "run_index": 30,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828318159622000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "bc2d689941c6c1760d546888fbb99a4c4034d8204c46137d258fad6814a84e6b",
+      "sha256": "bc2d689941c6c1760d546888fbb99a4c4034d8204c46137d258fad6814a84e6b",
+      "bytes": 46229,
+      "verified": true
+    },
+    {
+      "run_index": 31,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828325455892000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "6f5e9621102a91d3e3d815ae3cf9d966914368da77c2cbe45fe7f8b50e686171",
+      "sha256": "6f5e9621102a91d3e3d815ae3cf9d966914368da77c2cbe45fe7f8b50e686171",
+      "bytes": 46208,
+      "verified": true
+    },
+    {
+      "run_index": 32,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828333148162000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "1ff6c35788d9f1a4dd414e18733b52bd30eb5e0b41cf0ad0f08c67b2cce6a58a",
+      "sha256": "1ff6c35788d9f1a4dd414e18733b52bd30eb5e0b41cf0ad0f08c67b2cce6a58a",
+      "bytes": 46222,
+      "verified": true
+    },
+    {
+      "run_index": 33,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828340540223000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "151f99477ca1bbe8bd5858090888e0cd5176f09736f88885c14e28a66b82e526",
+      "sha256": "151f99477ca1bbe8bd5858090888e0cd5176f09736f88885c14e28a66b82e526",
+      "bytes": 46233,
+      "verified": true
+    },
+    {
+      "run_index": 34,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828347774869000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "218bca51289ed7cf2a61b25eb6d4632a120742b436cd5dba833323e8d57058a2",
+      "sha256": "218bca51289ed7cf2a61b25eb6d4632a120742b436cd5dba833323e8d57058a2",
+      "bytes": 46237,
+      "verified": true
+    },
+    {
+      "run_index": 35,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828355154620000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "c54ecd29fa3c1d4b79074f30f2d4999dba489be50645861baafebf11654e3b61",
+      "sha256": "c54ecd29fa3c1d4b79074f30f2d4999dba489be50645861baafebf11654e3b61",
+      "bytes": 46222,
+      "verified": true
+    },
+    {
+      "run_index": 36,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828362523837000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "e8480045ff0714384d30561b710aa3f7d874a4cc75f85407ad0d473901a7a0f8",
+      "sha256": "e8480045ff0714384d30561b710aa3f7d874a4cc75f85407ad0d473901a7a0f8",
+      "bytes": 45931,
+      "verified": true
+    },
+    {
+      "run_index": 37,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828370235279000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "60ae75f709d1349c66f12b146316bbf642bb4b2cea0044ba07378aa2ed0538be",
+      "sha256": "60ae75f709d1349c66f12b146316bbf642bb4b2cea0044ba07378aa2ed0538be",
+      "bytes": 45903,
+      "verified": true
+    },
+    {
+      "run_index": 38,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828378095207000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "82e89f6ba7aa13238c282d02e79fa43501de6ca37532839d5aadd359b17d0db8",
+      "sha256": "82e89f6ba7aa13238c282d02e79fa43501de6ca37532839d5aadd359b17d0db8",
+      "bytes": 45917,
+      "verified": true
+    },
+    {
+      "run_index": 39,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828385879718000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "55ff23ec0aa206e61deb6a28969fe69369c12b4ea12d6a08db33416884f67806",
+      "sha256": "55ff23ec0aa206e61deb6a28969fe69369c12b4ea12d6a08db33416884f67806",
+      "bytes": 45933,
+      "verified": true
+    },
+    {
+      "run_index": 40,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828393703749000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "f45aa5b26e03b5e5858e70f14a59e74886b19443ae72019b1f66c0cc3dc2bcf7",
+      "sha256": "f45aa5b26e03b5e5858e70f14a59e74886b19443ae72019b1f66c0cc3dc2bcf7",
+      "bytes": 45944,
+      "verified": true
+    },
+    {
+      "run_index": 41,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828401530690000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "223f8d24d35fc3588a9af75361f3878af880d168754b703a4f056fbc05f5e3bd",
+      "sha256": "223f8d24d35fc3588a9af75361f3878af880d168754b703a4f056fbc05f5e3bd",
+      "bytes": 45911,
+      "verified": true
+    },
+    {
+      "run_index": 42,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828409285462000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "4299ddbe5b824c27ba7acccf746cf9b25ffbf075a84b74d05b996890ffb391df",
+      "sha256": "4299ddbe5b824c27ba7acccf746cf9b25ffbf075a84b74d05b996890ffb391df",
+      "bytes": 46683,
+      "verified": true
+    },
+    {
+      "run_index": 43,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828415618855000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "0ae4957652a8f9e1241031411dd37674ba91a4d163cfb64a2033cf1f5cca0f6a",
+      "sha256": "0ae4957652a8f9e1241031411dd37674ba91a4d163cfb64a2033cf1f5cca0f6a",
+      "bytes": 46650,
+      "verified": true
+    },
+    {
+      "run_index": 44,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828421953127000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "c65ed501946cdebf0b8f3105e9ec98ce2eb951ff458302268c6c22844aaeb22d",
+      "sha256": "c65ed501946cdebf0b8f3105e9ec98ce2eb951ff458302268c6c22844aaeb22d",
+      "bytes": 46652,
+      "verified": true
+    },
+    {
+      "run_index": 45,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828428324588000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "902e234f94418fe633b5507e74f77b5fdc39b11adeb517446bef1bc6fbd045d4",
+      "sha256": "902e234f94418fe633b5507e74f77b5fdc39b11adeb517446bef1bc6fbd045d4",
+      "bytes": 46695,
+      "verified": true
+    },
+    {
+      "run_index": 46,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828435477809000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "95641ef097f757e696b630cf581bca701009f18ffc4f183a8e9ba5157a701a54",
+      "sha256": "95641ef097f757e696b630cf581bca701009f18ffc4f183a8e9ba5157a701a54",
+      "bytes": 46676,
+      "verified": true
+    },
+    {
+      "run_index": 47,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828441690363000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "7fb1cdf8d78b2b42ed64434306d529cdf8b89508fc8cdeef26ba807371fe640e",
+      "sha256": "7fb1cdf8d78b2b42ed64434306d529cdf8b89508fc8cdeef26ba807371fe640e",
+      "bytes": 46657,
+      "verified": true
+    },
+    {
+      "run_index": 48,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828449598433000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "9cf0925984ddce8735dda8d4f3a9bfb2fd19d488ec140f9ddc3cf0a96e52b350",
+      "sha256": "9cf0925984ddce8735dda8d4f3a9bfb2fd19d488ec140f9ddc3cf0a96e52b350",
+      "bytes": 49901,
+      "verified": true
+    },
+    {
+      "run_index": 49,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828466596898000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "008b2b6f0a20be530e53f1a1bbdeb745280bdc5d5e7e44cf27ebdfa8cc50cefb",
+      "sha256": "008b2b6f0a20be530e53f1a1bbdeb745280bdc5d5e7e44cf27ebdfa8cc50cefb",
+      "bytes": 49887,
+      "verified": true
+    },
+    {
+      "run_index": 50,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828475863970000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "16a92ef4ebf414a02779fc37348b7432df8f74e857ecf5a849b83864568851a5",
+      "sha256": "16a92ef4ebf414a02779fc37348b7432df8f74e857ecf5a849b83864568851a5",
+      "bytes": 49855,
+      "verified": true
+    },
+    {
+      "run_index": 51,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828483792534000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "d6a3e8c53f0c5966655b33726f0e9a8b88cf7218e8912dc2ba87edde04e12ace",
+      "sha256": "d6a3e8c53f0c5966655b33726f0e9a8b88cf7218e8912dc2ba87edde04e12ace",
+      "bytes": 49896,
+      "verified": true
+    },
+    {
+      "run_index": 52,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828490999865000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "802c06e559c1746086cfb9446f3db070e70c8c5dfe930c9870edfbce67791322",
+      "sha256": "802c06e559c1746086cfb9446f3db070e70c8c5dfe930c9870edfbce67791322",
+      "bytes": 49900,
+      "verified": true
+    },
+    {
+      "run_index": 53,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828498189028000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "35dd4acf755987cef9fa3ff02b694b971fa944d0c25e1c9c79fa9f36020388e1",
+      "sha256": "35dd4acf755987cef9fa3ff02b694b971fa944d0c25e1c9c79fa9f36020388e1",
+      "bytes": 49869,
+      "verified": true
+    },
+    {
+      "run_index": 54,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828506080958000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "3ff26c908ae561f62576162076e004ff14726be2dced58ff709c087da9e4df38",
+      "sha256": "3ff26c908ae561f62576162076e004ff14726be2dced58ff709c087da9e4df38",
+      "bytes": 45075,
+      "verified": true
+    },
+    {
+      "run_index": 55,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828514377038000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "9bc44a8bfab628846024739ee90de2aa73ff25eb2291d4e9cb7a16a548e56e4e",
+      "sha256": "9bc44a8bfab628846024739ee90de2aa73ff25eb2291d4e9cb7a16a548e56e4e",
+      "bytes": 45055,
+      "verified": true
+    },
+    {
+      "run_index": 56,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828522238660000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "5b099b99b29a7667b890f06da84321adc4edd2d56a464a7c4e5ed2f7eb3515c9",
+      "sha256": "5b099b99b29a7667b890f06da84321adc4edd2d56a464a7c4e5ed2f7eb3515c9",
+      "bytes": 45048,
+      "verified": true
+    },
+    {
+      "run_index": 57,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828529418925000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "bf17954585327e38abdb76e2d2a14ad93595e0a61816511bf3e4cecf7d1ee217",
+      "sha256": "bf17954585327e38abdb76e2d2a14ad93595e0a61816511bf3e4cecf7d1ee217",
+      "bytes": 45070,
+      "verified": true
+    },
+    {
+      "run_index": 58,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828536669890000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "f04c2cd49f5413d2fe114e222eefa46d3cd8b42960e9ec0467047aba0fc6c8a5",
+      "sha256": "f04c2cd49f5413d2fe114e222eefa46d3cd8b42960e9ec0467047aba0fc6c8a5",
+      "bytes": 45074,
+      "verified": true
+    },
+    {
+      "run_index": 59,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828544883380000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "8b74ef15bb45c812151daa1355ac94df8ee510a3bc1f8ea124315e83fe5e8043",
+      "sha256": "8b74ef15bb45c812151daa1355ac94df8ee510a3bc1f8ea124315e83fe5e8043",
+      "bytes": 45058,
+      "verified": true
+    },
+    {
+      "run_index": 60,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828572016160000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "796967c142723230650d8f162a9cf4f0962872babd57a3acc8ea268d98f95b46",
+      "sha256": "796967c142723230650d8f162a9cf4f0962872babd57a3acc8ea268d98f95b46",
+      "bytes": 74277,
+      "verified": true
+    },
+    {
+      "run_index": 61,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828587024634000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "c1efe6d4a49dffa999cbbc4a7bc8f7f4c31caa503c756329a8fe246b04894256",
+      "sha256": "c1efe6d4a49dffa999cbbc4a7bc8f7f4c31caa503c756329a8fe246b04894256",
+      "bytes": 74266,
+      "verified": true
+    },
+    {
+      "run_index": 62,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828611456924000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "c5a13df4d6fb6002532ff38aa61d376e208da19deb7572fbfe94bf319faa34b8",
+      "sha256": "c5a13df4d6fb6002532ff38aa61d376e208da19deb7572fbfe94bf319faa34b8",
+      "bytes": 74275,
+      "verified": true
+    },
+    {
+      "run_index": 63,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828624633122000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "5391bd34ed89a8ef0c0462ebd2a3fc31c21209d64d5c470e4edddb27a262cfa5",
+      "sha256": "5391bd34ed89a8ef0c0462ebd2a3fc31c21209d64d5c470e4edddb27a262cfa5",
+      "bytes": 74291,
+      "verified": true
+    },
+    {
+      "run_index": 64,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828638096780000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "2d01352ac4896c9fc8bafd83dac736853f3a042bea2d0fd5a0a8445d6fb011ae",
+      "sha256": "2d01352ac4896c9fc8bafd83dac736853f3a042bea2d0fd5a0a8445d6fb011ae",
+      "bytes": 74298,
+      "verified": true
+    },
+    {
+      "run_index": 65,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828651630318000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "634df5995fd88725596aa17d368fb3f3a171565ddd4a6d99ebd43ff0150d86b3",
+      "sha256": "634df5995fd88725596aa17d368fb3f3a171565ddd4a6d99ebd43ff0150d86b3",
+      "bytes": 74268,
+      "verified": true
+    },
+    {
+      "run_index": 66,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828665107129000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "f8f228a0f79f5d9a55ab8c3ab9b24e3130b42d8e7c20f633dfc4a2969c134b76",
+      "sha256": "f8f228a0f79f5d9a55ab8c3ab9b24e3130b42d8e7c20f633dfc4a2969c134b76",
+      "bytes": 74234,
+      "verified": true
+    },
+    {
+      "run_index": 67,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828683908415000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "b840b186d2885b30585fd678c4083dd12623458d45cff006ec9ae23abd47d996",
+      "sha256": "b840b186d2885b30585fd678c4083dd12623458d45cff006ec9ae23abd47d996",
+      "bytes": 74203,
+      "verified": true
+    },
+    {
+      "run_index": 68,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828703771675000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "80718a51d0344c4e3134d82814a9de1050397830b64f7270ec1ac8e6eb177799",
+      "sha256": "80718a51d0344c4e3134d82814a9de1050397830b64f7270ec1ac8e6eb177799",
+      "bytes": 74235,
+      "verified": true
+    },
+    {
+      "run_index": 69,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828720950912000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "5813e6362f5606d4f89c289568141dbecaf4f8f44d881dd6762dd73eae510459",
+      "sha256": "5813e6362f5606d4f89c289568141dbecaf4f8f44d881dd6762dd73eae510459",
+      "bytes": 74244,
+      "verified": true
+    },
+    {
+      "run_index": 70,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828740431603000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "2e676c80f76cf757cd324ac28e8a0b27bfccf2351f90fcc65e4ce7e2865e8b71",
+      "sha256": "2e676c80f76cf757cd324ac28e8a0b27bfccf2351f90fcc65e4ce7e2865e8b71",
+      "bytes": 74247,
+      "verified": true
+    },
+    {
+      "run_index": 71,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828761457774000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "c8f4b1eae520f3b59ca221ed53868dd31b63139b1ef748b45bf1a360ade6ba3b",
+      "sha256": "c8f4b1eae520f3b59ca221ed53868dd31b63139b1ef748b45bf1a360ade6ba3b",
+      "bytes": 74221,
+      "verified": true
+    },
+    {
+      "run_index": 72,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828782561233000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "0831383d84e72e6fbde753e22a7276c782bcec9ffc69fa735f563dea9d87bb35",
+      "sha256": "0831383d84e72e6fbde753e22a7276c782bcec9ffc69fa735f563dea9d87bb35",
+      "bytes": 74535,
+      "verified": true
+    },
+    {
+      "run_index": 73,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828789970309000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "5c00db1d82546954047905481db7ad00d9de5980a25ab5e353600028ac254e03",
+      "sha256": "5c00db1d82546954047905481db7ad00d9de5980a25ab5e353600028ac254e03",
+      "bytes": 74501,
+      "verified": true
+    },
+    {
+      "run_index": 74,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828809379991000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "b43593e1af1cb45e7af36bd79420a0f7c1c5a84bf22b9fbc542ebd0750fbeac5",
+      "sha256": "b43593e1af1cb45e7af36bd79420a0f7c1c5a84bf22b9fbc542ebd0750fbeac5",
+      "bytes": 74518,
+      "verified": true
+    },
+    {
+      "run_index": 75,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828827889421000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "1bf918a274d10d7ef5d36dc8c75bce7bd2b1894ef8bc8cd5924916fae4d4bdad",
+      "sha256": "1bf918a274d10d7ef5d36dc8c75bce7bd2b1894ef8bc8cd5924916fae4d4bdad",
+      "bytes": 74594,
+      "verified": true
+    },
+    {
+      "run_index": 76,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828852010956000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "e5ae0e1c3fd2354ae0b5e192fb337ed1e9a809e5d3f8bc2d4ea950f8985ab681",
+      "sha256": "e5ae0e1c3fd2354ae0b5e192fb337ed1e9a809e5d3f8bc2d4ea950f8985ab681",
+      "bytes": 74531,
+      "verified": true
+    },
+    {
+      "run_index": 77,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828860561059000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "3fd3d0e477df0e3e78005575d8b192d5e8a72fb0c2d44cc087dca7d2bfa2b101",
+      "sha256": "3fd3d0e477df0e3e78005575d8b192d5e8a72fb0c2d44cc087dca7d2bfa2b101",
+      "bytes": 74500,
+      "verified": true
+    },
+    {
+      "run_index": 78,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828874522303000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "94161988d2a1858cb72b6a8a57b380dbca1a75d5f93416bedc20705e1df66317",
+      "sha256": "94161988d2a1858cb72b6a8a57b380dbca1a75d5f93416bedc20705e1df66317",
+      "bytes": 83234,
+      "verified": true
+    },
+    {
+      "run_index": 79,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828883265150000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "3c77025c6b9fe8eb3a93adf2e26059f64d0c888eecbb81a81b2ec086cdef1e16",
+      "sha256": "3c77025c6b9fe8eb3a93adf2e26059f64d0c888eecbb81a81b2ec086cdef1e16",
+      "bytes": 83225,
+      "verified": true
+    },
+    {
+      "run_index": 80,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828898225252000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "74d27c7c956798535ed252f82f119b82c8e55f1a4ca3eb52e1866b2593ad4392",
+      "sha256": "74d27c7c956798535ed252f82f119b82c8e55f1a4ca3eb52e1866b2593ad4392",
+      "bytes": 83275,
+      "verified": true
+    },
+    {
+      "run_index": 81,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828930810843000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "e995de689528d99da453f24635bcc5d98373d10f51b302c33e65cb2faa58991a",
+      "sha256": "e995de689528d99da453f24635bcc5d98373d10f51b302c33e65cb2faa58991a",
+      "bytes": 83291,
+      "verified": true
+    },
+    {
+      "run_index": 82,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828948605793000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "29439ef30b55eb4822302819444c815970e1a50816530b2fff237ce0bc876454",
+      "sha256": "29439ef30b55eb4822302819444c815970e1a50816530b2fff237ce0bc876454",
+      "bytes": 83300,
+      "verified": true
+    },
+    {
+      "run_index": 83,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828969764560000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "4a814e05e7782570abb78bc930b51ced91fa8eab0a66906f8531c9550fe52804",
+      "sha256": "4a814e05e7782570abb78bc930b51ced91fa8eab0a66906f8531c9550fe52804",
+      "bytes": 83242,
+      "verified": true
+    },
+    {
+      "run_index": 84,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792828987011252000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "55cb96601e89e99c32d9dd134b532f6f1ae8c49afa08ea7b3e8e7baedb616f2e",
+      "sha256": "55cb96601e89e99c32d9dd134b532f6f1ae8c49afa08ea7b3e8e7baedb616f2e",
+      "bytes": 73260,
+      "verified": true
+    },
+    {
+      "run_index": 85,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829011119175000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "da3532e6f4394cf5e5096d54a0906ed7782fa7584d235b7013ea670905fd46a6",
+      "sha256": "da3532e6f4394cf5e5096d54a0906ed7782fa7584d235b7013ea670905fd46a6",
+      "bytes": 73240,
+      "verified": true
+    },
+    {
+      "run_index": 86,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829048700540000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "73524cd1d8c6e75f426b2b2caefd9caf19af430835fe4f201995d916046d62cc",
+      "sha256": "73524cd1d8c6e75f426b2b2caefd9caf19af430835fe4f201995d916046d62cc",
+      "bytes": 73202,
+      "verified": true
+    },
+    {
+      "run_index": 87,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829062457015000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "d940e954c892a41010d8e2aaf5fbb51f9e8189e471b6df6b92cacc1d38f34597",
+      "sha256": "d940e954c892a41010d8e2aaf5fbb51f9e8189e471b6df6b92cacc1d38f34597",
+      "bytes": 73261,
+      "verified": true
+    },
+    {
+      "run_index": 88,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829082730598000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "3cb8291fadd1843704dccc06acfef2a15980eebf2aaf9b8daa08efdf66c587b9",
+      "sha256": "3cb8291fadd1843704dccc06acfef2a15980eebf2aaf9b8daa08efdf66c587b9",
+      "bytes": 73235,
+      "verified": true
+    },
+    {
+      "run_index": 89,
+      "path": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/runs/1792829095748353000-cider-lab-wine11.18-waitall-latepark-x86_64-x86_64-bench.json",
+      "expected_sha256": "d32be54e5e88312c5d16a19a02827c9740af705bc4266d192e2168f0e4c5d599",
+      "sha256": "d32be54e5e88312c5d16a19a02827c9740af705bc4266d192e2168f0e4c5d599",
+      "bytes": 73198,
+      "verified": true
+    }
+  ],
+  "originalVerdict": {
+    "state": "complete",
+    "executionPassed": true,
+    "attributionAccepted": false,
+    "fullM1Accepted": false
+  },
+  "notes": {
+    "causal_attribution_supported": false,
+    "reason": "QPC wall intervals combine executing, waiting and off-CPU time; fixed S/M,M/S,S/M order has only one reverse pair and no randomized independent replication. Spread, pair contrasts and warmup comparisons do not identify a mechanism or prove host noise.",
+    "missing_measurement_source_point": "Frozen sync-user-bench.c worker_interval lines 366 and 376 bracket each hot loop with QPC only. Missing: same-interval per-worker native-thread CPU runtime and running/blocked/runnable timeline tied to runID/worker/native thread identity, with the timing provider verified as per-thread. GetThreadTimes is absent from these receipts; research85 warns that Wine macOS ThreadTimes may fall back to process CPU. Do not substitute that unverified value.",
+    "finish_barrier_boundary": "Lines 379-380 spin at a finish barrier after each worker stops QPC. tail_after_own_end_ns is a wall-time opportunity for post-loop activity while slower peers remain measured, NOT measured barrier residency, CPU, interference, or cause. Actual arrival/exit and native execution state are missing.",
+    "metric": "ns per completed worker iteration from min(begin) to max(end); no subtraction. Worker interval sums/intersections are wall interval geometry, not CPU, utilization, isolated API latency, kernel-park proof or wake percentiles.",
+    "spread": "range_pct_of_median = 100*(max-min)/median, descriptive only; three whole-run samples per backend, four nested batches per run are not independent replicates.",
+    "order": "All paired percentages use 100*(M/S-1), regardless of execution order. reverse_minus_mean_forward_pp is pair1 minus mean(pair0,pair2), in percentage points; same-order drift is pair2 minus pair0. These are descriptive, not corrected verdicts or estimates of an order effect.",
+    "warmup": "measurement_vs_warmup_pct compares normalized envelope/iteration costs, not raw durations. Warmup always precedes measurement, uses fewer iterations, reuses workers and resets state. It cannot prove convergence or isolate warming from phase length/contention changes.",
+    "preservation": "All 90 receipts' rows are copied with all original field values into receipt_rows, including checks, warmup, measurement, begin, summary and complete; all original cells and run summaries retained. Original file bytes remain unchanged. No run retried, excluded, rewritten or reweighted. No gate change or new benchmark."
+  },
+  "cells": [
+    {
+      "kind": "cs",
+      "threads": 2,
+      "original_cell": {
+        "kind": "cs",
+        "threads": 2,
+        "values": {
+          "server": [
+            141.22329375,
+            139.54911875,
+            105.41775
+          ],
+          "msync": [
+            145.34844375,
+            146.7561125,
+            144.69355
+          ]
+        },
+        "medians": {
+          "server": 139.54911875,
+          "msync": 145.34844375
+        },
+        "relative": 0.04155758955661626,
+        "within3Percent": false
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            0,
+            3,
+            4
+          ],
+          "three_run_spread": {
+            "values": [
+              141.22329375,
+              139.54911875,
+              105.41775
+            ],
+            "count": 3,
+            "minimum": 105.41775,
+            "maximum": 141.22329375,
+            "median": 139.54911875,
+            "mean": 128.73005416666666,
+            "range": 35.80554375000001,
+            "range_pct_of_median": 25.658022114883483,
+            "max_over_min": 1.3396538415020243
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                126.49688720703125,
+                164.09759521484375,
+                148.25439453125,
+                128.23486328125,
+                166.39251708984375,
+                140.34881591796875,
+                148.10333251953125,
+                126.06964111328125,
+                143.13507080078125,
+                153.30352783203125,
+                141.6046142578125,
+                49.18670654296875
+              ],
+              "count": 12,
+              "minimum": 49.18670654296875,
+              "maximum": 166.39251708984375,
+              "median": 142.36984252929688,
+              "mean": 136.2689971923828,
+              "range": 117.205810546875,
+              "range_pct_of_median": 82.32488599034335,
+              "max_over_min": 3.3828757561656584
+            },
+            "measurement": {
+              "values": [
+                149.343625,
+                138.014025,
+                139.741375,
+                137.79415,
+                152.417675,
+                144.8058,
+                122.652,
+                138.321,
+                158.656675,
+                141.755325,
+                74.41705,
+                46.84195
+              ],
+              "count": 12,
+              "minimum": 46.84195,
+              "maximum": 158.656675,
+              "median": 139.0311875,
+              "mean": 128.73005416666666,
+              "range": 111.81472500000001,
+              "range_pct_of_median": 80.42420338242455,
+              "max_over_min": 3.387063839144186
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -0.3862860242597632,
+            -3.9107027286004015,
+            -13.455437939814164
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            1,
+            2,
+            5
+          ],
+          "three_run_spread": {
+            "values": [
+              145.34844375,
+              146.7561125,
+              144.69355
+            ],
+            "count": 3,
+            "minimum": 144.69355,
+            "maximum": 146.7561125,
+            "median": 145.34844375,
+            "mean": 145.59936875,
+            "range": 2.0625625000000127,
+            "range_pct_of_median": 1.4190468413598083,
+            "max_over_min": 1.0142546955272023
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                165.0146484375,
+                123.1719970703125,
+                149.31182861328125,
+                136.98883056640625,
+                181.79473876953125,
+                145.9747314453125,
+                137.63580322265625,
+                148.74420166015625,
+                172.0245361328125,
+                151.898193359375,
+                131.6925048828125,
+                139.8284912109375
+              ],
+              "count": 12,
+              "minimum": 123.1719970703125,
+              "maximum": 181.79473876953125,
+              "median": 147.35946655273438,
+              "mean": 148.67337544759116,
+              "range": 58.62274169921875,
+              "range_pct_of_median": 39.78213485065779,
+              "max_over_min": 1.4759421223458289
+            },
+            "measurement": {
+              "values": [
+                158.12985,
+                136.8732,
+                147.662125,
+                138.7286,
+                162.973925,
+                147.9047,
+                140.6285,
+                135.517325,
+                149.635375,
+                145.3847,
+                144.262875,
+                139.49125
+              ],
+              "count": 12,
+              "minimum": 135.517325,
+              "maximum": 162.973925,
+              "median": 144.8237875,
+              "mean": 145.59936875,
+              "range": 27.45660000000001,
+              "range_pct_of_median": 18.958625840385515,
+              "max_over_min": 1.2026058291808817
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            1.2021972036887485,
+            -4.416681312532766,
+            -2.799513181457103
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            0,
+            1
+          ],
+          "ns_per_iteration": {
+            "server": 141.22329375,
+            "msync": 145.34844375
+          },
+          "msync_minus_server_ns": 4.125149999999991,
+          "msync_relative_pct": 2.921012455142513,
+          "adjacent_start_gap_seconds": 12.531217813491821
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            2,
+            3
+          ],
+          "ns_per_iteration": {
+            "msync": 146.7561125,
+            "server": 139.54911875
+          },
+          "msync_minus_server_ns": 7.206993750000009,
+          "msync_relative_pct": 5.164485318543077,
+          "adjacent_start_gap_seconds": 7.623972177505493
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            4,
+            5
+          ],
+          "ns_per_iteration": {
+            "server": 105.41775,
+            "msync": 144.69355
+          },
+          "msync_minus_server_ns": 39.27579999999999,
+          "msync_relative_pct": 37.257293008056024,
+          "adjacent_start_gap_seconds": 6.912762880325317
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": -14.924667413056193,
+        "second_forward_minus_first_forward_pp": 34.33628055291351,
+        "paired_delta_min_pct": 2.921012455142513,
+        "paired_delta_max_pct": 37.257293008056024,
+        "paired_delta_sign_changes": false,
+        "same_order_last_vs_first_run_pct": {
+          "server": -25.35385119496266,
+          "msync": -0.4505681196879108
+        }
+      }
+    },
+    {
+      "kind": "srw",
+      "threads": 2,
+      "original_cell": {
+        "kind": "srw",
+        "threads": 2,
+        "values": {
+          "server": [
+            56.6394,
+            55.8176875,
+            88.2685125
+          ],
+          "msync": [
+            57.16965,
+            79.56100625,
+            56.38234375
+          ]
+        },
+        "medians": {
+          "server": 56.6394,
+          "msync": 57.16965
+        },
+        "relative": 0.00936185764679709,
+        "within3Percent": true
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            6,
+            9,
+            10
+          ],
+          "three_run_spread": {
+            "values": [
+              56.6394,
+              55.8176875,
+              88.2685125
+            ],
+            "count": 3,
+            "minimum": 55.8176875,
+            "maximum": 88.2685125,
+            "median": 56.6394,
+            "mean": 66.90853333333334,
+            "range": 32.450825,
+            "range_pct_of_median": 57.2937301595709,
+            "max_over_min": 1.5813717202096558
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                50.5340576171875,
+                57.8857421875,
+                53.9154052734375,
+                57.77740478515625,
+                54.5745849609375,
+                49.73297119140625,
+                52.4017333984375,
+                54.13665771484375,
+                53.2867431640625,
+                53.61328125,
+                50.41961669921875,
+                55.79681396484375
+              ],
+              "count": 12,
+              "minimum": 49.73297119140625,
+              "maximum": 57.8857421875,
+              "median": 53.76434326171875,
+              "mean": 53.67291768391927,
+              "range": 8.15277099609375,
+              "range_pct_of_median": 15.163899531715623,
+              "max_over_min": 1.163930905409137
+            },
+            "measurement": {
+              "values": [
+                56.178075,
+                56.4101,
+                56.617825,
+                57.3516,
+                64.92,
+                53.083825,
+                53.37395,
+                51.892975,
+                188.307325,
+                54.101,
+                54.244275,
+                56.42145
+              ],
+              "count": 12,
+              "minimum": 51.892975,
+              "maximum": 188.307325,
+              "median": 56.2940875,
+              "mean": 66.90853333333334,
+              "range": 136.41434999999998,
+              "range_pct_of_median": 242.32447146425451,
+              "max_over_min": 3.628763334536129
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            2.9280422147199836,
+            5.892834505717182,
+            65.67188576338174
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            7,
+            8,
+            11
+          ],
+          "three_run_spread": {
+            "values": [
+              57.16965,
+              79.56100625,
+              56.38234375
+            ],
+            "count": 3,
+            "minimum": 56.38234375,
+            "maximum": 79.56100625,
+            "median": 57.16965,
+            "mean": 64.371,
+            "range": 23.17866250000001,
+            "range_pct_of_median": 40.543649471354136,
+            "max_over_min": 1.4110978891330677
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                49.4140625,
+                56.22100830078125,
+                57.8094482421875,
+                59.9395751953125,
+                49.16534423828125,
+                52.13165283203125,
+                84.8175048828125,
+                59.893798828125,
+                54.718017578125,
+                55.00946044921875,
+                52.98919677734375,
+                51.15509033203125
+              ],
+              "count": 12,
+              "minimum": 49.16534423828125,
+              "maximum": 84.8175048828125,
+              "median": 54.863739013671875,
+              "mean": 56.938680013020836,
+              "range": 35.65216064453125,
+              "range_pct_of_median": 64.98310411480858,
+              "max_over_min": 1.7251481952763725
+            },
+            "measurement": {
+              "values": [
+                56.839825,
+                56.91345,
+                57.33055,
+                57.594775,
+                55.7952,
+                151.45915,
+                55.196625,
+                55.79305,
+                56.5856,
+                55.991075,
+                57.2764,
+                55.6763
+              ],
+              "count": 12,
+              "minimum": 55.196625,
+              "maximum": 151.45915,
+              "median": 56.712712499999995,
+              "mean": 64.371,
+              "range": 96.262525,
+              "range_pct_of_median": 169.7371202267922,
+              "max_over_min": 2.7439929524676554
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            2.3701355191704687,
+            29.36312473577136,
+            5.45074748685459
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            6,
+            7
+          ],
+          "ns_per_iteration": {
+            "server": 56.6394,
+            "msync": 57.16965
+          },
+          "msync_minus_server_ns": 0.5302499999999952,
+          "msync_relative_pct": 0.9361857646797089,
+          "adjacent_start_gap_seconds": 6.2101099491119385
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            8,
+            9
+          ],
+          "ns_per_iteration": {
+            "msync": 79.56100625,
+            "server": 55.8176875
+          },
+          "msync_minus_server_ns": 23.743318750000007,
+          "msync_relative_pct": 42.53726697294653,
+          "adjacent_start_gap_seconds": 6.651293992996216
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            10,
+            11
+          ],
+          "ns_per_iteration": {
+            "server": 88.2685125,
+            "msync": 56.38234375
+          },
+          "msync_minus_server_ns": -31.886168750000003,
+          "msync_relative_pct": -36.124058111889,
+          "adjacent_start_gap_seconds": 7.451136827468872
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": 60.13120314655118,
+        "second_forward_minus_first_forward_pp": -37.060243876568705,
+        "paired_delta_min_pct": -36.124058111889,
+        "paired_delta_max_pct": 42.53726697294653,
+        "paired_delta_sign_changes": true,
+        "same_order_last_vs_first_run_pct": {
+          "server": 55.8429511965169,
+          "msync": -1.377140230874252
+        }
+      }
+    },
+    {
+      "kind": "cv",
+      "threads": 2,
+      "original_cell": {
+        "kind": "cv",
+        "threads": 2,
+        "values": {
+          "server": [
+            3767.253125,
+            3260.2,
+            3297.150625
+          ],
+          "msync": [
+            3582.57,
+            3337.7625,
+            3260.149375
+          ]
+        },
+        "medians": {
+          "server": 3297.150625,
+          "msync": 3337.7625
+        },
+        "relative": 0.012317264092233993,
+        "within3Percent": true
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            12,
+            15,
+            16
+          ],
+          "three_run_spread": {
+            "values": [
+              3767.253125,
+              3260.2,
+              3297.150625
+            ],
+            "count": 3,
+            "minimum": 3260.2,
+            "maximum": 3767.253125,
+            "median": 3297.150625,
+            "mean": 3441.5345833333336,
+            "range": 507.05312500000036,
+            "range_pct_of_median": 15.378524752717366,
+            "max_over_min": 1.1555282267959022
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                3826.66015625,
+                3342.96875,
+                3204.4921875,
+                3277.1484375,
+                3848.046875,
+                3282.2265625,
+                3219.62890625,
+                3202.44140625,
+                3666.89453125,
+                3342.87109375,
+                3396.2890625,
+                3295.5078125
+              ],
+              "count": 12,
+              "minimum": 3202.44140625,
+              "maximum": 3848.046875,
+              "median": 3319.189453125,
+              "mean": 3408.7646484375,
+              "range": 645.60546875,
+              "range_pct_of_median": 19.450696559130293,
+              "max_over_min": 1.2015979019912786
+            },
+            "measurement": {
+              "values": [
+                3336.605,
+                3366.325,
+                3999.365,
+                4366.7175,
+                3251.59,
+                3265.485,
+                3308.155,
+                3215.57,
+                3284.04,
+                3301.1975,
+                3296.545,
+                3306.82
+              ],
+              "count": 12,
+              "minimum": 3215.57,
+              "maximum": 4366.7175,
+              "median": 3304.00875,
+              "mean": 3441.5345833333336,
+              "range": 1151.1474999999996,
+              "range_pct_of_median": 34.84093375963364,
+              "max_over_min": 1.3579917401891421
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            10.38542946869927,
+            -3.774577736784468,
+            -3.7438065914015217
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            13,
+            14,
+            17
+          ],
+          "three_run_spread": {
+            "values": [
+              3582.57,
+              3337.7625,
+              3260.149375
+            ],
+            "count": 3,
+            "minimum": 3260.149375,
+            "maximum": 3582.57,
+            "median": 3337.7625,
+            "mean": 3393.4939583333335,
+            "range": 322.4206250000002,
+            "range_pct_of_median": 9.659783312922961,
+            "max_over_min": 1.0988975006705024
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                3988.28125,
+                3228.61328125,
+                7208.203125,
+                4190.0390625,
+                3916.9921875,
+                3377.05078125,
+                3215.52734375,
+                2602.83203125,
+                3702.9296875,
+                3100.09765625,
+                2978.7109375,
+                3357.12890625
+              ],
+              "count": 12,
+              "minimum": 2602.83203125,
+              "maximum": 7208.203125,
+              "median": 3367.08984375,
+              "mean": 3738.8671875,
+              "range": 4605.37109375,
+              "range_pct_of_median": 136.77600858493577,
+              "max_over_min": 2.7693693017671555
+            },
+            "measurement": {
+              "values": [
+                3552.6025,
+                3663.6325,
+                3753.935,
+                3360.11,
+                3310.5375,
+                3360.24,
+                3345.0825,
+                3335.19,
+                3229.45,
+                3264.2225,
+                3244.9175,
+                3302.0075
+              ],
+              "count": 12,
+              "minimum": 3229.45,
+              "maximum": 3753.935,
+              "median": 3340.13625,
+              "mean": 3393.4939583333335,
+              "range": 524.4850000000001,
+              "range_pct_of_median": 15.702503153875838,
+              "max_over_min": 1.162406911393581
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -23.018131875626246,
+            1.820014746296672,
+            -0.7479312036390184
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            12,
+            13
+          ],
+          "ns_per_iteration": {
+            "server": 3767.253125,
+            "msync": 3582.57
+          },
+          "msync_minus_server_ns": -184.68312500000002,
+          "msync_relative_pct": -4.902328536790312,
+          "adjacent_start_gap_seconds": 5.8646559715271
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            14,
+            15
+          ],
+          "ns_per_iteration": {
+            "msync": 3337.7625,
+            "server": 3260.2
+          },
+          "msync_minus_server_ns": 77.5625,
+          "msync_relative_pct": 2.3790718360836793,
+          "adjacent_start_gap_seconds": 6.1078901290893555
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            16,
+            17
+          ],
+          "ns_per_iteration": {
+            "server": 3297.150625,
+            "msync": 3260.149375
+          },
+          "msync_minus_server_ns": -37.001250000000255,
+          "msync_relative_pct": -1.1222189765746626,
+          "adjacent_start_gap_seconds": 5.633279085159302
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": 5.391345592766167,
+        "second_forward_minus_first_forward_pp": 3.78010956021565,
+        "paired_delta_min_pct": -4.902328536790312,
+        "paired_delta_max_pct": 2.3790718360836793,
+        "paired_delta_sign_changes": true,
+        "same_order_last_vs_first_run_pct": {
+          "server": -12.478654457284444,
+          "msync": -8.99970202954863
+        }
+      }
+    },
+    {
+      "kind": "address",
+      "threads": 2,
+      "original_cell": {
+        "kind": "address",
+        "threads": 2,
+        "values": {
+          "server": [
+            2907.3565625,
+            2891.3625,
+            2862.1884375
+          ],
+          "msync": [
+            2895.3228125,
+            2847.6228125,
+            2557.0478125
+          ]
+        },
+        "medians": {
+          "server": 2891.3625,
+          "msync": 2847.6228125
+        },
+        "relative": -0.015127707957753644,
+        "within3Percent": true
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            18,
+            21,
+            22
+          ],
+          "three_run_spread": {
+            "values": [
+              2907.3565625,
+              2891.3625,
+              2862.1884375
+            ],
+            "count": 3,
+            "minimum": 2862.1884375,
+            "maximum": 2907.3565625,
+            "median": 2891.3625,
+            "mean": 2886.9691666666668,
+            "range": 45.168125000000146,
+            "range_pct_of_median": 1.5621744073944426,
+            "max_over_min": 1.0157809752873757
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                2848.6328125,
+                2179.4921875,
+                3008.88671875,
+                3023.6328125,
+                3245.751953125,
+                3136.376953125,
+                2774.4140625,
+                2977.5390625,
+                3143.5546875,
+                2960.83984375,
+                2567.236328125,
+                2914.599609375
+              ],
+              "count": 12,
+              "minimum": 2179.4921875,
+              "maximum": 3245.751953125,
+              "median": 2969.189453125,
+              "mean": 2898.4130859375,
+              "range": 1066.259765625,
+              "range_pct_of_median": 35.910802677235274,
+              "max_over_min": 1.489223944797921
+            },
+            "measurement": {
+              "values": [
+                2948.67,
+                2887.30875,
+                2995.91125,
+                2797.53625,
+                2934.615,
+                3055.21375,
+                2924.21625,
+                2651.405,
+                2726.365,
+                2933.52375,
+                2920.26875,
+                2868.59625
+              ],
+              "count": 12,
+              "minimum": 2651.405,
+              "maximum": 3055.21375,
+              "median": 2922.2425000000003,
+              "mean": 2886.9691666666668,
+              "range": 403.8087499999997,
+              "range_pct_of_median": 13.818454491713117,
+              "max_over_min": 1.1522999126878013
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            5.142392173828592,
+            -4.686238561644385,
+            -1.1865525989733894
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            19,
+            20,
+            23
+          ],
+          "three_run_spread": {
+            "values": [
+              2895.3228125,
+              2847.6228125,
+              2557.0478125
+            ],
+            "count": 3,
+            "minimum": 2557.0478125,
+            "maximum": 2895.3228125,
+            "median": 2847.6228125,
+            "mean": 2766.6644791666668,
+            "range": 338.2750000000001,
+            "range_pct_of_median": 11.87920670234482,
+            "max_over_min": 1.1322912298887646
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                3265.283203125,
+                2171.77734375,
+                2912.59765625,
+                1521.044921875,
+                3745.60546875,
+                3212.59765625,
+                96.6796875,
+                1822.607421875,
+                3200.439453125,
+                2849.462890625,
+                3038.037109375,
+                123.33984375
+              ],
+              "count": 12,
+              "minimum": 96.6796875,
+              "maximum": 3745.60546875,
+              "median": 2881.0302734375,
+              "mean": 2329.9560546875,
+              "range": 3648.92578125,
+              "range_pct_of_median": 126.6535036057183,
+              "max_over_min": 38.74242424242424
+            },
+            "measurement": {
+              "values": [
+                3047.01,
+                2958.47625,
+                3038.7,
+                2537.105,
+                2701.5,
+                2999.13375,
+                2747.20875,
+                2942.64875,
+                2914.1975,
+                1863.11,
+                2906.9525,
+                2543.93125
+              ],
+              "count": 12,
+              "minimum": 1863.11,
+              "maximum": 3047.01,
+              "median": 2910.575,
+              "mean": 2766.6644791666668,
+              "range": 1183.9000000000003,
+              "range_pct_of_median": 40.67581148054939,
+              "max_over_min": 1.6354428885036312
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            17.329952115240022,
+            28.307561588682752,
+            11.039855815358845
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            18,
+            19
+          ],
+          "ns_per_iteration": {
+            "server": 2907.3565625,
+            "msync": 2895.3228125
+          },
+          "msync_minus_server_ns": -12.033750000000055,
+          "msync_relative_pct": -0.4139069199566081,
+          "adjacent_start_gap_seconds": 6.078958988189697
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            20,
+            21
+          ],
+          "ns_per_iteration": {
+            "msync": 2847.6228125,
+            "server": 2891.3625
+          },
+          "msync_minus_server_ns": -43.7396875000004,
+          "msync_relative_pct": -1.5127707957753644,
+          "adjacent_start_gap_seconds": 6.287599802017212
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            22,
+            23
+          ],
+          "ns_per_iteration": {
+            "server": 2862.1884375,
+            "msync": 2557.0478125
+          },
+          "msync_minus_server_ns": -305.140625,
+          "msync_relative_pct": -10.661094881178656,
+          "adjacent_start_gap_seconds": 6.095111846923828
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": 4.024730104792267,
+        "second_forward_minus_first_forward_pp": -10.247187961222048,
+        "paired_delta_min_pct": -10.661094881178656,
+        "paired_delta_max_pct": -0.4139069199566081,
+        "paired_delta_sign_changes": false,
+        "same_order_last_vs_first_run_pct": {
+          "server": -1.5535805130541203,
+          "msync": -11.683498590884678
+        }
+      }
+    },
+    {
+      "kind": "once",
+      "threads": 2,
+      "original_cell": {
+        "kind": "once",
+        "threads": 2,
+        "values": {
+          "server": [
+            2.466500977,
+            3.125088086,
+            2.445146875
+          ],
+          "msync": [
+            2.332319531,
+            2.879028516,
+            3.813134961
+          ]
+        },
+        "medians": {
+          "server": 2.466500977,
+          "msync": 2.879028516
+        },
+        "relative": 0.1672521287632962,
+        "within3Percent": false
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            24,
+            27,
+            28
+          ],
+          "three_run_spread": {
+            "values": [
+              2.466500977,
+              3.125088086,
+              2.445146875
+            ],
+            "count": 3,
+            "minimum": 2.445146875,
+            "maximum": 3.125088086,
+            "median": 2.466500977,
+            "mean": 2.6789119793333334,
+            "range": 0.679941211,
+            "range_pct_of_median": 27.56703594851242,
+            "max_over_min": 1.2780778602512375
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                2.5388717651367188,
+                2.532196044921875,
+                2.4539947509765625,
+                2.471160888671875,
+                3.2617568969726562,
+                3.1198501586914062,
+                3.2197952270507812,
+                3.1002044677734375,
+                5.97381591796875,
+                2.4013519287109375,
+                2.30865478515625,
+                2.30865478515625
+              ],
+              "count": 12,
+              "minimum": 2.30865478515625,
+              "maximum": 5.97381591796875,
+              "median": 2.535533905029297,
+              "mean": 2.9741923014322915,
+              "range": 3.6651611328125,
+              "range_pct_of_median": 144.5518486478354,
+              "max_over_min": 2.5875743555849304
+            },
+            "measurement": {
+              "values": [
+                2.46739609375,
+                2.46657734375,
+                2.46787734375,
+                2.464153125,
+                3.12453203125,
+                3.12461171875,
+                3.11849609375,
+                3.1327125,
+                2.79035625,
+                2.34420859375,
+                2.32657109375,
+                2.3194515625
+              ],
+              "count": 12,
+              "minimum": 2.3194515625,
+              "maximum": 3.1327125,
+              "median": 2.46763671875,
+              "mean": 2.6789119791666667,
+              "range": 0.8132609375,
+              "range_pct_of_median": 32.95707716296114,
+              "max_over_min": 1.3506263940357668
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -1.3026874010189093,
+            -1.5844799062964543,
+            -24.721150662086387
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            25,
+            26,
+            29
+          ],
+          "three_run_spread": {
+            "values": [
+              2.332319531,
+              2.879028516,
+              3.813134961
+            ],
+            "count": 3,
+            "minimum": 2.332319531,
+            "maximum": 3.813134961,
+            "median": 2.879028516,
+            "mean": 3.0081610026666668,
+            "range": 1.4808154299999998,
+            "range_pct_of_median": 51.43455237662536,
+            "max_over_min": 1.6349110446993893
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                2.4852752685546875,
+                2.3118972778320312,
+                2.3591995239257812,
+                2.3038864135742188,
+                2.9966354370117188,
+                2.862548828125,
+                2.8375625610351562,
+                2.9760360717773438,
+                4.056549072265625,
+                3.952789306640625,
+                3.7960052490234375,
+                3.8743972778320312
+              ],
+              "count": 12,
+              "minimum": 2.3038864135742188,
+              "maximum": 4.056549072265625,
+              "median": 2.919292449951172,
+              "mean": 3.0677318572998047,
+              "range": 1.7526626586914062,
+              "range_pct_of_median": 60.03724151448826,
+              "max_over_min": 1.7607417832602037
+            },
+            "measurement": {
+              "values": [
+                2.3409546875,
+                2.33240703125,
+                2.33058515625,
+                2.32533125,
+                2.87336796875,
+                2.87170390625,
+                2.87589453125,
+                2.89514765625,
+                3.819946875,
+                3.806525,
+                3.81402890625,
+                3.8120390625
+              ],
+              "count": 12,
+              "minimum": 2.32533125,
+              "maximum": 3.819946875,
+              "median": 2.87463125,
+              "mean": 3.0081610026041665,
+              "range": 1.4946156249999998,
+              "range_pct_of_median": 51.99329914054193,
+              "max_over_min": 1.6427538549615242
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -1.3845325591241742,
+            -1.3421721008513243,
+            -2.7245415889157854
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            24,
+            25
+          ],
+          "ns_per_iteration": {
+            "server": 2.466500977,
+            "msync": 2.332319531
+          },
+          "msync_minus_server_ns": -0.13418144599999993,
+          "msync_relative_pct": -5.4401537745671025,
+          "adjacent_start_gap_seconds": 6.439329147338867
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            26,
+            27
+          ],
+          "ns_per_iteration": {
+            "msync": 2.879028516,
+            "server": 3.125088086
+          },
+          "msync_minus_server_ns": -0.2460595699999999,
+          "msync_relative_pct": -7.8736843003663015,
+          "adjacent_start_gap_seconds": 6.547068119049072
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            28,
+            29
+          ],
+          "ns_per_iteration": {
+            "server": 2.445146875,
+            "msync": 3.813134961
+          },
+          "msync_minus_server_ns": 1.367988086,
+          "msync_relative_pct": 55.94707213651533,
+          "adjacent_start_gap_seconds": 6.358750820159912
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": -33.12714348134042,
+        "second_forward_minus_first_forward_pp": 61.38722591108243,
+        "paired_delta_min_pct": -7.8736843003663015,
+        "paired_delta_max_pct": 55.94707213651533,
+        "paired_delta_sign_changes": true,
+        "same_order_last_vs_first_run_pct": {
+          "server": -0.8657649925593369,
+          "msync": 63.49110446993893
+        }
+      }
+    },
+    {
+      "kind": "cs",
+      "threads": 4,
+      "original_cell": {
+        "kind": "cs",
+        "threads": 4,
+        "values": {
+          "server": [
+            65.532375,
+            67.1125625,
+            70.89188125
+          ],
+          "msync": [
+            67.135246875,
+            68.3641875,
+            68.86589375
+          ]
+        },
+        "medians": {
+          "server": 67.1125625,
+          "msync": 68.3641875
+        },
+        "relative": 0.018649638061428497,
+        "within3Percent": true
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            30,
+            33,
+            34
+          ],
+          "three_run_spread": {
+            "values": [
+              65.532375,
+              67.1125625,
+              70.89188125
+            ],
+            "count": 3,
+            "minimum": 65.532375,
+            "maximum": 70.89188125,
+            "median": 67.1125625,
+            "mean": 67.84560625,
+            "range": 5.3595062499999955,
+            "range_pct_of_median": 7.985846539535717,
+            "max_over_min": 1.0817840990807979
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                58.0413818359375,
+                83.73260498046875,
+                75.38604736328125,
+                69.354248046875,
+                60.158538818359375,
+                70.31478881835938,
+                69.207763671875,
+                56.88323974609375,
+                59.24835205078125,
+                72.80807495117188,
+                81.55975341796875,
+                74.609375
+              ],
+              "count": 12,
+              "minimum": 56.88323974609375,
+              "maximum": 83.73260498046875,
+              "median": 69.83451843261719,
+              "mean": 69.27534739176433,
+              "range": 26.849365234375,
+              "range_pct_of_median": 38.44712591564837,
+              "max_over_min": 1.4720083693232116
+            },
+            "measurement": {
+              "values": [
+                68.351475,
+                65.4938375,
+                68.8109875,
+                59.4732,
+                65.65205,
+                67.292175,
+                66.4882125,
+                69.0178125,
+                67.4582125,
+                68.475675,
+                72.0745125,
+                75.559125
+              ],
+              "count": 12,
+              "minimum": 59.4732,
+              "maximum": 75.559125,
+              "median": 67.90484375,
+              "mean": 67.84560625,
+              "range": 16.085924999999996,
+              "range_pct_of_median": 23.688921307620262,
+              "max_over_min": 1.2704735073949274
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -8.510843521329281,
+            4.63272462561406,
+            -1.6161059740644745
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            31,
+            32,
+            35
+          ],
+          "three_run_spread": {
+            "values": [
+              67.135246875,
+              68.3641875,
+              68.86589375
+            ],
+            "count": 3,
+            "minimum": 67.135246875,
+            "maximum": 68.86589375,
+            "median": 68.3641875,
+            "mean": 68.12177604166666,
+            "range": 1.7306468749999908,
+            "range_pct_of_median": 2.5315109244880456,
+            "max_over_min": 1.0257785136058606
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                85.19515991210938,
+                43.642425537109375,
+                147.064208984375,
+                553.9909362792969,
+                61.769866943359375,
+                72.39303588867188,
+                84.70535278320312,
+                81.32858276367188,
+                78.83758544921875,
+                75.5462646484375,
+                69.80209350585938,
+                82.90557861328125
+              ],
+              "count": 12,
+              "minimum": 43.642425537109375,
+              "maximum": 553.9909362792969,
+              "median": 80.08308410644531,
+              "mean": 119.76509094238281,
+              "range": 510.3485107421875,
+              "range_pct_of_median": 637.2737968780516,
+              "max_over_min": 12.69386221002395
+            },
+            "measurement": {
+              "values": [
+                77.033525,
+                66.6194875,
+                56.872125,
+                68.01585,
+                73.398925,
+                67.814975,
+                66.9585625,
+                65.2842875,
+                70.183875,
+                65.838525,
+                69.27845,
+                70.162725
+              ],
+              "count": 12,
+              "minimum": 56.872125,
+              "maximum": 77.033525,
+              "median": 67.9154125,
+              "mean": 68.12177604166666,
+              "range": 20.1614,
+              "range_pct_of_median": 29.68604512267374,
+              "max_over_min": 1.3545040738323035
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -67.64148213838202,
+            -8.907518321413866,
+            -10.29919256268773
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            30,
+            31
+          ],
+          "ns_per_iteration": {
+            "server": 65.532375,
+            "msync": 67.135246875
+          },
+          "msync_minus_server_ns": 1.6028718750000053,
+          "msync_relative_pct": 2.4459236751300573,
+          "adjacent_start_gap_seconds": 7.296236038208008
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            32,
+            33
+          ],
+          "ns_per_iteration": {
+            "msync": 68.3641875,
+            "server": 67.1125625
+          },
+          "msync_minus_server_ns": 1.2516250000000042,
+          "msync_relative_pct": 1.8649638061428497,
+          "adjacent_start_gap_seconds": 7.392471790313721
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            34,
+            35
+          ],
+          "ns_per_iteration": {
+            "server": 70.89188125,
+            "msync": 68.86589375
+          },
+          "msync_minus_server_ns": -2.0259874999999994,
+          "msync_relative_pct": -2.8578554614108187,
+          "adjacent_start_gap_seconds": 7.379568815231323
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": 2.0709296992832305,
+        "second_forward_minus_first_forward_pp": -5.303779136540876,
+        "paired_delta_min_pct": -2.8578554614108187,
+        "paired_delta_max_pct": 2.4459236751300573,
+        "paired_delta_sign_changes": true,
+        "same_order_last_vs_first_run_pct": {
+          "server": 8.178409908079786,
+          "msync": 2.5778513605860587
+        }
+      }
+    },
+    {
+      "kind": "srw",
+      "threads": 4,
+      "original_cell": {
+        "kind": "srw",
+        "threads": 4,
+        "values": {
+          "server": [
+            82.2519875,
+            81.87495,
+            78.525784375
+          ],
+          "msync": [
+            84.448009375,
+            83.727121875,
+            80.6297375
+          ]
+        },
+        "medians": {
+          "server": 81.87495,
+          "msync": 83.727121875
+        },
+        "relative": 0.022621960379823003,
+        "within3Percent": true
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            36,
+            39,
+            40
+          ],
+          "three_run_spread": {
+            "values": [
+              82.2519875,
+              81.87495,
+              78.525784375
+            ],
+            "count": 3,
+            "minimum": 78.525784375,
+            "maximum": 82.2519875,
+            "median": 81.87495,
+            "mean": 80.884240625,
+            "range": 3.726203124999998,
+            "range_pct_of_median": 4.551090565551488,
+            "max_over_min": 1.0474519694983944
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                79.302978515625,
+                80.64498901367188,
+                85.87265014648438,
+                84.46044921875,
+                81.97250366210938,
+                78.2470703125,
+                84.4970703125,
+                80.37490844726562,
+                79.19540405273438,
+                78.87344360351562,
+                86.37161254882812,
+                80.804443359375
+              ],
+              "count": 12,
+              "minimum": 78.2470703125,
+              "maximum": 86.37161254882812,
+              "median": 80.72471618652344,
+              "mean": 81.71812693277995,
+              "range": 8.124542236328125,
+              "range_pct_of_median": 10.06450393403114,
+              "max_over_min": 1.103831903276131
+            },
+            "measurement": {
+              "values": [
+                83.1039,
+                81.68615,
+                80.9671375,
+                83.2507625,
+                81.9493,
+                81.672275,
+                83.90255,
+                79.975675,
+                76.882,
+                78.6536625,
+                79.55235,
+                79.015125
+              ],
+              "count": 12,
+              "minimum": 76.882,
+              "maximum": 83.90255,
+              "median": 81.31970625,
+              "mean": 80.884240625,
+              "range": 7.02055,
+              "range_pct_of_median": 8.633270241307594,
+              "max_over_min": 1.0913159126973804
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -0.38546469118007076,
+            0.7407904774421326,
+            -3.425654312288151
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            37,
+            38,
+            41
+          ],
+          "three_run_spread": {
+            "values": [
+              84.448009375,
+              83.727121875,
+              80.6297375
+            ],
+            "count": 3,
+            "minimum": 80.6297375,
+            "maximum": 84.448009375,
+            "median": 83.727121875,
+            "mean": 82.93495625,
+            "range": 3.8182718749999935,
+            "range_pct_of_median": 4.5603763625130505,
+            "max_over_min": 1.047355628250681
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                69.46868896484375,
+                84.27810668945312,
+                90.66085815429688,
+                79.6875,
+                81.99996948242188,
+                82.92694091796875,
+                82.611083984375,
+                91.8212890625,
+                89.3280029296875,
+                81.08062744140625,
+                72.45101928710938,
+                80.17120361328125
+              ],
+              "count": 12,
+              "minimum": 69.46868896484375,
+              "maximum": 91.8212890625,
+              "median": 82.30552673339844,
+              "mean": 82.20710754394531,
+              "range": 22.35260009765625,
+              "range_pct_of_median": 27.158079153129187,
+              "max_over_min": 1.321765106420366
+            },
+            "measurement": {
+              "values": [
+                84.0977375,
+                84.4360875,
+                84.5825375,
+                84.675675,
+                83.592375,
+                83.0434125,
+                84.5713625,
+                83.7013375,
+                83.95405,
+                80.1353125,
+                75.3895375,
+                83.04005
+              ],
+              "count": 12,
+              "minimum": 75.3895375,
+              "maximum": 84.675675,
+              "median": 83.82769375,
+              "mean": 82.93495625,
+              "range": 9.286137499999995,
+              "range_pct_of_median": 11.077648787158713,
+              "max_over_min": 1.1231754140950925
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            4.226192070584145,
+            -1.3115291563719045,
+            -0.15846884788250915
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            36,
+            37
+          ],
+          "ns_per_iteration": {
+            "server": 82.2519875,
+            "msync": 84.448009375
+          },
+          "msync_minus_server_ns": 2.1960218749999996,
+          "msync_relative_pct": 2.6698708952169747,
+          "adjacent_start_gap_seconds": 7.711737871170044
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            38,
+            39
+          ],
+          "ns_per_iteration": {
+            "msync": 83.727121875,
+            "server": 81.87495
+          },
+          "msync_minus_server_ns": 1.8521718749999962,
+          "msync_relative_pct": 2.2621960379823003,
+          "adjacent_start_gap_seconds": 7.784373998641968
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            40,
+            41
+          ],
+          "ns_per_iteration": {
+            "server": 78.525784375,
+            "msync": 80.6297375
+          },
+          "msync_minus_server_ns": 2.103953125000004,
+          "msync_relative_pct": 2.679315006842309,
+          "adjacent_start_gap_seconds": 7.826250076293945
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": -0.4123969130473415,
+        "second_forward_minus_first_forward_pp": 0.009444111625334095,
+        "paired_delta_min_pct": 2.2621960379823003,
+        "paired_delta_max_pct": 2.679315006842309,
+        "paired_delta_sign_changes": false,
+        "same_order_last_vs_first_run_pct": {
+          "server": -4.530228676845038,
+          "msync": -4.521446868030443
+        }
+      }
+    },
+    {
+      "kind": "cv",
+      "threads": 4,
+      "original_cell": {
+        "kind": "cv",
+        "threads": 4,
+        "values": {
+          "server": [
+            3357.018125,
+            3426.038125,
+            3381.121875
+          ],
+          "msync": [
+            3371.094375,
+            3352.2021875,
+            3837.7053125
+          ]
+        },
+        "medians": {
+          "server": 3381.121875,
+          "msync": 3371.094375
+        },
+        "relative": -0.002965731603507993,
+        "within3Percent": true
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            42,
+            45,
+            46
+          ],
+          "three_run_spread": {
+            "values": [
+              3357.018125,
+              3426.038125,
+              3381.121875
+            ],
+            "count": 3,
+            "minimum": 3357.018125,
+            "maximum": 3426.038125,
+            "median": 3381.121875,
+            "mean": 3388.059375,
+            "range": 69.01999999999998,
+            "range_pct_of_median": 2.041334283461757,
+            "max_over_min": 1.0205599128244207
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                3610.44921875,
+                3381.103515625,
+                3359.27734375,
+                3391.064453125,
+                3505.76171875,
+                3396.77734375,
+                3375.1953125,
+                3398.779296875,
+                3619.140625,
+                3392.822265625,
+                3653.61328125,
+                3352.490234375
+              ],
+              "count": 12,
+              "minimum": 3352.490234375,
+              "maximum": 3653.61328125,
+              "median": 3394.7998046875,
+              "mean": 3453.03955078125,
+              "range": 301.123046875,
+              "range_pct_of_median": 8.870126788013032,
+              "max_over_min": 1.0898207081373164
+            },
+            "measurement": {
+              "values": [
+                3392.63,
+                3346.89875,
+                3341.105,
+                3347.43875,
+                3356.35,
+                3394.28375,
+                3363.47125,
+                3590.0475,
+                3382.77875,
+                3382.82,
+                3384.325,
+                3374.56375
+              ],
+              "count": 12,
+              "minimum": 3341.105,
+              "maximum": 3590.0475,
+              "median": 3378.67125,
+              "mean": 3388.059375,
+              "range": 248.9425000000001,
+              "range_pct_of_median": 7.3680592629424995,
+              "max_over_min": 1.0745090321914457
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -2.2836882537291103,
+            0.20208971955943955,
+            -3.5210198892333455
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            43,
+            44,
+            47
+          ],
+          "three_run_spread": {
+            "values": [
+              3371.094375,
+              3352.2021875,
+              3837.7053125
+            ],
+            "count": 3,
+            "minimum": 3352.2021875,
+            "maximum": 3837.7053125,
+            "median": 3371.094375,
+            "mean": 3520.3339583333336,
+            "range": 485.5031250000002,
+            "range_pct_of_median": 14.401944027449547,
+            "max_over_min": 1.144831098437436
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                3593.212890625,
+                3277.685546875,
+                3470.556640625,
+                3312.59765625,
+                3574.51171875,
+                3343.65234375,
+                3410.44921875,
+                3410.44921875,
+                3595.5078125,
+                3483.642578125,
+                3369.82421875,
+                3468.896484375
+              ],
+              "count": 12,
+              "minimum": 3277.685546875,
+              "maximum": 3595.5078125,
+              "median": 3439.6728515625,
+              "mean": 3442.5821940104165,
+              "range": 317.822265625,
+              "range_pct_of_median": 9.239898075790162,
+              "max_over_min": 1.0969654535432836
+            },
+            "measurement": {
+              "values": [
+                3408.52875,
+                3307.38375,
+                3375.8675,
+                3392.5975,
+                3359.26125,
+                3372.69875,
+                3340.5475,
+                3336.30125,
+                5190.40125,
+                3390.51375,
+                3358.49,
+                3411.41625
+              ],
+              "count": 12,
+              "minimum": 3307.38375,
+              "maximum": 5190.40125,
+              "median": 3374.283125,
+              "mean": 3520.333958333333,
+              "range": 1883.0175,
+              "range_pct_of_median": 55.8049644989408,
+              "max_over_min": 1.5693374710449006
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -1.2426730559479293,
+            -2.403757534402362,
+            10.295756776289489
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            42,
+            43
+          ],
+          "ns_per_iteration": {
+            "server": 3357.018125,
+            "msync": 3371.094375
+          },
+          "msync_minus_server_ns": 14.076250000000073,
+          "msync_relative_pct": 0.41930813227288866,
+          "adjacent_start_gap_seconds": 6.333053112030029
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            44,
+            45
+          ],
+          "ns_per_iteration": {
+            "msync": 3352.2021875,
+            "server": 3426.038125
+          },
+          "msync_minus_server_ns": -73.8359375,
+          "msync_relative_pct": -2.1551405677950553,
+          "adjacent_start_gap_seconds": 6.372116804122925
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            46,
+            47
+          ],
+          "ns_per_iteration": {
+            "server": 3381.121875,
+            "msync": 3837.7053125
+          },
+          "msync_minus_server_ns": 456.5834375000004,
+          "msync_relative_pct": 13.503903567510434,
+          "adjacent_start_gap_seconds": 6.214744806289673
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": -9.116746417686716,
+        "second_forward_minus_first_forward_pp": 13.084595435237546,
+        "paired_delta_min_pct": -2.1551405677950553,
+        "paired_delta_max_pct": 13.503903567510434,
+        "paired_delta_sign_changes": true,
+        "same_order_last_vs_first_run_pct": {
+          "server": 0.7180107197067853,
+          "msync": 13.841526981872176
+        }
+      }
+    },
+    {
+      "kind": "address",
+      "threads": 4,
+      "original_cell": {
+        "kind": "address",
+        "threads": 4,
+        "values": {
+          "server": [
+            4112.5040625,
+            2483.3634375,
+            2445.64921875
+          ],
+          "msync": [
+            2607.08984375,
+            2515.17796875,
+            2346.71390625
+          ]
+        },
+        "medians": {
+          "server": 2483.3634375,
+          "msync": 2515.17796875
+        },
+        "relative": 0.012811065335659233,
+        "within3Percent": true
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            48,
+            51,
+            52
+          ],
+          "three_run_spread": {
+            "values": [
+              4112.5040625,
+              2483.3634375,
+              2445.64921875
+            ],
+            "count": 3,
+            "minimum": 2445.64921875,
+            "maximum": 4112.5040625,
+            "median": 2483.3634375,
+            "mean": 3013.83890625,
+            "range": 1666.8548437500003,
+            "range_pct_of_median": 67.12085788892912,
+            "max_over_min": 1.681559248550759
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                3157.568359375,
+                2965.33203125,
+                2360.009765625,
+                3695.8984375,
+                2565.576171875,
+                2385.5224609375,
+                2857.2509765625,
+                2177.1728515625,
+                2549.072265625,
+                2953.0517578125,
+                2913.4033203125,
+                2597.705078125
+              ],
+              "count": 12,
+              "minimum": 2177.1728515625,
+              "maximum": 3695.8984375,
+              "median": 2727.47802734375,
+              "mean": 2764.7969563802085,
+              "range": 1518.7255859375,
+              "range_pct_of_median": 55.68241322979838,
+              "max_over_min": 1.6975677585027529
+            },
+            "measurement": {
+              "values": [
+                2561.99375,
+                6322.43,
+                4803.20625,
+                2762.38625,
+                2487.855,
+                2639.351875,
+                2489.945,
+                2316.301875,
+                2207.425,
+                2662.001875,
+                2497.58,
+                2415.59
+              ],
+              "count": 12,
+              "minimum": 2207.425,
+              "maximum": 6322.43,
+              "median": 2529.786875,
+              "mean": 3013.83890625,
+              "range": 4115.005,
+              "range_pct_of_median": 162.66212148800085,
+              "max_over_min": 2.864165260427874
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            35.07081684855387,
+            -0.5214420291095201,
+            -11.174153960745025
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            49,
+            50,
+            53
+          ],
+          "three_run_spread": {
+            "values": [
+              2607.08984375,
+              2515.17796875,
+              2346.71390625
+            ],
+            "count": 3,
+            "minimum": 2346.71390625,
+            "maximum": 2607.08984375,
+            "median": 2515.17796875,
+            "mean": 2489.6605729166668,
+            "range": 260.37593749999996,
+            "range_pct_of_median": 10.352187429082893,
+            "max_over_min": 1.110953421636332
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                3172.216796875,
+                3103.9794921875,
+                3219.9462890625,
+                2516.7724609375,
+                2215.625,
+                2220.654296875,
+                1878.7353515625,
+                2529.248046875,
+                2447.1435546875,
+                1614.2578125,
+                2167.3095703125,
+                2578.5888671875
+              ],
+              "count": 12,
+              "minimum": 1614.2578125,
+              "maximum": 3219.9462890625,
+              "median": 2481.9580078125,
+              "mean": 2472.039794921875,
+              "range": 1605.6884765625,
+              "range_pct_of_median": 64.69442559093457,
+              "max_over_min": 1.9946914700544465
+            },
+            "measurement": {
+              "values": [
+                2860.665,
+                2543.663125,
+                2678.451875,
+                2345.579375,
+                2484.468125,
+                2485.770625,
+                2576.784375,
+                2513.68875,
+                2494.76125,
+                2122.973125,
+                2447.88875,
+                2321.2325
+              ],
+              "count": 12,
+              "minimum": 2122.973125,
+              "maximum": 2860.665,
+              "median": 2490.2659375000003,
+              "mean": 2489.6605729166668,
+              "range": 737.691875,
+              "range_pct_of_median": 29.623015915343377,
+              "max_over_min": 1.347480552774308
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -13.190434286016227,
+            13.754105023726005,
+            6.580402997114332
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            48,
+            49
+          ],
+          "ns_per_iteration": {
+            "server": 4112.5040625,
+            "msync": 2607.08984375
+          },
+          "msync_minus_server_ns": -1505.4142187500001,
+          "msync_relative_pct": -36.60578070857529,
+          "adjacent_start_gap_seconds": 16.994821071624756
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            50,
+            51
+          ],
+          "ns_per_iteration": {
+            "msync": 2515.17796875,
+            "server": 2483.3634375
+          },
+          "msync_minus_server_ns": 31.814531250000073,
+          "msync_relative_pct": 1.2811065335659233,
+          "adjacent_start_gap_seconds": 7.9233880043029785
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            52,
+            53
+          ],
+          "ns_per_iteration": {
+            "server": 2445.64921875,
+            "msync": 2346.71390625
+          },
+          "msync_minus_server_ns": -98.93531249999978,
+          "msync_relative_pct": -4.045359888143185,
+          "adjacent_start_gap_seconds": 7.191697120666504
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": 21.606676831925164,
+        "second_forward_minus_first_forward_pp": 32.5604208204321,
+        "paired_delta_min_pct": -36.60578070857529,
+        "paired_delta_max_pct": 1.2811065335659233,
+        "paired_delta_sign_changes": true,
+        "same_order_last_vs_first_run_pct": {
+          "server": -40.531384733434535,
+          "msync": -9.98722533955635
+        }
+      }
+    },
+    {
+      "kind": "once",
+      "threads": 4,
+      "original_cell": {
+        "kind": "once",
+        "threads": 4,
+        "values": {
+          "server": [
+            1.649390527,
+            1.74325166,
+            1.977099023
+          ],
+          "msync": [
+            2.536557129,
+            1.815597852,
+            4.198826758
+          ]
+        },
+        "medians": {
+          "server": 1.74325166,
+          "msync": 2.536557129
+        },
+        "relative": 0.45507225789763495,
+        "within3Percent": false
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            54,
+            57,
+            58
+          ],
+          "three_run_spread": {
+            "values": [
+              1.649390527,
+              1.74325166,
+              1.977099023
+            ],
+            "count": 3,
+            "minimum": 1.649390527,
+            "maximum": 1.977099023,
+            "median": 1.74325166,
+            "mean": 1.7899137366666666,
+            "range": 0.32770849600000007,
+            "range_pct_of_median": 18.798691176923935,
+            "max_over_min": 1.1986845993326116
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                1.5208244323730469,
+                1.6981124877929688,
+                1.8136978149414062,
+                1.8338203430175781,
+                1.4307975769042969,
+                1.3127326965332031,
+                1.6480445861816406,
+                2.072429656982422,
+                1.9151687622070312,
+                8.285808563232422,
+                2.1223068237304688,
+                3.8862228393554688
+              ],
+              "count": 12,
+              "minimum": 1.3127326965332031,
+              "maximum": 8.285808563232422,
+              "median": 1.8237590789794922,
+              "mean": 2.4616638819376626,
+              "range": 6.973075866699219,
+              "range_pct_of_median": 382.3463278165608,
+              "max_over_min": 6.311877951325826
+            },
+            "measurement": {
+              "values": [
+                1.59363515625,
+                1.680225390625,
+                1.724905078125,
+                1.598796484375,
+                1.58295390625,
+                1.7356953125,
+                1.884140234375,
+                1.7702171875,
+                1.77853828125,
+                1.90440390625,
+                1.7647078125,
+                2.46074609375
+              ],
+              "count": 12,
+              "minimum": 1.58295390625,
+              "maximum": 2.46074609375,
+              "median": 1.7502015625,
+              "mean": 1.7899137369791667,
+              "range": 0.8777921875000001,
+              "range_pct_of_median": 50.15377693104991,
+              "max_over_min": 1.5545279518463553
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -3.916037688888896,
+            7.874408545293599,
+            -51.21137182427384
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            55,
+            56,
+            59
+          ],
+          "three_run_spread": {
+            "values": [
+              2.536557129,
+              1.815597852,
+              4.198826758
+            ],
+            "count": 3,
+            "minimum": 1.815597852,
+            "maximum": 4.198826758,
+            "median": 2.536557129,
+            "mean": 2.8503272463333333,
+            "range": 2.3832289060000003,
+            "range_pct_of_median": 93.95526238116122,
+            "max_over_min": 2.312641399842326
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                3.2752037048339844,
+                2.6042938232421875,
+                3.11279296875,
+                2.5297164916992188,
+                1.2915611267089844,
+                1.5722274780273438,
+                1.2189865112304688,
+                1.6266822814941406,
+                3.8872718811035156,
+                7.256031036376953,
+                8.559322357177734,
+                5.190563201904297
+              ],
+              "count": 12,
+              "minimum": 1.2189865112304688,
+              "maximum": 8.559322357177734,
+              "median": 2.8585433959960938,
+              "mean": 3.510387738545736,
+              "range": 7.340335845947266,
+              "range_pct_of_median": 256.7858810969507,
+              "max_over_min": 7.021671099984353
+            },
+            "measurement": {
+              "values": [
+                2.52794140625,
+                2.517529296875,
+                2.52753515625,
+                2.57322265625,
+                1.89550234375,
+                1.826551953125,
+                1.6555234375,
+                1.884813671875,
+                5.531734765625,
+                3.6031671875,
+                4.8746265625,
+                2.785778515625
+              ],
+              "count": 12,
+              "minimum": 1.6555234375,
+              "maximum": 5.531734765625,
+              "median": 2.52773828125,
+              "mean": 2.85032724609375,
+              "range": 3.8762113281249997,
+              "range_pct_of_median": 153.34702001696797,
+              "max_over_min": 3.341381124738682
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -11.940441229297205,
+            27.19932737355515,
+            -32.53051111928404
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            54,
+            55
+          ],
+          "ns_per_iteration": {
+            "server": 1.649390527,
+            "msync": 2.536557129
+          },
+          "msync_minus_server_ns": 0.8871666020000002,
+          "msync_relative_pct": 53.787540759896714,
+          "adjacent_start_gap_seconds": 8.298409938812256
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            56,
+            57
+          ],
+          "ns_per_iteration": {
+            "msync": 1.815597852,
+            "server": 1.74325166
+          },
+          "msync_minus_server_ns": 0.07234619199999992,
+          "msync_relative_pct": 4.150071596662053,
+          "adjacent_start_gap_seconds": 7.1800079345703125
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            58,
+            59
+          ],
+          "ns_per_iteration": {
+            "server": 1.977099023,
+            "msync": 4.198826758
+          },
+          "msync_minus_server_ns": 2.221727735,
+          "msync_relative_pct": 112.37311379724453,
+          "adjacent_start_gap_seconds": 8.213324069976807
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": -78.93025568190856,
+        "second_forward_minus_first_forward_pp": 58.585573037347814,
+        "paired_delta_min_pct": 4.150071596662053,
+        "paired_delta_max_pct": 112.37311379724453,
+        "paired_delta_sign_changes": false,
+        "same_order_last_vs_first_run_pct": {
+          "server": 19.868459933261164,
+          "msync": 65.53251294818364
+        }
+      }
+    },
+    {
+      "kind": "cs",
+      "threads": 8,
+      "original_cell": {
+        "kind": "cs",
+        "threads": 8,
+        "values": {
+          "server": [
+            87.132845312,
+            104.177626562,
+            111.272003125
+          ],
+          "msync": [
+            86.797764062,
+            92.109690625,
+            98.139579688
+          ]
+        },
+        "medians": {
+          "server": 104.177626562,
+          "msync": 92.109690625
+        },
+        "relative": -0.11583999689048319,
+        "within3Percent": false
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            60,
+            63,
+            64
+          ],
+          "three_run_spread": {
+            "values": [
+              87.132845312,
+              104.177626562,
+              111.272003125
+            ],
+            "count": 3,
+            "minimum": 87.132845312,
+            "maximum": 111.272003125,
+            "median": 104.177626562,
+            "mean": 100.86082499966666,
+            "range": 24.139157812999997,
+            "range_pct_of_median": 23.171153547670702,
+            "max_over_min": 1.2770385579234096
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                119.20585632324219,
+                125.69961547851562,
+                128.03115844726562,
+                96.85821533203125,
+                136.74354553222656,
+                118.77784729003906,
+                71.80976867675781,
+                127.96707153320312,
+                106.07833862304688,
+                138.95950317382812,
+                109.04922485351562,
+                135.97183227539062
+              ],
+              "count": 12,
+              "minimum": 71.80976867675781,
+              "maximum": 138.95950317382812,
+              "median": 122.4527359008789,
+              "mean": 117.92933146158855,
+              "range": 67.14973449707031,
+              "range_pct_of_median": 54.837267622526305,
+              "max_over_min": 1.9351058461048103
+            },
+            "measurement": {
+              "values": [
+                87.17058125,
+                89.4635125,
+                75.93489375,
+                95.96239375,
+                117.061325,
+                106.04175625,
+                93.3359625,
+                100.2714625,
+                103.731625,
+                99.87825,
+                111.67726875,
+                129.80086875
+              ],
+              "count": 12,
+              "minimum": 75.93489375,
+              "maximum": 129.80086875,
+              "median": 100.07485625,
+              "mean": 100.860825,
+              "range": 53.865975000000006,
+              "range_pct_of_median": 53.82568311208542,
+              "max_over_min": 1.7093705191363358
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -25.812003999548537,
+            -8.475263900155594,
+            -9.176628875500137
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            61,
+            62,
+            65
+          ],
+          "three_run_spread": {
+            "values": [
+              86.797764062,
+              92.109690625,
+              98.139579688
+            ],
+            "count": 3,
+            "minimum": 86.797764062,
+            "maximum": 98.139579688,
+            "median": 92.109690625,
+            "mean": 92.34901145833334,
+            "range": 11.341815625999999,
+            "range_pct_of_median": 12.313379351337929,
+            "max_over_min": 1.1306694446402847
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                107.97462463378906,
+                131.30111694335938,
+                289.7148132324219,
+                90.69862365722656,
+                127.30178833007812,
+                146.2261199951172,
+                155.8513641357422,
+                100.33035278320312,
+                195.98388671875,
+                78.01132202148438,
+                141.7694091796875,
+                126.55601501464844
+              ],
+              "count": 12,
+              "minimum": 78.01132202148438,
+              "maximum": 289.7148132324219,
+              "median": 129.30145263671875,
+              "mean": 140.97661972045898,
+              "range": 211.7034912109375,
+              "range_pct_of_median": 163.72862554431845,
+              "max_over_min": 3.7137534107245895
+            },
+            "measurement": {
+              "values": [
+                97.53968125,
+                79.081925,
+                90.97209375,
+                79.59735625,
+                89.10728125,
+                85.30614375,
+                99.76453125,
+                94.26080625,
+                105.73965,
+                98.29721875,
+                97.68546875,
+                90.83598125
+              ],
+              "count": 12,
+              "minimum": 79.081925,
+              "maximum": 105.73965,
+              "median": 92.61645,
+              "mean": 92.34901145833334,
+              "range": 26.657725,
+              "range_pct_of_median": 28.78292679108301,
+              "max_over_min": 1.337089986112503
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -43.97335497950726,
+            -30.445144860226325,
+            -27.615086922691134
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            60,
+            61
+          ],
+          "ns_per_iteration": {
+            "server": 87.132845312,
+            "msync": 86.797764062
+          },
+          "msync_minus_server_ns": -0.3350812500000018,
+          "msync_relative_pct": -0.3845636496778715,
+          "adjacent_start_gap_seconds": 15.016627073287964
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            62,
+            63
+          ],
+          "ns_per_iteration": {
+            "msync": 92.109690625,
+            "server": 104.177626562
+          },
+          "msync_minus_server_ns": -12.067935937000001,
+          "msync_relative_pct": -11.58399968904832,
+          "adjacent_start_gap_seconds": 13.175835847854614
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            64,
+            65
+          ],
+          "ns_per_iteration": {
+            "server": 111.272003125,
+            "msync": 98.139579688
+          },
+          "msync_minus_server_ns": -13.132423437,
+          "msync_relative_pct": -11.802091333115827,
+          "adjacent_start_gap_seconds": 13.534098863601685
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": -5.49067219765147,
+        "second_forward_minus_first_forward_pp": -11.417527683437957,
+        "paired_delta_min_pct": -11.802091333115827,
+        "paired_delta_max_pct": -0.3845636496778715,
+        "paired_delta_sign_changes": false,
+        "same_order_last_vs_first_run_pct": {
+          "server": 27.70385579234096,
+          "msync": 13.066944464028474
+        }
+      }
+    },
+    {
+      "kind": "srw",
+      "threads": 8,
+      "original_cell": {
+        "kind": "srw",
+        "threads": 8,
+        "values": {
+          "server": [
+            191.059707812,
+            191.7621125,
+            225.114271875
+          ],
+          "msync": [
+            202.724279688,
+            163.93696875,
+            242.444339063
+          ]
+        },
+        "medians": {
+          "server": 191.7621125,
+          "msync": 202.724279688
+        },
+        "relative": 0.057165448612796155,
+        "within3Percent": false
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            66,
+            69,
+            70
+          ],
+          "three_run_spread": {
+            "values": [
+              191.059707812,
+              191.7621125,
+              225.114271875
+            ],
+            "count": 3,
+            "minimum": 191.059707812,
+            "maximum": 225.114271875,
+            "median": 191.7621125,
+            "mean": 202.64536406233333,
+            "range": 34.05456406299999,
+            "range_pct_of_median": 17.758755167551666,
+            "max_over_min": 1.178240427837926
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                179.57763671875,
+                185.3282928466797,
+                194.49806213378906,
+                65.802001953125,
+                178.73458862304688,
+                164.5854949951172,
+                126.458740234375,
+                102.92205810546875,
+                209.14459228515625,
+                256.3880920410156,
+                319.69261169433594,
+                341.3898468017578
+              ],
+              "count": 12,
+              "minimum": 65.802001953125,
+              "maximum": 341.3898468017578,
+              "median": 182.45296478271484,
+              "mean": 193.7101682027181,
+              "range": 275.5878448486328,
+              "range_pct_of_median": 151.0459669300706,
+              "max_over_min": 5.188137695946573
+            },
+            "measurement": {
+              "values": [
+                172.9999375,
+                197.26293125,
+                202.4320125,
+                191.54395,
+                110.61755,
+                186.2914125,
+                171.52454375,
+                298.61494375,
+                197.31839375,
+                227.5377375,
+                263.4828625,
+                212.11809375
+              ],
+              "count": 12,
+              "minimum": 110.61755,
+              "maximum": 298.61494375,
+              "median": 197.2906625,
+              "mean": 202.6453640625,
+              "range": 187.99739375000001,
+              "range_pct_of_median": 95.28955469446001,
+              "max_over_min": 2.6995259228757105
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            22.237924621523675,
+            33.93526606376736,
+            -20.074118190504763
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            67,
+            68,
+            71
+          ],
+          "three_run_spread": {
+            "values": [
+              202.724279688,
+              163.93696875,
+              242.444339063
+            ],
+            "count": 3,
+            "minimum": 163.93696875,
+            "maximum": 242.444339063,
+            "median": 202.724279688,
+            "mean": 203.03519583366668,
+            "range": 78.507370313,
+            "range_pct_of_median": 38.72618042290034,
+            "max_over_min": 1.4788875316629886
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                76.14479064941406,
+                224.169921875,
+                270.6756591796875,
+                315.6074523925781,
+                162.3310089111328,
+                445.0202941894531,
+                447.21946716308594,
+                221.78497314453125,
+                180.938720703125,
+                405.0762176513672,
+                117.76008605957031,
+                282.61146545410156
+              ],
+              "count": 12,
+              "minimum": 76.14479064941406,
+              "maximum": 447.21946716308594,
+              "median": 247.42279052734375,
+              "mean": 262.4450047810872,
+              "range": 371.0746765136719,
+              "range_pct_of_median": 149.97594834444436,
+              "max_over_min": 5.8732772570375085
+            },
+            "measurement": {
+              "values": [
+                214.52978125,
+                197.825175,
+                222.5982625,
+                175.9439,
+                185.49611875,
+                200.0913375,
+                118.31605625,
+                151.8443625,
+                238.29455625,
+                268.79184375,
+                247.4091875,
+                215.28176875
+              ],
+              "count": 12,
+              "minimum": 118.31605625,
+              "maximum": 268.79184375,
+              "median": 207.31055937500003,
+              "mean": 203.03519583333335,
+              "range": 150.4757875,
+              "range_pct_of_median": 72.58471925098966,
+              "max_over_min": 2.2718120622787406
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -8.538336468827701,
+            -48.623424277546476,
+            -1.6838362841307686
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            66,
+            67
+          ],
+          "ns_per_iteration": {
+            "server": 191.059707812,
+            "msync": 202.724279688
+          },
+          "msync_minus_server_ns": 11.664571875999997,
+          "msync_relative_pct": 6.105197170864396,
+          "adjacent_start_gap_seconds": 18.801903009414673
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            68,
+            69
+          ],
+          "ns_per_iteration": {
+            "msync": 163.93696875,
+            "server": 191.7621125
+          },
+          "msync_minus_server_ns": -27.825143749999995,
+          "msync_relative_pct": -14.510240520008866,
+          "adjacent_start_gap_seconds": 17.182398796081543
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            70,
+            71
+          ],
+          "ns_per_iteration": {
+            "server": 225.114271875,
+            "msync": 242.444339063
+          },
+          "msync_minus_server_ns": 17.330067188000015,
+          "msync_relative_pct": 7.698342287966065,
+          "adjacent_start_gap_seconds": 21.02365803718567
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": -21.412010249424096,
+        "second_forward_minus_first_forward_pp": 1.5931451171016686,
+        "paired_delta_min_pct": -14.510240520008866,
+        "paired_delta_max_pct": 7.698342287966065,
+        "paired_delta_sign_changes": true,
+        "same_order_last_vs_first_run_pct": {
+          "server": 17.824042783792592,
+          "msync": 19.59314367086695
+        }
+      }
+    },
+    {
+      "kind": "cv",
+      "threads": 8,
+      "original_cell": {
+        "kind": "cv",
+        "threads": 8,
+        "values": {
+          "server": [
+            3251.43265625,
+            12869.91484375,
+            3258.89359375
+          ],
+          "msync": [
+            4074.87265625,
+            4901.52703125,
+            3502.245625
+          ]
+        },
+        "medians": {
+          "server": 3258.89359375,
+          "msync": 4074.87265625
+        },
+        "relative": 0.25038530379295243,
+        "within3Percent": false
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            72,
+            75,
+            76
+          ],
+          "three_run_spread": {
+            "values": [
+              3251.43265625,
+              12869.91484375,
+              3258.89359375
+            ],
+            "count": 3,
+            "minimum": 3251.43265625,
+            "maximum": 12869.91484375,
+            "median": 3258.89359375,
+            "mean": 6460.080364583334,
+            "range": 9618.482187500002,
+            "range_pct_of_median": 295.1456348849991,
+            "max_over_min": 3.9582289422513703
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                4104.6630859375,
+                3409.66796875,
+                3902.9541015625,
+                3963.3056640625,
+                16540.72265625,
+                32340.4296875,
+                7189.2578125,
+                206439.9169921875,
+                3694.62890625,
+                3346.4111328125,
+                3540.283203125,
+                3819.9462890625
+              ],
+              "count": 12,
+              "minimum": 3346.4111328125,
+              "maximum": 206439.9169921875,
+              "median": 3933.1298828125,
+              "mean": 24357.682291666668,
+              "range": 203093.505859375,
+              "range_pct_of_median": 5163.661305640561,
+              "max_over_min": 61.68994448051711
+            },
+            "measurement": {
+              "values": [
+                3272.250625,
+                3223.31375,
+                3260.910625,
+                3249.255625,
+                8879.75875,
+                17967.311875,
+                17322.360625,
+                7310.228125,
+                3302.105,
+                3325.304375,
+                3092.7425,
+                3315.4225
+              ],
+              "count": 12,
+              "minimum": 3092.7425,
+              "maximum": 17967.311875,
+              "median": 3308.76375,
+              "mean": 6460.080364583333,
+              "range": 14874.569375,
+              "range_pct_of_median": 449.5506629930892,
+              "max_over_min": 5.809507863975097
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -15.44063048719898,
+            -80.38947269838621,
+            -9.483158087462451
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            73,
+            74,
+            77
+          ],
+          "three_run_spread": {
+            "values": [
+              4074.87265625,
+              4901.52703125,
+              3502.245625
+            ],
+            "count": 3,
+            "minimum": 3502.245625,
+            "maximum": 4901.52703125,
+            "median": 4074.87265625,
+            "mean": 4159.5484375,
+            "range": 1399.2814062499997,
+            "range_pct_of_median": 34.33926712050241,
+            "max_over_min": 1.3995383408466675
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                6341.796875,
+                7839.6728515625,
+                4602.5146484375,
+                3352.5390625,
+                4741.7236328125,
+                4664.306640625,
+                5642.1630859375,
+                4715.576171875,
+                3006.2255859375,
+                3795.8251953125,
+                4618.798828125,
+                3287.9638671875
+              ],
+              "count": 12,
+              "minimum": 3006.2255859375,
+              "maximum": 7839.6728515625,
+              "median": 4641.552734375,
+              "mean": 4717.425537109375,
+              "range": 4833.447265625,
+              "range_pct_of_median": 104.13427450320327,
+              "max_over_min": 2.6078125634466236
+            },
+            "measurement": {
+              "values": [
+                3696.269375,
+                4283.6675,
+                4144.52625,
+                4175.0275,
+                3643.49375,
+                8695.601875,
+                3918.55875,
+                3348.45375,
+                3442.371875,
+                3436.97,
+                3492.773125,
+                3636.8675
+              ],
+              "count": 12,
+              "minimum": 3348.45375,
+              "maximum": 8695.601875,
+              "median": 3669.8815624999997,
+              "mean": 4159.5484375,
+              "range": 5347.148125,
+              "range_pct_of_median": 145.70356110777078,
+              "max_over_min": 2.596900696328865
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -26.368335700862012,
+            -0.7977294311224958,
+            -4.757902312634754
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            72,
+            73
+          ],
+          "ns_per_iteration": {
+            "server": 3251.43265625,
+            "msync": 4074.87265625
+          },
+          "msync_minus_server_ns": 823.44,
+          "msync_relative_pct": 25.325451487274677,
+          "adjacent_start_gap_seconds": 7.408665180206299
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            74,
+            75
+          ],
+          "ns_per_iteration": {
+            "msync": 4901.52703125,
+            "server": 12869.91484375
+          },
+          "msync_minus_server_ns": -7968.387812500001,
+          "msync_relative_pct": -61.914844886247856,
+          "adjacent_start_gap_seconds": 18.46531915664673
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            76,
+            77
+          ],
+          "ns_per_iteration": {
+            "server": 3258.89359375,
+            "msync": 3502.245625
+          },
+          "msync_minus_server_ns": 243.35203124999998,
+          "msync_relative_pct": 7.467320556789803,
+          "adjacent_start_gap_seconds": 8.549529075622559
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": -78.3112309082801,
+        "second_forward_minus_first_forward_pp": -17.858130930484876,
+        "paired_delta_min_pct": -61.914844886247856,
+        "paired_delta_max_pct": 25.325451487274677,
+        "paired_delta_sign_changes": true,
+        "same_order_last_vs_first_run_pct": {
+          "server": 0.22946615503962597,
+          "msync": -14.052636230771787
+        }
+      }
+    },
+    {
+      "kind": "address",
+      "threads": 8,
+      "original_cell": {
+        "kind": "address",
+        "threads": 8,
+        "values": {
+          "server": [
+            1740.244140625,
+            3736.90484375,
+            3935.137890625
+          ],
+          "msync": [
+            3346.7271875,
+            4230.578671875,
+            3421.849453125
+          ]
+        },
+        "medians": {
+          "server": 3736.90484375,
+          "msync": 3421.849453125
+        },
+        "relative": -0.0843091820097942,
+        "within3Percent": false
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            78,
+            81,
+            82
+          ],
+          "three_run_spread": {
+            "values": [
+              1740.244140625,
+              3736.90484375,
+              3935.137890625
+            ],
+            "count": 3,
+            "minimum": 1740.244140625,
+            "maximum": 3935.137890625,
+            "median": 3736.90484375,
+            "mean": 3137.4289583333334,
+            "range": 2194.89375,
+            "range_pct_of_median": 58.735607187616125,
+            "max_over_min": 2.2612562219067236
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                4241.796875,
+                2229.8828125,
+                1856.6162109375,
+                3036.41357421875,
+                3054.82177734375,
+                4529.0771484375,
+                4032.94677734375,
+                15591.44287109375,
+                5478.076171875,
+                7610.400390625,
+                5515.34423828125,
+                14084.55810546875
+              ],
+              "count": 12,
+              "minimum": 1856.6162109375,
+              "maximum": 15591.44287109375,
+              "median": 4385.43701171875,
+              "mean": 5938.448079427083,
+              "range": 13734.82666015625,
+              "range_pct_of_median": 313.1917440258312,
+              "max_over_min": 8.3977737451839
+            },
+            "measurement": {
+              "values": [
+                2097.5075,
+                1609.3040625,
+                1247.5034375,
+                2006.6615625,
+                3485.7471875,
+                3176.7834375,
+                4963.1915625,
+                3321.8971875,
+                3707.57875,
+                3411.5771875,
+                4179.504375,
+                4441.89125
+              ],
+              "count": 12,
+              "minimum": 1247.5034375,
+              "maximum": 4963.1915625,
+              "median": 3366.7371875,
+              "mean": 3137.4289583333334,
+              "range": 3715.688125,
+              "range_pct_of_median": 110.36466222536119,
+              "max_over_min": 3.9784993077423887
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -38.74919038407213,
+            -45.06225801661176,
+            -51.84664370281631
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            79,
+            80,
+            83
+          ],
+          "three_run_spread": {
+            "values": [
+              3346.7271875,
+              4230.578671875,
+              3421.849453125
+            ],
+            "count": 3,
+            "minimum": 3346.7271875,
+            "maximum": 4230.578671875,
+            "median": 3421.849453125,
+            "mean": 3666.3851041666667,
+            "range": 883.8514843749995,
+            "range_pct_of_median": 25.829642609432252,
+            "max_over_min": 1.2640942732578198
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                2778.89404296875,
+                3111.99951171875,
+                5829.91943359375,
+                4081.7138671875,
+                5509.33837890625,
+                6924.93896484375,
+                3290.56396484375,
+                4124.71923828125,
+                4563.14697265625,
+                8129.1259765625,
+                5031.1279296875,
+                4382.470703125
+              ],
+              "count": 12,
+              "minimum": 2778.89404296875,
+              "maximum": 8129.1259765625,
+              "median": 4472.808837890625,
+              "mean": 4813.163248697917,
+              "range": 5350.23193359375,
+              "range_pct_of_median": 119.61682529935524,
+              "max_over_min": 2.9253097998216537
+            },
+            "measurement": {
+              "values": [
+                5624.0621875,
+                2834.75875,
+                2401.7546875,
+                2526.333125,
+                5062.275625,
+                3498.866875,
+                3758.1903125,
+                4602.981875,
+                3422.21625,
+                4231.144375,
+                3111.6990625,
+                2922.338125
+              ],
+              "count": 12,
+              "minimum": 2401.7546875,
+              "maximum": 5624.0621875,
+              "median": 3460.5415625,
+              "mean": 3666.3851041666667,
+              "range": 3222.3075,
+              "range_pct_of_median": 93.11570000829892,
+              "max_over_min": 2.3416472201639036
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -15.286277489430633,
+            -14.747157008651513,
+            -38.08252363310661
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            78,
+            79
+          ],
+          "ns_per_iteration": {
+            "server": 1740.244140625,
+            "msync": 3346.7271875
+          },
+          "msync_minus_server_ns": 1606.4830468750001,
+          "msync_relative_pct": 92.31365929484123,
+          "adjacent_start_gap_seconds": 8.749242067337036
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            80,
+            81
+          ],
+          "ns_per_iteration": {
+            "msync": 4230.578671875,
+            "server": 3736.90484375
+          },
+          "msync_minus_server_ns": 493.67382812499955,
+          "msync_relative_pct": 13.21076796886258,
+          "adjacent_start_gap_seconds": 32.584126234054565
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            82,
+            83
+          ],
+          "ns_per_iteration": {
+            "server": 3935.137890625,
+            "msync": 3421.849453125
+          },
+          "msync_minus_server_ns": -513.2884375000003,
+          "msync_relative_pct": -13.043721764435478,
+          "adjacent_start_gap_seconds": 21.156173944473267
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": -26.424200796340298,
+        "second_forward_minus_first_forward_pp": -105.3573810592767,
+        "paired_delta_min_pct": -13.043721764435478,
+        "paired_delta_max_pct": 92.31365929484123,
+        "paired_delta_sign_changes": true,
+        "same_order_last_vs_first_run_pct": {
+          "server": 126.12562219067236,
+          "msync": 2.2446486198690163
+        }
+      }
+    },
+    {
+      "kind": "once",
+      "threads": 8,
+      "original_cell": {
+        "kind": "once",
+        "threads": 8,
+        "values": {
+          "server": [
+            2.495919873,
+            2.801675098,
+            2.301503369
+          ],
+          "msync": [
+            7.345619385,
+            2.185185938,
+            2.374652832
+          ]
+        },
+        "medians": {
+          "server": 2.495919873,
+          "msync": 2.374652832
+        },
+        "relative": -0.048586111401982435,
+        "within3Percent": false
+      },
+      "backends": {
+        "server": {
+          "run_indices": [
+            84,
+            87,
+            88
+          ],
+          "three_run_spread": {
+            "values": [
+              2.495919873,
+              2.801675098,
+              2.301503369
+            ],
+            "count": 3,
+            "minimum": 2.301503369,
+            "maximum": 2.801675098,
+            "median": 2.495919873,
+            "mean": 2.53303278,
+            "range": 0.5001717289999998,
+            "range_pct_of_median": 20.039574764025282,
+            "max_over_min": 1.2173239178082644
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                3.126811981201172,
+                11.239004135131836,
+                34.037017822265625,
+                4.976511001586914,
+                9.07750129699707,
+                3.811359405517578,
+                3.8595199584960938,
+                4.779243469238281,
+                10.975837707519531,
+                9.657859802246094,
+                3.454113006591797,
+                2.3616790771484375
+              ],
+              "count": 12,
+              "minimum": 2.3616790771484375,
+              "maximum": 34.037017822265625,
+              "median": 4.877877235412598,
+              "mean": 8.44637155532837,
+              "range": 31.675338745117188,
+              "range_pct_of_median": 649.3672804054879,
+              "max_over_min": 14.412211274430625
+            },
+            "measurement": {
+              "values": [
+                3.080289453125,
+                2.574178515625,
+                1.9697294921875,
+                2.35948203125,
+                2.7406111328125,
+                2.7760234375,
+                2.8040130859375,
+                2.886052734375,
+                2.88772421875,
+                2.734669140625,
+                1.7653904296875,
+                1.8182296875
+              ],
+              "count": 12,
+              "minimum": 1.7653904296875,
+              "maximum": 3.080289453125,
+              "median": 2.73764013671875,
+              "mean": 2.5330327799479164,
+              "range": 1.3148990234374998,
+              "range_pct_of_median": 48.03038229171701,
+              "max_over_min": 1.7448205231690626
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -81.29673658720475,
+            -47.942697611121076,
+            -65.19398439044792
+          ]
+        },
+        "msync": {
+          "run_indices": [
+            85,
+            86,
+            89
+          ],
+          "three_run_spread": {
+            "values": [
+              7.345619385,
+              2.185185938,
+              2.374652832
+            ],
+            "count": 3,
+            "minimum": 2.185185938,
+            "maximum": 7.345619385,
+            "median": 2.374652832,
+            "mean": 3.968486051666667,
+            "range": 5.160433447,
+            "range_pct_of_median": 217.31317426529824,
+            "max_over_min": 3.3615534757298993
+          },
+          "batch_spreads": {
+            "warmup": {
+              "values": [
+                5.5812835693359375,
+                21.108388900756836,
+                9.140777587890625,
+                29.277658462524414,
+                6.439304351806641,
+                5.312681198120117,
+                24.732255935668945,
+                13.247299194335938,
+                4.602670669555664,
+                4.855442047119141,
+                6.098222732543945,
+                3.914308547973633
+              ],
+              "count": 12,
+              "minimum": 3.914308547973633,
+              "maximum": 29.277658462524414,
+              "median": 6.268763542175293,
+              "mean": 11.192524433135986,
+              "range": 25.36334991455078,
+              "range_pct_of_median": 404.5989251933017,
+              "max_over_min": 7.479650135828186
+            },
+            "measurement": {
+              "values": [
+                3.7988630859375,
+                12.12651796875,
+                10.453405859375,
+                3.003690625,
+                2.31434453125,
+                2.08405390625,
+                1.927960546875,
+                2.414384765625,
+                3.248401171875,
+                2.45145859375,
+                1.8843064453125,
+                1.9144451171875
+              ],
+              "count": 12,
+              "minimum": 1.8843064453125,
+              "maximum": 12.12651796875,
+              "median": 2.4329216796875,
+              "mean": 3.9684860514322917,
+              "range": 10.2422115234375,
+              "range_pct_of_median": 420.9840213497162,
+              "max_over_min": 6.435533879808439
+            }
+          },
+          "measurement_vs_warmup_aggregate_pcts": [
+            -54.87124690497256,
+            -82.42414445541763,
+            -51.21573107959514
+          ]
+        }
+      },
+      "pairs": [
+        {
+          "pair": 0,
+          "order": "S/M",
+          "run_indices": [
+            84,
+            85
+          ],
+          "ns_per_iteration": {
+            "server": 2.495919873,
+            "msync": 7.345619385
+          },
+          "msync_minus_server_ns": 4.849699512,
+          "msync_relative_pct": 194.30509626780795,
+          "adjacent_start_gap_seconds": 24.120558738708496
+        },
+        {
+          "pair": 1,
+          "order": "M/S",
+          "run_indices": [
+            86,
+            87
+          ],
+          "ns_per_iteration": {
+            "msync": 2.185185938,
+            "server": 2.801675098
+          },
+          "msync_minus_server_ns": -0.61648916,
+          "msync_relative_pct": -22.00430593968894,
+          "adjacent_start_gap_seconds": 13.756443977355957
+        },
+        {
+          "pair": 2,
+          "order": "S/M",
+          "run_indices": [
+            88,
+            89
+          ],
+          "ns_per_iteration": {
+            "server": 2.301503369,
+            "msync": 2.374652832
+          },
+          "msync_minus_server_ns": 0.07314946300000003,
+          "msync_relative_pct": 3.1783339527234,
+          "adjacent_start_gap_seconds": 13.012995719909668
+        }
+      ],
+      "order_description": {
+        "reverse_minus_mean_forward_pp": -120.7460210499546,
+        "second_forward_minus_first_forward_pp": -191.12676231508456,
+        "paired_delta_min_pct": -22.00430593968894,
+        "paired_delta_max_pct": 194.30509626780795,
+        "paired_delta_sign_changes": true,
+        "same_order_last_vs_first_run_pct": {
+          "server": -7.789372812129525,
+          "msync": -67.67253096656327
+        }
+      }
+    }
+  ],
+  "fullDerivedArchive": {
+    "path": "out/sync-user-bench-20261024/offline-attribution-v1/analysis.json",
+    "sha256": "d63972932838f39687f4352b3f0910ae497af1e591b0556363895c07dba5571a"
+  }
+}

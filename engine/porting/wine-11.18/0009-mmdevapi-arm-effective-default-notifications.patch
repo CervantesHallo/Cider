@@ -1,0 +1,396 @@
+From: CervantesHallo <227578309+CervantesHallo@users.noreply.github.com>
+Subject: [porting] mmdevapi: Arm notifications before sampling effective defaults.
+
+Cider-Topic: audio/notifications
+Base: wine-mirror/wine 7b3fff76fa5178f6ce0141b2c776afa2a822f101.
+Status: candidate prerequisite for WinMM metadata; not runtime-accepted.
+Register only after an armed baseline, with bounded readiness outside the
+notification lock. Compare effective endpoint role IDs so communications
+fallback follows console. Preserve opaque IDs, real failures and event ownership.
+
+--- a/dlls/mmdevapi/devenum.c
++++ b/dlls/mmdevapi/devenum.c
+@@ -1262,7 +1262,23 @@
+ };
+ 
+ static struct list g_notif_clients = LIST_INIT(g_notif_clients);
+-static HANDLE g_notif_thread;
++struct notification_thread_state
++{
++    LONG refs;
++    HANDLE ready, thread;
++    LONG status;
++};
++static struct notification_thread_state *g_notif_state;
++
++static void notification_state_release(struct notification_thread_state *state)
++{
++    if (!InterlockedDecrement(&state->refs))
++    {
++        if (state->thread) CloseHandle(state->thread);
++        CloseHandle(state->ready);
++        free(state);
++    }
++}
+ 
+ static CRITICAL_SECTION g_notif_lock;
+ static CRITICAL_SECTION_DEBUG g_notif_lock_debug =
+@@ -1286,161 +1302,225 @@
+         notify_clients(flow, eMultimedia, id);
+ }
+ 
+-static BOOL notify_if_changed(EDataFlow flow, ERole role, HKEY key,
+-                              const WCHAR *val_name, WCHAR *old_val, IMMDevice *def_dev)
+-{
+-    WCHAR new_val[64], *id;
+-    DWORD size;
++/* Compare effective role endpoints, not just explicit registry overrides.
++ * eCommunications may implicitly follow eConsole. Keep IDs opaque. */
++static HRESULT read_default_role_ids(WCHAR **ids)
++{
++    unsigned int i;
+     HRESULT hr;
+ 
+-    size = sizeof(new_val);
+-    if(RegQueryValueExW(key, val_name, 0, NULL,
+-                (BYTE*)new_val, &size) != ERROR_SUCCESS){
+-        if(old_val[0] != 0){
+-            /* set by user -> system default */
+-            if(def_dev){
+-                hr = IMMDevice_GetId(def_dev, &id);
+-                if(FAILED(hr)){
+-                    ERR("GetId failed: %08lx\n", hr);
+-                    return FALSE;
+-                }
+-            }else
+-                id = NULL;
+-
+-            notify_clients(flow, role, id);
+-            old_val[0] = 0;
+-            CoTaskMemFree(id);
+-
+-            return TRUE;
+-        }
+-
+-        /* system default -> system default, noop */
+-        return FALSE;
+-    }
+-
+-    if(!lstrcmpW(old_val, new_val)){
+-        /* set by user -> same value */
+-        return FALSE;
+-    }
+-
+-    if(new_val[0] != 0){
+-        /* set by user -> different value */
+-        notify_clients(flow, role, new_val);
+-        memcpy(old_val, new_val, sizeof(new_val));
+-        return TRUE;
+-    }
+-
+-    /* set by user -> system default */
+-    if(def_dev){
+-        hr = IMMDevice_GetId(def_dev, &id);
+-        if(FAILED(hr)){
+-            ERR("GetId failed: %08lx\n", hr);
+-            return FALSE;
+-        }
+-    }else
+-        id = NULL;
+-
+-    notify_clients(flow, role, id);
+-    old_val[0] = 0;
+-    CoTaskMemFree(id);
+-
+-    return TRUE;
++    for (i = 0; i < 4; ++i)
++    {
++        IMMDevice *device = NULL;
++
++        hr = IMMDeviceEnumerator_GetDefaultAudioEndpoint(&enumerator.IMMDeviceEnumerator_iface,
++                i < 2 ? eRender : eCapture, i & 1 ? eCommunications : eConsole, &device);
++        if (hr == E_NOTFOUND)
++            continue;
++        if (FAILED(hr))
++        {
++            if (device) IMMDevice_Release(device);
++            return hr;
++        }
++        hr = IMMDevice_GetId(device, &ids[i]);
++        IMMDevice_Release(device);
++        if (FAILED(hr))
++            return hr;
++    }
++    return S_OK;
++}
++
++static void free_default_role_ids(WCHAR **ids)
++{
++    unsigned int i;
++    for (i = 0; i < 4; ++i) CoTaskMemFree(ids[i]);
++}
++
++/* A failed partial sample must never replace the last complete snapshot.
++ * Initial readiness reports failures. A live subscription retries transient
++ * reads with bounded work/backoff and keeps its armed watch after failure. */
++static HRESULT sample_default_role_ids(WCHAR **ids, BOOL recover)
++{
++    unsigned int attempt, limit = recover ? 3 : 1;
++    HRESULT hr = E_FAIL;
++
++    for (attempt = 0; attempt < limit; ++attempt)
++    {
++        hr = read_default_role_ids(ids);
++        if (SUCCEEDED(hr))
++            return hr;
++        free_default_role_ids(ids);
++        memset(ids, 0, 4 * sizeof(*ids));
++        if (attempt + 1 < limit)
++            Sleep(50 * (attempt + 1));
++    }
++    return hr;
+ }
+ 
+ static DWORD WINAPI notif_thread_proc(void *user)
+ {
+-    HKEY key;
+-    WCHAR reg_key[256];
+-    WCHAR out_name[64], vout_name[64], in_name[64], vin_name[64];
+-    DWORD size;
++    struct notification_thread_state *state = user;
++    WCHAR reg_key[256], *old_ids[4] = {0}, *new_ids[4] = {0};
++    HANDLE changed = NULL;
++    HKEY key = NULL;
++    HRESULT hr;
++    DWORD error, wait;
++    unsigned int i;
+ 
+     SetThreadDescription(GetCurrentThread(), L"wine_mmdevapi_notification");
+-
+     lstrcpyW(reg_key, drv_keyW);
+     lstrcatW(reg_key, L"\\");
+     lstrcatW(reg_key, drvs.module_name);
+-
+-    if(RegCreateKeyExW(HKEY_CURRENT_USER, reg_key, 0, NULL, 0,
+-                MAXIMUM_ALLOWED, NULL, &key, NULL) != ERROR_SUCCESS){
+-        ERR("RegCreateKeyEx failed: %lu\n", GetLastError());
+-        return 1;
+-    }
+-
+-    size = sizeof(out_name);
+-    if(RegQueryValueExW(key, L"DefaultOutput", 0, NULL, (BYTE*)out_name, &size) != ERROR_SUCCESS)
+-        out_name[0] = 0;
+-
+-    size = sizeof(vout_name);
+-    if(RegQueryValueExW(key, L"DefaultVoiceOutput", 0, NULL, (BYTE*)vout_name, &size) != ERROR_SUCCESS)
+-        vout_name[0] = 0;
+-
+-    size = sizeof(in_name);
+-    if(RegQueryValueExW(key, L"DefaultInput", 0, NULL, (BYTE*)in_name, &size) != ERROR_SUCCESS)
+-        in_name[0] = 0;
+-
+-    size = sizeof(vin_name);
+-    if(RegQueryValueExW(key, L"DefaultVoiceInput", 0, NULL, (BYTE*)vin_name, &size) != ERROR_SUCCESS)
+-        vin_name[0] = 0;
+-
+-    while(1){
+-        if(RegNotifyChangeKeyValue(key, FALSE, REG_NOTIFY_CHANGE_LAST_SET,
+-                    NULL, FALSE) != ERROR_SUCCESS){
+-            ERR("RegNotifyChangeKeyValue failed: %lu\n", GetLastError());
+-            RegCloseKey(key);
+-            g_notif_thread = NULL;
+-            return 1;
+-        }
+-
++    error = RegCreateKeyExW(HKEY_CURRENT_USER, reg_key, 0, NULL, 0,
++            MAXIMUM_ALLOWED, NULL, &key, NULL);
++    if (error)
++    {
++        hr = HRESULT_FROM_WIN32(error);
++        goto done;
++    }
++    changed = CreateEventW(NULL, FALSE, FALSE, NULL);
++    if (!changed)
++    {
++        hr = E_OUTOFMEMORY;
++        goto done;
++    }
++    /* Arm before reading the baseline so changes during sampling remain
++     * signaled. Registration only becomes ready after both steps succeed. */
++    error = RegNotifyChangeKeyValue(key, FALSE, REG_NOTIFY_CHANGE_LAST_SET, changed, TRUE);
++    if (error)
++    {
++        hr = HRESULT_FROM_WIN32(error);
++        goto done;
++    }
++    if (FAILED(hr = sample_default_role_ids(old_ids, FALSE)))
++        goto done;
++    InterlockedExchange(&state->status, S_OK);
++    if (!SetEvent(state->ready))
++    {
++        hr = E_FAIL;
++        goto done;
++    }
++
++    for (;;)
++    {
++        wait = WaitForSingleObject(changed, INFINITE);
++        if (wait != WAIT_OBJECT_0)
++        {
++            hr = E_FAIL;
++            break;
++        }
++        /* Rearm before sampling or dispatch; a concurrent update will cause
++         * another iteration instead of disappearing between blocking watches. */
++        error = RegNotifyChangeKeyValue(key, FALSE, REG_NOTIFY_CHANGE_LAST_SET, changed, TRUE);
++        if (error)
++        {
++            hr = HRESULT_FROM_WIN32(error);
++            break;
++        }
++        if (FAILED(hr = sample_default_role_ids(new_ids, TRUE)))
++        {
++            WARN("Default role sampling failed: %#lx; retaining the last snapshot.\n", hr);
++            continue;
++        }
+         EnterCriticalSection(&g_notif_lock);
+-
+-        notify_if_changed(eRender, eConsole, key, L"DefaultOutput",
+-                out_name, &MMDevice_def_play->IMMDevice_iface);
+-        notify_if_changed(eRender, eCommunications, key, L"DefaultVoiceOutput",
+-                vout_name, &MMDevice_def_play->IMMDevice_iface);
+-        notify_if_changed(eCapture, eConsole, key, L"DefaultInput",
+-                in_name, &MMDevice_def_rec->IMMDevice_iface);
+-        notify_if_changed(eCapture, eCommunications, key, L"DefaultVoiceInput",
+-                vin_name, &MMDevice_def_rec->IMMDevice_iface);
+-
++        for (i = 0; i < 4; ++i)
++        {
++            if ((!old_ids[i] != !new_ids[i])
++                    || (old_ids[i] && new_ids[i] && lstrcmpW(old_ids[i], new_ids[i])))
++                notify_clients(i < 2 ? eRender : eCapture,
++                        i & 1 ? eCommunications : eConsole, new_ids[i]);
++            CoTaskMemFree(old_ids[i]);
++            old_ids[i] = new_ids[i];
++            new_ids[i] = NULL;
++        }
+         LeaveCriticalSection(&g_notif_lock);
+     }
+ 
+-    RegCloseKey(key);
+-
+-    g_notif_thread = NULL;
+-
+-    return 0;
+-}
+-
+-static HRESULT WINAPI MMDevEnum_RegisterEndpointNotificationCallback(IMMDeviceEnumerator *iface, IMMNotificationClient *client)
+-{
+-    MMDevEnumImpl *This = impl_from_IMMDeviceEnumerator(iface);
++done:
++    /* Even pre-ready failures wake all registrars with the real failure. */
++    InterlockedExchange(&state->status, hr);
++    SetEvent(state->ready);
++    if (key) RegCloseKey(key);
++    if (changed) CloseHandle(changed);
++    free_default_role_ids(old_ids);
++    free_default_role_ids(new_ids);
++    notification_state_release(state);
++    return 1;
++}
++
++static HRESULT WINAPI MMDevEnum_RegisterEndpointNotificationCallback(IMMDeviceEnumerator *iface,
++        IMMNotificationClient *client)
++{
++    struct notification_thread_state *state;
+     struct NotificationClientWrapper *wrapper;
+-
+-    TRACE("(%p)->(%p)\n", This, client);
+-
+-    if(!client)
+-        return E_POINTER;
+-
+-    wrapper = malloc(sizeof(*wrapper));
+-    if(!wrapper)
++    DWORD wait;
++    HRESULT hr = E_FAIL;
++
++    if (!client)
++        return E_POINTER;
++    if (!(wrapper = malloc(sizeof(*wrapper))))
+         return E_OUTOFMEMORY;
+-
+     wrapper->client = client;
+ 
+     EnterCriticalSection(&g_notif_lock);
+-
+-    list_add_tail(&g_notif_clients, &wrapper->entry);
+-
+-    if(!g_notif_thread){
+-        g_notif_thread = CreateThread(NULL, 0, notif_thread_proc, NULL, 0, NULL);
+-        if(!g_notif_thread)
+-            ERR("CreateThread failed: %lu\n", GetLastError());
+-    }
+-
++    if (g_notif_state && WaitForSingleObject(g_notif_state->thread, 0) == WAIT_OBJECT_0)
++    {
++        notification_state_release(g_notif_state);
++        g_notif_state = NULL;
++    }
++    state = g_notif_state;
++    if (!state)
++    {
++        if (!(state = calloc(1, sizeof(*state))))
++        {
++            hr = E_OUTOFMEMORY;
++            goto failed_locked;
++        }
++        state->ready = CreateEventW(NULL, TRUE, FALSE, NULL);
++        if (!state->ready)
++        {
++            free(state);
++            hr = E_OUTOFMEMORY;
++            goto failed_locked;
++        }
++        state->refs = 2; /* Global owner and the new thread. */
++        state->status = E_PENDING;
++        state->thread = CreateThread(NULL, 0, notif_thread_proc, state, 0, NULL);
++        if (!state->thread)
++        {
++            notification_state_release(state);
++            notification_state_release(state);
++            hr = E_FAIL;
++            goto failed_locked;
++        }
++        g_notif_state = state;
++    }
++    InterlockedIncrement(&state->refs); /* Protect both handles while waiting. */
+     LeaveCriticalSection(&g_notif_lock);
+ 
+-    return S_OK;
++    /* The worker can need g_notif_lock to deliver a pending update. Never wait
++     * for readiness while holding that lock or publish a half-registered client. */
++    wait = WaitForSingleObject(state->ready, 5000);
++    if (wait == WAIT_OBJECT_0)
++    {
++        EnterCriticalSection(&g_notif_lock);
++        hr = InterlockedCompareExchange(&state->status, 0, 0);
++        if (SUCCEEDED(hr) && (state != g_notif_state
++                || WaitForSingleObject(state->thread, 0) != WAIT_TIMEOUT))
++            hr = E_FAIL;
++        if (SUCCEEDED(hr)) list_add_tail(&g_notif_clients, &wrapper->entry);
++        LeaveCriticalSection(&g_notif_lock);
++    }
++    else
++        hr = wait == WAIT_TIMEOUT ? HRESULT_FROM_WIN32(ERROR_TIMEOUT) : E_FAIL;
++    notification_state_release(state);
++    if (FAILED(hr)) free(wrapper);
++    return hr;
++
++failed_locked:
++    LeaveCriticalSection(&g_notif_lock);
++    free(wrapper);
++    return hr;
+ }
+ 
+ static HRESULT WINAPI MMDevEnum_UnregisterEndpointNotificationCallback(IMMDeviceEnumerator *iface, IMMNotificationClient *client)

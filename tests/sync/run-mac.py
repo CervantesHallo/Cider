@@ -14,6 +14,7 @@ from pathlib import Path
 import re
 import runpy
 import shutil
+import signal
 import subprocess
 import sys
 import threading
@@ -61,6 +62,14 @@ def valid_metadata(suite, arch, iterations, mode, begins, completes):
                 and type(complete.get('checks')) is int and type(complete.get('failures')) is int
                 and complete.get('ok') is True and complete.get('failures') == 0
                 and complete.get('output_error') is False)
+    if suite == 'winmm-startup':
+        return (mode == 'correctness' and begin.get('subject') == 'winmm-startup'
+                and begin.get('mode') == 'correctness'
+                and begin.get('first') in ['wave', 'instance']
+                and complete.get('mode') == 'correctness'
+                and type(complete.get('checks')) is int and complete['checks'] == 39
+                and type(complete.get('failures')) is int and complete['failures'] == 0
+                and complete.get('ok') is True and complete.get('output_error') is False)
     if suite == 'single-event':
         expected = {'requested_per_case': iterations, 'created': iterations * 2,
                     'reaped': iterations * 2, 'completed_rounds': iterations,
@@ -169,7 +178,8 @@ parser.add_argument('--root', type=Path, required=True)
 parser.add_argument('--bottle', required=True)
 parser.add_argument('--arch', choices=['i686', 'x86_64'], required=True)
 parser.add_argument('--mode', choices=['correctness', 'stress', 'duration', 'bench'], required=True)
-parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix', 'nt-extra', 'user-bench', 'wait-widths', 'profile-args', 'renderer-smoke', 'gs-boundary'], default='waitall')
+parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix', 'nt-extra', 'user-bench', 'wait-widths', 'profile-args', 'renderer-smoke', 'gs-boundary', 'winmm-startup'], default='waitall')
+parser.add_argument('--audio-first', choices=['wave', 'instance'], default='wave')
 parser.add_argument('--user-kind', choices=['cs', 'srw', 'cv', 'address', 'once'], default='cs')
 parser.add_argument('--batches', type=int, default=4)
 parser.add_argument('--stats', action='store_true')
@@ -179,7 +189,7 @@ parser.add_argument('--iterations', type=int, default=10000)
 parser.add_argument('--threads', type=int, default=4)
 parser.add_argument('--timeout', type=int, default=150)
 args = parser.parse_args()
-requires_owned_cleanup = args.suite in ['profile-args', 'renderer-smoke', 'gs-boundary']
+requires_owned_cleanup = args.suite in ['profile-args', 'renderer-smoke', 'gs-boundary', 'winmm-startup']
 root = args.root.resolve(strict=True)
 owner = json.loads((root / 'owner.json').read_text())
 if not root.name.startswith('waitall-mac-') or owner['root'] != str(root):
@@ -210,7 +220,7 @@ source = root / ({'waitall': 'waitall-', 'lifecycle': 'waitall-lifecycle-',
                   'matrix': 'sync-matrix-', 'nt-extra': 'sync-nt-extra-',
                   'user-bench': 'sync-user-bench-', 'wait-widths': 'sync-wait-widths-',
                   'profile-args': 'profile-args-', 'renderer-smoke': 'renderer-smoke-',
-                  'gs-boundary': 'gs-boundary-'}[args.suite] + args.arch + '.exe')
+                  'gs-boundary': 'gs-boundary-', 'winmm-startup': 'winmm-startup-'}[args.suite] + args.arch + '.exe')
 if args.benchmark_fixture == 'v4':
     source = root / ('waitall-bench-v4-' + args.arch + '.exe')
 if args.lifecycle_fixture == 'timeout-diagnostic':
@@ -224,10 +234,10 @@ if args.suite == 'user-bench':
             or args.stats or args.benchmark_fixture != 'v3' or args.timeout > 120):
         raise SystemExit('U benchmark needs bounded bench mode without statistics or other fixture selection')
     arguments = ['--bench', args.user_kind, str(args.iterations), str(args.threads), str(args.batches)]
-elif args.suite in ['matrix', 'nt-extra', 'wait-widths', 'profile-args', 'renderer-smoke', 'gs-boundary']:
+elif args.suite in ['matrix', 'nt-extra', 'wait-widths', 'profile-args', 'renderer-smoke', 'gs-boundary', 'winmm-startup']:
     if args.mode != 'correctness':
         raise SystemExit('Additional contract suites currently support correctness only')
-    arguments = []
+    arguments = [args.audio_first] if args.suite == 'winmm-startup' else []
 elif args.suite in ['lifecycle', 'single-event']:
     maximum = 256 if args.suite == 'single-event' else 4096
     if args.mode != 'correctness' or args.iterations > maximum:
@@ -328,89 +338,133 @@ def sample_statistics():
 sampler = threading.Thread(target=sample_statistics, daemon=True)
 sampler.start()
 process = None
+class RunnerInterrupted(Exception):
+    def __init__(self, signum):
+        self.signum = signum
+        super().__init__('signal %s' % signum)
+def request_runner_stop(signum, frame):
+    raise RunnerInterrupted(signum)
+def record_runner_exception(error, phase):
+    code = (128 + error.signum if isinstance(error, RunnerInterrupted)
+            else 130 if isinstance(error, KeyboardInterrupt) else 126)
+    record.setdefault('runnerExceptions', []).append({'phase': phase,
+        'type': type(error).__name__, 'message': str(error), 'exitCode': code})
+    record['cliExitCode'] = code
+previous_term_handler = signal.signal(signal.SIGTERM, request_runner_stop)
 try:
-    # Only this thread may submit or stop a run. The sampler merely reports a
-    # clock failure, so it cannot finish cleanup before a delayed submission.
-    if clock_failed.is_set() or clock_discontinuity(time.monotonic() - start, time.time() - wall_start):
-        record.update(cliExitCode=125, launchSkipped=True, stdout='', stderr='')
-        clock_failed.set()
-    else:
-        process = subprocess.Popen(command, env=environment, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        while True:
-            elapsed = time.monotonic() - start
-            if clock_failed.is_set() or clock_discontinuity(elapsed, time.time() - wall_start):
-                clock_failed.set()
-                record['cliExitCode'] = 125
-                break
-            if elapsed >= args.timeout:
-                record.update(cliExitCode=124, timeout=True)
-                break
-            try:
-                stdout, stderr = process.communicate(timeout=min(.25, args.timeout - elapsed))
-                record.update(cliExitCode=process.returncode, stdout=stdout, stderr=stderr)
-                break
-            except subprocess.TimeoutExpired:
-                # communicate() retains its partial output across calls. Drain
-                # it after termination too; do not discard TimeoutExpired data.
-                continue
-except OSError as error:
-    record.update(cliExitCode=126, launchError=str(error))
-finally:
-    if process is not None and (process.poll() is None or 'stdout' not in record):
-        if process.poll() is None:
-            process.terminate()
-        try:
-            stdout, stderr = process.communicate(timeout=5)
-        except subprocess.TimeoutExpired:
-            process.kill()
-            try:
-                stdout, stderr = process.communicate(timeout=5)
-            except subprocess.TimeoutExpired as error:
-                # Another process may retain a pipe after the client dies.
-                # EOF is not a prerequisite for cleanup or the result record.
-                def partial(value):
-                    return value.decode('utf-8', 'replace') if isinstance(value, bytes) else value or ''
-                stdout, stderr = partial(error.output), partial(error.stderr)
-                record['clientOutputDrainIncomplete'] = True
-                for stream in (process.stdout, process.stderr):
-                    if stream is not None:
-                        stream.close()
-                try:
-                    process.wait(timeout=1)
-                except subprocess.TimeoutExpired:
-                    record['clientReapUnconfirmed'] = True
-        record.update(stdout=stdout, stderr=stderr, clientExitCodeAfterStop=process.returncode)
-    sampling_done.set()
-    if sampler:
-        sampler.join(timeout=25)
-        if sampler.is_alive():
-            record['statisticsSamplerDidNotStop'] = True
-record['pumpSnapshots'] = snapshots
-record['systemPauses'] = system_pauses
-record.update(seconds=time.monotonic() - start, wallElapsedSeconds=time.time() - wall_start, loadAverageAfter=os.getloadavg())
-record['timingDiscontinuity'] = clock_failed.is_set() or bool(system_pauses) or clock_discontinuity(record['seconds'], record['wallElapsedSeconds'])
-if record['timingDiscontinuity'] or record.get('timeout') or record.get('launchError') or requires_owned_cleanup:
-    # Includes gaps only discovered after the last sampler tick. Reap the
-    # laboratory GUI (the only Wine spawner), then drain its owned processes;
-    # an empty snapshot alone cannot exclude a queued or paused launch.
-    cleanup_record = {}
     try:
-        cleanup = subprocess.run([str(root / 'owned-processes'), 'stop-runtime', str(root)],
-                                 text=True, capture_output=True, timeout=20)
-        receipt = json.loads(cleanup.stdout)
-        cleanup_record['ownedRoot'] = {'exitCode': cleanup.returncode, 'receipt': receipt}
-        cleanup_record['confirmed'] = (cleanup.returncode == 0 and not record.get('clientReapUnconfirmed')
-                                       and receipt.get('mode') == 'stop-runtime'
-                                       and receipt.get('hostShutdown', {}).get('confirmed') is True
-                                       and not receipt.get('pending', [None]))
-    except (OSError, ValueError, subprocess.TimeoutExpired) as error:
-        cleanup_record.update(confirmed=False, ownedRootError=str(error))
-    if requires_owned_cleanup:
-        cleanup_record['confirmed'] = (cleanup_record.get('confirmed') is True
-            and cleanup_record.get('ownedRoot', {}).get('receipt', {}).get('emptyObservations', 0) >= 2)
-        record['ownedRootCleanup'] = cleanup_record
-    else:
-        record['interruptionCleanup'] = cleanup_record
+        # Only this thread may submit or stop a run. The sampler merely reports a
+        # clock failure, so it cannot finish cleanup before a delayed submission.
+        if clock_failed.is_set() or clock_discontinuity(time.monotonic() - start, time.time() - wall_start):
+            record.update(cliExitCode=125, launchSkipped=True, stdout='', stderr='')
+            clock_failed.set()
+        else:
+            process = subprocess.Popen(command, env=environment, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            while True:
+                elapsed = time.monotonic() - start
+                if clock_failed.is_set() or clock_discontinuity(elapsed, time.time() - wall_start):
+                    clock_failed.set()
+                    record['cliExitCode'] = 125
+                    break
+                if elapsed >= args.timeout:
+                    record.update(cliExitCode=124, timeout=True)
+                    break
+                try:
+                    stdout, stderr = process.communicate(timeout=min(.25, args.timeout - elapsed))
+                    record.update(cliExitCode=process.returncode, stdout=stdout, stderr=stderr)
+                    break
+                except subprocess.TimeoutExpired:
+                    # communicate() retains its partial output across calls. Drain
+                    # it after termination too; do not discard TimeoutExpired data.
+                    continue
+    except OSError as error:
+        record.update(cliExitCode=126, launchError=str(error))
+except BaseException as error:
+    # A submitted command is not cancelled by killing its CLI. Always reach
+    # owned-root shutdown, including interruption and output decoding errors.
+    record_runner_exception(error, 'launch-or-communicate')
+finally:
+    saved_handlers = {sig: signal.signal(sig, signal.SIG_IGN)
+                      for sig in (signal.SIGINT, signal.SIGTERM)}
+    try:
+        try:
+            try:
+                if process is not None and (process.poll() is None or 'stdout' not in record):
+                    if process.poll() is None:
+                        process.terminate()
+                    try:
+                        stdout, stderr = process.communicate(timeout=5)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        try:
+                            stdout, stderr = process.communicate(timeout=5)
+                        except subprocess.TimeoutExpired as error:
+                            # Another process may retain a pipe after the client dies.
+                            # EOF is not a prerequisite for cleanup or the result record.
+                            def partial(value):
+                                return value.decode('utf-8', 'replace') if isinstance(value, bytes) else value or ''
+                            stdout, stderr = partial(error.output), partial(error.stderr)
+                            record['clientOutputDrainIncomplete'] = True
+                            for stream in (process.stdout, process.stderr):
+                                if stream is not None:
+                                    stream.close()
+                            try:
+                                process.wait(timeout=1)
+                            except subprocess.TimeoutExpired:
+                                record['clientReapUnconfirmed'] = True
+                    record.update(stdout=stdout, stderr=stderr, clientExitCodeAfterStop=process.returncode)
+            except BaseException as error:
+                record_runner_exception(error, 'client-drain')
+                record['clientReapUnconfirmed'] = True
+                if process is not None and process.poll() is None:
+                    try:
+                        process.kill()
+                        process.wait(timeout=2)
+                    except BaseException as stop_error:
+                        record_runner_exception(stop_error, 'client-emergency-reap')
+            finally:
+                sampling_done.set()
+                if sampler:
+                    sampler.join(timeout=25)
+                    if sampler.is_alive():
+                        record['statisticsSamplerDidNotStop'] = True
+            record['pumpSnapshots'] = snapshots
+            record['systemPauses'] = system_pauses
+            record.update(seconds=time.monotonic() - start, wallElapsedSeconds=time.time() - wall_start, loadAverageAfter=os.getloadavg())
+            record['timingDiscontinuity'] = clock_failed.is_set() or bool(system_pauses) or clock_discontinuity(record['seconds'], record['wallElapsedSeconds'])
+        except BaseException as error:
+            record_runner_exception(error, 'drain-or-observation')
+            record.setdefault('timingDiscontinuity', True)
+        finally:
+            if record['timingDiscontinuity'] or record.get('timeout') or record.get('launchError') or record.get('runnerExceptions') or requires_owned_cleanup:
+                # Includes gaps only discovered after the last sampler tick. Reap the
+                # laboratory GUI (the only Wine spawner), then drain its owned processes;
+                # an empty snapshot alone cannot exclude a queued or paused launch.
+                cleanup_record = {}
+                try:
+                    cleanup = subprocess.run([str(root / 'owned-processes'), 'stop-runtime', str(root)],
+                                             text=True, capture_output=True, timeout=20)
+                    receipt = json.loads(cleanup.stdout)
+                    cleanup_record['ownedRoot'] = {'exitCode': cleanup.returncode, 'receipt': receipt}
+                    cleanup_record['confirmed'] = (cleanup.returncode == 0 and not record.get('clientReapUnconfirmed')
+                                                   and receipt.get('mode') == 'stop-runtime'
+                                                   and receipt.get('hostShutdown', {}).get('confirmed') is True
+                                                   and not receipt.get('pending', [None]))
+                except (OSError, ValueError, subprocess.TimeoutExpired) as error:
+                    cleanup_record.update(confirmed=False, ownedRootError=str(error))
+                if requires_owned_cleanup:
+                    cleanup_record['confirmed'] = (cleanup_record.get('confirmed') is True
+                        and cleanup_record.get('ownedRoot', {}).get('receipt', {}).get('emptyObservations', 0) >= 2)
+                    record['ownedRootCleanup'] = cleanup_record
+                else:
+                    record['interruptionCleanup'] = cleanup_record
+            # Persist cleanup even if later receipt parsing rejects the run.
+            record['state'] = 'post-cleanup'
+            result_path.write_text(json.dumps(record, indent=2) + '\n')
+    finally:
+        for sig, handler in saved_handlers.items():
+            signal.signal(sig, handler)
+        signal.signal(signal.SIGTERM, previous_term_handler)
 if args.mode == 'duration' and (record['seconds'] < args.iterations or
         record['timingDiscontinuity']):
     record['continuousDurationNotEstablished'] = True
@@ -487,6 +541,20 @@ if args.suite == 'renderer-smoke':
         and Counter(r['name'] for r in checks) == expected)
 if args.suite == 'gs-boundary':
     metadata_ok = metadata_ok and valid_gs_checks(rows)
+if args.suite == 'winmm-startup':
+    checks = [r for r in rows if r.get('type') == 'check']
+    expected = Counter({name: 1 for name in ['watchdog.stop_event', 'watchdog.create',
+        'first.code', 'first.cleanup', 'first.payload', 'output.count', 'ready.create',
+        'ready.set', 'thread.join', 'ready.close', 'watchdog.signal', 'watchdog.join',
+        'watchdog.exit', 'watchdog.close', 'watchdog.stop_close']})
+    expected.update({name: 4 for name in ['thread.create', 'worker.open', 'worker.caps',
+        'worker.close', 'worker.exit', 'thread.close']})
+    metadata_ok = (metadata_ok and begins[0].get('first') == args.audio_first
+        and len(checks) == 39
+        and all(type(r.get('name')) is str and r.get('ok') is True
+            and type(r.get('actual')) is int and type(r.get('expected')) is int
+            and r['actual'] == r['expected'] for r in checks)
+        and Counter(r['name'] for r in checks) == expected)
 if args.suite == 'wait-widths':
     checks = [r for r in rows if r.get('type') == 'check']
     groups = {}

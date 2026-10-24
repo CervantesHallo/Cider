@@ -137,7 +137,7 @@
         "cider-cx26-wma1-mm1.json",
         "cider-cx26-wma1-mm2.json"
       ],
-      "v1Status": "semantic-rebase-required"
+      "v1Status": "metadata-lifecycle-source-and-cold-entry-subset-passed-format-policy-open"
     },
     {
       "patch": "cider/0014-winmm-initialize-before-worker-lock.patch",
@@ -146,7 +146,7 @@
       "recipes": [
         "cider-cx26-wma1-mm2.json"
       ],
-      "v1Status": "semantic-rebase-required"
+      "v1Status": "startup-order-source-and-bounded-cold-entry-runtime-passed"
     },
     {
       "patch": "highball/0001-use-the-real-user-name.patch",
@@ -376,6 +376,38 @@
       "zeroFuzzAndOffset": true,
       "scope": "source prepared, actual full translation unit compiled PE32/PE64 with Wine flags and Werror; not linked/runtime",
       "recipeSelected": false
+    },
+    {
+      "patch": "engine/porting/wine-11.18/0008-winmm-stage-device-metadata-before-worker.patch",
+      "patchSHA256": "4ef911425521257cc1d6283c3f0fa39a63a3f4d313a4f36f123099847ac302c9",
+      "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+      "originalSHA256": "e3b71fc83ba276e2926c77b6ed3e2a563acf7618480308073df61185c40f0c17",
+      "portedSHA256": "e9176989e0d650a64e58fd280554508c9c2375431a096795d29236b56510dcf6",
+      "zeroFuzzAndOffset": true,
+      "completePEComponentCompiled": [
+        "i386",
+        "x86_64"
+      ],
+      "linkedSeparateOutputs": true,
+      "recipeSelected": false,
+      "runtimeScope": "four cold entry runs across two architectures; full notification concurrency/format/audio/game/performance acceptance remains open",
+      "evidence": "docs/research/evidence/engine-r-v1-winmm-metadata-20261024.json"
+    },
+    {
+      "patch": "engine/porting/wine-11.18/0009-mmdevapi-arm-effective-default-notifications.patch",
+      "patchSHA256": "f95367d611c4981874184ef42aa22f52719ca4aafa828f9538ddb39727063336",
+      "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+      "originalSHA256": "43585cdb1eb5cf950bbf3fb37f42cee66d232e5837fae93e54a323608f2b4cad",
+      "portedSHA256": "36f7763ddd37db27cd61d75d89997e42ca79852d15143c05c5645ad94c519500",
+      "zeroFuzzAndOffset": true,
+      "completePEComponentCompiled": [
+        "i386",
+        "x86_64"
+      ],
+      "linkedSeparateOutputs": true,
+      "recipeSelected": false,
+      "runtimeScope": "four cold entry runs across two architectures; full notification concurrency/format/audio/game/performance acceptance remains open",
+      "evidence": "docs/research/evidence/engine-r-v1-winmm-metadata-20261024.json"
     }
   ],
   "buildReady": false,
@@ -806,5 +838,34 @@
     "actualOrphanCleanupSeconds": 9.585970458,
     "fullM1Accepted": false,
     "recipeSelected": false
+  },
+  "audioMetadataPrivateRuntime": {
+    "evidence": "docs/research/evidence/engine-r-v1-winmm-metadata-20261024.json",
+    "engineID": "cider-lab-wine11.18-audio-metadata-r1-x86_64",
+    "arches": [
+      "i686",
+      "x86_64"
+    ],
+    "coldFirstEntries": [
+      "wave",
+      "instance"
+    ],
+    "checksPerRun": 39,
+    "runs": 4,
+    "nativeDependencyDoubleCasesPerArch": 93,
+    "actualInterruptCleanupPassed": true,
+    "formatPolicyAccepted": false,
+    "fullNotificationConcurrencyAccepted": false,
+    "fullM1Accepted": false,
+    "recipeSelected": false
+  },
+  "userSyncAttributionOffline": {
+    "evidence": "docs/research/evidence/u-cohort-offline-attribution-20261024.json",
+    "rawHashesVerified": 90,
+    "pairedDeltaSignChanges": 10,
+    "totalCells": 15,
+    "outside3Percent": 8,
+    "attributionAccepted": false,
+    "noBenchmarkReruns": true
   }
 }
