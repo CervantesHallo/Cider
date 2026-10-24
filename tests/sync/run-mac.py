@@ -45,6 +45,14 @@ def valid_metadata(suite, arch, iterations, mode, begins, completes):
                 and complete.get('mode') == 'wait-widths-correctness'
                 and complete.get('checks') == 214 and complete.get('failures') == 0
                 and complete.get('output_error') is False)
+    if suite == 'profile-args':
+        return (mode == 'correctness' and begin.get('subject') == 'profile-arguments'
+                and complete.get('mode') == 'correctness' and complete.get('checks') == 23
+                and complete.get('failures') == 0 and complete.get('output_error') is False)
+    if suite == 'renderer-smoke':
+        return (mode == 'correctness' and begin.get('subject') == 'd3d9-readback'
+                and complete.get('mode') == 'correctness' and complete.get('checks') == 16
+                and complete.get('failures') == 0 and complete.get('output_error') is False)
     if suite == 'single-event':
         expected = {'requested_per_case': iterations, 'created': iterations * 2,
                     'reaped': iterations * 2, 'completed_rounds': iterations,
@@ -125,7 +133,7 @@ parser.add_argument('--root', type=Path, required=True)
 parser.add_argument('--bottle', required=True)
 parser.add_argument('--arch', choices=['i686', 'x86_64'], required=True)
 parser.add_argument('--mode', choices=['correctness', 'stress', 'duration', 'bench'], required=True)
-parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix', 'nt-extra', 'user-bench', 'wait-widths'], default='waitall')
+parser.add_argument('--suite', choices=['waitall', 'lifecycle', 'processes', 'single-event', 'matrix', 'nt-extra', 'user-bench', 'wait-widths', 'profile-args', 'renderer-smoke'], default='waitall')
 parser.add_argument('--user-kind', choices=['cs', 'srw', 'cv', 'address', 'once'], default='cs')
 parser.add_argument('--batches', type=int, default=4)
 parser.add_argument('--stats', action='store_true')
@@ -135,6 +143,7 @@ parser.add_argument('--iterations', type=int, default=10000)
 parser.add_argument('--threads', type=int, default=4)
 parser.add_argument('--timeout', type=int, default=150)
 args = parser.parse_args()
+requires_owned_cleanup = args.suite in ['profile-args', 'renderer-smoke']
 root = args.root.resolve(strict=True)
 owner = json.loads((root / 'owner.json').read_text())
 if not root.name.startswith('waitall-mac-') or owner['root'] != str(root):
@@ -163,7 +172,8 @@ if args.lifecycle_fixture != 'standard' and (args.suite != 'lifecycle' or args.m
 source = root / ({'waitall': 'waitall-', 'lifecycle': 'waitall-lifecycle-',
                   'processes': 'waitall-processes-', 'single-event': 'event-lifecycle-',
                   'matrix': 'sync-matrix-', 'nt-extra': 'sync-nt-extra-',
-                  'user-bench': 'sync-user-bench-', 'wait-widths': 'sync-wait-widths-'}[args.suite] + args.arch + '.exe')
+                  'user-bench': 'sync-user-bench-', 'wait-widths': 'sync-wait-widths-',
+                  'profile-args': 'profile-args-', 'renderer-smoke': 'renderer-smoke-'}[args.suite] + args.arch + '.exe')
 if args.benchmark_fixture == 'v4':
     source = root / ('waitall-bench-v4-' + args.arch + '.exe')
 if args.lifecycle_fixture == 'timeout-diagnostic':
@@ -177,7 +187,7 @@ if args.suite == 'user-bench':
             or args.stats or args.benchmark_fixture != 'v3' or args.timeout > 120):
         raise SystemExit('U benchmark needs bounded bench mode without statistics or other fixture selection')
     arguments = ['--bench', args.user_kind, str(args.iterations), str(args.threads), str(args.batches)]
-elif args.suite in ['matrix', 'nt-extra', 'wait-widths']:
+elif args.suite in ['matrix', 'nt-extra', 'wait-widths', 'profile-args', 'renderer-smoke']:
     if args.mode != 'correctness':
         raise SystemExit('Additional contract suites currently support correctness only')
     arguments = []
@@ -342,7 +352,7 @@ record['pumpSnapshots'] = snapshots
 record['systemPauses'] = system_pauses
 record.update(seconds=time.monotonic() - start, wallElapsedSeconds=time.time() - wall_start, loadAverageAfter=os.getloadavg())
 record['timingDiscontinuity'] = clock_failed.is_set() or bool(system_pauses) or clock_discontinuity(record['seconds'], record['wallElapsedSeconds'])
-if record['timingDiscontinuity'] or record.get('timeout') or record.get('launchError'):
+if record['timingDiscontinuity'] or record.get('timeout') or record.get('launchError') or requires_owned_cleanup:
     # Includes gaps only discovered after the last sampler tick. Reap the
     # laboratory GUI (the only Wine spawner), then drain its owned processes;
     # an empty snapshot alone cannot exclude a queued or paused launch.
@@ -358,7 +368,12 @@ if record['timingDiscontinuity'] or record.get('timeout') or record.get('launchE
                                        and not receipt.get('pending', [None]))
     except (OSError, ValueError, subprocess.TimeoutExpired) as error:
         cleanup_record.update(confirmed=False, ownedRootError=str(error))
-    record['interruptionCleanup'] = cleanup_record
+    if requires_owned_cleanup:
+        cleanup_record['confirmed'] = (cleanup_record.get('confirmed') is True
+            and cleanup_record.get('ownedRoot', {}).get('receipt', {}).get('emptyObservations', 0) >= 2)
+        record['ownedRootCleanup'] = cleanup_record
+    else:
+        record['interruptionCleanup'] = cleanup_record
 if args.mode == 'duration' and (record['seconds'] < args.iterations or
         record['timingDiscontinuity']):
     record['continuousDurationNotEstablished'] = True
@@ -392,7 +407,7 @@ if len(session_logs) == 1:
             if line.startswith('{'):
                 try:
                     row = json.loads(line)
-                    if row.get('type') in ['begin', 'check', 'complete', 'stress', 'worker', 'resources', 'bench', 'roundtrip', 'wakeup', 'progress', 'layout', 'limits', 'case', 'result', 'error', 'idle', 'lifecycle-timeout-capture', 'timeout_observation', 'batch', 'summary']:
+                    if row.get('type') in ['begin', 'check', 'complete', 'stress', 'worker', 'resources', 'bench', 'roundtrip', 'wakeup', 'progress', 'layout', 'limits', 'case', 'result', 'error', 'idle', 'lifecycle-timeout-capture', 'timeout_observation', 'batch', 'summary', 'adapter']:
                         rows.append(row)
                 except json.JSONDecodeError:
                     record['invalidJSONLine'] = True
@@ -414,6 +429,25 @@ if args.suite == 'user-bench':
     record['userValidatorUnchanged'] = hashlib.sha256(user_validator_path.read_bytes()).hexdigest() == record['userValidatorSHA256']
     metadata_ok = (metadata_ok and record['userValidatorUnchanged']
                    and user_validator(rows, args.arch, args.user_kind, args.iterations, args.threads, args.batches))
+if args.suite == 'profile-args':
+    checks = [r for r in rows if r.get('type') == 'check']
+    expected = Counter({name: 1 for name in ['new_owned_key', 'missing', 'append', 'unterminated',
+        'implicit', 'odd', 'type', 'empty', 'oversized', 'limit', 'limit-nul', 'registry_close', 'registry_delete']})
+    expected['registry_write'] = 10
+    metadata_ok = (metadata_ok and len(checks) == 23
+        and all(type(r.get('name')) is str and r.get('ok') is True
+            and type(r.get('actual')) is int and type(r.get('expected')) is int for r in checks)
+        and Counter(r['name'] for r in checks) == expected)
+if args.suite == 'renderer-smoke':
+    checks = [r for r in rows if r.get('type') == 'check']
+    expected = Counter({name: 1 for name in ['register_class', 'create_window', 'd3d9_create',
+        'adapter_identifier', 'create_hal_device', 'clear', 'get_render_target', 'surface_layout',
+        'create_system_copy', 'render_target_readback', 'lock_copy', 'row_layout', 'exact_rgb_pixels',
+        'unlock_copy', 'destroy_window', 'unregister_class']})
+    metadata_ok = (metadata_ok and len(checks) == 16
+        and all(type(r.get('name')) is str and r.get('ok') is True
+            and type(r.get('actual')) is int and type(r.get('expected')) is int for r in checks)
+        and Counter(r['name'] for r in checks) == expected)
 if args.suite == 'wait-widths':
     checks = [r for r in rows if r.get('type') == 'check']
     groups = {}
@@ -458,7 +492,13 @@ if args.suite == 'nt-extra':
             and r['qpc_ticks'] >= 0 and type(r.get('qpc_frequency')) is int
             and r['qpc_frequency'] > 0 and r.get('precision_gate_applied') is False for r in observations)
         and sorted(r['requested_100ns'] for r in observations) == [0, 10000, 156000, 1000000])
+if requires_owned_cleanup:
+    record['acceptanceElapsedActiveSeconds'] = time.monotonic() - start
+    record['acceptanceElapsedWallSeconds'] = time.time() - wall_start
+    record['timingDiscontinuity'] = record['timingDiscontinuity'] or clock_discontinuity(
+        record['acceptanceElapsedActiveSeconds'], record['acceptanceElapsedWallSeconds'])
 record['passed'] = (record['cliExitCode'] == 0 and metadata_ok and completes[0].get('ok') is True
+                    and (not requires_owned_cleanup or record.get('ownedRootCleanup', {}).get('confirmed') is True)
                     and not failed and not reported_errors and not record.get('invalidJSONLine') and not record.get('logTooLargeForAcceptance')
                     and not record.get('statisticsSamplerDidNotStop')
                     and not record.get('sessionBindingNotEstablished')

@@ -1,0 +1,1501 @@
+{
+  "schema": "cider.r-v1-profile-renderer-ports/v1",
+  "date": "2026-10-24",
+  "source": {
+    "scope": "source-only next original topic; not adoption or runtime acceptance",
+    "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+    "sourceSHA256": "96b17d73345a47206d890609addecb4b0d23cee3340dccb081ca37127954df31",
+    "preparedSHA256": "d8e93a8a559fed578ca460fcba3697cd5ae83fdfa7807b6c37f952474393a9f9",
+    "patch": "engine/porting/wine-11.18/0006-kernelbase-per-exe-command-line-append.patch",
+    "patchSHA256": "5bb86e12b7f5956fb030ecc7fc4e96ff41433a900685fe3a3a72e6b836a6fbb2",
+    "oracleSHA256": "cda40f3611a59d450b508000d0f2a9b43b5dba4030af5ce6c35180f8f4a7332b",
+    "changes": [
+      "same per-executable raw REG_SZ append after app-name normalization",
+      "actual byte termination + WCHAR alignment/capacity checks",
+      "allocation length overflow check",
+      "same tidy command-line cleanup owner"
+    ],
+    "runtimeAccepted": false,
+    "selectedByRecipe": false
+  },
+  "reconstruction": {
+    "exitCode": 0,
+    "stdout": "patching file 'dlls/kernelbase/process.c'\n",
+    "stderr": "",
+    "zeroFuzzOffset": true,
+    "preparedSHA256": "d8e93a8a559fed578ca460fcba3697cd5ae83fdfa7807b6c37f952474393a9f9",
+    "matched": true
+  },
+  "componentBuild": {
+    "scope": "exact prepared full process.c compiled with actual Wine PE flags; no link/runtime/adoption",
+    "rows": [
+      {
+        "arch": "i386",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+          "-c",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/i386-process.o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/process.c",
+          "-Idlls/kernelbase",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/dlls/kernelbase",
+          "-Iinclude",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/include",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/include/msvcrt",
+          "-D_MSVCR_VER=0",
+          "-D__WINESRC__",
+          "-DWINBASEAPI=",
+          "-DWINADVAPI=",
+          "-DWINUSERAPI=",
+          "-DWINSHLWAPI=",
+          "-D__WINE_PE_BUILD",
+          "-Wall",
+          "-fno-strict-aliasing",
+          "-Wempty-body",
+          "-Wignored-qualifiers",
+          "-Winit-self",
+          "-Wno-packed-not-aligned",
+          "-Wshift-overflow=2",
+          "-Wtype-limits",
+          "-Wunused-but-set-parameter",
+          "-Wvla",
+          "-Wwrite-strings",
+          "-Wpointer-arith",
+          "-Wlogical-op",
+          "-ffunction-sections",
+          "-Wno-misleading-indentation",
+          "-fno-omit-frame-pointer",
+          "-mpreferred-stack-boundary=2",
+          "-mlong-double-64",
+          "-msse2",
+          "-gdwarf-4",
+          "-Wdeclaration-after-statement",
+          "-Wstrict-prototypes",
+          "-Wabsolute-value",
+          "-g",
+          "-O2",
+          "-Wno-incompatible-pointer-types",
+          "-Werror"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "sourceSHA256": "d8e93a8a559fed578ca460fcba3697cd5ae83fdfa7807b6c37f952474393a9f9",
+        "objectSHA256": "73759b83f84b4bd6986931b051a829fab2419c902b886881a041c089e9b557bd"
+      },
+      {
+        "arch": "x86_64",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+          "-c",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/x86_64-process.o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/process.c",
+          "-Idlls/kernelbase",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/dlls/kernelbase",
+          "-Iinclude",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/include",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/include/msvcrt",
+          "-D_MSVCR_VER=0",
+          "-D__WINESRC__",
+          "-DWINBASEAPI=",
+          "-DWINADVAPI=",
+          "-DWINUSERAPI=",
+          "-DWINSHLWAPI=",
+          "-D__WINE_PE_BUILD",
+          "-Wall",
+          "-fno-strict-aliasing",
+          "-Wempty-body",
+          "-Wignored-qualifiers",
+          "-Winit-self",
+          "-Wno-packed-not-aligned",
+          "-Wshift-overflow=2",
+          "-Wtype-limits",
+          "-Wunused-but-set-parameter",
+          "-Wvla",
+          "-Wwrite-strings",
+          "-Wpointer-arith",
+          "-Wlogical-op",
+          "-ffunction-sections",
+          "-Wno-misleading-indentation",
+          "-Wformat-overflow",
+          "-Wnonnull",
+          "-mlong-double-64",
+          "-mcx16",
+          "-mcmodel=small",
+          "-gdwarf-4",
+          "-Wdeclaration-after-statement",
+          "-Wstrict-prototypes",
+          "-Wabsolute-value",
+          "-g",
+          "-O2",
+          "-Wno-incompatible-pointer-types",
+          "-Werror"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "sourceSHA256": "d8e93a8a559fed578ca460fcba3697cd5ae83fdfa7807b6c37f952474393a9f9",
+        "objectSHA256": "165bcacf1d194023fc2029859b6301ec2fb0ad2c5cbcd8522332c42c8b112a56"
+      }
+    ],
+    "passed": true,
+    "canonicalSHA256": "96b17d73345a47206d890609addecb4b0d23cee3340dccb081ca37127954df31",
+    "canonicalUnchanged": true
+  },
+  "sourceReview": {
+    "schema": "cider.engine-profile-command-line-port-review/v1",
+    "reviewDate": "2026-10-24",
+    "reviewKind": "bounded read-only actual-source adversarial review",
+    "outcome": "no_concrete_p1_p2_found",
+    "summary": "No concrete P1/P2 found in the reviewed port helper, integration callsite or cleanup paths. The prepared process.c differs from the supplied pinned base by exactly the proposed patch payload. The raw per-executable REG_SZ append and caller ownership contract are preserved while the reviewed unterminated-data, odd-size and allocation-arithmetic defects are addressed.",
+    "sources": [
+      {
+        "path": "engine/porting/wine-11.18/0006-kernelbase-per-exe-command-line-append.patch",
+        "sha256": "5bb86e12b7f5956fb030ecc7fc4e96ff41433a900685fe3a3a72e6b836a6fbb2",
+        "bytes": 3067,
+        "lines": 74
+      },
+      {
+        "path": "engine/patches/highball/0006-kernelbase-per-exe-command-line-append.patch",
+        "sha256": "cda40f3611a59d450b508000d0f2a9b43b5dba4030af5ce6c35180f8f4a7332b",
+        "bytes": 2696,
+        "lines": 67
+      },
+      {
+        "path": "out/engine-profile-ports-20261024/process.c",
+        "sha256": "d8e93a8a559fed578ca460fcba3697cd5ae83fdfa7807b6c37f952474393a9f9",
+        "bytes": 72367,
+        "lines": 1982
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/kernelbase/process.c",
+        "sha256": "96b17d73345a47206d890609addecb4b0d23cee3340dccb081ca37127954df31",
+        "bytes": 70237,
+        "lines": 1937
+      }
+    ],
+    "baseCommitAsSupplied": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+    "preparedSourceDiffMatchesPortPatchExactly": true,
+    "comparisonMethod": "Read-only unified diff of the complete prepared and supplied base files; exact comparison with the port patch payload after its descriptive preamble. No patch application, build or project-code execution.",
+    "findings": [],
+    "concreteP1": 0,
+    "concreteP2": 0,
+    "reviewEvidence": [
+      {
+        "subject": "Original per-executable raw append contract",
+        "path": "out/engine-profile-ports-20261024/process.c",
+        "lineStart": 509,
+        "lineEnd": 539,
+        "patchLineStart": 24,
+        "patchLineEnd": 54,
+        "observation": "The helper keeps slash/backslash basename lookup, HKCU Software\\Wine\\AppDefaults\\<basename>, CommandLineAppend, KEY_QUERY_VALUE and REG_SZ-only selection. It creates cmdline + one space + the suffix through its first NUL. It introduces no environment expansion, argument tokenization or re-quoting. Missing/wrong-type/empty/oversized values and allocation failure leave the existing command line in use, as with the original helper."
+      },
+      {
+        "subject": "Registry byte bounds and missing NUL",
+        "path": "out/engine-profile-ports-20261024/process.c",
+        "lineStart": 512,
+        "lineEnd": 533,
+        "patchLineStart": 27,
+        "patchLineEnd": 48,
+        "observation": "The 1025-WCHAR array exposes only 1024 WCHARs of query capacity. Query status is saved before closing the opened key. Non-success, non-REG_SZ, shorter-than-one-WCHAR, over-capacity and odd-byte results return before reading value as a string. Accepted data is explicitly terminated at size/sizeof(WCHAR), which lies within the spare element even at full capacity. The later lstrlenW cannot scan uninitialized trailing storage. Existing embedded NUL behavior remains ordinary REG_SZ string behavior.",
+        "comparisonWithOldPatch": "The old helper terminated only value[1023], leaving an uninitialized gap after shorter unterminated data and truncating a full unterminated last WCHAR. The new helper uses the actual returned byte count and reserves the extra terminator element."
+      },
+      {
+        "subject": "Registry handle lifetime and error buffer handling",
+        "path": "out/engine-profile-ports-20261024/process.c",
+        "lineStart": 522,
+        "lineEnd": 531,
+        "observation": "Every successful RegOpenKeyExW reaches RegCloseKey exactly once before subsequent helper returns. Failed opens do not close an unowned handle. C short-circuit evaluation of status prevents reading undefined type/data after query failure, including ERROR_MORE_DATA. There is one bounded query and no two-query size race."
+      },
+      {
+        "subject": "Size arithmetic and copy extents",
+        "path": "out/engine-profile-ports-20261024/process.c",
+        "lineStart": 532,
+        "lineEnd": 539,
+        "patchLineStart": 47,
+        "patchLineEnd": 54,
+        "observation": "Lengths are converted separately to SIZE_T before addition. With value_len at most 1024, subtracting value_len+2 from floor(SIZE_MAX/sizeof(WCHAR)) cannot underflow on the intended 32/64-bit targets. The guard ensures len=command_len+value_len+2 and len*sizeof(WCHAR) fit before allocation. The prefix copy, one-space write and suffix-plus-NUL copy exactly occupy the allocation. The guard and allocation precede all output writes.",
+        "comparisonWithOldPatch": "The old expression added lstrlenW int results before assignment to size_t and had no checked allocation-size bound."
+      },
+      {
+        "subject": "Key buffer sizing",
+        "path": "out/engine-profile-ports-20261024/process.c",
+        "lineStart": 512,
+        "lineEnd": 522,
+        "observation": "The unchanged basename restriction is length<MAX_PATH. The fixed Software\\Wine\\AppDefaults\\ prefix is 26 WCHARs; at MAX_PATH=260 the largest accepted basename plus prefix and NUL requires 286 WCHARs, within key[MAX_PATH+40] capacity 300."
+      },
+      {
+        "subject": "Caller buffer and preexisting tidy buffer ownership",
+        "path": "out/engine-profile-ports-20261024/process.c",
+        "lineStart": 570,
+        "lineEnd": 589,
+        "patchLineStart": 62,
+        "patchLineEnd": 71,
+        "observation": "The helper reads both input strings and returns a separate process-heap allocation only on successful append. The callsite frees the previous tidy buffer only when it differs from the caller cmd_line, and only after the replacement is allocated and fully copied. A null helper return retains the prior pointer and its ownership. The app_name-only synthesized command and get_file_name-owned quoted command follow the same existing ownership test."
+      },
+      {
+        "subject": "App name and command-line alias lifetime",
+        "path": "out/engine-profile-ports-20261024/process.c",
+        "lineStart": 82,
+        "lineEnd": 135,
+        "relatedLocation": {
+          "path": "out/engine-profile-ports-20261024/process.c",
+          "lineStart": 570,
+          "lineEnd": 589
+        },
+        "observation": "When application name is inferred, get_file_name writes it to the caller-local name array and returns either the original cmd_line or a separate quoted command allocation. Replacing/freeing an owned tidy command therefore does not invalidate inferred app_name. Explicit app_name remains borrowed from the caller, and caller cmd_line is not freed by the new branch."
+      },
+      {
+        "subject": "Normal and error cleanup",
+        "path": "out/engine-profile-ports-20261024/process.c",
+        "lineStart": 591,
+        "lineEnd": 735,
+        "relatedLocation": {
+          "path": "out/engine-profile-ports-20261024/process.c",
+          "lineStart": 467,
+          "lineEnd": 503
+        },
+        "observation": "All inspected returns before helper invocation are unchanged. After the helper, invalid current directory, process-parameter allocation failure, debug setup failure and invalid parent attribute go through done; process creation and fallback paths also converge there. done destroys parameters and frees tidy_cmdline only if it differs from the caller buffer. The ANSI wrapper subsequently frees its own converted inputs; the W path neither double-frees those inputs nor leaks its appended replacement."
+      },
+      {
+        "subject": "Scope of actual prepared changes",
+        "path": "engine/porting/wine-11.18/0006-kernelbase-per-exe-command-line-append.patch",
+        "lineStart": 9,
+        "lineEnd": 74,
+        "observation": "The exact prepared/base diff has only the winreg.h include, the new helper and its post-name-resolution invocation. The existing done cleanup is unchanged. The source-level SIZE_T and registry declarations and kernelbase registry exports were also read from the supplied pinned tree; this is not compilation or link verification."
+      }
+    ],
+    "primaryContractReference": {
+      "title": "Microsoft RegQueryValueExW",
+      "url": "https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regqueryvalueexw",
+      "basis": "Successful REG_SZ reads need not be NUL-terminated. lpcbData is a byte count of copied data. A too-small buffer returns ERROR_MORE_DATA and leaves buffer contents undefined. The reviewed helper checks status and bounds before interpreting data and explicitly appends its terminator."
+    },
+    "operations": {
+      "buildsRun": 0,
+      "runtimeWorkloadsRun": 0,
+      "projectCodeExecutions": 0,
+      "windowsOperations": 0,
+      "processControlOperations": 0,
+      "subagentsUsed": 0,
+      "sourceEdits": 0,
+      "onlyWrittenArtifact": "out/engine-profile-ports-20261024/review.json",
+      "canonicalNativeRecipeOrUserEngineChanges": false,
+      "performanceRunsRepeated": false
+    },
+    "limits": [
+      "Static helper/callsite/cleanup and patch/base comparison only. No compilation, linking, runtime, Windows oracle, fault injection or binary inspection was performed; parent component compilation is not independently verified here.",
+      "The supplied base path and commit label were used as the comparison input; its exact bytes are hashed above. This review does not separately attest the archive or repository provenance of that tree.",
+      "The original Highball patch was reviewed as the behavior reference, not applied to or built against the new base.",
+      "No adoption, user-engine change, complete M1 acceptance or performance pass is implied by this source review."
+    ]
+  },
+  "rendererSource": {
+    "scope": "same original renderer-choice order, source-only; not graphics/runtime acceptance",
+    "sourceSHA256": "2090522d45204cf75e590cb33342473c414895f5639c2eb2f972b707d3a7d0fa",
+    "preparedSHA256": "60397280dfb71f780ee0cc71aa09873d667ca09d686a4b18f73fab9836fa1600",
+    "patch": "engine/porting/wine-11.18/0004-wined3d-auto-renderer-opengl-first.patch",
+    "patchSHA256": "af7397d952ea97ff63a55e6188469d4261bffc25cf06a4eeed03e5b33763adee",
+    "oracleSHA256": "011e682a90bfa3b2b0ebf6e72c5d93fbf3af674bf5c4cf05dd506622c23eb892",
+    "zeroFuzzOffset": true,
+    "selectedByRecipe": false,
+    "runtimeAccepted": false,
+    "upstreamDifference": "Upstream already chooses GL by default but lacks the original GL-failure Vulkan fallback; explicit Vulkan/GL and no3d stay exact"
+  },
+  "rendererBuild": {
+    "scope": "exact prepared full directx.c compiled with actual Wine PE flags; no link/runtime/adoption",
+    "rows": [
+      {
+        "arch": "i386",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+          "-c",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/i386-directx.o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/directx.c",
+          "-Idlls/wined3d",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/dlls/wined3d",
+          "-Iinclude",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/include",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/include/msvcrt",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/libs/vkd3d/include",
+          "-D_UCRT",
+          "-D__WINESRC__",
+          "-D__WINE_PE_BUILD",
+          "-Wall",
+          "-fno-strict-aliasing",
+          "-Wempty-body",
+          "-Wignored-qualifiers",
+          "-Winit-self",
+          "-Wno-packed-not-aligned",
+          "-Wshift-overflow=2",
+          "-Wtype-limits",
+          "-Wunused-but-set-parameter",
+          "-Wvla",
+          "-Wwrite-strings",
+          "-Wpointer-arith",
+          "-Wlogical-op",
+          "-ffunction-sections",
+          "-Wno-misleading-indentation",
+          "-fno-omit-frame-pointer",
+          "-mpreferred-stack-boundary=2",
+          "-mlong-double-64",
+          "-msse2",
+          "-gdwarf-4",
+          "-Wdeclaration-after-statement",
+          "-Wstrict-prototypes",
+          "-Wabsolute-value",
+          "-g",
+          "-O2",
+          "-Wno-incompatible-pointer-types",
+          "-Werror"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "sourceSHA256": "60397280dfb71f780ee0cc71aa09873d667ca09d686a4b18f73fab9836fa1600",
+        "objectSHA256": "fb6ccad6bcac1889275b74751a82466c6dc6ee5fd028221798f8c0aaa5df180b"
+      },
+      {
+        "arch": "x86_64",
+        "args": [
+          "/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+          "-c",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/x86_64-directx.o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/directx.c",
+          "-Idlls/wined3d",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/dlls/wined3d",
+          "-Iinclude",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/include",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/include/msvcrt",
+          "-I/Users/cervantes/Cider/out/engine-r-v1/msync-source/libs/vkd3d/include",
+          "-D_UCRT",
+          "-D__WINESRC__",
+          "-D__WINE_PE_BUILD",
+          "-Wall",
+          "-fno-strict-aliasing",
+          "-Wempty-body",
+          "-Wignored-qualifiers",
+          "-Winit-self",
+          "-Wno-packed-not-aligned",
+          "-Wshift-overflow=2",
+          "-Wtype-limits",
+          "-Wunused-but-set-parameter",
+          "-Wvla",
+          "-Wwrite-strings",
+          "-Wpointer-arith",
+          "-Wlogical-op",
+          "-ffunction-sections",
+          "-Wno-misleading-indentation",
+          "-Wformat-overflow",
+          "-Wnonnull",
+          "-mlong-double-64",
+          "-mcx16",
+          "-mcmodel=small",
+          "-gdwarf-4",
+          "-Wdeclaration-after-statement",
+          "-Wstrict-prototypes",
+          "-Wabsolute-value",
+          "-g",
+          "-O2",
+          "-Wno-incompatible-pointer-types",
+          "-Werror"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "sourceSHA256": "60397280dfb71f780ee0cc71aa09873d667ca09d686a4b18f73fab9836fa1600",
+        "objectSHA256": "17cfe78220b660ebcb82340ecf818ff1c06025be1eb6043382495fa997ae3fc1"
+      }
+    ],
+    "passed": true,
+    "canonicalSHA256": "2090522d45204cf75e590cb33342473c414895f5639c2eb2f972b707d3a7d0fa",
+    "canonicalUnchanged": true
+  },
+  "rendererReview": {
+    "schema": "cider.wined3d-renderer-port-source-review/v1",
+    "reviewDate": "2026-10-24",
+    "reviewKind": "bounded actual-source read-only adversarial review",
+    "outcome": "no_concrete_p1_p2_found",
+    "summary": "No concrete P1/P2 found in the ported selection order or the reviewed wined3d_get_renderer coupling. The port preserves the legacy GL-first/VK-fallback AUTO sequence and explicit choices. It deliberately adds fallback to the pinned GL-default upstream source and is not exactly equivalent to that pristine source.",
+    "sources": [
+      {
+        "path": "engine/porting/wine-11.18/0004-wined3d-auto-renderer-opengl-first.patch",
+        "sha256": "af7397d952ea97ff63a55e6188469d4261bffc25cf06a4eeed03e5b33763adee",
+        "bytes": 1387,
+        "lines": 31
+      },
+      {
+        "path": "engine/patches/highball/0002-wined3d-auto-renderer-opengl-first.patch",
+        "sha256": "011e682a90bfa3b2b0ebf6e72c5d93fbf3af674bf5c4cf05dd506622c23eb892",
+        "bytes": 1904,
+        "lines": 33
+      },
+      {
+        "path": "out/engine-profile-ports-20261024/directx.c",
+        "sha256": "60397280dfb71f780ee0cc71aa09873d667ca09d686a4b18f73fab9836fa1600",
+        "bytes": 168661,
+        "lines": 3527
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/wined3d/directx.c",
+        "sha256": "2090522d45204cf75e590cb33342473c414895f5639c2eb2f972b707d3a7d0fa",
+        "bytes": 168223,
+        "lines": 3519
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/wined3d/wined3d_main.c",
+        "sha256": "aed36f4934d4bef4255ce6afc548a9e70d04d13062eac832e7330eb5c7effcbd",
+        "bytes": 31646,
+        "lines": 984
+      }
+    ],
+    "baseCommitAsSupplied": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+    "preparedSourceDiffMatchesPortPatchExactly": true,
+    "findings": [],
+    "concreteP1": 0,
+    "concreteP2": 0,
+    "choiceOrder": [
+      {
+        "condition": "WINED3D_NO3D creation flag set, regardless of renderer preference",
+        "result": "Return wined3d_adapter_no3d_create directly.",
+        "preparedLines": [
+          3490,
+          3491
+        ]
+      },
+      {
+        "condition": "No no3d flag; explicit VULKAN setting",
+        "result": "Return wined3d_adapter_vk_create directly, with no GL fallback.",
+        "preparedLines": [
+          3493,
+          3494
+        ]
+      },
+      {
+        "condition": "No no3d flag; explicit OPENGL setting",
+        "result": "Return wined3d_adapter_gl_create directly, with no VK fallback.",
+        "preparedLines": [
+          3495,
+          3496
+        ]
+      },
+      {
+        "condition": "AUTO; GL constructor succeeds",
+        "result": "Return the GL adapter; VK constructor is not called.",
+        "preparedLines": [
+          3500,
+          3502
+        ]
+      },
+      {
+        "condition": "AUTO; GL constructor returns NULL",
+        "result": "Try VK with the same ordinal and flags; return its result. If both fail, wined3d_init returns E_FAIL.",
+        "preparedLines": [
+          3500,
+          3522
+        ]
+      }
+    ],
+    "behaviorComparison": {
+      "legacy": "The actual Highball patch retains the explicit GL return and uses the exact GL-create-then-VK-on-NULL sequence in its AUTO path. The new port implements that sequence while retaining pristine no3d and explicit VK precedence.",
+      "pinnedUpstream": "The pristine directx.c checks no3d, then explicit VK, then returns GL directly for the remaining settings. It already prefers GL for AUTO but has no VK retry after GL constructor failure. The new fallback is a real behavior addition.",
+      "fallbackScope": "Fallback is triggered only by GL adapter-constructor failure. It does not retry VK after a successfully created GL adapter later fails device creation or an application feature check.",
+      "preparedDiff": "The full prepared/base unified diff exactly equals the port patch payload after its preamble. Only wined3d_adapter_create changes."
+    },
+    "rendererGetterCoupling": {
+      "getter": {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/wined3d/wined3d_main.c",
+        "lineStart": 137,
+        "lineEnd": 143,
+        "observation": "AUTO continues to return OPENGL; explicit settings are returned unchanged. The port does not update the configured renderer when one adapter falls back."
+      },
+      "no3dConfiguration": {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/wined3d/wined3d_main.c",
+        "lineStart": 145,
+        "lineEnd": 163,
+        "observation": "wined3d_create translates renderer=NO3D into WINED3D_NO3D before wined3d_init, preserving the first selection branch."
+      },
+      "settingsParser": {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/wined3d/wined3d_main.c",
+        "lineStart": 459,
+        "lineEnd": 475,
+        "observation": "Explicit vulkan, gl and gdi/no3d settings continue to populate the corresponding renderer enum values."
+      },
+      "callsiteSearch": "Read-only searches for the getter symbol and wined3d_settings.renderer across the supplied pinned C/H tree found the provider/declaration and four getter callsites in tests; no production getter consumer driving adapter/device backend selection was found in that tree.",
+      "callers": [
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/d3d10core/tests/d3d10core.c",
+          "lineStart": 19761,
+          "lineEnd": 19767,
+          "use": "Sets the damavand test-classification flag if getter returns VULKAN."
+        },
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/d3d11/tests/d3d11.c",
+          "lineStart": 37714,
+          "lineEnd": 37720,
+          "use": "Sets the damavand test-classification flag if getter returns VULKAN."
+        },
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/d3dx10_43/tests/d3dx10.c",
+          "lineStart": 8876,
+          "lineEnd": 8882,
+          "use": "Sets the wined3d_opengl test-classification flag if getter returns OPENGL."
+        },
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/d3dx11_43/tests/d3dx11.c",
+          "lineStart": 4985,
+          "lineEnd": 4991,
+          "use": "Sets the wined3d_opengl test-classification flag if getter returns OPENGL."
+        }
+      ],
+      "evidenceBoundary": "On AUTO fallback, the getter can still report GL while the returned adapter is Vulkan. The reviewed test flags therefore cannot serve as proof of the actual fallback backend. This is a classification/reporting limitation in the discovered callers, not a demonstrated production backend-dispatch P1/P2. Out-of-tree or binary-only getter consumers were not assessed."
+    },
+    "actualAdapterDispatch": [
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/wined3d/adapter_gl.c",
+        "lineStart": 5051,
+        "lineEnd": 5052,
+        "observation": "GL initialization passes wined3d_adapter_gl_ops to common adapter initialization."
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/wined3d/adapter_vk.c",
+        "lineStart": 2607,
+        "lineEnd": 2610,
+        "observation": "VK initialization passes wined3d_adapter_vk_ops to common adapter initialization."
+      },
+      {
+        "path": "out/engine-profile-ports-20261024/directx.c",
+        "lineStart": 3471,
+        "lineEnd": 3473,
+        "observation": "The common initializer stores the passed adapter_ops in the created adapter."
+      },
+      {
+        "path": "out/engine-profile-ports-20261024/directx.c",
+        "lineStart": 2781,
+        "lineEnd": 2802,
+        "observation": "Capabilities and device creation dispatch through the selected adapter operations, not the configuration getter."
+      },
+      {
+        "path": "out/engine-profile-ports-20261024/directx.c",
+        "lineStart": 208,
+        "lineEnd": 215,
+        "observation": "Normal adapter destruction dispatches through the same per-adapter operations."
+      }
+    ],
+    "operations": {
+      "buildsRun": 0,
+      "runtimeWorkloadsRun": 0,
+      "projectCodeExecutions": 0,
+      "windowsOperations": 0,
+      "processControlOperations": 0,
+      "subagentsUsed": 0,
+      "sourceEdits": 0,
+      "onlyWrittenArtifact": "out/engine-profile-ports-20261024/renderer-review.json",
+      "canonicalNativeRecipeOrUserEngineChanges": false
+    },
+    "limits": [
+      "Static review of the specified patch, legacy patch, exact prepared/base diff, getter/configuration path, discovered callsites and per-adapter dispatch only.",
+      "No compilation, link verification, runtime, graphics capability test, fault injection or binary inspection was performed. Parent component compilation is independent and not verified here.",
+      "Existing backend initialization/failure cleanup was not exhaustively audited. No runtime success, graphics compatibility, engine adoption or exact upstream-equivalence claim is made.",
+      "The supplied pinned-tree bytes are hashed; repository/archive provenance was not independently attested."
+    ]
+  },
+  "usernameSourceObservation": {
+    "scope": "pinned source semantic paths only; not runtime/profile migration or CX byte identity",
+    "files": {
+      "dlls/advapi32/advapi.c": {
+        "sha256": "7a9ef419142d01964539f44bacc74ac9e5aeb981b59b184b8e81a57696823901",
+        "usesWineUsername": true,
+        "usesActualProfileUsername": null
+      },
+      "dlls/shell32/shellpath.c": {
+        "sha256": "7ec0b32b0577778e5e43dd5227cb978cb4b36d032e80a35bb1758287b9002d9b",
+        "usesWineUsername": null,
+        "usesActualProfileUsername": true
+      }
+    },
+    "extraPatchNeeded": false,
+    "runtimeAccepted": false
+  },
+  "gsbaseObservation": {
+    "scope": "source audit only; never copies legacy host-slot mirrors into whole-GSBASE upstream",
+    "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+    "basisCommit": "https://github.com/wine-mirror/wine/commit/3a16aabbf5",
+    "files": {
+      "dlls/ntdll/unix/signal_x86_64.c": {
+        "pinnedSHA256": "33d020f5e01f3e489c80fa18da766b6624990a168c253ed69be71b8f5c97f263",
+        "currentCanonicalSHA256": "613bfc800efc95e7c93bd6eede9325a8933cc45d1d984defc1ef3b138adeed9a"
+      },
+      "dlls/kernelbase/thread.c": {
+        "pinnedSHA256": "e7a42469f994f451efe9eaa7778809a6304f066f5cabbeeb1e315f6a5cc70232",
+        "currentCanonicalSHA256": "e7a42469f994f451efe9eaa7778809a6304f066f5cabbeeb1e315f6a5cc70232"
+      },
+      "include/winbase.h": {
+        "pinnedSHA256": "76d0bd40cdfd0f3e9b2078f9db6a55249ba4b4c6bd47a2440972c29c1ce51adc",
+        "currentCanonicalSHA256": "76d0bd40cdfd0f3e9b2078f9db6a55249ba4b4c6bd47a2440972c29c1ce51adc"
+      },
+      "dlls/ntdll/error.c": {
+        "pinnedSHA256": "e51855f44c34407722b9ff8835460268989dd6080d10fcea704b3800f023b6af",
+        "currentCanonicalSHA256": "e51855f44c34407722b9ff8835460268989dd6080d10fcea704b3800f023b6af"
+      }
+    },
+    "runtimeAccepted": false,
+    "patchesNotApplied": [
+      "highball0008",
+      "highball0009",
+      "highball0011"
+    ],
+    "GSBASEDeclarations": 1,
+    "directMacTSDSyscallSites": 5,
+    "savedPthreadTEBField": true,
+    "legacySlotFieldsPresent": false
+  },
+  "runtimeAccepted": false,
+  "selectedByRecipe": false,
+  "changesUserEngineOrBottle": false,
+  "windowsOperations": 0,
+  "actionsTriggered": 0,
+  "initialDriverSyntaxFailure": "compile-initial-syntax.py parsed with invalid else1; no compiler executed on that attempt; preserved, not a component failure",
+  "gsbaseReview": {
+    "schema": "cider.r-v1-gsbase-abi-source-review/v1",
+    "reviewDate": "2026-10-24",
+    "reviewKind": "bounded actual-source ABI architecture audit",
+    "outcome": "whole_gsbase_mechanism_mapped_legacy_slot_port_not_indicated_runtime_open",
+    "summary": "The pinned x86_64 macOS source implements whole-GSBASE switching at the reviewed syscall, Unix-call, callback, signal and thread-start boundaries. Current canonical source preserves that dispatcher/start/callback mechanism. No concrete current legacy-slot ABI conflict requiring Highball0008/0009/0011 was found. Their mirror model must not be copied blindly: current TEB+0x340 already contains syscall_dispatch. This is a source mapping, not runtime acceptance or a change to v0 patches or user engines.",
+    "pinnedRoot": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+    "canonicalRoot": "out/engine-r-v1/msync-source",
+    "pinnedCommitAsSupplied": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+    "sources": [
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/signal_x86_64.c",
+        "sha256": "33d020f5e01f3e489c80fa18da766b6624990a168c253ed69be71b8f5c97f263",
+        "bytes": 143172,
+        "lines": 3529
+      },
+      {
+        "path": "out/engine-r-v1/msync-source/dlls/ntdll/unix/signal_x86_64.c",
+        "sha256": "613bfc800efc95e7c93bd6eede9325a8933cc45d1d984defc1ef3b138adeed9a",
+        "bytes": 144795,
+        "lines": 3571
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/kernelbase/thread.c",
+        "sha256": "e7a42469f994f451efe9eaa7778809a6304f066f5cabbeeb1e315f6a5cc70232",
+        "bytes": 50325,
+        "lines": 1412
+      },
+      {
+        "path": "out/engine-r-v1/msync-source/dlls/kernelbase/thread.c",
+        "sha256": "e7a42469f994f451efe9eaa7778809a6304f066f5cabbeeb1e315f6a5cc70232",
+        "bytes": 50325,
+        "lines": 1412
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/include/winbase.h",
+        "sha256": "76d0bd40cdfd0f3e9b2078f9db6a55249ba4b4c6bd47a2440972c29c1ce51adc",
+        "bytes": 128097,
+        "lines": 2550
+      },
+      {
+        "path": "out/engine-r-v1/msync-source/include/winbase.h",
+        "sha256": "76d0bd40cdfd0f3e9b2078f9db6a55249ba4b4c6bd47a2440972c29c1ce51adc",
+        "bytes": 128097,
+        "lines": 2550
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/error.c",
+        "sha256": "e51855f44c34407722b9ff8835460268989dd6080d10fcea704b3800f023b6af",
+        "bytes": 3932,
+        "lines": 140
+      },
+      {
+        "path": "out/engine-r-v1/msync-source/dlls/ntdll/error.c",
+        "sha256": "e51855f44c34407722b9ff8835460268989dd6080d10fcea704b3800f023b6af",
+        "bytes": 3932,
+        "lines": 140
+      },
+      {
+        "path": "engine/patches/highball/0008-macos-mirror-teb-fiberdata.patch",
+        "sha256": "036980ab0a68fc516bb9eb6e156321e11c40d6e2bccc36a700937084056fed2a",
+        "bytes": 5687,
+        "lines": 114
+      },
+      {
+        "path": "engine/patches/highball/0009-macos-swap-fiberdata-and-qos-slot.patch",
+        "sha256": "0fcd084eb255288319d71739d69ba459fec637499cc04ab79aff8767fa8cb42c",
+        "bytes": 10235,
+        "lines": 168
+      },
+      {
+        "path": "engine/patches/highball/0011-macos-lasterror-in-gs-slot.patch",
+        "sha256": "f9141f3ffd5a8a6d79304c5e2d7c7e400be738d7ada0a6d35647583e67c153b3",
+        "bytes": 12096,
+        "lines": 212
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/include/winnt.h",
+        "sha256": "030dfb2b3fbdebad4c386d96cb31d081ac635914ab2ff674cbf12b5cecbf8834",
+        "bytes": 313257,
+        "lines": 8209
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/include/winternl.h",
+        "sha256": "40292aec4d6352c040b28b8cd61b84be0152c8c49a17034f08f72ca964489d85",
+        "bytes": 262181,
+        "lines": 5773
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/unix_private.h",
+        "sha256": "071bdf954fd19234b17ab84f50a13b32b4940b49f2699f20a571d1fdf8538a28",
+        "bytes": 30701,
+        "lines": 742
+      },
+      {
+        "path": "out/engine-r-v1/msync-source/dlls/ntdll/unix/unix_private.h",
+        "sha256": "5420c8ed818f784bbbf1cdff35221e7ff4402fe703a16f3841e928ffeb1af822",
+        "bytes": 31355,
+        "lines": 752
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/thread.c",
+        "sha256": "0db3d5d025a7571d7370b3268bb52e52214e6a2c9c02dee5ef9d7c2c5c20af0d",
+        "bytes": 102669,
+        "lines": 2822
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/virtual.c",
+        "sha256": "f5c8da5b4205ce6a26bbea0662758e65caf5dfcff8ba4401e42c9672f3adf39f",
+        "bytes": 251777,
+        "lines": 7321
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/signal_x86_64.c",
+        "sha256": "eb76fe13ceee2029fcce8ad2ef2f97323fe6324d0d44e48a2246178656943602",
+        "bytes": 50235,
+        "lines": 1129
+      },
+      {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/ntdll.spec",
+        "sha256": "66cb15de0beed001125aa55e276e1c1171a93f1f96bd559ce87c74296d07954d",
+        "bytes": 88030,
+        "lines": 1785
+      }
+    ],
+    "findings": [],
+    "currentConcreteP1P2InMappingScope": 0,
+    "comparison": {
+      "threePEFilesByteIdentical": [
+        "dlls/kernelbase/thread.c",
+        "include/winbase.h",
+        "dlls/ntdll/error.c"
+      ],
+      "signalDiffHunks": [
+        "@@ -544,6 +544,21 @@",
+        "@@ -780,19 +795,30 @@",
+        "@@ -2278,7 +2304,7 @@",
+        "@@ -2369,7 +2395,7 @@",
+        "@@ -2416,7 +2442,7 @@",
+        "@@ -2491,8 +2517,12 @@",
+        "@@ -2512,11 +2542,15 @@",
+        "@@ -2531,7 +2565,11 @@",
+        "@@ -2546,7 +2584,11 @@",
+        "@@ -2621,7 +2663,7 @@"
+      ],
+      "signalDiffScope": "Ten hunks add native-stack msync signal deferral/private-fault containment and pass the signal argument to init_handler. Their old and new hunk ranges end below line 2700. No slot mirrors or dispatcher assembly changes are in this diff.",
+      "unchangedTail": {
+        "marker": "NTSTATUS signal_alloc_thread( TEB *teb )",
+        "pinnedStartLine": 2722,
+        "canonicalStartLine": 2764,
+        "throughEOFByteIdentical": true,
+        "sha256": "b5694964014762bcc9a080637f583f36c2e6a67fd9664cd9ef9c7395066c3714"
+      },
+      "callbackAndLeaveHandler": "The callback assembly and leave_handler logic are unchanged by the actual signal diff; earlier insertions shift their line numbers.",
+      "rawMacTSDSyscallInstructionSites": {
+        "count": 5,
+        "pinnedLines": [
+          1689,
+          3152,
+          3212,
+          3468,
+          3508
+        ],
+        "meaning": "Five source instruction sites, not measured invocation counts, latency or successful kernel operations."
+      },
+      "observationArtifactRole": "The observation JSON was read for orientation. These conclusions come from the actual source, complete signal diff, ABI definitions, callback entry declaration and direct byte comparisons; no historical commit or old runtime claim was accepted solely from that JSON."
+    },
+    "boundaryMapping": [
+      {
+        "boundary": "Thread initialization and first PE entry",
+        "pinnedSignalLines": [
+          2764,
+          2774,
+          2888,
+          2919,
+          2982,
+          3017
+        ],
+        "mechanism": "mac_thread_gsbase obtains the native pointer from THREAD_IDENTIFIER_INFO.thread_handle and releases its Mach port. init_syscall_frame saves it in amd64_thread_data.pthread_teb at TEB+0x320. signal_start_thread keeps the real TEB in r13, builds the syscall frame, calls initialization on the native side and jumps to the common dispatcher return, which installs the TEB GSBASE before PE startup.",
+        "canonicalRelation": "This entire source tail is byte-identical, with canonical line numbers shifted by 42.",
+        "support": [
+          {
+            "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/virtual.c",
+            "lines": [
+              4044,
+              4054
+            ],
+            "observation": "TEB initialization sets Peb, Tib.Self=&teb->Tib and data->teb. The first NT_TIB member is at TEB offset zero."
+          }
+        ]
+      },
+      {
+        "boundary": "PE syscall entry to Unix",
+        "pinnedSignalLines": [
+          3023,
+          3057,
+          3097,
+          3158
+        ],
+        "mechanism": "The entry reads the frame through gs:0x378 and the real TEB through gs:0x30 before changing bases. After saving the PE register state and moving to the kernel stack, the Apple branch loads pthread_teb from 0x320(r13) into rdi, zeroes esi and executes syscall 0x3000003. It reconstructs rcx from the saved frame base after the syscall clobber. Unix service and trace calls occur after the native base is selected; kernel-stack TEB accesses use the explicit r13 pointer."
+      },
+      {
+        "boundary": "Common syscall return, including context/instrumentation routes",
+        "pinnedSignalLines": [
+          3190,
+          3217,
+          3242,
+          3315,
+          3355,
+          3372
+        ],
+        "mechanism": "The Apple common return saves result rax in r8 and the frame pointer in rdx, passes the TEB in rdi to the direct TSD-base syscall, then restores rcx and rax. This precedes the ordinary ret, control/integer-context iret and instrumentation alternatives. The instrumentation entry joins the normal prolog; the exported return entry and startup path join this same common return."
+      },
+      {
+        "boundary": "PE Unix-call dispatcher entry",
+        "pinnedSignalLines": [
+          3378,
+          3405,
+          3417,
+          3474
+        ],
+        "mechanism": "The Unix-call entry obtains the frame and TEB while GS points at the TEB, saves its frame/register state, switches stacks and installs the saved pthread_teb before the Unix function call. The argument/table state used after the raw syscall is kept in registers not listed as syscall-clobbered by this source protocol."
+      },
+      {
+        "boundary": "Unix-call fast return and restore-flags return",
+        "pinnedSignalLines": [
+          3486,
+          3518
+        ],
+        "mechanism": "Nonzero low restore-flag bits branch to the common syscall return. The separate fast return also installs TEB GSBASE: it saves result rax in rdx and frame rcx in r14 across the syscall, restores both, restores the caller r14 from the frame, and restores r13/rdi/rsi before ret. This path was inspected independently rather than assumed covered by the common label."
+      },
+      {
+        "boundary": "Unix-to-PE user callback",
+        "pinnedSignalLines": [
+          1629,
+          1704,
+          1780,
+          1795
+        ],
+        "mechanism": "call_user_mode_callback receives the real TEB as an explicit argument and holds it in r13. It sets up the nested frame, completes native trace work, switches to the user stack, preserves callback rcx in r10 across the Apple TSD-base syscall with rdi=TEB, then dispatches to the callback or instrumentation target. The actual PE KiUserCallbackDispatcher subsequently reads gs:0x60 for the PEB callback table.",
+        "support": [
+          {
+            "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/signal_x86_64.c",
+            "lines": [
+              420,
+              444
+            ]
+          }
+        ]
+      },
+      {
+        "boundary": "PE callback return to outer Unix frame",
+        "pinnedSignalLines": [
+          1710,
+          1754,
+          1802,
+          1808
+        ],
+        "mechanism": "PE callback code calls NtCallbackReturn. ntdll.spec declares that entry as syscall 0x0005, so its ordinary syscall entry restores native GSBASE before the Unix NtCallbackReturn body calls get_thread_data and user_mode_callback_return. That helper restores the previous frame and returns into outer Unix code; it does not need a second local GS switch or the old host-slot restore.",
+        "support": [
+          {
+            "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/ntdll.spec",
+            "lines": [
+              167,
+              167
+            ]
+          },
+          {
+            "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/signal_x86_64.c",
+            "lines": [
+              441,
+              444
+            ]
+          }
+        ],
+        "limit": "The source declaration and call chain were inspected, not a built/generated syscall stub."
+      },
+      {
+        "boundary": "Signal entry and return classification",
+        "pinnedSignalLines": [
+          540,
+          545,
+          783,
+          829,
+          2835,
+          2856
+        ],
+        "mechanism": "Handlers are registered SA_ONSTACK. Early thread data comes from rsp masked by signal_stack_mask, not pthread TLS. For a PE-associated thread init_handler sets native pthread_teb GSBASE before normal handler work. leave_handler installs TEB GSBASE only when the saved return stack is outside both the signal stack and the syscall/kernel interval; native/nested Unix returns retain the native base. Without a TEB, these routines do not synthesize a PE GSBASE.",
+        "support": [
+          {
+            "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/unix_private.h",
+            "lines": [
+              478,
+              487
+            ]
+          }
+        ],
+        "relatedRecovery": "check_invalid_gsbase at pinned lines 2182..2269 explicitly notes that macOS entry already replaced GSBASE, so it cannot report the original interrupted base; its recognized repair path relies on leave_handler to install the TEB. This is not proof of arbitrary GS modification recovery."
+      },
+      {
+        "boundary": "Canonical msync signal additions",
+        "canonicalSignalLines": [
+          540,
+          559,
+          798,
+          854,
+          2542,
+          2597
+        ],
+        "mechanism": "defer_msync_signal uses the native signal-stack pointer and atomic data fields before init_handler and does not read/write GSBASE or call pthread TLS. A deferred return skips both init and leave, leaving the interrupted base unchanged. Nondeferred handlers still install native GSBASE at init_handler; private-fault containment is added there. The unchanged leave_handler retains the original return classification. These statements describe visible source operations, not compiled async-signal-safety or complete msync recovery verification."
+      }
+    ],
+    "peStateMapping": {
+      "TEBLayout": [
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/include/winnt.h",
+          "lines": [
+            2566,
+            2575
+          ],
+          "observation": "NT_TIB64 places FiberData at 0x20 and Self at 0x30."
+        },
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/include/winternl.h",
+          "lines": [
+            504,
+            512
+          ],
+          "observation": "TEB begins with NT_TIB and places LastErrorValue at 0x68."
+        }
+      ],
+      "PEvsUnixAccessors": [
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/include/winnt.h",
+          "lines": [
+            2579,
+            2646
+          ],
+          "observation": "x86_64 PE NtCurrentTeb reads gs:0x30; WINE_UNIX_LIB uses an out-of-line function. GetCurrentFiber uses the actual TIB FiberData field."
+        },
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/thread.c",
+          "lines": [
+            1691,
+            1695
+          ],
+          "observation": "Native NtCurrentTeb returns get_thread_data()->teb, with get_thread_data using pthread_getspecific under the restored native base."
+        }
+      ],
+      "fiberUpdates": {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/kernelbase/thread.c",
+        "lines": [
+          1125,
+          1137,
+          1154,
+          1179,
+          1217,
+          1236
+        ],
+        "observation": "ConvertFiberToThread, ConvertThreadToFiberEx and SwitchToFiber update the real TEB field and HasFiberData/state as appropriate. With PE GSBASE=TEB, direct gs:0x20 and these field accesses address the same storage, with no separate mirror needed."
+      },
+      "lastErrorUpdates": [
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/include/winbase.h",
+          "lines": [
+            2511,
+            2526
+          ],
+          "observation": "Internal GetLastError/SetLastError access DWORD at NtCurrentTeb plus 13 pointer slots, i.e. 0x68 for x86_64."
+        },
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/kernelbase/thread.c",
+          "lines": [
+            231,
+            234
+          ],
+          "observation": "Exported kernelbase GetLastError reads TEB.LastErrorValue."
+        },
+        {
+          "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/error.c",
+          "lines": [
+            104,
+            139
+          ],
+          "observation": "RtlGetLastWin32Error, RtlSetLastWin32Error and the combined status/error helper use the same real TEB field. Direct PE gs:0x68 accesses are therefore coherent under the whole-base source model."
+        }
+      ],
+      "initialFiberBoundary": {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/virtual.c",
+        "lines": [
+          4044,
+          4047
+        ],
+        "observation": "Pinned TEB initialization seeds FiberData with 0x1e00. This audit does not repeat the old patch prose assumption that an unconverted thread necessarily has NULL FiberData, or infer native Windows equivalence from that seed."
+      }
+    },
+    "legacyPatchMapping": [
+      {
+        "patch": "Highball0008",
+        "oldMechanism": "PE fiber APIs mirrored TIB.FiberData into a host block at GS+0x20 while GS stayed native.",
+        "rV1SourceMapping": "The whole base is the TEB during PE execution, so the current direct TEB fiber writes and intrinsic loads share one field. The old extra PE mirror stores are redundant in this model; no port of that helper is indicated by the reviewed source."
+      },
+      {
+        "patch": "Highball0009",
+        "oldMechanism": "Saved host_qos at TEB+0x340 and swapped the contents of GS+0x20 at individual crossings.",
+        "rV1SourceMapping": "Whole-base transitions choose the intact native block or real TEB instead of copying slot contents. Syscall, independent Unix fast return, callback, signal and startup paths are present. The hardcoded old host_qos offset is not free: current amd64_thread_data.syscall_dispatch occupies 0x340 with an offset assertion."
+      },
+      {
+        "patch": "Highball0011",
+        "oldMechanism": "Added host_slot13 at 0x348, copied LastErrorValue to/from host GS+0x68 at crossings, and changed PE error accessors.",
+        "rV1SourceMapping": "Whole-base PE accesses and unchanged Winbase/kernelbase/ntdll error accessors use real TEB+0x68. The old Unix slot save/restore and saved host_slot13 field are not indicated. Its explicit PE GS reads would be redundant under the whole-base model, rather than evidence that a second mirrored LastError exists."
+      }
+    ],
+    "conditionalMixingHazard": {
+      "status": "not_present_in_current_reviewed_source",
+      "evidence": "No host_qos, host_slot13 or set_teb_fiber_data identifier appears in the four reviewed canonical files. Their absence was checked directly.",
+      "layoutConflict": {
+        "path": "out/engine-r-v1/unpack/wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101/dlls/ntdll/unix/signal_x86_64.c",
+        "lines": [
+          505,
+          527
+        ],
+        "observation": "Current char syscall_dispatch is asserted at TEB+0x340, the old fixed QWORD host_qos location. Blind field insertion or retention of old fixed-offset swaps would violate the current layout or its base-selection assumptions."
+      },
+      "scope": "This identifies an ABI-porting hazard, not a current applied P1/P2 defect and not authorization to remove or change v0 patches/user engines."
+    },
+    "remainingGaps": [
+      {
+        "id": "source-not-runtime",
+        "gap": "No current built binary, generated syscall stubs, linker binding, compiler signal prologue, private TSD API execution or actual GSBASE state was inspected. The source mechanism is not a runtime pass or proof of all register preservation under Rosetta."
+      },
+      {
+        "id": "host-interface-preconditions",
+        "gap": "mac_thread_gsbase can return NULL on thread_info failure and init_syscall_frame stores it without a local failure branch; the raw TSD syscalls also have no inspected error branch. Successful native-base capture and platform syscall behavior remain source preconditions, with failure behavior unverified here. This upstream source caveat does not justify reintroducing the old slot mirrors."
+      },
+      {
+        "id": "crossing-and-signal-runtime-coverage",
+        "gap": "Fiber and LastError coherence across syscall/Unix fast and context returns, nested callbacks, instrumentation, asynchronous signals, native host TLS/QoS use and thread start still need their own applicable runtime evidence. No existing probe or game result is borrowed from the legacy patch prose or observation JSON."
+      },
+      {
+        "id": "bounded-architecture-scope",
+        "gap": "This audit maps the macOS x86_64 paths. It does not validate i386/WoW64 FS transitions, ARM64/FEX, foreign callbacks bypassing these boundaries, all assembly unwind behavior or all msync cancellation/recovery semantics."
+      }
+    ],
+    "operations": {
+      "buildsRun": 0,
+      "probesRun": 0,
+      "runtimeWorkloadsRun": 0,
+      "windowsOperations": 0,
+      "processControlOperations": 0,
+      "subagentsUsed": 0,
+      "sourceEdits": 0,
+      "onlyWrittenArtifact": "out/engine-profile-ports-20261024/gsbase-review.json",
+      "v0PatchRemovalOrUserEngineChanges": false,
+      "canonicalNativeRecipeChanges": false
+    },
+    "limits": [
+      "Actual source and byte comparisons were used rather than the observation summary alone. The supplied pinned-tree provenance and historical upstream-commit attribution were not independently attested.",
+      "No runtime adoption, full M1 acceptance, game compatibility or performance claim follows from this report."
+    ]
+  },
+  "moduleLink": {
+    "scope": "full PE modules linked to separate outputs; no installation/runtime/adoption",
+    "rows": [
+      {
+        "module": "kernelbase",
+        "arch": "i386",
+        "args": [
+          "tools/winegcc/winegcc",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/linked/i386/kernelbase.dll",
+          "--wine-objdir",
+          ".",
+          "--cc-cmd=/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+          "-b",
+          "i686-w64-mingw32",
+          "-Wl,--wine-builtin",
+          "-shared",
+          "/Users/cervantes/Cider/out/engine-r-v1/msync-source/dlls/kernelbase/kernelbase.spec",
+          "-nodefaultlibs",
+          "-nostartfiles",
+          "-Wl,--image-base,0x7b000000",
+          "dlls/kernelbase/i386-windows/console.o",
+          "dlls/kernelbase/i386-windows/debug.o",
+          "dlls/kernelbase/i386-windows/file.o",
+          "dlls/kernelbase/i386-windows/loader.o",
+          "dlls/kernelbase/i386-windows/locale.o",
+          "dlls/kernelbase/i386-windows/main.o",
+          "dlls/kernelbase/i386-windows/memory.o",
+          "dlls/kernelbase/i386-windows/path.o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/i386-process.o",
+          "dlls/kernelbase/i386-windows/registry.o",
+          "dlls/kernelbase/i386-windows/security.o",
+          "dlls/kernelbase/i386-windows/string.o",
+          "dlls/kernelbase/i386-windows/sync.o",
+          "dlls/kernelbase/i386-windows/thread.o",
+          "dlls/kernelbase/i386-windows/version.o",
+          "dlls/kernelbase/i386-windows/volume.o",
+          "dlls/kernelbase/kernelbase.res",
+          "dlls/kernelbase/winerror.res",
+          "libs/uuid/i386-windows/libuuid.a",
+          "dlls/ntdll/i386-windows/libntdll.a",
+          "libs/winecrt0/i386-windows/libwinecrt0.a",
+          "libs/compiler-rt/i386-windows/libcompiler-rt.a",
+          "-Wl,--disable-stdcall-fixup",
+          "-Wl,--build-id"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "dllSHA256": "7a5f4a4d661e3d519724da92c9142e055e3cce36b24b48671d59b227a81c0ba3",
+        "machine": "0x14c"
+      },
+      {
+        "module": "kernelbase",
+        "arch": "x86_64",
+        "args": [
+          "tools/winegcc/winegcc",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/linked/x86_64/kernelbase.dll",
+          "--wine-objdir",
+          ".",
+          "--cc-cmd=/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+          "-b",
+          "x86_64-w64-mingw32",
+          "-Wl,--wine-builtin",
+          "-shared",
+          "/Users/cervantes/Cider/out/engine-r-v1/msync-source/dlls/kernelbase/kernelbase.spec",
+          "-nodefaultlibs",
+          "-nostartfiles",
+          "-Wl,--image-base,0x174000000",
+          "dlls/kernelbase/x86_64-windows/console.o",
+          "dlls/kernelbase/x86_64-windows/debug.o",
+          "dlls/kernelbase/x86_64-windows/file.o",
+          "dlls/kernelbase/x86_64-windows/loader.o",
+          "dlls/kernelbase/x86_64-windows/locale.o",
+          "dlls/kernelbase/x86_64-windows/main.o",
+          "dlls/kernelbase/x86_64-windows/memory.o",
+          "dlls/kernelbase/x86_64-windows/path.o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/x86_64-process.o",
+          "dlls/kernelbase/x86_64-windows/registry.o",
+          "dlls/kernelbase/x86_64-windows/security.o",
+          "dlls/kernelbase/x86_64-windows/string.o",
+          "dlls/kernelbase/x86_64-windows/sync.o",
+          "dlls/kernelbase/x86_64-windows/thread.o",
+          "dlls/kernelbase/x86_64-windows/version.o",
+          "dlls/kernelbase/x86_64-windows/volume.o",
+          "dlls/kernelbase/kernelbase.res",
+          "dlls/kernelbase/winerror.res",
+          "libs/uuid/x86_64-windows/libuuid.a",
+          "dlls/ntdll/x86_64-windows/libntdll.a",
+          "libs/winecrt0/x86_64-windows/libwinecrt0.a",
+          "libs/compiler-rt/x86_64-windows/libcompiler-rt.a",
+          "-Wl,--build-id"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "dllSHA256": "6e16b969c380dddce35b138b7582d7455209a1d902e8fdda5aba113b98402227",
+        "machine": "0x8664"
+      },
+      {
+        "module": "wined3d",
+        "arch": "i386",
+        "args": [
+          "tools/winegcc/winegcc",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/linked/i386/wined3d.dll",
+          "--wine-objdir",
+          ".",
+          "--cc-cmd=/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-i686/bin/i686-w64-mingw32-gcc",
+          "-b",
+          "i686-w64-mingw32",
+          "-Wl,--wine-builtin",
+          "-shared",
+          "/Users/cervantes/Cider/out/engine-r-v1/msync-source/dlls/wined3d/wined3d.spec",
+          "dlls/wined3d/i386-windows/adapter_gl.o",
+          "dlls/wined3d/i386-windows/adapter_vk.o",
+          "dlls/wined3d/i386-windows/buffer.o",
+          "dlls/wined3d/i386-windows/context.o",
+          "dlls/wined3d/i386-windows/context_gl.o",
+          "dlls/wined3d/i386-windows/context_vk.o",
+          "dlls/wined3d/i386-windows/cs.o",
+          "dlls/wined3d/i386-windows/decoder.o",
+          "dlls/wined3d/i386-windows/device.o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/i386-directx.o",
+          "dlls/wined3d/i386-windows/ffp_gl.o",
+          "dlls/wined3d/i386-windows/ffp_hlsl.o",
+          "dlls/wined3d/i386-windows/gl_compat.o",
+          "dlls/wined3d/i386-windows/glsl_shader.o",
+          "dlls/wined3d/i386-windows/palette.o",
+          "dlls/wined3d/i386-windows/query.o",
+          "dlls/wined3d/i386-windows/resource.o",
+          "dlls/wined3d/i386-windows/sampler.o",
+          "dlls/wined3d/i386-windows/shader.o",
+          "dlls/wined3d/i386-windows/shader_sm1.o",
+          "dlls/wined3d/i386-windows/shader_sm4.o",
+          "dlls/wined3d/i386-windows/shader_spirv.o",
+          "dlls/wined3d/i386-windows/stateblock.o",
+          "dlls/wined3d/i386-windows/surface.o",
+          "dlls/wined3d/i386-windows/swapchain.o",
+          "dlls/wined3d/i386-windows/texture.o",
+          "dlls/wined3d/i386-windows/texture_gl.o",
+          "dlls/wined3d/i386-windows/texture_vk.o",
+          "dlls/wined3d/i386-windows/utils.o",
+          "dlls/wined3d/i386-windows/vertexdeclaration.o",
+          "dlls/wined3d/i386-windows/view.o",
+          "dlls/wined3d/i386-windows/wined3d_main.o",
+          "dlls/wined3d/resource.res",
+          "dlls/wined3d/version.res",
+          "libs/vkd3d/i386-windows/libvkd3d.a",
+          "dlls/opengl32/i386-windows/libopengl32.a",
+          "dlls/user32/i386-windows/libuser32.a",
+          "dlls/gdi32/i386-windows/libgdi32.a",
+          "dlls/advapi32/i386-windows/libadvapi32.a",
+          "libs/winecrt0/i386-windows/libwinecrt0.a",
+          "libs/compiler-rt/i386-windows/libcompiler-rt.a",
+          "dlls/ucrtbase/i386-windows/libucrtbase.a",
+          "dlls/kernel32/i386-windows/libkernel32.a",
+          "dlls/ntdll/i386-windows/libntdll.a",
+          "-Wl,--disable-stdcall-fixup",
+          "-Wl,--build-id"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "dllSHA256": "9ab67e87ad500f0e0b7f44b7fafc9f1341cb45c1dbb8d357c2618ab3f1179012",
+        "machine": "0x14c"
+      },
+      {
+        "module": "wined3d",
+        "arch": "x86_64",
+        "args": [
+          "tools/winegcc/winegcc",
+          "-o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/linked/x86_64/wined3d.dll",
+          "--wine-objdir",
+          ".",
+          "--cc-cmd=/Users/cervantes/Library/Caches/Cider/toolchain/mingw/toolchain-x86_64/bin/x86_64-w64-mingw32-gcc",
+          "-b",
+          "x86_64-w64-mingw32",
+          "-Wl,--wine-builtin",
+          "-shared",
+          "/Users/cervantes/Cider/out/engine-r-v1/msync-source/dlls/wined3d/wined3d.spec",
+          "dlls/wined3d/x86_64-windows/adapter_gl.o",
+          "dlls/wined3d/x86_64-windows/adapter_vk.o",
+          "dlls/wined3d/x86_64-windows/buffer.o",
+          "dlls/wined3d/x86_64-windows/context.o",
+          "dlls/wined3d/x86_64-windows/context_gl.o",
+          "dlls/wined3d/x86_64-windows/context_vk.o",
+          "dlls/wined3d/x86_64-windows/cs.o",
+          "dlls/wined3d/x86_64-windows/decoder.o",
+          "dlls/wined3d/x86_64-windows/device.o",
+          "/Users/cervantes/Cider/out/engine-profile-ports-20261024/x86_64-directx.o",
+          "dlls/wined3d/x86_64-windows/ffp_gl.o",
+          "dlls/wined3d/x86_64-windows/ffp_hlsl.o",
+          "dlls/wined3d/x86_64-windows/gl_compat.o",
+          "dlls/wined3d/x86_64-windows/glsl_shader.o",
+          "dlls/wined3d/x86_64-windows/palette.o",
+          "dlls/wined3d/x86_64-windows/query.o",
+          "dlls/wined3d/x86_64-windows/resource.o",
+          "dlls/wined3d/x86_64-windows/sampler.o",
+          "dlls/wined3d/x86_64-windows/shader.o",
+          "dlls/wined3d/x86_64-windows/shader_sm1.o",
+          "dlls/wined3d/x86_64-windows/shader_sm4.o",
+          "dlls/wined3d/x86_64-windows/shader_spirv.o",
+          "dlls/wined3d/x86_64-windows/stateblock.o",
+          "dlls/wined3d/x86_64-windows/surface.o",
+          "dlls/wined3d/x86_64-windows/swapchain.o",
+          "dlls/wined3d/x86_64-windows/texture.o",
+          "dlls/wined3d/x86_64-windows/texture_gl.o",
+          "dlls/wined3d/x86_64-windows/texture_vk.o",
+          "dlls/wined3d/x86_64-windows/utils.o",
+          "dlls/wined3d/x86_64-windows/vertexdeclaration.o",
+          "dlls/wined3d/x86_64-windows/view.o",
+          "dlls/wined3d/x86_64-windows/wined3d_main.o",
+          "dlls/wined3d/resource.res",
+          "dlls/wined3d/version.res",
+          "libs/vkd3d/x86_64-windows/libvkd3d.a",
+          "dlls/opengl32/x86_64-windows/libopengl32.a",
+          "dlls/user32/x86_64-windows/libuser32.a",
+          "dlls/gdi32/x86_64-windows/libgdi32.a",
+          "dlls/advapi32/x86_64-windows/libadvapi32.a",
+          "libs/winecrt0/x86_64-windows/libwinecrt0.a",
+          "libs/compiler-rt/x86_64-windows/libcompiler-rt.a",
+          "dlls/ucrtbase/x86_64-windows/libucrtbase.a",
+          "dlls/kernel32/x86_64-windows/libkernel32.a",
+          "dlls/ntdll/x86_64-windows/libntdll.a",
+          "-Wl,--build-id"
+        ],
+        "exitCode": 0,
+        "stdout": "",
+        "stderr": "",
+        "dllSHA256": "48c5a60d8f700f1f8508a476f8c1a51fe85af8d94d970cf4140c4f7c6cd14afb",
+        "machine": "0x8664"
+      }
+    ],
+    "passed": true,
+    "canonicalDllSHA256": {
+      "dlls/kernelbase/i386-windows/kernelbase.dll": "44171654011c51d82c699c37caad14f7b46f50c335db9273cbb700365b9855b1",
+      "dlls/kernelbase/x86_64-windows/kernelbase.dll": "d5d4a323f06903a101e25b87c97f244e969ec1a9c9e0d63af3b7eaafbf48ed4d",
+      "dlls/wined3d/i386-windows/wined3d.dll": "33e81c8e45c64145375605c46806d3cdecbdefdb800556a71155fbe5609e15d2",
+      "dlls/wined3d/x86_64-windows/wined3d.dll": "c4f2b121e63f92a2e18cb4baa097c46874fa32bc34998a49634dc5c43e3b3da0"
+    },
+    "canonicalDllsUnchanged": true,
+    "sourceObjectsUnchanged": true
+  },
+  "privateInstall": {
+    "args": [
+      "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app/Contents/MacOS/ciderctl",
+      "engine",
+      "install",
+      "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/staging/profile-renderer-r1"
+    ],
+    "exitCode": 0,
+    "stdout": "installed cider-lab-wine11.18-profile-renderer-r1-x86_64 (wine-11.18) → /Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-profile-renderer-r1-x86_64\n",
+    "stderr": ""
+  },
+  "newEmptyBottles": {
+    "rows": [
+      {
+        "name": "Profile Ports",
+        "args": [
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app/Contents/MacOS/ciderctl",
+          "bottle",
+          "create",
+          "Profile Ports",
+          "--locale",
+          "en",
+          "--engine",
+          "cider-lab-wine11.18-profile-renderer-r1-x86_64"
+        ],
+        "exitCode": 0,
+        "stdout": "created profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d (Profile Ports, en_US.UTF-8, cider-lab-wine11.18-profile-renderer-r1-x86_64)\n",
+        "stderr": "… wineboot\n… shell folders\n… fonts\n"
+      },
+      {
+        "name": "Profile Original",
+        "args": [
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app/Contents/MacOS/ciderctl",
+          "bottle",
+          "create",
+          "Profile Original",
+          "--locale",
+          "en",
+          "--engine",
+          "cider-lab-wine11.18-waitall-latepark-x86_64"
+        ],
+        "exitCode": 0,
+        "stdout": "created profile-original-5ea128af-5d13-423c-a626-2540bb049d7f (Profile Original, en_US.UTF-8, cider-lab-wine11.18-waitall-latepark-x86_64)\n",
+        "stderr": "… wineboot\n… shell folders\n… fonts\n"
+      }
+    ],
+    "cleanup": {
+      "captured": [],
+      "emptyObservations": 2,
+      "hostShutdown": {
+        "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+        "capturedPIDs": [
+          41005
+        ],
+        "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+        "confirmed": true,
+        "kernelIdentityReadable": true,
+        "terminationRequested": true
+      },
+      "mode": "stop-runtime",
+      "pending": [],
+      "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+    }
+  },
+  "coreValidation": {
+    "nativeAndPEntdllSHA256": {
+      "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+      "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+      "lib/wine/i386-windows/ntdll.dll": "8ccc2454f3afcdc0d6114b3f727a24acf5736c794f5be6d1180a46ff8cab8650",
+      "lib/wine/x86_64-windows/ntdll.dll": "c2203764cfddd2194e9fe2c80dbd1cbc852ce651acdfeec2ef03e6c6f623c8b0"
+    },
+    "matchedOriginalF27Core": true,
+    "scope": "core identity only; changed kernelbase/wined3d modules are separate candidate, not old performance/hour acceptance"
+  },
+  "prefixModuleFiles": [
+    {
+      "name": "Profile Ports",
+      "bottleID": "profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d",
+      "engineID": "cider-lab-wine11.18-profile-renderer-r1-x86_64",
+      "prefix": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/profile-ports-d3260674-04fb-4305-8ab8-89ce201ba11d/prefix",
+      "files": {
+        "system32/kernelbase.dll": {
+          "exists": true,
+          "isSymlink": false,
+          "sha256": "6e16b969c380dddce35b138b7582d7455209a1d902e8fdda5aba113b98402227"
+        },
+        "system32/wined3d.dll": {
+          "exists": true,
+          "isSymlink": false,
+          "sha256": "48c5a60d8f700f1f8508a476f8c1a51fe85af8d94d970cf4140c4f7c6cd14afb"
+        },
+        "syswow64/kernelbase.dll": {
+          "exists": true,
+          "isSymlink": false,
+          "sha256": "7a5f4a4d661e3d519724da92c9142e055e3cce36b24b48671d59b227a81c0ba3"
+        },
+        "syswow64/wined3d.dll": {
+          "exists": true,
+          "isSymlink": false,
+          "sha256": "9ab67e87ad500f0e0b7f44b7fafc9f1341cb45c1dbb8d357c2618ab3f1179012"
+        }
+      }
+    },
+    {
+      "name": "Profile Original",
+      "bottleID": "profile-original-5ea128af-5d13-423c-a626-2540bb049d7f",
+      "engineID": "cider-lab-wine11.18-waitall-latepark-x86_64",
+      "prefix": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/profile-original-5ea128af-5d13-423c-a626-2540bb049d7f/prefix",
+      "files": {
+        "system32/kernelbase.dll": {
+          "exists": true,
+          "isSymlink": false,
+          "sha256": "d5d4a323f06903a101e25b87c97f244e969ec1a9c9e0d63af3b7eaafbf48ed4d"
+        },
+        "system32/wined3d.dll": {
+          "exists": true,
+          "isSymlink": false,
+          "sha256": "c4f2b121e63f92a2e18cb4baa097c46874fa32bc34998a49634dc5c43e3b3da0"
+        },
+        "syswow64/kernelbase.dll": {
+          "exists": true,
+          "isSymlink": false,
+          "sha256": "44171654011c51d82c699c37caad14f7b46f50c335db9273cbb700365b9855b1"
+        },
+        "syswow64/wined3d.dll": {
+          "exists": true,
+          "isSymlink": false,
+          "sha256": "33e81c8e45c64145375605c46806d3cdecbdefdb800556a71155fbe5609e15d2"
+        }
+      }
+    }
+  ],
+  "stage": "private candidate linked and fresh prefix bootstrap passed; specific args/graphics/ABI runtime checks not yet accepted"
+}

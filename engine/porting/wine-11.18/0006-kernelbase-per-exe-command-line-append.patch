@@ -1,0 +1,74 @@
+Cider-Topic: launch/profile-arguments
+Base: Wine11.18 7b3fff76fa5178f6ce0141b2c776afa2a822f101
+Port Highball0006; keep raw per-executable append and process cleanup.
+Terminate registry data by actual byte length; reject malformed odd sizes.
+Source candidate only; no user engine or recipe adoption.
+
+--- a/dlls/kernelbase/process.c
++++ b/dlls/kernelbase/process.c
+@@ -27,6 +27,7 @@
+ #include "winnls.h"
+ #include "wincontypes.h"
+ #include "winternl.h"
++#include "winreg.h"
+ #include "processsnapshot.h"
+ 
+ #include "kernelbase.h"
+@@ -502,6 +503,44 @@
+     return ret;
+ }
+ 
++
++/* Per-executable defaults also reach children whose parent omits these switches.
++ * This is raw command-line data, using the existing AppDefaults contract. */
++static WCHAR *cider_append_command_line( const WCHAR *app_name, const WCHAR *cmdline )
++{
++    const WCHAR *base = app_name, *p;
++    WCHAR key[MAX_PATH + 40], value[1025], *ret;
++    DWORD type, size = sizeof(value) - sizeof(WCHAR);
++    HKEY hkey;
++    SIZE_T command_len, value_len, len;
++    LSTATUS status;
++
++    if (!app_name || !cmdline) return NULL;
++    for (p = app_name; *p; ++p) if (*p == '\\' || *p == '/') base = p + 1;
++    if (!*base || lstrlenW( base ) >= MAX_PATH) return NULL;
++    swprintf( key, ARRAY_SIZE(key), L"Software\\Wine\\AppDefaults\\%s", base );
++    if (RegOpenKeyExW( HKEY_CURRENT_USER, key, 0, KEY_QUERY_VALUE, &hkey )) return NULL;
++    status = RegQueryValueExW( hkey, L"CommandLineAppend", NULL, &type, (BYTE *)value, &size );
++    RegCloseKey( hkey );
++    if (status || type != REG_SZ || size < sizeof(WCHAR) ||
++        size > sizeof(value) - sizeof(WCHAR) || size % sizeof(WCHAR)) return NULL;
++    /* RegQueryValueExW does not promise NUL termination, even on success.
++     * Leave one extra WCHAR outside the queried capacity and terminate at the
++     * actual returned byte count, never in an otherwise uninitialized tail. */
++    value[size / sizeof(WCHAR)] = 0;
++    if (!value[0]) return NULL;
++    command_len = lstrlenW( cmdline );
++    value_len = lstrlenW( value );
++    if (command_len > ~(SIZE_T)0 / sizeof(WCHAR) - value_len - 2) return NULL;
++    len = command_len + 1 + value_len + 1;
++    if (!(ret = HeapAlloc( GetProcessHeap(), 0, len * sizeof(WCHAR) ))) return NULL;
++    memcpy( ret, cmdline, command_len * sizeof(WCHAR) );
++    ret[command_len] = ' ';
++    memcpy( ret + command_len + 1, value, (value_len + 1) * sizeof(WCHAR) );
++    TRACE( "appended command-line defaults for %s\n", debugstr_w(base) );
++    return ret;
++}
++
+ /**********************************************************************
+  *           CreateProcessInternalW   (kernelbase.@)
+  */
+@@ -541,6 +580,12 @@
+     {
+         if (!(tidy_cmdline = get_file_name( cmd_line, name, ARRAY_SIZE(name) ))) return FALSE;
+         app_name = name;
++    }
++
++    if ((p = cider_append_command_line( app_name, tidy_cmdline )))
++    {
++        if (tidy_cmdline != cmd_line) HeapFree( GetProcessHeap(), 0, tidy_cmdline );
++        tidy_cmdline = p;
+     }
+ 
+     /* Warn if unsupported features are used */

@@ -159,7 +159,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "upstream-semantic-path-present-source-only"
     },
     {
       "patch": "highball/0002-wined3d-auto-renderer-opengl-first.patch",
@@ -172,7 +172,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "source-port-prepared-component-compiled"
     },
     {
       "patch": "highball/0003-ntdll-winedllpath-prepend.patch",
@@ -211,7 +211,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "source-port-prepared-component-compiled"
     },
     {
       "patch": "highball/0007-winemac-cross-process-child-swapchains.patch",
@@ -237,7 +237,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "upstream-whole-gsbase-source-mapped-runtime-pending"
     },
     {
       "patch": "highball/0009-macos-swap-fiberdata-and-qos-slot.patch",
@@ -250,7 +250,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "upstream-whole-gsbase-source-mapped-runtime-pending"
     },
     {
       "patch": "highball/0010-mfreadwrite-video-processor-sample-allocator.patch",
@@ -276,7 +276,7 @@
         "cider-cx26-wma1.json",
         "cider-cx26.json"
       ],
-      "v1Status": "not-yet-ported"
+      "v1Status": "upstream-whole-gsbase-source-mapped-runtime-pending"
     },
     {
       "patch": "highball/0012-ntdll-x87sidecar-cooperative-attach.patch",
@@ -355,6 +355,26 @@
       "patchSHA256": "0b11f524026cf8f40d21b9db0f8252819a98cd7fe70e0ba6ffd8ba182ff54a4f",
       "zeroFuzzAndOffset": true,
       "scope": "source preparation only, not compilation or runtime acceptance",
+      "recipeSelected": false
+    },
+    {
+      "patch": "engine/porting/wine-11.18/0006-kernelbase-per-exe-command-line-append.patch",
+      "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+      "originalSHA256": "96b17d73345a47206d890609addecb4b0d23cee3340dccb081ca37127954df31",
+      "portedSHA256": "d8e93a8a559fed578ca460fcba3697cd5ae83fdfa7807b6c37f952474393a9f9",
+      "patchSHA256": "5bb86e12b7f5956fb030ecc7fc4e96ff41433a900685fe3a3a72e6b836a6fbb2",
+      "zeroFuzzAndOffset": true,
+      "scope": "source prepared, actual full translation unit compiled PE32/PE64 with Wine flags and Werror; not linked/runtime",
+      "recipeSelected": false
+    },
+    {
+      "patch": "engine/porting/wine-11.18/0004-wined3d-auto-renderer-opengl-first.patch",
+      "upstreamCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+      "originalSHA256": "2090522d45204cf75e590cb33342473c414895f5639c2eb2f972b707d3a7d0fa",
+      "portedSHA256": "60397280dfb71f780ee0cc71aa09873d667ca09d686a4b18f73fab9836fa1600",
+      "patchSHA256": "af7397d952ea97ff63a55e6188469d4261bffc25cf06a4eeed03e5b33763adee",
+      "zeroFuzzAndOffset": true,
+      "scope": "source prepared, actual full translation unit compiled PE32/PE64 with Wine flags and Werror; not linked/runtime",
       "recipeSelected": false
     }
   ],
@@ -746,9 +766,20 @@
       "sharedCoordMagicVersion": 7,
       "additionalSharedBytes": 262144,
       "prewaitReadBudget": 64,
-      "status": "own13 Wine stages/11 identities, native fixtures/reviews/negatives, AC5.0x/CS+0.6134969percent and own3600s78checks all passed; actual live-hint termination observation pending; no fullM1/default adoption",
+      "status": "own13 Wine stages/11 identities, native reviews/negatives, original AC5.0x/CS+0.6134969percent and own3600s passed; traced live hint128rounds passed; broader U90run8of15 cells outside3percent, fullM1/default adoption still blocked",
       "selectedByRecipe": false,
       "productionPolicyBound": false
     }
+  },
+  "upstreamABIReplacements": {
+    "scope": "source mapping only, v0 not changed",
+    "evidence": "docs/research/evidence/engine-r-v1-profile-ports-20261024.json",
+    "sourceReviewSHA256": "c29cc7295718fa008151b266d409c45be700a8d9996603108a9938369c40ff4f",
+    "notPortedLegacySlots": [
+      "0008",
+      "0009",
+      "0011"
+    ],
+    "runtimeAccepted": false
   }
 }
