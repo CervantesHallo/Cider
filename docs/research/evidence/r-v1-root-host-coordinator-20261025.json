@@ -1,0 +1,170 @@
+{
+  "schema": "cider.r-v1-root-host-coordinator/v1",
+  "date": "2026-10-25",
+  "rawRoot": "out/engine-dxmt-bridge-20261025",
+  "ordinaryPatch": {
+    "file": "engine/porting/wine-11.18/0020-winemac-root-local-host-authority.patch",
+    "sha256": "3c064210a923178844a43aa9a6aa85bd6e6d268d1c9f113fd26dadc8cfe8b2b6"
+  },
+  "fixtureFiles": [
+    {
+      "file": "tests/graphics/remote-coordinator/README.md",
+      "sha256": "2bddb7e8aeac4f8640c55f94291cbadafcc25aae115dd2f5168707ae2da1bf33"
+    },
+    {
+      "file": "tests/graphics/remote-coordinator/client.c",
+      "sha256": "3330c82471e775337c4a469fbf87f5306b251d3c5f9f19076395befdf78c5290"
+    },
+    {
+      "file": "tests/graphics/remote-coordinator/cocoa-observer.inc",
+      "sha256": "3579771f50cd1223a40e3ee9717a69fa0243e58f0f63cc4ff7e8fc49c5b03fa6"
+    },
+    {
+      "file": "tests/graphics/remote-coordinator/coordinator-fixture.h",
+      "sha256": "f3a22596a74c226e5a6c64defef1a3fac1058c7930db4f14414384e249be99f5"
+    },
+    {
+      "file": "tests/graphics/remote-coordinator/diagnostic.patch",
+      "sha256": "ad49230001ec6ac0f8a7b29b973589ec5a8a2b2ca2cfc4854c86fa2e45571325"
+    },
+    {
+      "file": "tests/graphics/remote-coordinator/exhaustion-before.patch",
+      "sha256": "8e01c5f3e20465951de8c563c8137f05dadf08625f6efb70d889e2eafc8ca09f"
+    },
+    {
+      "file": "tests/graphics/remote-coordinator/fixture-native.inc",
+      "sha256": "ec039b9c16a3e6a9f02b8f910ca30d380961a4a4cbc0538943b0f31cf256f5f2"
+    },
+    {
+      "file": "tests/graphics/remote-coordinator/winemac-fixture.spec",
+      "sha256": "c4b32614ac3197d09deb5c4abdb9bf087f1d310aec1f67ba654aa8382379c5e2"
+    }
+  ],
+  "records": [
+    {
+      "file": "coordinator-review-v1.json",
+      "sha256": "a58439ac7699f10468856280c11505d584c56095780322cd6b59df7e7f22a904"
+    },
+    {
+      "file": "coordinator-review-v3.json",
+      "sha256": "df5fba8389e281c87fcaab03cfded2275561f9f9ef882ac9f3407259f5e7bd39"
+    },
+    {
+      "file": "coordinator-reconstruction-v3.json",
+      "sha256": "ca83c39110fb468661496e8a65759a1ba2c1248873ac7138d536f04ac6960405"
+    },
+    {
+      "file": "coordinator-build-v3/build-v1.json",
+      "sha256": "ccc5ab2a6ebe1035feb7c2adbf7aab2af56714854ee89383345fcbf69a40f007"
+    },
+    {
+      "file": "coordinator-build-v3/warning-binding-v1.json",
+      "sha256": "303690890305a3d6fd0c3d9ea5b87cb2aca98d2252330e10916c549e2f2e4ad9"
+    },
+    {
+      "file": "coordinator-fixture-v1/review-v1.json",
+      "sha256": "05da9bbe1f2587e6e78a3f5f683115d6900b632980bc6ecec90e01a25ed3a998"
+    },
+    {
+      "file": "coordinator-fixture-v2/review-v2.json",
+      "sha256": "56e1107cd74c94e71d96fd118e28dc91652fe5f5997ea529d0dde91c045843d8"
+    },
+    {
+      "file": "coordinator-diagnostic-build-v5/build-v1.json",
+      "sha256": "d1d39a8e87471664b85fc050a5b0df83b3fce4d96eab3c2724132a0ad24ee169"
+    },
+    {
+      "file": "coordinator-public-fixture-binding-v1.json",
+      "sha256": "f40b8547172f65f551e8009f474fa3dcb7a40227f4c5535cd84e5c7af1a3be9b"
+    },
+    {
+      "file": "coordinator-runtime-v1.json",
+      "sha256": "d77ef55ef40065c827a0a3144e9413d2f262d29c9e33150c34f4b703a5fd8799"
+    },
+    {
+      "file": "coordinator-runtime-64-subset-acceptance-v1.json",
+      "sha256": "46cb6b638d4f5797ff0a3cf1c0cb5901bab06cc49b00bb91f994a83ec4969c11"
+    },
+    {
+      "file": "coordinator-runtime-v3.json",
+      "sha256": "c805c8417455131e40c78a070001e2e672c34bad43b8a7140d5ed15dc5e900a7"
+    },
+    {
+      "file": "coordinator-exhaustion-runtime-v1.json",
+      "sha256": "b6cbf014985994130a02ef22a9f3950ef6cc66e84ef8e22e6c69b76ab6461626"
+    },
+    {
+      "file": "coordinator-runtime-independent-validation-v1.json",
+      "sha256": "6673fad545d7df0bafebf46fd41472d577127b164640caf413fb5ee918658427"
+    },
+    {
+      "file": "window-coordinator-lifecycle-v1.json",
+      "sha256": "8a52753b7db2ef08866510dcfe89a3e0b9ebcfbe5fc948abada02194d7c857bc"
+    },
+    {
+      "file": "window-coordinator-independent-observations-v1.json",
+      "sha256": "827da3cf8b7a1d7ace7e6d55398301465098fb7da358614488d90e0303731996"
+    },
+    {
+      "file": "window-coordinator-independent-observations-v2.json",
+      "sha256": "3aba06f7e4860e0d5f0a3c17f5465b7731a72233bcf6cc0c52cbc086e7fed7cd"
+    },
+    {
+      "file": "coordinator-postbatch-cleanup-v1.json",
+      "sha256": "25910d23630ba83598424cb7e09ea3b79a43febbab7dc30562b231251d6cca88"
+    }
+  ],
+  "sourceReconstructionExact": true,
+  "ordinaryNativeLinked": true,
+  "sourceExhaustionP2Closed": 1,
+  "boundedSourceReviewNewP1": 0,
+  "boundedSourceReviewNewP2": 0,
+  "diagnosticRuntime": {
+    "bothPePassed": true,
+    "checksPerPe": 32,
+    "failuresPerPe": 0,
+    "modelSnapshotsPerPe": 9,
+    "allocationFaultsPerPe": 1,
+    "exhaustionFaultsPerPe": 1,
+    "high32BitIdentityVerified": true,
+    "pairedOldBranchFailureChecks": [
+      27,
+      28,
+      29,
+      30
+    ],
+    "realCleanupAndRestorationConfirmed": true
+  },
+  "ordinaryLifecycleObservations": {
+    "checksPerPe": 1415,
+    "windowsPerPe": 4,
+    "swapchainsPerPe": 56,
+    "presentsPerPe": 168,
+    "fixtureFailuresPerPe": 0,
+    "cliExitPerPe": 0,
+    "snapshotDetachDestroyEachPerPe": 56,
+    "fullBatchAccepted": false,
+    "rawBatchState": "failed",
+    "firstPe32CleanupReceiptLost": true,
+    "firstCleanupCauseKnown": false,
+    "finalAndPostBatchCleanupConfirmed": true,
+    "ordinaryRestored": true,
+    "protectedFourUnchanged": true
+  },
+  "producerTransportEnabled": false,
+  "screenOrCrossProcessOrGameAccepted": false,
+  "defaultAdopted": false,
+  "windowsOperations": 0,
+  "actionsRuns": 0,
+  "newAutomations": 0,
+  "artifactCompaction": {
+    "file": "out/storage-cleanup-20261025/coordinator-batch-cleanup.json",
+    "sha256": "3c1f1884fd051fa14786f6ae1ee2d404a17af889edd94782a44a3a55c0ac176b",
+    "removedEngines": 3,
+    "removedStages": 4,
+    "removedRedundantBackups": 3,
+    "exactDifferingBytesAndFullInventoriesRetained": true,
+    "actualFreeBytesBefore": 63539462144,
+    "actualFreeBytesAfter": 63604887552
+  }
+}

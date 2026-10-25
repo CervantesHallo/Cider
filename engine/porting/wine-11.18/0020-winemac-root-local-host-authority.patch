@@ -1,0 +1,720 @@
+Root-local native host authority after0019; producer lease/transport is not enabled.
+Never reuse root epochs/tickets; commit after resource allocation, revoke on close/exhaustion.
+Actual cross-process/visual qualification remains separate.
+
+--- a/dlls/winemac.drv/Makefile.in
++++ b/dlls/winemac.drv/Makefile.in
+@@ -41,6 +41,7 @@
+ 	mouse.c \
+ 	opengl.c \
+ 	remote_geometry.c \
++	remote_coordinator.c \
+ 	surface.c \
+ 	systray.c \
+ 	vulkan.c \
+--- a/dlls/winemac.drv/macdrv.h
++++ b/dlls/winemac.drv/macdrv.h
+@@ -200,6 +200,17 @@
+ extern BOOL macdrv_get_remote_geometry(HWND root, HWND child, POINT content_offset,
+                                        struct macdrv_remote_geometry *geometry);
+ 
++/* Root-local native authority. Tickets/epochs never cross as native pointers.
++ * Transport still must bind a live producer lease and root epoch before install. */
++extern UINT64 macdrv_remote_root_open(HWND hwnd, WineWindow *window);
++extern UINT64 macdrv_remote_root_epoch(HWND hwnd);
++extern void macdrv_remote_root_close(HWND hwnd, WineWindow *window);
++extern UINT64 macdrv_remote_host_install(HWND hwnd, UINT64 root_epoch, HWND child, UINT context_id);
++extern void macdrv_remote_host_release(UINT64 ticket);
++extern BOOL macdrv_remote_host_refresh(UINT64 ticket);
++extern void macdrv_remote_root_changed(HWND hwnd);
++extern void macdrv_remote_child_destroyed(HWND hwnd);
++
+ struct macdrv_client_surface
+ {
+     struct client_surface   client;
+--- a/dlls/winemac.drv/macdrv_cocoa.h
++++ b/dlls/winemac.drv/macdrv_cocoa.h
+@@ -545,6 +545,17 @@
+ extern id_MTLDevice macdrv_swapchain_get_device(id_WineMetalSwapChain swapchain);
+ extern void macdrv_destroy_swapchain(id_WineMetalSwapChain swapchain);
+ extern void macdrv_destroy_swapchain_deferred(id_WineMetalSwapChain swapchain);
++/* Checked hooks run on main without USER/Cocoa calls or window-data locks.
++ * Synchronous create pins its context until return. Queued update transfers
++ * context ownership and always invokes dispose once, including rejection. */
++/* Exported producer resources are owned separately from a root host lease. */
++extern id_WineMetalSwapChain macdrv_create_exported_metal_context(CGRect bounds, id_MTLDevice device);
++extern unsigned int macdrv_exported_metal_context_id(id_WineMetalSwapChain context);
++extern bool macdrv_window_create_remote_host_checked(WineWindow *window, unsigned int context_id, uint64_t generation,
++                CGRect frame, CGRect clip, double z, bool valid_z, bool (*commit)(void *), void *context);
++extern void macdrv_window_update_remote_host_checked(WineWindow *window, unsigned int context_id, uint64_t generation,
++                CGRect frame, CGRect clip, double z, bool valid_z, bool (*validate)(void *),
++                void (*dispose)(void *), void *context);
+ extern bool macdrv_window_create_remote_host(WineWindow *window, unsigned int context_id, uint64_t generation,
+                                               CGRect frame, CGRect clip, double z, bool valid_z);
+ extern void macdrv_window_update_remote_host(WineWindow *window, unsigned int context_id, uint64_t generation,
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -361,7 +361,7 @@
+     - (void) wine_setBackingSize:(const int*)newBackingSize;
+ 
+     - (WineMetalView*) newMetalViewWithDevice:(id<MTLDevice>)device;
+-    - (BOOL) addCALayerHostViewWithContextId:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z;
++    - (BOOL) addCALayerHostViewWithContextId:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z commit:(bool (*)(void *))commit context:(void *)context;
+     - (void) updateCALayerHost:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z;
+     - (void) removeCALayerHostView:(CAContextID)contextId;
+     - (void) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation;
+@@ -682,18 +682,21 @@
+         return _metalView;
+     }
+ 
+-    - (BOOL) addCALayerHostViewWithContextId:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z
+-    {
++    - (BOOL) addCALayerHostViewWithContextId:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z commit:(bool (*)(void *))commit context:(void *)context
++    {
++        CALayer *parent = self.layer;
+         WineRemoteLayerHost *host, *current = [_caLayerHosts objectForKey:@(contextId)];
+-        if (!contextId) return NO;
++        if (!contextId || !parent) return NO;
+         /* The root coordinator owns monotonic generations. Repeated creation
+          * for the same instance is idempotent; an older live request cannot
+          * replace a newer instance. Retired-slot history stays with that owner. */
+-        if (current && generation <= current.generation) return generation == current.generation;
++        if (current && generation <= current.generation)
++            return generation == current.generation && (!commit || commit(context));
+         if (!_caLayerHosts && !(_caLayerHosts = [[NSMutableDictionary alloc] init])) return NO;
+         if (!(host = [[WineRemoteLayerHost alloc] initWithContextId:contextId generation:generation])) return NO;
+-        host.geometryFlipped = self.layer.geometryFlipped;
+-        [self.layer addSublayer:host];
++        if (commit && !commit(context)) { [host release]; return NO; }
++        host.geometryFlipped = parent.geometryFlipped;
++        [parent addSublayer:host];
+         [host setSourceFrame:frame clip:clip];
+         if (valid_z) host.zPosition = z;
+         /* Keep the old host until the replacement has actually been created. */
+@@ -3897,6 +3900,7 @@
+ }
+ 
+ - (instancetype) initWithHwnd:(void*)hwnd bounds:(CGRect)bounds device:(id<MTLDevice>)provided_device;
++- (CAContextID) contextId;
+ 
+ @end
+ 
+@@ -3946,10 +3950,15 @@
+         return nil;
+     }
+ 
+-    macdrv_create_remote_layer(hwnd, context_id);
++    if (hwnd) macdrv_create_remote_layer(hwnd, context_id);
+     return self;
+ }
+ 
++- (CAContextID) contextId
++{
++    return context_id;
++}
++
+ - (CAMetalLayer*) layer
+ {
+     return offscreen_layer;
+@@ -3962,7 +3971,7 @@
+ 
+ - (void) dealloc
+ {
+-    if (context_id) macdrv_release_remote_layer(hwnd, context_id);
++    if (context_id && hwnd) macdrv_release_remote_layer(hwnd, context_id);
+     CAContext *context = remote_context;
+     CAMetalLayer *layer = offscreen_layer;
+     id<MTLDevice> dev = device;
+@@ -3999,6 +4008,18 @@
+     return [[CAContextSwapChain alloc] initWithHwnd:hwnd bounds:bounds device:device];
+ }
+ 
++/* No HWND and no legacy CREATE/RELEASE messages: the coordinator/transport
++ * owns host admission, while this real CAContext owns producer resources. */
++id<WineMetalSwapChain> macdrv_create_exported_metal_context(CGRect bounds, id<MTLDevice> device)
++{
++    return [[CAContextSwapChain alloc] initWithHwnd:NULL bounds:bounds device:device];
++}
++
++unsigned int macdrv_exported_metal_context_id(id<WineMetalSwapChain> context)
++{
++    return [context isKindOfClass:[CAContextSwapChain class]] ? [(CAContextSwapChain *)context contextId] : 0;
++}
++
+ CAMetalLayer *macdrv_swapchain_get_layer(id<WineMetalSwapChain> swapchain)
+ {
+     return [swapchain layer];
+@@ -4021,8 +4042,8 @@
+     [swapchain release];
+ }
+ 
+-bool macdrv_window_create_remote_host(WineWindow *window, unsigned int context_id, uint64_t generation,
+-                                      CGRect frame, CGRect clip, double z, bool valid_z)
++bool macdrv_window_create_remote_host_checked(WineWindow *window, unsigned int context_id, uint64_t generation,
++                CGRect frame, CGRect clip, double z, bool valid_z, bool (*commit)(void *), void *context)
+ {
+ @autoreleasepool
+ {
+@@ -4031,25 +4052,44 @@
+         NSView *content = [window contentView];
+         if (!window.closing && [content isKindOfClass:[WineContentView class]])
+             installed = [(WineContentView *)content addCALayerHostViewWithContextId:context_id generation:generation
+-                                          frame:frame clip:clip z:z validZ:valid_z];
++                            frame:frame clip:clip z:z validZ:valid_z commit:commit context:context];
+     });
+     return installed;
+ }
+ }
+ 
++bool macdrv_window_create_remote_host(WineWindow *window, unsigned int context_id, uint64_t generation,
++                                      CGRect frame, CGRect clip, double z, bool valid_z)
++{
++    return macdrv_window_create_remote_host_checked(window, context_id, generation,
++                                                    frame, clip, z, valid_z, NULL, NULL);
++}
++
+ void macdrv_window_create_ca_layer_host_view(WineWindow *window, unsigned int context_id)
+ {
+     macdrv_window_create_remote_host(window, context_id, 0, CGRectNull, CGRectNull, 0.0, false);
++}
++
++void macdrv_window_update_remote_host_checked(WineWindow *window, unsigned int context_id, uint64_t generation,
++                CGRect frame, CGRect clip, double z, bool valid_z, bool (*validate)(void *),
++                void (*dispose)(void *), void *context)
++{
++    OnMainThreadAsync(^{
++        @try
++        {
++            NSView *content = [window contentView];
++            if (!window.closing && (!validate || validate(context)) && [content isKindOfClass:[WineContentView class]])
++                [(WineContentView *)content updateCALayerHost:context_id generation:generation frame:frame clip:clip z:z validZ:valid_z];
++        }
++        @finally { if (dispose) dispose(context); }
++    });
+ }
+ 
+ void macdrv_window_update_remote_host(WineWindow *window, unsigned int context_id, uint64_t generation,
+                                       CGRect frame, CGRect clip, double z, bool valid_z)
+ {
+-    OnMainThreadAsync(^{
+-        NSView *content = [window contentView];
+-        if (!window.closing && [content isKindOfClass:[WineContentView class]])
+-            [(WineContentView *)content updateCALayerHost:context_id generation:generation frame:frame clip:clip z:z validZ:valid_z];
+-    });
++    macdrv_window_update_remote_host_checked(window, context_id, generation,
++                                            frame, clip, z, valid_z, NULL, NULL, NULL);
+ }
+ 
+ void macdrv_window_release_remote_host_deferred(WineWindow *window, unsigned int context_id, uint64_t generation)
+--- a/dlls/winemac.drv/window.c
++++ b/dlls/winemac.drv/window.c
+@@ -484,6 +484,8 @@
+ 
+     data->cocoa_window = macdrv_create_cocoa_window(&wf, frame, data->hwnd, thread_data->queue);
+     if (!data->cocoa_window) goto done;
++    if (!macdrv_remote_root_open(data->hwnd, data->cocoa_window))
++        WARN("remote root registration unavailable for %p\n", data->hwnd);
+ 
+     set_cocoa_window_properties(data);
+ 
+@@ -514,6 +516,7 @@
+ 
+     TRACE("win %p Cocoa win %p\n", data->hwnd, data->cocoa_window);
+ 
++    macdrv_remote_root_close(data->hwnd, data->cocoa_window);
+     macdrv_destroy_cocoa_window(data->cocoa_window);
+     data->cocoa_window = 0;
+     data->on_screen = FALSE;
+@@ -1299,6 +1302,7 @@
+ 
+     CFDictionaryRemoveValue(win_datas, hwnd);
+     release_win_data(data);
++    macdrv_remote_child_destroyed(hwnd);
+     free(data);
+ }
+ 
+@@ -1355,6 +1359,7 @@
+ void macdrv_SetParent(HWND hwnd, HWND parent, HWND old_parent)
+ {
+     struct macdrv_win_data *data;
++    HWND old_root = old_parent == NtUserGetDesktopWindow() ? hwnd : NtUserGetAncestor(old_parent, GA_ROOT);
+ 
+     TRACE("%p, %p, %p\n", hwnd, parent, old_parent);
+ 
+@@ -1374,6 +1379,8 @@
+         create_cocoa_window(data);
+     }
+     release_win_data(data);
++    macdrv_remote_root_changed(old_root);
++    macdrv_remote_root_changed(NtUserGetAncestor(hwnd, GA_ROOT));
+ }
+ 
+ 
+@@ -1720,6 +1727,7 @@
+ 
+ done:
+     release_win_data(data);
++    macdrv_remote_root_changed(NtUserGetAncestor(hwnd, GA_ROOT));
+ }
+ 
+ 
+--- a/dlls/winemac.drv/remote_geometry.c
++++ b/dlls/winemac.drv/remote_geometry.c
+@@ -15,6 +15,16 @@
+     if (!NtUserGetClientRect(window, rect, dpi)) return FALSE;
+     RtlSetLastWin32Error(0);
+     if (!NtUserMapWindowPoints(window, root, (POINT *)rect, 2, dpi) && RtlGetLastWin32Error()) return FALSE;
++    return TRUE;
++}
++
++static BOOL shift_rect_checked(RECT *rect, POINT offset)
++{
++    LONGLONG left = (LONGLONG)rect->left + offset.x, top = (LONGLONG)rect->top + offset.y;
++    LONGLONG right = (LONGLONG)rect->right + offset.x, bottom = (LONGLONG)rect->bottom + offset.y;
++    if (left < -2147483648LL || left > 2147483647LL || top < -2147483648LL || top > 2147483647LL ||
++        right < -2147483648LL || right > 2147483647LL || bottom < -2147483648LL || bottom > 2147483647LL) return FALSE;
++    SetRect(rect, left, top, right, bottom);
+     return TRUE;
+ }
+ 
+@@ -63,8 +73,7 @@
+     if (!visible) SetRectEmpty(&clip);
+     /* Preserve empty geometry explicitly, rather than treating0x0 as the
+      * old root-fills-view sentinel. Offset both rectangles in one space. */
+-    OffsetRect(&frame, content_offset.x, content_offset.y);
+-    OffsetRect(&clip, content_offset.x, content_offset.y);
++    if (!shift_rect_checked(&frame, content_offset) || !shift_rect_checked(&clip, content_offset)) goto done;
+     geometry->frame = frame;
+     geometry->clip = clip;
+     ok = TRUE;
+--- /dev/null
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -0,0 +1,428 @@
++/* Root-local host authority. Cross-process transport must supply a live root
++ * epoch and retain its producer lease; a context ID alone is not authority.
++ * Never enter Cocoa synchronously while holding either registry/window lock. */
++#if 0
++#pragma makedep unix
++#endif
++#include "config.h"
++#include <pthread.h>
++#include <stdlib.h>
++#include <string.h>
++#include "macdrv.h"
++
++WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
++
++extern void *macdrv_legacy_retain_object(void *object);
++extern void macdrv_legacy_release_object(void *object);
++
++enum host_state { HOST_PENDING, HOST_INSTALLED, HOST_RETIRED };
++struct remote_root
++{
++    struct remote_root *next;
++    LONG refs;
++    HWND hwnd;
++    WineWindow *window;
++    UINT64 epoch, revision;
++    BOOL open;
++};
++struct remote_host
++{
++    struct remote_host *next, *retire_next, *predecessors;
++    LONG refs;
++    struct remote_root *root;
++    HWND child;
++    UINT context_id;
++    UINT64 ticket, update_serial, prepared_revision;
++    enum host_state state;
++    BOOL installed;
++};
++struct update_job
++{
++    struct remote_host *host;
++    UINT64 revision, serial;
++};
++struct host_geometry
++{
++    CGRect frame, clip;
++    double z;
++    bool valid_z;
++};
++
++static pthread_mutex_t remote_lock = PTHREAD_MUTEX_INITIALIZER;
++static struct remote_root *roots;
++static struct remote_host *hosts;
++static UINT64 next_identity = 1;
++
++/* Root epochs, tickets and update serials share a non-reusing namespace.
++ * Exhaustion is an actual admission failure, never wrap to an old capability. */
++static UINT64 identity_locked(void)
++{
++    return next_identity == ~(UINT64)0 ? 0 : next_identity++;
++}
++static void root_release(struct remote_root *root)
++{
++    if (InterlockedDecrement(&root->refs)) return;
++    macdrv_legacy_release_object(root->window);
++    free(root);
++}
++static void host_release(struct remote_host *host)
++{
++    if (InterlockedDecrement(&host->refs)) return;
++    assert(!host->predecessors);
++    root_release(host->root);
++    free(host);
++}
++static struct remote_host *host_lookup_locked(UINT64 ticket)
++{
++    struct remote_host *host;
++    for (host = hosts; host; host = host->next)
++        if (host->ticket == ticket) return host;
++    return NULL;
++}
++static struct remote_root *root_lookup_locked(HWND hwnd)
++{
++    struct remote_root *root;
++    for (root = roots; root; root = root->next)
++        if (root->hwnd == hwnd) return root;
++    return NULL;
++}
++/* Transfer the one lookup-list owner to a caller's retirement list. Pins held
++ * by a synchronous install or queued update keep the same object alive. */
++static void retire_locked(struct remote_host *host, struct remote_host **retired)
++{
++    struct remote_host **cursor;
++    assert(host->state != HOST_RETIRED);
++    for (cursor = &hosts; *cursor != host; cursor = &(*cursor)->next) assert(*cursor);
++    *cursor = host->next;
++    host->state = HOST_RETIRED;
++    TRACE("remote retire root %p ticket %#llx context %u\n", host->root->hwnd,
++          (unsigned long long)host->ticket, host->context_id);
++    host->retire_next = *retired;
++    *retired = host;
++}
++static void dispose_retired(struct remote_host *retired)
++{
++    while (retired)
++    {
++        struct remote_host *next = retired->retire_next;
++        if (retired->installed)
++            macdrv_window_release_remote_host_deferred(retired->root->window,
++                                                       retired->context_id, retired->ticket);
++        host_release(retired);
++        retired = next;
++    }
++}
++
++UINT64 macdrv_remote_root_open(HWND hwnd, WineWindow *window)
++{
++    struct remote_root *root, *current;
++    UINT64 result = 0;
++    if (!hwnd || !window || !(root = calloc(1, sizeof(*root)))) return 0;
++    root->refs = 1;
++    root->hwnd = hwnd;
++    root->window = macdrv_legacy_retain_object(window);
++    pthread_mutex_lock(&remote_lock);
++    current = root_lookup_locked(hwnd);
++    if (current)
++    {
++        if (current->window == window && current->revision) result = current->epoch;
++    }
++    else if ((result = identity_locked()))
++    {
++        root->epoch = root->revision = result;
++        root->open = TRUE;
++        root->next = roots;
++        roots = root;
++        TRACE("remote root open %p epoch %#llx\n", hwnd, (unsigned long long)result);
++    }
++    pthread_mutex_unlock(&remote_lock);
++    if (!result || current) root_release(root);
++    return result;
++}
++UINT64 macdrv_remote_root_epoch(HWND hwnd)
++{
++    struct remote_root *root;
++    UINT64 result;
++    pthread_mutex_lock(&remote_lock);
++    root = root_lookup_locked(hwnd);
++    result = root && root->revision ? root->epoch : 0;
++    pthread_mutex_unlock(&remote_lock);
++    return result;
++}
++void macdrv_remote_root_close(HWND hwnd, WineWindow *window)
++{
++    struct remote_root *root, **cursor;
++    struct remote_host *host, *next, *retired = NULL;
++    pthread_mutex_lock(&remote_lock);
++    for (cursor = &roots; (root = *cursor); cursor = &root->next)
++        if (root->hwnd == hwnd && root->window == window) break;
++    if (root)
++    {
++        *cursor = root->next;
++        root->open = FALSE;
++        TRACE("remote root close %p epoch %#llx\n", hwnd, (unsigned long long)root->epoch);
++        for (host = hosts; host; host = next)
++        {
++            next = host->next;
++            if (host->root == root) retire_locked(host, &retired);
++        }
++    }
++    pthread_mutex_unlock(&remote_lock);
++    dispose_retired(retired);
++    if (root) root_release(root);
++}
++
++/* Walk current Win32 paint order bottom-to-top, parent before descendants.
++ * The observed walk can race a reparent: reject repeated handles instead of
++ * imposing a fixed-depth limit or inventing a valid z-position. */
++static BOOL paint_z(HWND root, HWND target, double *z)
++{
++    HWND hwnd, child, inline_seen[32], *seen = inline_seen;
++    SIZE_T count = 0, capacity = ARRAYSIZE(inline_seen), i;
++    BOOL found = FALSE;
++    child = NtUserGetWindowRelative(root, GW_CHILD);
++    hwnd = child ? NtUserGetWindowRelative(child, GW_HWNDLAST) : NULL;
++    while (hwnd && hwnd != root)
++    {
++        if (NtUserGetAncestor(hwnd, GA_ROOT) != root) break;
++        for (i = 0; i < count; ++i) if (seen[i] == hwnd) goto done;
++        if (count == capacity)
++        {
++            HWND *next;
++            if (capacity > ~(SIZE_T)0 / (2 * sizeof(*seen))) break;
++            if (!(next = malloc(2 * capacity * sizeof(*seen)))) break;
++            memcpy(next, seen, count * sizeof(*seen));
++            if (seen != inline_seen) free(seen);
++            seen = next;
++            capacity *= 2;
++        }
++        seen[count++] = hwnd;
++        if (hwnd == target) { *z = (double)count; found = TRUE; break; }
++        if ((child = NtUserGetWindowRelative(hwnd, GW_CHILD)))
++            hwnd = NtUserGetWindowRelative(child, GW_HWNDLAST);
++        else
++        {
++            SIZE_T climbed = 0;
++            while (hwnd && hwnd != root)
++            {
++                /* A consistent ascent only visits already traversed ancestors.
++                 * Bound by that actual history, not an arbitrary tree depth. */
++                if (++climbed > count) goto done;
++                if ((child = NtUserGetWindowRelative(hwnd, GW_HWNDPREV))) { hwnd = child; break; }
++                hwnd = NtUserGetAncestor(hwnd, GA_PARENT);
++            }
++        }
++    }
++done:
++    if (seen != inline_seen) free(seen);
++    return found;
++}
++static BOOL geometry_for_host(struct remote_host *host, struct host_geometry *geometry)
++{
++    struct macdrv_win_data *data;
++    struct macdrv_remote_geometry rects;
++    POINT offset;
++    LONGLONG dx, dy;
++    BOOL valid;
++    if (!(data = get_win_data(host->root->hwnd))) return FALSE;
++    valid = data->cocoa_window == host->root->window;
++    dx = (LONGLONG)data->rects.client.left - data->rects.visible.left;
++    dy = (LONGLONG)data->rects.client.top - data->rects.visible.top;
++    valid = valid && dx >= -2147483648LL && dx <= 2147483647LL && dy >= -2147483648LL && dy <= 2147483647LL;
++    offset.x = valid ? dx : 0;
++    offset.y = valid ? dy : 0;
++    release_win_data(data);
++    if (!valid) return FALSE;
++    geometry->frame = geometry->clip = CGRectNull;
++    geometry->z = 0;
++    geometry->valid_z = false;
++    if (!host->child) return TRUE;
++    if (!macdrv_get_remote_geometry(host->root->hwnd, host->child, offset, &rects) ||
++        !paint_z(host->root->hwnd, host->child, &geometry->z)) return FALSE;
++    geometry->frame = cgrect_from_rect(rects.frame);
++    geometry->clip = cgrect_from_rect(rects.clip);
++    geometry->valid_z = true;
++    return TRUE;
++}
++
++/* Called on Cocoa's main thread only after allocation succeeds, before the
++ * new layer is attached. The caller pins host across the synchronous call.
++ * This callback touches native state only; no USER/Cocoa calls under the lock. */
++static bool install_commit(void *context)
++{
++    struct remote_host *host = context, *old, *next;
++    BOOL accepted;
++    pthread_mutex_lock(&remote_lock);
++    accepted = host->state == HOST_PENDING && host->root->open &&
++               host->prepared_revision == host->root->revision;
++    if (accepted)
++    {
++        host->state = HOST_INSTALLED;
++        host->installed = TRUE;
++        TRACE("remote commit root %p ticket %#llx child %p context %u\n", host->root->hwnd,
++              (unsigned long long)host->ticket, host->child, host->context_id);
++        for (old = hosts; old; old = next)
++        {
++            next = old->next;
++            if (old == host || old->root != host->root || old->state != HOST_INSTALLED) continue;
++            if (old->child == host->child || old->context_id == host->context_id)
++                retire_locked(old, &host->predecessors);
++        }
++    }
++    pthread_mutex_unlock(&remote_lock);
++    return accepted;
++}
++UINT64 macdrv_remote_host_install(HWND hwnd, UINT64 root_epoch, HWND child, UINT context_id)
++{
++    struct remote_root *root;
++    struct remote_host *host, *old, *next, *retired = NULL;
++    struct host_geometry geometry;
++    UINT64 result = 0;
++    BOOL installed = FALSE;
++    if (!root_epoch || !context_id || !(host = calloc(1, sizeof(*host)))) return 0;
++    pthread_mutex_lock(&remote_lock);
++    root = root_lookup_locked(hwnd);
++    if (!root || root->epoch != root_epoch || !(host->ticket = identity_locked()))
++    {
++        pthread_mutex_unlock(&remote_lock);
++        free(host);
++        return 0;
++    }
++    host->refs = 2; /* lookup-list owner + this synchronous install pin */
++    host->root = root;
++    host->prepared_revision = root->revision;
++    InterlockedIncrement(&root->refs);
++    host->child = child == hwnd ? NULL : child;
++    host->context_id = context_id;
++    host->state = HOST_PENDING;
++    for (old = hosts; old; old = next)
++    {
++        next = old->next;
++        if (old->root == root && old->state == HOST_PENDING &&
++            (old->child == host->child || old->context_id == context_id)) retire_locked(old, &retired);
++    }
++    host->next = hosts;
++    hosts = host;
++    pthread_mutex_unlock(&remote_lock);
++    dispose_retired(retired);
++    if (geometry_for_host(host, &geometry))
++        installed = macdrv_window_create_remote_host_checked(root->window, context_id, host->ticket,
++                            geometry.frame, geometry.clip, geometry.z, geometry.valid_z, install_commit, host);
++    pthread_mutex_lock(&remote_lock);
++    retired = host->predecessors;
++    host->predecessors = NULL;
++    if (installed && host->state == HOST_INSTALLED && root->open) result = host->ticket;
++    else if (host->state != HOST_RETIRED) retire_locked(host, &retired);
++    pthread_mutex_unlock(&remote_lock);
++    dispose_retired(retired);
++    host_release(host);
++    return result;
++}
++void macdrv_remote_host_release(UINT64 ticket)
++{
++    struct remote_host *host, *retired = NULL;
++    pthread_mutex_lock(&remote_lock);
++    if ((host = host_lookup_locked(ticket))) retire_locked(host, &retired);
++    pthread_mutex_unlock(&remote_lock);
++    dispose_retired(retired);
++}
++
++static bool update_validate(void *context)
++{
++    struct update_job *job = context;
++    struct remote_host *host = job->host;
++    BOOL accepted;
++    pthread_mutex_lock(&remote_lock);
++    accepted = host->state == HOST_INSTALLED && host->root->open &&
++               host->root->revision == job->revision && host->update_serial == job->serial;
++    pthread_mutex_unlock(&remote_lock);
++    return accepted;
++}
++static void update_dispose(void *context)
++{
++    struct update_job *job = context;
++    host_release(job->host);
++    free(job);
++}
++BOOL macdrv_remote_host_refresh(UINT64 ticket)
++{
++    struct update_job *job = calloc(1, sizeof(*job));
++    struct remote_host *host;
++    struct host_geometry geometry;
++    BOOL accepted;
++    if (!job) return FALSE;
++    pthread_mutex_lock(&remote_lock);
++    host = host_lookup_locked(ticket);
++    accepted = host && host->state == HOST_INSTALLED;
++    if (accepted)
++    {
++        job->host = host;
++        InterlockedIncrement(&host->refs);
++        job->revision = host->root->revision;
++        job->serial = identity_locked();
++        if (job->serial) host->update_serial = job->serial;
++    }
++    pthread_mutex_unlock(&remote_lock);
++    if (!accepted) { free(job); return FALSE; }
++    if (host->child && NtUserGetAncestor(host->child, GA_ROOT) != host->root->hwnd)
++    {
++        macdrv_remote_host_release(ticket);
++        update_dispose(job);
++        return FALSE;
++    }
++    if (!job->serial || !geometry_for_host(host, &geometry) || !update_validate(job))
++    {
++        update_dispose(job);
++        return FALSE;
++    }
++    macdrv_window_update_remote_host_checked(host->root->window, host->context_id, host->ticket,
++                geometry.frame, geometry.clip, geometry.z, geometry.valid_z, update_validate, update_dispose, job);
++    return TRUE; /* queued, not a claim that Cocoa has already applied it */
++}
++void macdrv_remote_root_changed(HWND hwnd)
++{
++    struct remote_root *root;
++    struct remote_host *host, *next, *retired = NULL;
++    UINT64 *tickets, revision;
++    SIZE_T count = 0, index = 0;
++    pthread_mutex_lock(&remote_lock);
++    root = root_lookup_locked(hwnd);
++    if (!root) { pthread_mutex_unlock(&remote_lock); return; }
++    if (!(revision = identity_locked()))
++    {
++        /* Revoke previously admitted geometry without allocating a new ID.
++         * The reserved zero revision latches this root unavailable; retiring
++         * entries also prevents stale pixels from remaining indefinitely. */
++        root->revision = 0;
++        for (host = hosts; host; host = next)
++        {
++            next = host->next;
++            if (host->root == root) retire_locked(host, &retired);
++        }
++        pthread_mutex_unlock(&remote_lock);
++        dispose_retired(retired);
++        return;
++    }
++    root->revision = revision;
++    for (host = hosts; host; host = host->next)
++        if (host->root == root && host->state == HOST_INSTALLED) ++count;
++    tickets = count && count <= ~(SIZE_T)0 / sizeof(*tickets) ? malloc(count * sizeof(*tickets)) : NULL;
++    if (tickets)
++        for (host = hosts; host; host = host->next)
++            if (host->root == root && host->state == HOST_INSTALLED) tickets[index++] = host->ticket;
++    pthread_mutex_unlock(&remote_lock);
++    for (index = 0; tickets && index < count; ++index) macdrv_remote_host_refresh(tickets[index]);
++    free(tickets);
++}
++void macdrv_remote_child_destroyed(HWND child)
++{
++    struct remote_host *host, *next, *retired = NULL;
++    pthread_mutex_lock(&remote_lock);
++    for (host = hosts; host; host = next)
++    {
++        next = host->next;
++        if (host->child == child) retire_locked(host, &retired);
++    }
++    pthread_mutex_unlock(&remote_lock);
++    dispose_retired(retired);
++}

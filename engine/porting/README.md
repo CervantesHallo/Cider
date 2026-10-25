@@ -1,5 +1,7 @@
 # Engine R v1 主题迁移
 
+0020最新见[98](../../docs/research/98-r-v1-root-host-coordinator-20261025.md)：真实根实例/宿主ticket、成功后提交、关闭/耗尽撤销和局部事件钩子已重建/链接；双PE高位诊断各32项零失败，旧耗尽分支精确4失败。普通窗口双PE各1415项零失败，但PE32第一次清理回执丢失、整批仍拒绝，最后清理恢复真实确认。producer租约/跨进程传输仍未接入，foreign-child未启用；诊断入口和故障不进普通引擎。完整临时包已按SHA差异归档清理，恢复先查清单。
+
 0019已补foreign-host基础：client frame/祖先clip独立，Cocoa裁剪不缩图、主线程代次匹配及关闭保护；精确重建/固定SDK链接/两P2修后源审闭合。当前未接root coordinator/事件租约/路由，未运行或解除foreign-child拒绝，完整契约与两/三进程验收见[95文末](../../docs/research/95-r-v1-legacy-window-bridge-20261025.md)。原本进程运行证据不自动转给新模块。
 
 注册表往返最新见[96](../../docs/research/96-r-v1-registry-roundtrip-20261025.md)：0018修正底层RegCreate安全属性传递及尾部分隔符叶键；双PE回调各33项、直接A/W/三视图各195项通过，故障所有权、四admission负例和五错误变体拒绝已实际完成。公开夹具在tests/runtime/legacy-registry和registry-security；诊断不进入普通引擎，真实Windows/完整权限及完整桥接仍待，继续窗口生命周期和foreign-child/CEF。

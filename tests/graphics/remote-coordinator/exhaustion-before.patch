@@ -1,0 +1,33 @@
+DELIBERATELY INCORRECT negative only; apply after diagnostic.patch. Never adopt.
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -382,27 +382,13 @@
+ void macdrv_remote_root_changed(HWND hwnd)
+ {
+     struct remote_root *root;
+-    struct remote_host *host, *next, *retired = NULL;
++    struct remote_host *host;
+     UINT64 *tickets, revision;
+     SIZE_T count = 0, index = 0;
+     pthread_mutex_lock(&remote_lock);
+     root = root_lookup_locked(hwnd);
+     if (!root) { pthread_mutex_unlock(&remote_lock); return; }
+-    if (!(revision = identity_locked()))
+-    {
+-        /* Revoke previously admitted geometry without allocating a new ID.
+-         * The reserved zero revision latches this root unavailable; retiring
+-         * entries also prevents stale pixels from remaining indefinitely. */
+-        root->revision = 0;
+-        for (host = hosts; host; host = next)
+-        {
+-            next = host->next;
+-            if (host->root == root) retire_locked(host, &retired);
+-        }
+-        pthread_mutex_unlock(&remote_lock);
+-        dispose_retired(retired);
+-        return;
+-    }
++    if (!(revision = identity_locked())) { pthread_mutex_unlock(&remote_lock); return; }
+     root->revision = revision;
+     for (host = hosts; host; host = host->next)
+         if (host->root == root && host->state == HOST_INSTALLED) ++count;

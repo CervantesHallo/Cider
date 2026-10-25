@@ -1,0 +1,137 @@
+DIAGNOSTIC ONLY after0020. Include this fixture directory; do not adopt in ordinary/user engines.
+Use the private spec with explicit winebuild -Fwinemac.drv.
+
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -426,3 +426,5 @@
+     pthread_mutex_unlock(&remote_lock);
+     dispose_retired(retired);
+ }
++
++#include "fixture-native.inc"
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -19,6 +19,8 @@
+  */
+ 
+ #include "config.h"
++#include "coordinator-fixture.h"
++
+ 
+ #define GL_SILENCE_DEPRECATION
+ #import <Metal/Metal.h>
+@@ -28,6 +30,8 @@
+ #import "cocoa_window.h"
+ 
+ #include "macdrv_cocoa.h"
++static bool coordinator_fixture_fail_next;
++static unsigned int coordinator_fixture_alloc_failures;
+ #import "cocoa_app.h"
+ #import "cocoa_event.h"
+ #import "cocoa_opengl.h"
+@@ -363,6 +367,7 @@
+     - (WineMetalView*) newMetalViewWithDevice:(id<MTLDevice>)device;
+     - (BOOL) addCALayerHostViewWithContextId:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z commit:(bool (*)(void *))commit context:(void *)context;
+     - (void) updateCALayerHost:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z;
++    - (void) coordinatorFixtureSnapshot:(CAContextID)contextId into:(struct coordinator_snapshot *)out;
+     - (void) removeCALayerHostView:(CAContextID)contextId;
+     - (void) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation;
+ 
+@@ -693,6 +698,12 @@
+         if (current && generation <= current.generation)
+             return generation == current.generation && (!commit || commit(context));
+         if (!_caLayerHosts && !(_caLayerHosts = [[NSMutableDictionary alloc] init])) return NO;
++        if (coordinator_fixture_fail_next)
++        {
++            coordinator_fixture_fail_next = false;
++            ++coordinator_fixture_alloc_failures;
++            return NO;
++        }
+         if (!(host = [[WineRemoteLayerHost alloc] initWithContextId:contextId generation:generation])) return NO;
+         if (commit && !commit(context)) { [host release]; return NO; }
+         host.geometryFlipped = parent.geometryFlipped;
+@@ -718,6 +729,24 @@
+             [CATransaction setDisableActions:YES];
+             host.zPosition = z;
+             [CATransaction commit];
++        }
++    }
++
++    - (void) coordinatorFixtureSnapshot:(CAContextID)contextId into:(struct coordinator_snapshot *)out
++    {
++        WineRemoteLayerHost *host = [_caLayerHosts objectForKey:@(contextId)];
++        out->count = (uint32_t)[_caLayerHosts count];
++        if (host)
++        {
++            CALayer *source = host.sublayers.firstObject;
++            CGRect frame = host.frame, source_frame = source.frame;
++            out->found = 1; out->generation = host.generation;
++            out->hidden = host.hidden;
++            out->flipped = host.geometryFlipped == self.layer.geometryFlipped;
++            out->frame[0] = frame.origin.x; out->frame[1] = frame.origin.y;
++            out->frame[2] = frame.size.width; out->frame[3] = frame.size.height;
++            out->source[0] = source_frame.origin.x; out->source[1] = source_frame.origin.y;
++            out->source[2] = source_frame.size.width; out->source[3] = source_frame.size.height;
+         }
+     }
+ 
+@@ -4233,3 +4262,5 @@
+             [[window contentView] clearMarkedText];
+     });
+ }
++
++#include "cocoa-observer.inc"
+--- a/dlls/winemac.drv/dllmain.c
++++ b/dlls/winemac.drv/dllmain.c
+@@ -19,6 +19,7 @@
+  */
+ 
+ #include <stdarg.h>
++#include "coordinator-fixture.h"
+ #include "ntstatus.h"
+ #include "windef.h"
+ #include "winbase.h"
+@@ -423,3 +424,8 @@
+     macdrv_module = instance;
+     return process_attach();
+ }
++
++NTSTATUS WINAPI cider_remote_probe(struct coordinator_fixture *frame)
++{
++    return MACDRV_CALL(remote_probe, frame);
++}
+--- a/dlls/winemac.drv/unixlib.h
++++ b/dlls/winemac.drv/unixlib.h
+@@ -24,6 +24,7 @@
+     unix_init,
+     unix_quit_result,
+     unix_legacy_registry_init,
++    unix_remote_probe,
+     unix_funcs_count
+ };
+ 
+--- a/dlls/winemac.drv/macdrv_main.c
++++ b/dlls/winemac.drv/macdrv_main.c
+@@ -606,11 +606,14 @@
+ }
+ 
+ 
++extern NTSTATUS macdrv_remote_fixture_probe(void *args);
++
+ const unixlib_entry_t __wine_unix_call_funcs[] =
+ {
+     macdrv_init,
+     macdrv_quit_result,
+     macdrv_legacy_registry_init,
++    macdrv_remote_fixture_probe,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_funcs) == unix_funcs_count );
+@@ -638,6 +641,7 @@
+     wow64_init,
+     macdrv_quit_result,
+     macdrv_legacy_registry_init,
++    macdrv_remote_fixture_probe,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_wow64_funcs) == unix_funcs_count );

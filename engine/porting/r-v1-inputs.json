@@ -1044,5 +1044,25 @@
     "nativeWindowsAccepted": false,
     "fullBridgeAccepted": false,
     "defaultAdopted": false
+  },
+  "rootHostCoordinatorCandidate": {
+    "research": "docs/research/98-r-v1-root-host-coordinator-20261025.md",
+    "evidence": "docs/research/evidence/r-v1-root-host-coordinator-20261025.json",
+    "patch": {
+      "file": "engine/porting/wine-11.18/0020-winemac-root-local-host-authority.patch",
+      "sha256": "3c064210a923178844a43aa9a6aa85bd6e6d268d1c9f113fd26dadc8cfe8b2b6"
+    },
+    "sourceReconstructionExact": true,
+    "ordinaryNativeLinked": true,
+    "sourceExhaustionP2Closed": 1,
+    "diagnosticBothPePassed": true,
+    "diagnosticChecksPerPe": 32,
+    "high32BitIdentityVerified": true,
+    "oldExhaustionBranchFailures": 4,
+    "ordinaryLifecycleFullBatchAccepted": false,
+    "ordinaryLifecycleCleanupEvidenceGap": true,
+    "producerTransportEnabled": false,
+    "foreignChildEnabled": false,
+    "defaultAdopted": false
   }
 }

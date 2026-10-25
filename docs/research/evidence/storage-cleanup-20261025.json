@@ -57,5 +57,26 @@
   ],
   "workResumeCheckpoint": "out/storage-cleanup-20261025/work-resume-checkpoint.json",
   "actionsRuns": 0,
-  "newAutomations": 0
+  "newAutomations": 0,
+  "postBatchCompaction": {
+    "record": "out/storage-cleanup-20261025/coordinator-batch-cleanup.json",
+    "sha256": "3c1f1884fd051fa14786f6ae1ee2d404a17af889edd94782a44a3a55c0ac176b",
+    "removedEngines": 3,
+    "removedStages": 4,
+    "removedRedundantBackups": 3,
+    "actualRecoveredBytes": 65425408,
+    "fullInventoriesAndExactDifferencesRetained": true
+  },
+  "latestWorkResumeCheckpoint": "out/storage-cleanup-20261025/work-resume-checkpoint-v2.json",
+  "latestObservedFreeBytes": 63955079168,
+  "finalUnusedBuildsCleanup": {
+    "record": "out/storage-cleanup-20261025/final-unused-builds-cleanup.json",
+    "sha256": "18ba68ba1765c79ab37cfd9830fa6ce2ebd95ec22caf4f0d9a697a0cc8653988",
+    "retiredWineBuildRemoved": true,
+    "mediaPreparationFixtureEngineRemoved": true,
+    "regenerableSwiftAndModuleCachesRemoved": true,
+    "sourceAndRawResultsAndExactChangedWinmmRetained": true,
+    "actualFreeBytesBefore": 63620145152,
+    "actualFreeBytesAfter": 63962218496
+  }
 }

@@ -25,3 +25,11 @@
 初版PE64在真实Wine/Cocoa上完成32检查、9次模型snapshot及两个明确诊断故障，CLI0。控制器误保留了旧legacy-table标记要求，原失败记录不改；独立旁证只接纳已核对的旧子集，见 `coordinator-runtime-64-subset-acceptance-v1.json`。这是模型/API/所有权结果，未做屏幕像素或跨进程验收。
 
 随后增强夹具要求epoch和三份ticket的高32位非零，并使用实际client尺寸创建producer。双PE/native新组已构建，**未运行且局部复审待补**；存储清理时已关闭代理，不能将旧32项结果提升为增强版通过。恢复点在同清理目录的 `work-resume-checkpoint.json`。接着补审/运行这项，再继续真实producer租约与两/三进程呈现；foreign-child门槛、原HY顺序、Windows忙/待重启和游戏评级均保持。
+
+## 清理后同日收尾
+
+后续增强夹具的限定复审、双PE真实运行及修复前对照已经完成，接续更新见[98](98-r-v1-root-host-coordinator-20261025.md)；以上“未运行”是第一次清理时的历史状态。普通窗口测试程序均完成，但一次清理断言的原回执丢失，整批没有追认为通过；最终及独立收尾的进程清理、普通配置恢复均确认。
+
+按新规则，结束后又归档清除三套诊断引擎、四套暂存包和三份重复备份，保留普通工作引擎；逐文件完整清单、manifest和全部差异字节已保存。该批因APFS共享只额外回收约62MiB，当前实测可用约60GiB，先前60.29GiB是首批清理时的净变化。恢复点更新为 `work-resume-checkpoint-v2.json`；原件不改写。没有新构建、Windows操作或后台实验残留。
+
+最后检查又移除已退休WinMM整套build、独立媒体准备fixture引擎及可再生Swift/module缓存，保留改动模块/构建元数据/完整清单和源码原始结果，实际再回收约326MiB。记录为 `final-unused-builds-cleanup.json`，生产参考逐文件和四保护摘要核对一致。

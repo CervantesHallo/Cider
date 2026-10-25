@@ -1,6 +1,8 @@
 # 13 路线图与待办（执行顺序）
 
-用户要求的紧急存储清理已完成，净回收约60.29GiB，系统可用约61GiB；源码/原始结果/变化模块与当前工具链、F27/MF工作环境和用户数据保留，见[97](../research/97-storage-cleanup-and-coordinator-checkpoint-20261025.md)。协调器普通源已到coordinator-source-v3并链接/限定复审闭合；低计数PE64原子集有真实32项结果，增强高位夹具已构建但未运行/复审待补。按该接续点继续，不从被清掉的整树路径自动重下大包，不把旧结果提升为新范围。HY顺序/Windows条件/foreign-child门槛保持。
+用户要求的紧急存储清理已完成，首批净回收60.29GiB；本轮再归档3套诊断引擎/4套stage/3份重复备份，当前系统可用约60GiB。完整清单和精确差异保留，当前工具链/工作包/用户游戏存档不动，见[97](../research/97-storage-cleanup-and-coordinator-checkpoint-20261025.md)。按峰值+20GiB规则继续，旧stage缺失不自动重下大包。
+
+协调器最新见[98](../research/98-r-v1-root-host-coordinator-20261025.md)：0020普通root-local源码/链接/耗尽P2修后复审完成；实际双PE高位夹具各32项/9snapshot/两故障零失败，旧耗尽分支精确4失败，清理恢复及独立绑定完成。普通窗口双PE各1415项零失败，但PE32首次清理回执丢失、断言失败，原因未知，整批仍拒绝；最终及收尾无pending/普通恢复已确认。保留该缺口，后续控制器先保存原始清理结果再判断，不盲重跑。继续producer租约/消息/进程退出/reparent→两/三进程实际呈现；foreign-child/完整桥接未通过，不切默认或提升游戏。最新私有恢复点work-resume-checkpoint-v2.json；原HY顺序、U8/15和Windows条件保持。
 
 CEF/foreign-child当前源准备见[95文末](../research/95-r-v1-legacy-window-bridge-20261025.md)：0019几何/独立裁剪容器/代次限定host helpers已精确重建并链接，源审两P2修后闭合；仍未签名/接route/运行或解除foreign-child拒绝。下一步root coordinator的事件/租约/退役，再做两/三进程真实验收；完整ABA/跨backend reparent等缺口保持，不能借旧1415作为新模块通过。
 
