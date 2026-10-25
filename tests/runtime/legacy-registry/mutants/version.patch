@@ -1,0 +1,12 @@
+DIAGNOSTIC ORACLE NEGATIVE ONLY: intentionally incorrect, never ship.
+--- a/dlls/winemac.drv/legacy_registry_unix.c
++++ b/dlls/winemac.drv/legacy_registry_unix.c
+@@ -485,7 +485,7 @@
+     UINT32 i;
+     LONG status;
+ 
+-    if (!result || result->magic != LEGACY_FIXTURE_MAGIC || result->version != 1) return STATUS_INVALID_PARAMETER;
++    if (!result || result->magic != LEGACY_FIXTURE_MAGIC) return STATUS_INVALID_PARAMETER;
+     for (i = 0; i < 32; ++i)
+         if (!((result->nonce[i] >= '0' && result->nonce[i] <= '9') ||
+               (result->nonce[i] >= 'a' && result->nonce[i] <= 'f'))) return STATUS_INVALID_PARAMETER;

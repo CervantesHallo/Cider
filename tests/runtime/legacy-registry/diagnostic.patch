@@ -1,0 +1,140 @@
+DIAGNOSTIC ONLY, apply after0017; never ordinary engine adoption.
+Add this directory to PE/native includes. Native uses fixture-native.inc.
+Use export spec with explicit winebuild -Fwinemac.drv, not its test filename.
+
+--- a/dlls/winemac.drv/legacy_registry.h
++++ b/dlls/winemac.drv/legacy_registry.h
+@@ -80,6 +80,7 @@
+ /* Native initialization: one stable PE callback address per process/bitted driver. */
+ NTSTATUS macdrv_legacy_registry_initialize(UINT64 callback);
+ NTSTATUS macdrv_legacy_registry_init(void *args);
++NTSTATUS macdrv_legacy_registry_probe(void *args);
+ LONG WINAPI macdrv_legacy_RegQueryValueExA(HKEY, LPCSTR, LPDWORD, LPDWORD, BYTE *, LPDWORD);
+ LONG WINAPI macdrv_legacy_RegSetValueExA(HKEY, LPCSTR, DWORD, DWORD, const BYTE *, DWORD);
+ LONG WINAPI macdrv_legacy_RegOpenKeyExA(HKEY, LPCSTR, DWORD, REGSAM, HKEY *);
+--- a/dlls/winemac.drv/legacy_registry_unix.c
++++ b/dlls/winemac.drv/legacy_registry_unix.c
+@@ -14,6 +14,9 @@
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
+ 
++static LONG diag_active, diag_fail_cleanup, diag_consumed;
++static HANDLE diag_thread;
++static UINT32 diag_calls[6];
+ static LONG64 callback_address;
+ struct registry_mapping_owner
+ {
+@@ -32,7 +35,15 @@
+ {
+     void *base = owner->base;
+     SIZE_T zero = 0;
+-    NTSTATUS status = NtFreeVirtualMemory(NtCurrentProcess(), &base, &zero, MEM_RELEASE);
++    NTSTATUS status;
++    /* Diagnostic-only failure: leave the real mapping allocated exactly once. */
++    if (NtCurrentTeb()->ClientId.UniqueThread == diag_thread &&
++        InterlockedCompareExchange(&diag_fail_cleanup, 0, 1) == 1)
++    {
++        InterlockedIncrement(&diag_consumed);
++        status = STATUS_ACCESS_DENIED;
++    }
++    else status = NtFreeVirtualMemory(NtCurrentProcess(), &base, &zero, MEM_RELEASE);
+     if (!status)
+     {
+         free(owner);
+@@ -279,6 +290,8 @@
+         call.version = MACDRV_LEGACY_REG_VERSION;
+         call.packet = (UINT_PTR)shared;
+         call.packet_size = r->total_size;
++        if (NtCurrentTeb()->ClientId.UniqueThread == diag_thread && r->operation < 6)
++            ++diag_calls[r->operation];
+         status = KeUserDispatchCallback(&call.dispatch, sizeof(call), &returned, &length);
+         if (!status)
+         {
+@@ -412,3 +425,5 @@
+     free(r);
+     return status;
+ }
++
++#include "fixture-native.inc"
+--- a/dlls/winemac.drv/legacy_registry_pe.c
++++ b/dlls/winemac.drv/legacy_registry_pe.c
+@@ -8,6 +8,20 @@
+ #include "winreg.h"
+ #include "winternl.h"
+ #include "legacy_registry.h"
++#include "fixture.h"
++
++static DWORD fixture_thread;
++static UINT32 fixture_calls[6];
++void legacy_fixture_pe_begin(void)
++{
++    memset(fixture_calls, 0, sizeof(fixture_calls));
++    fixture_thread = GetCurrentThreadId();
++}
++void legacy_fixture_pe_end(UINT32 *counts)
++{
++    memcpy(counts, fixture_calls, sizeof(fixture_calls));
++    fixture_thread = 0;
++}
+ 
+ static BOOL input_range(const struct macdrv_legacy_reg_request *r, UINT32 off, UINT32 len)
+ {
+@@ -134,6 +148,7 @@
+     if (r.operation != MACDRV_LEGACY_REG_QUERY && r.buffer_capacity)
+         return STATUS_INVALID_PARAMETER;
+ 
++    if (GetCurrentThreadId() == fixture_thread && r.operation < 6) ++fixture_calls[r.operation];
+     reply = (struct macdrv_legacy_reg_reply *)(packet + r.reply_offset);
+     memset(reply, 0, sizeof(*reply));
+     reply->magic = MACDRV_LEGACY_REG_MAGIC;
+--- a/dlls/winemac.drv/unixlib.h
++++ b/dlls/winemac.drv/unixlib.h
+@@ -24,6 +24,7 @@
+     unix_init,
+     unix_quit_result,
+     unix_legacy_registry_init,
++    unix_legacy_registry_probe,
+     unix_funcs_count
+ };
+ 
+--- a/dlls/winemac.drv/macdrv_main.c
++++ b/dlls/winemac.drv/macdrv_main.c
+@@ -611,6 +611,7 @@
+     macdrv_init,
+     macdrv_quit_result,
+     macdrv_legacy_registry_init,
++    macdrv_legacy_registry_probe,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_funcs) == unix_funcs_count );
+@@ -638,6 +639,7 @@
+     wow64_init,
+     macdrv_quit_result,
+     macdrv_legacy_registry_init,
++    macdrv_legacy_registry_probe,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_wow64_funcs) == unix_funcs_count );
+--- a/dlls/winemac.drv/dllmain.c
++++ b/dlls/winemac.drv/dllmain.c
+@@ -27,6 +27,7 @@
+ #include "shellapi.h"
+ #include "unixlib.h"
+ #include "legacy_registry.h"
++#include "fixture.h"
+ #include "wine/debug.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
+@@ -423,3 +424,12 @@
+     macdrv_module = instance;
+     return process_attach();
+ }
++
++NTSTATUS WINAPI cider_registry_probe(struct legacy_fixture *result)
++{
++    NTSTATUS status;
++    legacy_fixture_pe_begin();
++    status = MACDRV_CALL(legacy_registry_probe, result);
++    legacy_fixture_pe_end(result->peer_calls);
++    return status;
++}

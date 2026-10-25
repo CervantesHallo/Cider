@@ -1,0 +1,14 @@
+DIAGNOSTIC ORACLE NEGATIVE ONLY: intentionally incorrect, never ship.
+--- a/dlls/winemac.drv/legacy_registry_unix.c
++++ b/dlls/winemac.drv/legacy_registry_unix.c
+@@ -500,8 +500,8 @@
+     snprintf(path, sizeof(path), "Software\\CiderLegacyProbe\\%.*s", 32, result->nonce);
+     status = macdrv_legacy_RegCreateKeyExA(HKEY_CURRENT_USER, path, 0, NULL, 0, KEY_ALL_ACCESS, NULL, &root, &disposition);
+     VERIFY(status == ERROR_SUCCESS && root && disposition == REG_CREATED_NEW_KEY);
+-    if (status || !root || disposition != REG_CREATED_NEW_KEY) goto done;
+-    result->created_tree = 1;
++    if (status || !root) goto done;
++    result->created_tree = disposition == REG_CREATED_NEW_KEY;
+     bytes = malloc(result->value_bytes);
+     received = malloc(result->value_bytes + 17);
+     VERIFY(bytes && received);

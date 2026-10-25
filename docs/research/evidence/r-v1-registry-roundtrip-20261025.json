@@ -1,0 +1,720 @@
+{
+  "schema": "cider.r-v1-registry-roundtrip/v1",
+  "date": "2026-10-25",
+  "research": "docs/research/96-r-v1-registry-roundtrip-20261025.md",
+  "scope": "bounded Mac/Wine registry callbacks and RegCreate security attributes; private GUI/XPC experiments",
+  "publicInputs": [
+    {
+      "file": "engine/porting/wine-11.18/0018-kernelbase-preserve-registry-create-security-attributes.patch",
+      "sha256": "06aec53207cae127f6098107b7124ed6ff4384cb8b7162f71134bf2e8599e10a"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/README.md",
+      "sha256": "dd642b7d3d29b525a274822f941760f5ec5935687b8d463a5fa8718061bf9136"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/client.c",
+      "sha256": "22d9afa07f134d8a5aa8daa8238cf4ace0422361d579e4671b7802539512da06"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/diagnostic.patch",
+      "sha256": "2ec09e1d957a61fe63040dc41a1a1acff981d79defabd22bd7181afd9b36eae0"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/fixture-native.inc",
+      "sha256": "e19624e40fc67070d589885b131ba9b3619f5f2fa5daaf993e510077736c1346"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/fixture.h",
+      "sha256": "9a9727f179d6cb257372ab47ba410e6131ac6575b2e55e6a64267b4da94bed99"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/mutants/early.patch",
+      "sha256": "0a2f2151d4c9fe3f0ba32b7015e68544e3056b18009def61a999cef7af804212"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/mutants/partial.patch",
+      "sha256": "027505f7dad809473da4dc83e74ab434309a1b2733910490a89d86dba858b2b1"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/mutants/replay.patch",
+      "sha256": "25ac782adca81b622961e9ecd582cb97b291613b3e3b4b9569d623b74d8d2f66"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/mutants/unowned.patch",
+      "sha256": "3889fd300c6ba37fb8e087e2924c5d3f600fc771adb08a03514b3e5522be560c"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/mutants/version.patch",
+      "sha256": "0f3d0509f4c832b4526e5a07ba18b0e5b8eb21f370e6282fc1e82ea815e1a63c"
+    },
+    {
+      "file": "tests/runtime/legacy-registry/winemac-fixture.spec",
+      "sha256": "ae204020fe81760dbd1ade84b7de235129c8c16b3b47ec4eed998961afef8129"
+    },
+    {
+      "file": "tests/runtime/registry-security/README.md",
+      "sha256": "5139bf007b5abc53a223d802d8ec9416c267174752178aa53e902601218a2083"
+    },
+    {
+      "file": "tests/runtime/registry-security/probe.c",
+      "sha256": "e91ade549f09175f27f5a155f77743c1f7be6760af485298cc9920f45d37157a"
+    }
+  ],
+  "localReceipts": [
+    {
+      "file": "out/engine-dxmt-bridge-20261025/registry-runtime-independent-validation-v1.json",
+      "sha256": "02a09cbe20e1d75f44a5ff8c0158ac1465e90633df14793078f7e57ef6969344"
+    },
+    {
+      "file": "out/engine-dxmt-bridge-20261025/registry-security-reconstruction-v2.json",
+      "sha256": "546a44eb996ad911e785744a3453d8abae923a401ed6b506f0640a585929d29b"
+    },
+    {
+      "file": "out/engine-dxmt-bridge-20261025/registry-security-build-v2.json",
+      "sha256": "a54d2c379d2c5918a66f50b8ad2335e1f5bd92a973450099ebb868e1ffce5968"
+    },
+    {
+      "file": "out/engine-dxmt-bridge-20261025/registry-security-review-v2.json",
+      "sha256": "744cfdbff97eff6135a2d4fe7ee1f43edc2dd31ac0aec52480c6baa6bb3bc41a"
+    },
+    {
+      "file": "out/engine-dxmt-bridge-20261025/registry-runtime-fixture-v2/review-v3.json",
+      "sha256": "570af643b7713e1c18e7ddfee4d82ae1c41830131a2250fc24fbea3be42e1cf1"
+    },
+    {
+      "file": "out/engine-dxmt-bridge-20261025/registry-security-direct-v1/review-v1.json",
+      "sha256": "a7bd57dc0b46576259e07a2dd3fe3cf5d29f55de450fa33e3f522fe58fb0748a"
+    },
+    {
+      "file": "out/engine-dxmt-bridge-20261025/registry-observe-staging-binding-v4.json",
+      "sha256": "17fad7e0445d8b0e1e4bad2364b7a7afb0a3df17c1c9b1f0340a4207694c020e"
+    },
+    {
+      "file": "out/engine-dxmt-bridge-20261025/registry-roundtrip-runtime-v1.json",
+      "sha256": "769928c92aa3455d1418c072e104298ead06a1c3861bc2cfcbf8000f2e2314c8"
+    },
+    {
+      "file": "out/engine-dxmt-bridge-20261025/registry-roundtrip-runtime-v2.json",
+      "sha256": "8379b5ad022472f0d1b03c22c155807738f866090c2a859e1da475dca2c06a54"
+    },
+    {
+      "file": "out/engine-dxmt-bridge-20261025/registry-roundtrip-observe-v3.json",
+      "sha256": "7a48a022f2dde336a64b332bbaacba48ca788820085039d68092056ab8a37d2e"
+    }
+  ],
+  "runtimeRows": [
+    {
+      "record": "registry-roundtrip-security-v4.json",
+      "recordSHA256": "4890955bd4f54fa2f55a647297630e2aceff8e5486592141d280609aac50277a",
+      "arch": "x86_64",
+      "cliExit": 0,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 64,
+        "negative": 0,
+        "success": 1,
+        "status": 0,
+        "checks": 33,
+        "failures": 0,
+        "owned": 1,
+        "injections": 2,
+        "pending_open": 1,
+        "pending_create": 1,
+        "pending_final": 0,
+        "value_bytes": 131073,
+        "security_cases": 3,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          3,
+          1,
+          2,
+          5,
+          7
+        ],
+        "peer_calls": [
+          3,
+          1,
+          2,
+          5,
+          7
+        ]
+      },
+      "logSHA256": "de73758c1b483a4db17f9ec29b11b54aa61e23373d0ff17da1aafc3a59234ec5",
+      "sessionSHA256": "03c5cf044d1d2f5b96d026527af907d46b2605b97d574223cb566a10e1ec6edf",
+      "exeSHA256": "78f13e23c92148e78c095499a04a52c1616d5412c3ea5b1cb17f27fba1821c70",
+      "engine": "cider-lab-wine11.18-registry-security-r6-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-roundtrip-security-v4.json",
+      "recordSHA256": "4890955bd4f54fa2f55a647297630e2aceff8e5486592141d280609aac50277a",
+      "arch": "i686",
+      "cliExit": 0,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 32,
+        "negative": 0,
+        "success": 1,
+        "status": 0,
+        "checks": 33,
+        "failures": 0,
+        "owned": 1,
+        "injections": 2,
+        "pending_open": 1,
+        "pending_create": 1,
+        "pending_final": 0,
+        "value_bytes": 131073,
+        "security_cases": 3,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          3,
+          1,
+          2,
+          5,
+          7
+        ],
+        "peer_calls": [
+          3,
+          1,
+          2,
+          5,
+          7
+        ]
+      },
+      "logSHA256": "dcee9f3f1d639c8ffcfc4dda3fb54ad581dcc73c007d6ab846e53792ac008e0e",
+      "sessionSHA256": "ea6a700fae12fa28ba769da02415811c91a320a639de97f3a81f2518e5aa376c",
+      "exeSHA256": "7adbecb465d318b361be17f182af00bd057b0585b0d7b6ad1b57eee2a0a5abac",
+      "engine": "cider-lab-wine11.18-registry-security-r6-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-security-direct-runtime-v1.json",
+      "recordSHA256": "38d4b25483f4ecc3155e97d8d4bc11dcdbd6a38d0c74a6a6ddb04609913b2e4a",
+      "arch": "x86_64",
+      "cliExit": 0,
+      "fixture": {
+        "type": "registry-security-direct",
+        "bits": 64,
+        "checks": 195,
+        "failures": 0,
+        "cases": 18,
+        "views": 3
+      },
+      "logSHA256": "4833844c84b7fb32df52a5937e2b2f5b3e04a04df59419564d99cb34e6e31af7",
+      "sessionSHA256": "889d4bb715ced3f0b65153b9dc0b1330dbb15457df2b0e80f6c4fddd21681c31",
+      "exeSHA256": "f70f09ca0529c52619bc208690a064f6ce0d9c26f48d1ec2cf1ea8b3f1fc8665",
+      "engine": "cider-lab-wine11.18-registry-security-r6-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-security-direct-runtime-v1.json",
+      "recordSHA256": "38d4b25483f4ecc3155e97d8d4bc11dcdbd6a38d0c74a6a6ddb04609913b2e4a",
+      "arch": "i686",
+      "cliExit": 0,
+      "fixture": {
+        "type": "registry-security-direct",
+        "bits": 32,
+        "checks": 195,
+        "failures": 0,
+        "cases": 18,
+        "views": 3
+      },
+      "logSHA256": "3a84e0857bf9e157ccd2fde4aa2a29502c8b928695494377431b59397b40908a",
+      "sessionSHA256": "39fa8e86848506d56987298d890cd05b1732d7be282378934e24c6942d472207",
+      "exeSHA256": "d7b0ce135e7a898e280d8b129ff66c7bdb406b740ee1c419e8a1d85d66f1082e",
+      "engine": "cider-lab-wine11.18-registry-security-r6-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-security-direct-before-tail-v1.json",
+      "recordSHA256": "be77d86d059388d584c7a74f8ff54970d919f609442a20bf9a44d85c4a5c2b90",
+      "arch": "x86_64",
+      "cliExit": 1,
+      "fixture": {
+        "type": "registry-security-direct",
+        "bits": 64,
+        "checks": 195,
+        "failures": 12,
+        "cases": 18,
+        "views": 3
+      },
+      "logSHA256": "46d597a07d3e604d7fbae290707c7e704076ca70c18145d4913d1b92901328e4",
+      "sessionSHA256": "001e6f6379f67b79526f2e7b13af7f53d2a7f9204de640d63279affeff37f3c3",
+      "exeSHA256": "f70f09ca0529c52619bc208690a064f6ce0d9c26f48d1ec2cf1ea8b3f1fc8665",
+      "engine": "cider-lab-wine11.18-registry-security-r5-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-admission-x86_64-existing-v2.json",
+      "recordSHA256": "bfaf2c43db5c1eaffc271744e19765855dabc3f64d6bbf51de61631bbd4320da",
+      "arch": "x86_64",
+      "cliExit": 0,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 64,
+        "negative": 1,
+        "success": 1,
+        "status": 0,
+        "checks": 4,
+        "failures": 1,
+        "owned": 0,
+        "injections": 0,
+        "pending_open": 0,
+        "pending_create": 0,
+        "pending_final": 0,
+        "value_bytes": 131073,
+        "security_cases": 0,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "peer_calls": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ]
+      },
+      "logSHA256": "0d403335cd9e59bf5372a99bb307623a59b3bb0a120ed30d3c94952bc65b8e60",
+      "sessionSHA256": "eed42d9853a178adb0563404465b2969a8e5195c7cca72254cb31fecb0db6441",
+      "exeSHA256": "78f13e23c92148e78c095499a04a52c1616d5412c3ea5b1cb17f27fba1821c70",
+      "engine": "cider-lab-wine11.18-registry-security-r6-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-admission-x86_64-reject-v2.json",
+      "recordSHA256": "52564ae8f1bc36542173f89b493970471e6c4a144858a67bf591d2642f655b97",
+      "arch": "x86_64",
+      "cliExit": 0,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 64,
+        "negative": 2,
+        "success": 1,
+        "status": 3221225485,
+        "checks": 0,
+        "failures": 0,
+        "owned": 0,
+        "injections": 0,
+        "pending_open": 0,
+        "pending_create": 0,
+        "pending_final": 0,
+        "value_bytes": 0,
+        "security_cases": 0,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "peer_calls": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "logSHA256": "cd619c1798fbaa175d9e542ea7ad47edca9d5914cff63f9676f4e252e3cd35fc",
+      "sessionSHA256": "fcfca96a9ed739a99977fd3da14e1dfea4fa5d3b2d6f038bffb9b30959a6edc5",
+      "exeSHA256": "78f13e23c92148e78c095499a04a52c1616d5412c3ea5b1cb17f27fba1821c70",
+      "engine": "cider-lab-wine11.18-registry-security-r6-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-admission-i686-existing-v2.json",
+      "recordSHA256": "39e9317d6955d4fb1bc747934a049f8e943f711880da7863fa046481eee41f28",
+      "arch": "i686",
+      "cliExit": 0,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 32,
+        "negative": 1,
+        "success": 1,
+        "status": 0,
+        "checks": 4,
+        "failures": 1,
+        "owned": 0,
+        "injections": 0,
+        "pending_open": 0,
+        "pending_create": 0,
+        "pending_final": 0,
+        "value_bytes": 131073,
+        "security_cases": 0,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "peer_calls": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ]
+      },
+      "logSHA256": "e79297a0ffaabdf85907cb5f1e5f533831a95b296e8f26f57b63b614ca8456c3",
+      "sessionSHA256": "da7eafc336d54a8ac157deed93dac2d3fdcedeec8ba1f8d89be59d3e5e5cb4a0",
+      "exeSHA256": "7adbecb465d318b361be17f182af00bd057b0585b0d7b6ad1b57eee2a0a5abac",
+      "engine": "cider-lab-wine11.18-registry-security-r6-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-admission-i686-reject-v2.json",
+      "recordSHA256": "e1bb142b499bc2cc9634be1477caa8c13325bfdc2ad5bdaf09e99b9b1383d679",
+      "arch": "i686",
+      "cliExit": 0,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 32,
+        "negative": 2,
+        "success": 1,
+        "status": 3221225485,
+        "checks": 0,
+        "failures": 0,
+        "owned": 0,
+        "injections": 0,
+        "pending_open": 0,
+        "pending_create": 0,
+        "pending_final": 0,
+        "value_bytes": 0,
+        "security_cases": 0,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "peer_calls": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "logSHA256": "785a79bafced646c6ce859f02c92bd31249fe4bee471a2f00020049a08febe55",
+      "sessionSHA256": "75a3e81f2d2d17792f08d025e60ee4fa6025c1fa8e3303db51d721c620c09675",
+      "exeSHA256": "7adbecb465d318b361be17f182af00bd057b0585b0d7b6ad1b57eee2a0a5abac",
+      "engine": "cider-lab-wine11.18-registry-security-r6-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-mutant-replay-runtime-v1.json",
+      "recordSHA256": "d829bcdab536172ab54f206cd98aea83c59b083c3b5ce442226d6207c9941e94",
+      "arch": "x86_64",
+      "cliExit": 1,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 64,
+        "negative": 0,
+        "success": 0,
+        "status": 0,
+        "checks": 33,
+        "failures": 1,
+        "owned": 1,
+        "injections": 2,
+        "pending_open": 1,
+        "pending_create": 1,
+        "pending_final": 0,
+        "value_bytes": 131073,
+        "security_cases": 3,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          3,
+          1,
+          2,
+          6,
+          8
+        ],
+        "peer_calls": [
+          3,
+          1,
+          2,
+          6,
+          8
+        ]
+      },
+      "logSHA256": "e2e22f2737e9f5b830b4f483be2ea8035382f108a84e2e8a545633d8223bf9a4",
+      "sessionSHA256": "e5bc9202bd1093f901359742dba7432f07354004b1d1556acccb53ba9f0b85b0",
+      "exeSHA256": "78f13e23c92148e78c095499a04a52c1616d5412c3ea5b1cb17f27fba1821c70",
+      "engine": "cider-lab-wine11.18-registry-mutant-replay-r1-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-mutant-partial-runtime-v1.json",
+      "recordSHA256": "48ef3a3845b6abd6f1448c2a93b840b68815e55c500104ef0238bfec0497889e",
+      "arch": "x86_64",
+      "cliExit": 1,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 64,
+        "negative": 0,
+        "success": 0,
+        "status": 0,
+        "checks": 10,
+        "failures": 0,
+        "owned": 1,
+        "injections": 0,
+        "pending_open": 0,
+        "pending_create": 0,
+        "pending_final": 0,
+        "value_bytes": 131073,
+        "security_cases": 0,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          3,
+          1,
+          0,
+          1,
+          1
+        ],
+        "peer_calls": [
+          3,
+          1,
+          0,
+          1,
+          1
+        ]
+      },
+      "logSHA256": "c790bc8fd97b2cbd84b34ab21b35f9177e60f6b5d930621bb3499954b70e46c1",
+      "sessionSHA256": "3f2b420cc54c18c6c3b234a0a2bc8055fd9e0ce887a4449fbcf614424501a2c5",
+      "exeSHA256": "78f13e23c92148e78c095499a04a52c1616d5412c3ea5b1cb17f27fba1821c70",
+      "engine": "cider-lab-wine11.18-registry-mutant-partial-r1-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-mutant-unowned-runtime-v1.json",
+      "recordSHA256": "61f59d53cba246161825678fa97a10540a122996c088047a155104f599e99d00",
+      "arch": "x86_64",
+      "cliExit": 1,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 64,
+        "negative": 1,
+        "success": 0,
+        "status": 0,
+        "checks": 33,
+        "failures": 1,
+        "owned": 0,
+        "injections": 2,
+        "pending_open": 1,
+        "pending_create": 1,
+        "pending_final": 0,
+        "value_bytes": 131073,
+        "security_cases": 3,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          3,
+          1,
+          2,
+          5,
+          7
+        ],
+        "peer_calls": [
+          3,
+          1,
+          2,
+          5,
+          7
+        ]
+      },
+      "logSHA256": "f03f1ff9d6a4d0de08386c0ce1b8aedddaf1f2f154c7d3fd51eb888c5aeb7fe7",
+      "sessionSHA256": "bd9dcb91967c3a468964b4207a014de3e60716de12689b9e822295fe76da2278",
+      "exeSHA256": "78f13e23c92148e78c095499a04a52c1616d5412c3ea5b1cb17f27fba1821c70",
+      "engine": "cider-lab-wine11.18-registry-mutant-unowned-r1-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-mutant-version-runtime-v1.json",
+      "recordSHA256": "36c365c7d58c24b4ff0e47f84c999e7dde980c62413ecfe10590f3346225e8ad",
+      "arch": "x86_64",
+      "cliExit": 1,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 64,
+        "negative": 2,
+        "success": 0,
+        "status": 0,
+        "checks": 4,
+        "failures": 1,
+        "owned": 0,
+        "injections": 0,
+        "pending_open": 0,
+        "pending_create": 0,
+        "pending_final": 0,
+        "value_bytes": 131073,
+        "security_cases": 0,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ],
+        "peer_calls": [
+          0,
+          0,
+          0,
+          1,
+          1
+        ]
+      },
+      "logSHA256": "af590597f7b9dd56d7697fd91629d13d50651fe2dba7c55ee1107cbf8ebbec73",
+      "sessionSHA256": "bc15e2e7fa5f2a16accad75cd85614136fab105666c951b16516cbd2c2b2037f",
+      "exeSHA256": "78f13e23c92148e78c095499a04a52c1616d5412c3ea5b1cb17f27fba1821c70",
+      "engine": "cider-lab-wine11.18-registry-mutant-version-r1-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    },
+    {
+      "record": "registry-mutant-early-runtime-v1.json",
+      "recordSHA256": "72d7958dddda04c4a7258905e5f08d9a27692ec24b772288057a344d4497f802",
+      "arch": "x86_64",
+      "cliExit": 1,
+      "fixture": {
+        "type": "legacy-registry",
+        "bits": 64,
+        "negative": 1,
+        "success": 0,
+        "status": 3221225473,
+        "checks": 0,
+        "failures": 0,
+        "owned": 0,
+        "injections": 0,
+        "pending_open": 0,
+        "pending_create": 0,
+        "pending_final": 0,
+        "value_bytes": 0,
+        "security_cases": 0,
+        "cleanup_performed": 1,
+        "cleanup": 0,
+        "calls": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "peer_calls": [
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "logSHA256": "97f1a856a5c898d9b734b4553e9a7bed0c105d1ded22f19a15cc5a9fc21549ac",
+      "sessionSHA256": "52d60219fc230eea1b71f69b007b10e9674a4b9fd5ee5d8a8a5155a2745d51e3",
+      "exeSHA256": "78f13e23c92148e78c095499a04a52c1616d5412c3ea5b1cb17f27fba1821c70",
+      "engine": "cider-lab-wine11.18-registry-mutant-early-r1-x86_64",
+      "prefixModuleCount": 18,
+      "nativeModuleCount": 2,
+      "cleanupConfirmed": true
+    }
+  ],
+  "mutantReconstruction": [
+    {
+      "variant": "replay",
+      "patchSHA256": "25ac782adca81b622961e9ecd582cb97b291613b3e3b4b9569d623b74d8d2f66",
+      "sourceSHA256": "3ea49291cdc1d491e4a4d2401e1ff5cb37d3d4b0d8849f620241a3f9fb9ada85",
+      "exact": true
+    },
+    {
+      "variant": "partial",
+      "patchSHA256": "027505f7dad809473da4dc83e74ab434309a1b2733910490a89d86dba858b2b1",
+      "sourceSHA256": "5535068232515ae08f00c8d5ee06103e5f20f7e344b21ed057e5490670ecc6fe",
+      "exact": true
+    },
+    {
+      "variant": "unowned",
+      "patchSHA256": "3889fd300c6ba37fb8e087e2924c5d3f600fc771adb08a03514b3e5522be560c",
+      "sourceSHA256": "24dcfb0c14e8a398fe55652a6a6e353021f265b754238d318e0e9b539954e2d4",
+      "exact": true
+    },
+    {
+      "variant": "version",
+      "patchSHA256": "0f3d0509f4c832b4526e5a07ba18b0e5b8eb21f370e6282fc1e82ea815e1a63c",
+      "sourceSHA256": "406a7600b1715b39b6f3f3dfcd2f02edd15df487fb5e894a0157b81d0ad21e67",
+      "exact": true
+    },
+    {
+      "variant": "early",
+      "patchSHA256": "0a2f2151d4c9fe3f0ba32b7015e68544e3056b18009def61a999cef7af804212",
+      "sourceSHA256": "67a7eeea1e10d5ae04e0db66b258d461e722e0fd7a30606988cc3f2aec02b670",
+      "exact": true
+    }
+  ],
+  "positiveCallbackChecksPerPe": 33,
+  "positiveDirectChecksPerPe": 195,
+  "directCasesPerPe": 18,
+  "directViews": 3,
+  "callbackCounts": [
+    3,
+    1,
+    2,
+    5,
+    7
+  ],
+  "largeValueBytes": 131073,
+  "injectedCleanupFailuresPerPe": 2,
+  "allFinalRowsIndependentlyBound": true,
+  "ordinaryLabRestored": true,
+  "protectedFourUnchanged": true,
+  "defaultAdopted": false,
+  "nativeWindowsAccepted": false,
+  "fullRegistrySecurityAccepted": false,
+  "foreignChildOrGamesAccepted": false,
+  "windowsOperations": 0,
+  "actionsRuns": 0
+}

@@ -1,5 +1,7 @@
 # Engine R v1 主题迁移
 
+注册表往返最新见[96](../../docs/research/96-r-v1-registry-roundtrip-20261025.md)：0018修正底层RegCreate安全属性传递及尾部分隔符叶键；双PE回调各33项、直接A/W/三视图各195项通过，故障所有权、四admission负例和五错误变体拒绝已实际完成。公开夹具在tests/runtime/legacy-registry和registry-security；诊断不进入普通引擎，真实Windows/完整权限及完整桥接仍待，继续窗口生命周期和foreign-child/CEF。
+
 完整legacy窗口前端最新见[95](../../docs/research/95-r-v1-legacy-window-bridge-20261025.md)：0015/16/17保留24槽192B接口及120B快照，使用现有managed surface并修缓存/重入销毁；registry v2按位宽封送完整有效安全属性与动态数据。原M-A双PE各120 Present零失败并进入新前端。API往返/故障清理、反复窗口生命周期、视觉与foreign-child/CEF仍待；未进入默认配方或完整R v1验收。
 
 销毁依赖修复接续[94](../../docs/research/94-r-v1-gpu-teardown-20261025.md)：新增0012/13/14及私有MinGW TLS候选，保留原队列和GPU上传后备。最终两种PE的TLS/allocator新旧对照完成；R2仍失败，增加0014后R3原GPU各575项和offscreen各46通过。候选非默认，完整MF/CRT/legacy窗口/foreign-child/CEF与游戏仍待；原失败保留，不重做无变化同步性能队列。

@@ -990,5 +990,35 @@
     "foreignChildCefAccepted": false,
     "fullBridgeAccepted": false,
     "defaultAdopted": false
+  },
+  "registryRoundtripCandidate": {
+    "research": "docs/research/96-r-v1-registry-roundtrip-20261025.md",
+    "evidence": "docs/research/evidence/r-v1-registry-roundtrip-20261025.json",
+    "patch": {
+      "file": "engine/porting/wine-11.18/0018-kernelbase-preserve-registry-create-security-attributes.patch",
+      "sha256": "06aec53207cae127f6098107b7124ed6ff4384cb8b7162f71134bf2e8599e10a"
+    },
+    "engineID": "cider-lab-wine11.18-registry-security-r6-x86_64",
+    "diagnosticOnly": true,
+    "callbackChecksPerPe": 33,
+    "directApiChecksPerPe": 195,
+    "directCasesPerPe": 18,
+    "viewCount": 3,
+    "largeValueBytes": 131073,
+    "faultsConsumedPerPe": 2,
+    "nativeAndPeCounts": [
+      3,
+      1,
+      2,
+      5,
+      7
+    ],
+    "negativeAdmissionRuns": 4,
+    "incorrectMutantsRejected": 5,
+    "oldTrailingSeparatorFailures": 12,
+    "boundedMacRuntimeAccepted": true,
+    "nativeWindowsAccepted": false,
+    "fullBridgeAccepted": false,
+    "defaultAdopted": false
   }
 }

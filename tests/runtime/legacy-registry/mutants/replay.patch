@@ -1,0 +1,45 @@
+DIAGNOSTIC ORACLE NEGATIVE ONLY: intentionally incorrect, never ship.
+--- a/dlls/winemac.drv/legacy_registry_unix.c
++++ b/dlls/winemac.drv/legacy_registry_unix.c
+@@ -17,6 +17,7 @@
+ static LONG diag_active, diag_fail_cleanup, diag_consumed;
+ static HANDLE diag_thread;
+ static UINT32 diag_calls[6];
++static BOOL diag_replayed;
+ static LONG64 callback_address;
+ struct registry_mapping_owner
+ {
+@@ -71,6 +72,33 @@
+         if (!pending_mappings) pending_tail = &pending_mappings;
+     }
+     pthread_mutex_unlock(&mapping_lock);
++    if (owner && NtCurrentTeb()->ClientId.UniqueThread == diag_thread)
++    {
++        struct macdrv_legacy_reg_request *request = owner->base;
++        if (request->operation == MACDRV_LEGACY_REG_CREATE && !diag_replayed)
++        {
++            struct macdrv_legacy_reg_dispatch replay = {0};
++            struct macdrv_legacy_reg_reply *reply;
++            void *returned = NULL;
++            ULONG length = 0;
++            NTSTATUS status;
++            diag_replayed = TRUE;
++            replay.dispatch.callback = (UINT64)InterlockedCompareExchange64(&callback_address, 0, 0);
++            replay.magic = MACDRV_LEGACY_REG_MAGIC;
++            replay.version = MACDRV_LEGACY_REG_VERSION;
++            replay.packet = (UINT_PTR)owner->base;
++            replay.packet_size = request->total_size;
++            ++diag_calls[MACDRV_LEGACY_REG_CREATE];
++            status = KeUserDispatchCallback(&replay.dispatch, sizeof(replay), &returned, &length);
++            if (!status && returned == (BYTE *)owner->base + request->reply_offset &&
++                length == sizeof(*reply))
++            {
++                reply = returned;
++                if (!reply->status && reply->key)
++                    macdrv_legacy_RegCloseKey((HKEY)(LONG_PTR)(LONG)reply->key);
++            }
++        }
++    }
+     if (owner) release_mapping(owner);
+ }
+ 

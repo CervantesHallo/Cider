@@ -1,5 +1,7 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+回调真实运行接续[96](../research/96-r-v1-registry-roundtrip-20261025.md)：0018保留真实安全属性/继承和错误，修尾部分隔符叶键；双PE回调各33项、直接A/W及视图各195项通过，故障所有权/精确负例/错误变体拒绝已实际闭合。公开源码与运行输入精确绑定，私有诊断不作为普通采用；下一项仍是窗口释放重建与foreign-child/CEF。完整R v1、原生Windows/游戏和U8/15缺口不提升。
+
 完整legacy接口接续[95](../research/95-r-v1-legacy-window-bridge-20261025.md)：24槽192B表/120B快照及成组驱动已链接；原M-A真实双PE各120 Present零失败。3项限定源审P2修后闭合；registry v2真实往返/故障所有权、窗口生命周期/视觉与CEF跨进程继续。源码/链接/局部运行与完整桥接采用分开，不借初次呈现替代这些门槛，原U8/15不变。
 
 GPU销毁依赖最新见[94](../research/94-r-v1-gpu-teardown-20261025.md)：TLS/allocator双PE最小新旧对照完成；R2集成失败保持，0014修rtworkq payload/callback释放依赖后R3原GPU各575项及offscreen各46通过，原生异常严格拒绝。保留原图形/队列/上传后备，无测试pin或sleep。限定组件运行不提升为完整MF/CRT/R v1/游戏；接续完整legacy/foreign-child/CEF窗口，U8/15原失败不变。

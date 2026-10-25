@@ -1,0 +1,106 @@
+Forward actual RegCreateKeyExA/W security descriptors and handle inheritance.
+Intermediate routing/created parents retain default security; last actual components
+(including trailing separators) get caller attributes. Preserve native checks/errors.
+Native-Windows comparison remains a separate gate.
+
+--- a/dlls/kernelbase/registry.c
++++ b/dlls/kernelbase/registry.c
+@@ -358,13 +358,13 @@
+ }
+ 
+ static NTSTATUS create_key( HKEY *retkey, HKEY root, UNICODE_STRING name, ULONG options, ACCESS_MASK access,
+-                            const UNICODE_STRING *class, PULONG dispos );
++                            const SECURITY_ATTRIBUTES *security, const UNICODE_STRING *class, PULONG dispos );
+ 
+ static NTSTATUS create_subkey( HKEY *subkey, HKEY root, UNICODE_STRING *name, DWORD options, ACCESS_MASK access,
+-                               const UNICODE_STRING *class, PULONG dispos )
++                               const SECURITY_ATTRIBUTES *security, const UNICODE_STRING *class, PULONG dispos )
+ {
+     ACCESS_MASK access_64 = access & ~KEY_WOW64_32KEY;
+-    DWORD i = 0, len = name->Length / sizeof(WCHAR);
++    DWORD i = 0, next, len = name->Length / sizeof(WCHAR);
+     WCHAR *buffer = name->Buffer;
+     UNICODE_STRING str;
+     NTSTATUS status;
+@@ -378,7 +378,11 @@
+     if (i < len)
+         options &= ~REG_OPTION_CREATE_LINK;
+ 
+-    status = create_key( subkey, root, str, options, access_64, class, dispos );
++    /* A delimiter run can end the path; security belongs to the last actual
++     * component, even when its spelling includes trailing separators. */
++    next = i;
++    while (next < len && buffer[next] == '\\') next++;
++    status = create_key( subkey, root, str, options, access_64, next < len ? NULL : security, class, dispos );
+     if (!status)
+     {
+         while (i < len && buffer[i] == '\\') i++;
+@@ -392,7 +396,7 @@
+ 
+ /* wrapper for NtCreateKey that creates the key recursively if necessary */
+ static NTSTATUS create_key( HKEY *retkey, HKEY root, UNICODE_STRING name, ULONG options, ACCESS_MASK access,
+-                            const UNICODE_STRING *class, PULONG dispos )
++                            const SECURITY_ATTRIBUTES *security, const UNICODE_STRING *class, PULONG dispos )
+ {
+     NTSTATUS status = STATUS_OBJECT_NAME_NOT_FOUND;
+     HKEY subkey, subkey_root = root;
+@@ -403,7 +407,8 @@
+     {
+         OBJECT_ATTRIBUTES attr;
+ 
+-        InitializeObjectAttributes( &attr, &name, 0, root, NULL );
++        InitializeObjectAttributes( &attr, &name, security && security->bInheritHandle ? OBJ_INHERIT : 0,
++                                    root, security ? security->lpSecurityDescriptor : NULL );
+         if (options & REG_OPTION_OPEN_LINK) attr.Attributes |= OBJ_OPENLINK;
+ 
+         status = NtCreateKey( (HANDLE *)retkey, access, &attr, 0, class, options, dispos );
+@@ -432,12 +437,21 @@
+         status = STATUS_SUCCESS;
+         while (!status && name.Length)
+         {
+-            status = create_subkey( &subkey, subkey_root, &name, options, access, class, dispos );
++            status = create_subkey( &subkey, subkey_root, &name, options, access, security, class, dispos );
+             if (subkey_root && subkey_root != root) NtClose( subkey_root );
+             subkey_root = subkey;
+         }
+     }
+ 
++    /* Redirection/open fallback can return a freshly opened existing handle.
++     * Its inheritance flag belongs to the returned handle, not routing parents. */
++    if (!status && security && security->bInheritHandle)
++    {
++        OBJECT_HANDLE_FLAG_INFORMATION flags = { TRUE, FALSE };
++        status = NtSetInformationObject( subkey_root, ObjectHandleFlagInformation, &flags, sizeof(flags) );
++        if (status) NtClose( subkey_root );
++    }
++
+     if (!status)
+         *retkey = subkey_root;
+ 
+@@ -460,7 +474,7 @@
+         UNICODE_STRING name;
+ 
+         RtlInitUnicodeString( &name, root_key_names[idx] );
+-        if (create_key( &hkey, 0, name, 0, access, NULL, NULL )) return 0;
++        if (create_key( &hkey, 0, name, 0, access, NULL, NULL, NULL )) return 0;
+         TRACE( "%s -> %p\n", debugstr_w(name.Buffer), hkey );
+     }
+ 
+@@ -576,7 +590,7 @@
+     RtlInitUnicodeString( &nameW, name );
+     RtlInitUnicodeString( &classW, class );
+ 
+-    return RtlNtStatusToDosError( create_key( retkey, hkey, nameW, options, access, &classW, dispos ) );
++    return RtlNtStatusToDosError( create_key( retkey, hkey, nameW, options, access, sa, &classW, dispos ) );
+ }
+ 
+ 
+@@ -628,7 +642,7 @@
+     {
+         if (!(status = RtlAnsiStringToUnicodeString( &classW, &classA, TRUE )))
+         {
+-            status = create_key( retkey, hkey, NtCurrentTeb()->StaticUnicodeString, options, access, &classW, dispos );
++            status = create_key( retkey, hkey, NtCurrentTeb()->StaticUnicodeString, options, access, sa, &classW, dispos );
+             RtlFreeUnicodeString( &classW );
+         }
+     }
