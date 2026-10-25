@@ -1,0 +1,61 @@
+{
+  "schema": "cider.project-storage-cleanup/v1",
+  "recordedUTC": "2026-10-25T09:01:58.608683+00:00",
+  "initialFreeBytes": 495575040,
+  "finalSnapshotFreeBytes": 65234305024,
+  "netRecoveredBytes": 64738729984,
+  "netRecoveredGiB": 60.292640686035156,
+  "admissionRemoved": {
+    "bottles": 57,
+    "engines": 49,
+    "stages": 56
+  },
+  "redundantModuleBackupsRemoved": 39,
+  "oldWineCompileObjectsRemoved": 18054,
+  "sourceAndRawResultsPreserved": true,
+  "exactChangedComponentsRetainedBySHA256": true,
+  "productionAppBudgetAndTwoBottleConfigHashesUnchanged": true,
+  "userGameDataTouched": false,
+  "saveBackupsPreserved": true,
+  "currentInstalledCompilersAndWine1118BuildRetained": true,
+  "macEwdkDownloadCopyRemoved": true,
+  "windowsMachineTouched": false,
+  "ewdkHistoricalSHA256": "9f48251dd24ad31aac206d8256e95bda5f90a9783982c45a8aafeb9054562379",
+  "ewdkFutureMacCopyRequiresDownload": true,
+  "stageAliasesAreNotCompleteByteIdentity": true,
+  "localRecords": [
+    {
+      "path": "out/storage-cleanup-20261025/toolchain-cleanup.json",
+      "sha256": "3d2b69ba52f6c2c53f688663c915662870c89bcf067f450c6e3d221222e18daf",
+      "state": "complete"
+    },
+    {
+      "path": "out/storage-cleanup-20261025/admission-cleanup.json",
+      "sha256": "d0e8ebafb34394e2cf8d6ec904077d84fc615b9ce4285deec210c6d4cbefd524",
+      "state": "complete"
+    },
+    {
+      "path": "out/storage-cleanup-20261025/download-cleanup.json",
+      "sha256": "266583f074ad758d2e51f38266a8f34db7677b100b185c17391fa41cc529ca4c",
+      "state": "complete"
+    },
+    {
+      "path": "out/storage-cleanup-20261025/secondary-cleanup.json",
+      "sha256": "7f8308bb7c52d695a918dd856cdb2ab262bbf53beac486802a5a1d5c0a64a8ec",
+      "state": "complete"
+    },
+    {
+      "path": "out/storage-cleanup-20261025/completed-fixtures-cleanup.json",
+      "sha256": "5cca08dffffdccd1796e547a06121174823483aa234d4f292e0b9479d22e20df",
+      "state": "complete"
+    },
+    {
+      "path": "out/storage-cleanup-20261025/prefix-backup-cleanup.json",
+      "sha256": "261fb13e9738e55ee5ce2cdc08b74a30c8dea34654d7a0b736189c9b341807e4",
+      "state": "complete"
+    }
+  ],
+  "workResumeCheckpoint": "out/storage-cleanup-20261025/work-resume-checkpoint.json",
+  "actionsRuns": 0,
+  "newAutomations": 0
+}

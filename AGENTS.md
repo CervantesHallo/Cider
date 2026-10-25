@@ -12,6 +12,7 @@ Open-source macOS app (Apple Silicon) that runs Windows programs and games on Wi
 ## Project memory
 
 - Read `docs/PROJECT_MEMORY.md` when taking over this project. Keep confirmed user decisions, operational lessons, evidence boundaries, and failed experiments current there; source code and the roadmap remain authoritative for implementation state. Do not store credentials or unrelated personal data.
+- Development storage: check actual filesystem free space before disk-heavy work and reserve its expected peak plus 20 GiB. Retain the current working lab and necessary qualified references; after confirmed process cleanup and restoration, compact obsolete engine variants to exact component hashes/binaries and metadata, and remove regenerable stages, test prefixes and redundant backups. Keep sources, raw results, game data and saves. Consult the 2026-10-25 cleanup inventory before reusing old paths or downloading removed large packages; a manifest match alone is not byte identity.
 
 ## Layout
 

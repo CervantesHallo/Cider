@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+用户要求的紧急存储清理已完成，净回收约60.29GiB，系统可用约61GiB；源码/原始结果/变化模块与当前工具链、F27/MF工作环境和用户数据保留，见[97](../research/97-storage-cleanup-and-coordinator-checkpoint-20261025.md)。协调器普通源已到coordinator-source-v3并链接/限定复审闭合；低计数PE64原子集有真实32项结果，增强高位夹具已构建但未运行/复审待补。按该接续点继续，不从被清掉的整树路径自动重下大包，不把旧结果提升为新范围。HY顺序/Windows条件/foreign-child门槛保持。
+
 CEF/foreign-child当前源准备见[95文末](../research/95-r-v1-legacy-window-bridge-20261025.md)：0019几何/独立裁剪容器/代次限定host helpers已精确重建并链接，源审两P2修后闭合；仍未签名/接route/运行或解除foreign-child拒绝。下一步root coordinator的事件/租约/退役，再做两/三进程真实验收；完整ABA/跨backend reparent等缺口保持，不能借旧1415作为新模块通过。
 
 窗口生命周期后续已接续[95文末](../research/95-r-v1-legacy-window-bridge-20261025.md)：最终双PE各1415检查/4窗口/56交换链/168Present零失败，真实detach/destroy各56；夹具源审两P2修后复审及新运行完成。纹理读回不代替屏幕，精确重入/同token并发/foreign-child仍待。继续原CEF跨进程迁移，不切默认引擎。
