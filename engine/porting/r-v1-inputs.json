@@ -1085,6 +1085,12 @@
     "defaultAdopted": false,
     "controlledCleanupFaultScope": "single STOP delivery loss and worker exit after actual STOP wait only; failed NtClose/concurrent finalization still pending",
     "faultResearch": "docs/research/100-r-v1-process-lease-faults-20261025.md",
-    "faultEvidence": "docs/research/evidence/r-v1-process-lease-faults-20261025.json"
+    "faultEvidence": "docs/research/evidence/r-v1-process-lease-faults-20261025.json",
+    "actualNtCloseFailureAndSameHandleRetryRuntimeAccepted": true,
+    "inFlightNativeDecisionInvariantRuntimeAccepted": true,
+    "actualPeAckReceiptObserved": false,
+    "cocoaRetirementFenceImplemented": false,
+    "latestResearch": "docs/research/101-r-v1-real-close-inflight-20261026.md",
+    "latestEvidence": "docs/research/evidence/r-v1-real-close-inflight-20261026.json"
   }
 }

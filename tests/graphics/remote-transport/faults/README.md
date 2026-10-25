@@ -17,3 +17,11 @@ Wine源补丁在源码根目录 `patch -p1`；客户端补丁在父目录 `clien
 `stop-idle-observation.patch` / `worker-idle-observation.patch` 是失败路径的只读日志补充，应用于对应已改客户端。原CHECK、截止时间、成功路径和资源操作不变；只在失败返回前记录最后一次真实probe的有效性及计数。强负例验收还要求valid1、size48/version2、native producers/watch/hosts全0，而PE watch和timer owner各1；缺失或失败的probe不能冒充所有权缺陷。已通过的正常组无需为这条失败路径日志重跑。
 
 每轮必须实际确认所有子进程/owner退出、GUI真实退出、两次空观察、无pending，随后恢复普通配置/DLL。尤其worker负例故意保留进程内引用，断开CLI不能代替确认失败owner已经结束。原始异常和控制器失败保留。此处不覆盖失败NtClose/并发完成、完整heap、CAContext像素、CEF、游戏或性能，详见research100。
+
+## 真实 NtClose 与在途完成
+
+`close-handle-protection.patch` 加到同一诊断基底，配合 `close-client.patch` 的单个mode1客户端。它只在私有进程内对一个自有句柄设置真实ProtectFromClose，实际NtClose应失败c0000235，再清除保护；原清理队列保留owner，随后对同一句柄的实际重试应为0。客户端28/0，保留实际错误6。设置/清除失败、没执行真实失败或没关闭同一句柄均不能通过。
+
+继续叠加 `close-inflight-observation.patch` 后，原失败句柄仍由计数中的撤销调用局部持有时，触发实际PE STOP，并在1.5秒截止前读取实际native完成决定。NtQueryObject必须确认原句柄仍有效，inflight必须大于0。修后此时只能finalized0/watched1、决定STATUS_PENDING；再加 `close-inflight-before.patch` 故意去掉在途保护条件，应观察finalized1/watched0及过早SUCCESS。
+
+这里的主要负例是**实际完成决定违反在途所有权不变量**。它不是客户端退出码负例，也不保证稍后的资源一定泄漏：负例可能最终恢复，或只出现CHECK17/23归零失败，均须如实记录；其他异常不能接纳。观察点不宣称PE已收到ACK，完整返回、计数、真实句柄查询、实际线程及清理记录必须绑定。

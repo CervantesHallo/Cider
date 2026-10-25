@@ -1,0 +1,178 @@
+{
+  "schema": "cider.r-v1-real-close-inflight/v1",
+  "date": "2026-10-26",
+  "timezone": "Asia/Singapore",
+  "rawRoot": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025",
+  "files": [
+    {
+      "file": "tests/graphics/remote-transport/faults/close-handle-protection.patch",
+      "sha256": "66ccf938802217794850c03320773ec4f595129cc5479c9268908384d8ba8117"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/close-client.patch",
+      "sha256": "3d5d679b205ca8707eb4b734d9416276c976341501a7204aaea926477ec909d8"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/close-inflight-observation.patch",
+      "sha256": "2d2905ab921ab6120628e81aa8398a84689bac66ecaa33810c14b56f0eaefe9a"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/close-inflight-before.patch",
+      "sha256": "af4955355091b53491ce7f1549410d74af28ea7aefd5d70f8ecc833f88e37111"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/README.md",
+      "sha256": "de6279839c2b53c71183fe4693f7f306907862c2627fd61f2dcff3759e9ce66f"
+    }
+  ],
+  "records": [
+    {
+      "file": "transport-close-fault-v1/build-v1.json",
+      "sha256": "384555b7dfbfd6ef5c073510a0a8acefba1b163468d3dc7b31d832d66eab26b1"
+    },
+    {
+      "file": "transport-close-fault-parent-admission-v1.json",
+      "sha256": "3422f071f9324cafb9655bf69656fb1c5e3166fbb999693edb2f37150e9d3083"
+    },
+    {
+      "file": "transport-close-fault-runtime-v1.json",
+      "sha256": "5f1ee7caf40581687d48dfa09782004db47ab9ced95fb182de95cb5ca1d8a88d"
+    },
+    {
+      "file": "close-fault-independent-validation-v1.json",
+      "sha256": "bc89dc4ccdee2660632797f0abc560a0242856f983b5c42288c95fdb7dac111c"
+    },
+    {
+      "file": "transport-inflight-close-v1/build-v1.json",
+      "sha256": "6895ed0baec2db949ff4024c6b6bf50435f2b0b326baaf96356be8f39c95eb33"
+    },
+    {
+      "file": "transport-inflight-close-fixed-runtime-v1.json",
+      "sha256": "e3154235226bb3b15ee0eec4e1790103847f4a693394811de89ef466d6d46436"
+    },
+    {
+      "file": "transport-inflight-close-before-runtime-v1.json",
+      "sha256": "c30e927618b7257e522218571926c7161a9af9da885f548bc20a666d4a8a78c3"
+    },
+    {
+      "file": "inflight-v1-deadline-correction.json",
+      "sha256": "f1178b944d4b7bd93d7e635e903453cf788c71d96c30b928acb51431ab171fb5"
+    },
+    {
+      "file": "inflight-v2-preparation-failure.json",
+      "sha256": "ce65ac8fc5e32b4faf4c8b7f60a6f112ed56a3d0987c1521fe1cf330c782fc8a"
+    },
+    {
+      "file": "transport-inflight-close-v2/build-v1.json",
+      "sha256": "5847a452ee45fae3d9ab11de4be77e3f7bd2f70816c2e885d50f905ebe4e7db5"
+    },
+    {
+      "file": "transport-inflight-close-review-v2.json",
+      "sha256": "1bbcc12c206b888c569c45bbbb5674e1c01f4384c2599b4dd89d9b60c6e5667c"
+    },
+    {
+      "file": "transport-inflight-close-parent-admission-v2.json",
+      "sha256": "39c8221830aaccb4a7c7aa10c03c41343b2f587c555e8b953ab7c303dc54e99e"
+    },
+    {
+      "file": "transport-inflight-close-fixed-runtime-v2.json",
+      "sha256": "bcaa1987bccd5b2195a6609f394e695295ee5cc58099af36d37bd9e400c6b20e"
+    },
+    {
+      "file": "transport-inflight-close-before-runtime-v2.json",
+      "sha256": "f82b6e602313d16292b62866051f38075ebab8db5436d5a9465701b15a077079"
+    },
+    {
+      "file": "close-inflight-independent-validation-v1.json",
+      "sha256": "d92a8492b675d9ca30027cdba14ccc106d9b90e2c46b7b010104b8ded7468510"
+    },
+    {
+      "file": "public-close-inflight-reconstruction-v2.json",
+      "sha256": "f92ae0599e51d760153c4a3bd0e452ddc658fbd5e2b05995f1239ae27f29097b"
+    }
+  ],
+  "actualProtectedNtClose": {
+    "runs": 2,
+    "checksEach": 28,
+    "failures": 0,
+    "protectStatus": 0,
+    "closeStatus": "0xc0000235",
+    "clearStatus": 0,
+    "sameHandleRetryStatus": 0
+  },
+  "inFlightFinalDecision": {
+    "qualifiedRuns": 4,
+    "checksEach": 28,
+    "failures": 0,
+    "fixed": [
+      {
+        "arch": "x86_64",
+        "inflight": 1,
+        "finalized": false,
+        "watched": true,
+        "decision": "0x103",
+        "queryStatus": 0,
+        "handleCount": 3,
+        "elapsedNs": 240000
+      },
+      {
+        "arch": "i386",
+        "inflight": 2,
+        "finalized": false,
+        "watched": true,
+        "decision": "0x103",
+        "queryStatus": 0,
+        "handleCount": 3,
+        "elapsedNs": 222000
+      }
+    ],
+    "negative": [
+      {
+        "arch": "x86_64",
+        "inflight": 1,
+        "finalized": true,
+        "watched": false,
+        "decision": "0",
+        "queryStatus": 0,
+        "handleCount": 3,
+        "elapsedNs": 227000
+      },
+      {
+        "arch": "i386",
+        "inflight": 2,
+        "finalized": true,
+        "watched": false,
+        "decision": "0",
+        "queryStatus": 0,
+        "handleCount": 3,
+        "elapsedNs": 303000
+      }
+    ],
+    "primaryNegativeIsInvariantViolation": true,
+    "eventualLeakObserved": false,
+    "actualPeAckReceiptObserved": false,
+    "oldV1StrictDeadlineAccepted": false
+  },
+  "boundedIndependentSourceReview": {
+    "P1": 0,
+    "P2": 0,
+    "scope": "exact v2 timing/capture helper and negativepredicate"
+  },
+  "sourceReconstructionExact": true,
+  "qualifiedRuntimeCount": 6,
+  "ordinaryRestored": true,
+  "protectedFourUnchanged": true,
+  "artifactCompaction": {
+    "file": "out/storage-cleanup-20261025/close-inflight-batch-cleanup.json",
+    "sha256": "6445b8f2a818edb4293d34509eeb8fd5e2f81ea8789af35578ddba038607a7d4",
+    "deletedTrees": 15,
+    "actualReclaimedBytes": 116355072
+  },
+  "cocoaActualRetirementFenceImplemented": false,
+  "foreignRendererRouteEnabled": false,
+  "pixelsOrCefOrGameAccepted": false,
+  "defaultAdopted": false,
+  "windowsOperations": 0,
+  "actionsRuns": 0,
+  "newAutomations": 0
+}

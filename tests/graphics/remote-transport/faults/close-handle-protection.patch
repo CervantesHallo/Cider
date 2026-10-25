@@ -1,0 +1,35 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -570,7 +570,31 @@
+ static DWORD close_producer_process(struct remote_producer *producer, HANDLE process)
+ {
+     NTSTATUS status;
+-    if (!process || !(status = NtClose(process))) return ERROR_SUCCESS;
++    /* DIAGNOSTIC ONLY: a real protected handle makes one real NtClose fail.
++     * Clear protection on that same still-owned handle before queue recovery. */
++    if (!process) return ERROR_SUCCESS;
++    {
++        static LONG protect_once;
++        OBJECT_HANDLE_FLAG_INFORMATION flags = {FALSE, TRUE};
++        NTSTATUS protect_status = STATUS_UNSUCCESSFUL, clear_status = STATUS_UNSUCCESSFUL;
++        BOOL inject = !InterlockedCompareExchange(&protect_once, 1, 0);
++        if (inject)
++            protect_status = NtSetInformationObject(process, ObjectHandleFlagInformation, &flags, sizeof(flags));
++        status = NtClose(process);
++        if (inject)
++        {
++            if (!protect_status && status)
++            {
++                flags.ProtectFromClose = FALSE;
++                clear_status = NtSetInformationObject(process, ObjectHandleFlagInformation, &flags, sizeof(flags));
++            }
++            WARN("transport-close-fault first lease %#llx handle %p protect %#x close %#x clear %#x\n",
++                 (unsigned long long)producer->id, process, (unsigned)protect_status, (unsigned)status, (unsigned)clear_status);
++        }
++        else WARN("transport-close-fault retry lease %#llx handle %p close %#x\n",
++                  (unsigned long long)producer->id, process, (unsigned)status);
++    }
++    if (!status) return ERROR_SUCCESS;
+     pthread_mutex_lock(&remote_lock);
+     assert(!producer->cleanup_process);
+     producer->cleanup_process = process;

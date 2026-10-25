@@ -1,0 +1,107 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -8,6 +8,7 @@
+ #include <pthread.h>
+ #include <stdlib.h>
+ #include <string.h>
++#include <time.h>
+ #include "macdrv.h"
+ #include "winternl.h"
+ #include "remote_watch.h"
+@@ -23,6 +24,7 @@
+ struct producer_history;
+ struct remote_root;
+ static void producer_release(struct remote_producer *producer);
++static DWORD stop_producer_watch(struct remote_producer *producer);
+ static void root_revoke_producers(struct remote_root *root);
+ 
+ enum host_state { HOST_PENDING, HOST_INSTALLED, HOST_RETIRED };
+@@ -567,6 +569,53 @@
+     }
+     pthread_mutex_unlock(&remote_lock);
+ }
++/* DIAGNOSTIC ONLY: retain the failed-close handle locally until a real PE
++ * worker has executed native completion. Every field uses remote_lock. */
++static struct { UINT64 id; BOOL armed, seen, finalized, watched; UINT inflight; NTSTATUS decision; } inflight_fixture;
++static void diagnostic_inflight_close(struct remote_producer *producer, HANDLE process)
++{
++    struct timespec start, now;
++    LARGE_INTEGER pause = { .QuadPart = -10000 };
++    OBJECT_BASIC_INFORMATION information = {0};
++    BOOL seen = FALSE, finalized = FALSE, watched = FALSE, clock_ok;
++    LONGLONG elapsed = 0;
++    UINT inflight = 0;
++    NTSTATUS decision = STATUS_UNSUCCESSFUL, query;
++    DWORD stopped;
++    pthread_mutex_lock(&remote_lock);
++    memset(&inflight_fixture, 0, sizeof(inflight_fixture));
++    inflight_fixture.id = producer->id; inflight_fixture.armed = TRUE;
++    pthread_mutex_unlock(&remote_lock);
++    clock_ok = !clock_gettime(CLOCK_MONOTONIC, &start);
++    stopped = stop_producer_watch(producer); /* actual stop event, no lock held */
++    if (clock_ok)
++        for (;;)
++        {
++            if (clock_gettime(CLOCK_MONOTONIC, &now) ||
++                (elapsed = (now.tv_sec - start.tv_sec) * 1000000000LL + now.tv_nsec - start.tv_nsec) >= 1500000000LL) break;
++            pthread_mutex_lock(&remote_lock);
++            seen = inflight_fixture.seen;
++            if (seen)
++            {
++                finalized = inflight_fixture.finalized; watched = inflight_fixture.watched;
++                inflight = inflight_fixture.inflight; decision = inflight_fixture.decision;
++            }
++            pthread_mutex_unlock(&remote_lock);
++            if (clock_gettime(CLOCK_MONOTONIC, &now) ||
++                (elapsed = (now.tv_sec - start.tv_sec) * 1000000000LL + now.tv_nsec - start.tv_nsec) >= 1500000000LL)
++            { seen = FALSE; break; }
++            if (seen) break;
++            NtDelayExecution(FALSE, &pause);
++        }
++    query = NtQueryObject(process, ObjectBasicInformation, &information, sizeof(information), NULL);
++    if (!clock_ok || clock_gettime(CLOCK_MONOTONIC, &now) ||
++        (elapsed = (now.tv_sec - start.tv_sec) * 1000000000LL + now.tv_nsec - start.tv_nsec) >= 1500000000LL) seen = FALSE;
++    pthread_mutex_lock(&remote_lock); inflight_fixture.armed = FALSE; pthread_mutex_unlock(&remote_lock);
++    WARN("inflight-close snapshot id %#llx seen %u finalized %u watched %u inflight %u decision %#x query %#x handles %u stop %u elapsed %lld\n",
++         (unsigned long long)producer->id, seen, finalized, watched, inflight,
++         (unsigned)decision, (unsigned)query, (unsigned)information.HandleCount, (unsigned)stopped, (long long)elapsed);
++}
++
+ static DWORD close_producer_process(struct remote_producer *producer, HANDLE process)
+ {
+     NTSTATUS status;
+@@ -590,6 +639,8 @@
+             }
+             WARN("transport-close-fault first lease %#llx handle %p protect %#x close %#x clear %#x\n",
+                  (unsigned long long)producer->id, process, (unsigned)protect_status, (unsigned)status, (unsigned)clear_status);
++            if (!protect_status && status == STATUS_HANDLE_NOT_CLOSABLE && !clear_status)
++                diagnostic_inflight_close(producer, process);
+         }
+         else WARN("transport-close-fault retry lease %#llx handle %p close %#x\n",
+                   (unsigned long long)producer->id, process, (unsigned)status);
+@@ -729,6 +780,7 @@
+     struct remote_producer *producer;
+     DWORD cleanup_status;
+     BOOL pending;
++    NTSTATUS result;
+     if (!completion || !completion->lease_id || completion->outcome < MACDRV_REMOTE_WATCH_EXITED ||
+         completion->outcome > MACDRV_REMOTE_WATCH_FAILED ||
+         (completion->outcome != MACDRV_REMOTE_WATCH_FAILED && completion->error)) return STATUS_INVALID_PARAMETER;
+@@ -750,9 +802,16 @@
+     cleanup_status = producer_revoke(producer, FALSE);
+     pthread_mutex_lock(&remote_lock);
+     pending = !producer->finalized;
++    result = cleanup_status || pending ? STATUS_PENDING : STATUS_SUCCESS;
++    if (inflight_fixture.armed && inflight_fixture.id == producer->id && !inflight_fixture.seen)
++    {
++        inflight_fixture.finalized = producer->finalized; inflight_fixture.watched = producer->watched;
++        inflight_fixture.inflight = producer->cleanup_inflight; inflight_fixture.decision = result;
++        inflight_fixture.seen = TRUE;
++    }
+     pthread_mutex_unlock(&remote_lock);
+     producer_release(producer);
+-    return cleanup_status || pending ? STATUS_PENDING : STATUS_SUCCESS;
++    return result;
+ }
+ static UINT64 producer_acquire(HWND hwnd, UINT64 epoch, DWORD pid, DWORD tid, UINT64 generation, DWORD *error)
+ {

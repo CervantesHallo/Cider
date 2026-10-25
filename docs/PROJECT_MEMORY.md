@@ -1,8 +1,10 @@
 # Cider 项目持久记忆
 
-更新：2026-10-25。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
+更新：2026-10-26。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
 
-## 最新实际运行接续（2026-10-25）
+## 最新实际运行接续
+
+最新[101](research/101-r-v1-real-close-inflight-20261026.md)，2026-10-26 UTC+8：真实ProtectFromClose/NtClose失败c0000235/清除0/同句柄重试0，双向各28/0。原失败句柄仍由在途调用局部持有时触发真实PE STOP和native完成，最终v2修后双向inflight1/2、finalized0/watched1/PENDING、NtQueryObject0/HandleCount3；仅去掉在途保护的负例双向finalized1/watched0/SUCCESS且原句柄有效。四客户端均28/0且最终重试完成，**没观察到最终泄漏**，负例是实际完成决定不变量违规，不冒称程序失败或PE已收到ACK。最终快照elapsed240000/222000/227000/303000ns，仅运行证据非性能。父代理修观察器seen先于deadline漏洞，v1原不变量保留但不严格时间接纳，v2观察前/后/句柄query后都查时钟，独立限定复审0新P1/P2；一次误读v1hash的准备失败在变更前拒绝、原件保留。6限定运行独立raw/session/EXE/16PE+2native/F27/实际清理/普通恢复四摘要绑定。清理5引擎+5stage+5重复备份15树，差异/CAS/meta保留，实际回收约111MiB。接下来producer资源接入前必须补Cocoa实际移除完成栅栏：当前native退休只排队Cocoa移除，不等同物理层已移除，过早释放CAContext会留下ID复用窗口；这是下一提案待实现/审查/验收，foreign仍拒绝。原HY/U8/15/Windows忙待重启/门禁不改，全部代理关闭，无Windows/Actions/定时/Goal；AppModel非本批保留。重要经验：有界观察seen不能短路时钟，记录前后及实际query后均核对截止时间，记录耗时但不当性能基准。
 
 最新[100](research/100-r-v1-process-lease-faults-20261025.md)：0021两个指定故障已实际对照。一次丢STOP，修后双向各68/0、4租约完整；仅恢复丢ack来源负例各68/1精确CHECK17。真实STOP等待后worker自行终止，修后双向28/0；仅省略timer死worker引用归还负例各28/2精确17/23，实际FAILED995。8次主对照独立log/session/EXE/16PE+2native/F27核对、19份清理接纳；额外仅4次负例观察补证valid1/48Bv2、native三计数0/PEwatch及timer各1，8份清理接纳；正常基线不重跑。最初WARN未开导致的修后68/0但控制器拒绝，以及未运行的等待前worker故障v1均保留；v2以真实STOP保证顺序，独立源审两项限定0新P1/P2，日志观察增量父代理单独复核。所有代理关闭。完成4套故障引擎/4套stage/11重复备份共19树清理，逐类型/权限/摘要比较保留transport-r3基底，差异入CAS，实际回收约229MiB；原raw/source/用户数据保留。失败NtClose/并发完成仍未测→后续CAContext资源及事件/reparent→两三进程像素，foreign拒绝/默认/U8/15/HY顺序/Windows忙待重启保持，未操作Windows/Actions/定时/Goal；AppModel非本批不覆盖。
 
