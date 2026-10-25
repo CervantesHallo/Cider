@@ -1,0 +1,182 @@
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -4253,3 +4253,5 @@
+             [[window contentView] clearMarkedText];
+     });
+ }
++
++#include "cocoa.inc"
+--- a/dlls/winemac.drv/macdrv_main.c
++++ b/dlls/winemac.drv/macdrv_main.c
+@@ -606,6 +606,9 @@
+ }
+ 
+ 
++extern NTSTATUS macdrv_remote_transport_probe(void *args);
++extern NTSTATUS macdrv_retirement_fixture(void *args);
++
+ const unixlib_entry_t __wine_unix_call_funcs[] =
+ {
+     macdrv_init,
+@@ -614,6 +617,8 @@
+     macdrv_remote_watch_init,
+     macdrv_remote_watch_complete,
+     macdrv_remote_watch_recover,
++    macdrv_remote_transport_probe,
++    macdrv_retirement_fixture,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_funcs) == unix_funcs_count );
+@@ -644,6 +649,8 @@
+     macdrv_remote_watch_init,
+     macdrv_remote_watch_complete,
+     macdrv_remote_watch_recover,
++    macdrv_remote_transport_probe,
++    macdrv_retirement_fixture,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_wow64_funcs) == unix_funcs_count );
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -90,7 +90,8 @@
+ static UINT64 retirement_outstanding;
+ static struct remote_host *retirement_retries;
+ static struct remote_host **retirement_retry_tail = &retirement_retries;
+-static UINT64 next_identity = 1;
++static UINT64 next_identity = (UINT64)1 << 33; /* DIAGNOSTIC high-bit seed, never reset */
++static bool retirement_fixture_hold(struct remote_host *host);
+ 
+ /* Root epochs, tickets and update serials share a non-reusing namespace.
+  * Exhaustion is an actual admission failure, never wrap to an old capability. */
+@@ -186,6 +187,7 @@
+ }
+ static void submit_retirement(struct remote_host *host)
+ {
++    if (retirement_fixture_hold(host)) return; /* DIAGNOSTIC explicit held owner */
+     macdrv_window_release_remote_host_deferred_checked(host->root->window,
+         host->context_id, host->ticket, remote_retirement_complete, host);
+ }
+@@ -1037,3 +1039,35 @@
+     recovery->pending = count;
+     return STATUS_SUCCESS;
+ }
++
++/* Diagnostic-only read-only owner counts; not pixels or complete heap accounting. */
++#include "probe.h"
++NTSTATUS macdrv_remote_transport_probe(void *args)
++{
++    struct transport_probe *probe = args;
++    struct remote_root *root;
++    struct remote_host *host;
++    struct remote_producer *producer;
++    if (!probe || probe->size != sizeof(*probe) || probe->version != 2) return STATUS_INVALID_PARAMETER;
++    probe->roots = probe->producers = probe->watch_pins = probe->hosts = 0;
++    probe->target_active = probe->target_watched = 0;
++    pthread_mutex_lock(&remote_lock);
++    for (root = roots; root; root = root->next) ++probe->roots;
++    for (host = hosts; host; host = host->next) ++probe->hosts;
++    for (producer = producers; producer; producer = producer->next)
++    {
++        ++probe->producers;
++        if (producer->id == probe->target_lease && producer->active && producer->watch_started &&
++            producer->root->open && producer->root->revision) probe->target_active = 1;
++    }
++    for (producer = producer_watches; producer; producer = producer->watch_next)
++    {
++        ++probe->watch_pins;
++        if (producer->id == probe->target_lease) probe->target_watched = 1;
++    }
++    for (producer = producer_cleanup; producer; producer = producer->cleanup_next) ++probe->cleanup_pins;
++    pthread_mutex_unlock(&remote_lock);
++    return STATUS_SUCCESS;
++}
++
++#include "native.inc"
+--- a/dlls/winemac.drv/remote_watch_pe.c
++++ b/dlls/winemac.drv/remote_watch_pe.c
+@@ -26,6 +26,7 @@
+ };
+ static SRWLOCK watch_lock = SRWLOCK_INIT;
+ static struct process_watch *watches;
++static LONG fixture_live_watches, fixture_live_timers;
+ 
+ /* One timer per active process-local watch set. It supplies a runnable cleanup
+  * owner after publication failure or a dead wait worker, and is retired when
+@@ -41,8 +42,9 @@
+     if (active_timer) return ERROR_SUCCESS;
+     timer = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*timer));
+     if (!timer) return ERROR_NOT_ENOUGH_MEMORY;
++    InterlockedIncrement(&fixture_live_timers);
+     if (!CreateTimerQueueTimer(&timer->handle, NULL, recovery_tick, NULL, 250, 250, WT_EXECUTEDEFAULT))
+-    { error = GetLastError(); HeapFree(GetProcessHeap(), 0, timer); return error; }
++    { error = GetLastError(); InterlockedDecrement(&fixture_live_timers); HeapFree(GetProcessHeap(), 0, timer); return error; }
+     active_timer = timer;
+     return ERROR_SUCCESS;
+ }
+@@ -64,7 +66,10 @@
+     /* IO_PENDING confirms deferred cancellation; callbacks use NULL context,
+      * pinned driver code and the global protected registry, not this owner. */
+     if (error == ERROR_SUCCESS || error == ERROR_IO_PENDING)
++    {
++        InterlockedDecrement(&fixture_live_timers);
+         HeapFree(GetProcessHeap(), 0, timer);
++    }
+     else
+     {
+         AcquireSRWLockExclusive(&watch_lock);
+@@ -93,6 +98,7 @@
+     if (watch->process) CloseHandle(watch->process);
+     if (watch->stop) CloseHandle(watch->stop);
+     if (watch->thread) CloseHandle(watch->thread);
++    InterlockedDecrement(&fixture_live_watches);
+     HeapFree(GetProcessHeap(), 0, watch);
+ }
+ static struct process_watch *watch_find(UINT64 id)
+@@ -177,6 +183,7 @@
+     DWORD status;
+     if (!request->process_handle || !request->lease_id) return ERROR_INVALID_PARAMETER;
+     if (!(watch = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*watch)))) return ERROR_NOT_ENOUGH_MEMORY;
++    InterlockedIncrement(&fixture_live_watches);
+     watch->refs = 2;
+     watch->worker_ref_live = 1;
+     watch->completion.lease_id = request->lease_id;
+@@ -313,3 +320,28 @@
+     reply.status = request.operation == MACDRV_REMOTE_WATCH_START ? start_watch(&request) : stop_watch(request.lease_id);
+     return NtCallbackReturn(&reply, sizeof(reply), STATUS_SUCCESS);
+ }
++
++#include "probe.h"
++NTSTATUS WINAPI cider_remote_transport_probe(void *args)
++{
++    struct transport_probe *probe = args;
++    if (!probe || probe->size != sizeof(*probe) || probe->version != 2) return STATUS_INVALID_PARAMETER;
++    probe->pe_watches = InterlockedCompareExchange(&fixture_live_watches, 0, 0);
++    probe->cleanup_pins = InterlockedCompareExchange(&fixture_live_timers, 0, 0);
++    return MACDRV_CALL(remote_transport_probe, probe);
++}
++
++#include "fixture.h"
++NTSTATUS WINAPI cider_retirement_fixture(void *args)
++{
++    struct retirement_fixture *frame = args;
++    NTSTATUS status;
++    if (!frame || frame->size != sizeof(*frame) || frame->version != 1 || frame->reserved)
++        return STATUS_INVALID_PARAMETER;
++    status = MACDRV_CALL(retirement_fixture, frame);
++    frame->pe_watches = InterlockedCompareExchange(&fixture_live_watches, 0, 0);
++    frame->pe_timers = InterlockedCompareExchange(&fixture_live_timers, 0, 0);
++    if (!status && frame->operation == 5 && !frame->status && (frame->pe_watches || frame->pe_timers))
++        frame->status = ERROR_IO_PENDING;
++    return status;
++}
+--- a/dlls/winemac.drv/unixlib.h
++++ b/dlls/winemac.drv/unixlib.h
+@@ -27,6 +27,8 @@
+     unix_remote_watch_init,
+     unix_remote_watch_complete,
+     unix_remote_watch_recover,
++    unix_remote_transport_probe,
++    unix_retirement_fixture,
+     unix_funcs_count
+ };
+ 

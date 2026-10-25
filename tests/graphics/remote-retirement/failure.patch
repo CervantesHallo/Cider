@@ -1,0 +1,54 @@
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -4102,7 +4102,13 @@
+         @try
+         {
+             NSView *content = [window contentView];
+-            if (!content) removed = true; /* no layer can remain attached to this root */
++            static bool failure_once; /* main-thread only; no Windows API here */
++            if (completion && !failure_once)
++            {
++                failure_once = true;
++                ERR(@"retirement-fixture fail-once context %u ticket %llu\n", context_id, (unsigned long long)generation);
++            }
++            else if (!content) removed = true; /* no layer can remain attached to this root */
+             else if ([content isKindOfClass:[WineContentView class]])
+                 removed = [(WineContentView *)content removeCALayerHostView:context_id generation:generation];
+         }
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -160,7 +160,8 @@
+ static void remote_retirement_complete(void *context, bool removed)
+ {
+     struct remote_host *host = context;
+-    UINT64 ticket = host->ticket;
++    UINT64 ticket = host->ticket, failed_pending = 0, failed_total = 0;
++    BOOL failed_watched = FALSE, failed_finalized = FALSE;
+     pthread_mutex_lock(&remote_lock);
+     assert(host->retirement_pending && !host->retirement_queued);
+     if (removed)
+@@ -180,10 +181,23 @@
+         host->retry_next = NULL;
+         *retirement_retry_tail = host;
+         retirement_retry_tail = &host->retry_next;
++        failed_total = retirement_outstanding;
++        if (host->producer)
++        {
++            failed_pending = host->producer->pending_retirements;
++            failed_watched = host->producer->watched;
++            failed_finalized = host->producer->finalized;
++        }
+     }
+     pthread_mutex_unlock(&remote_lock);
+     if (removed) host_release(host);
+-    else ERR("remote Cocoa retirement failed; owner retained for ticket %#llx\n", (unsigned long long)ticket);
++    else
++    {
++        ERR("remote Cocoa retirement failed; owner retained for ticket %#llx\n", (unsigned long long)ticket);
++        WARN("retirement-fixture failure-owner ticket %#llx pending %llu watched %u finalized %u total %llu\n",
++             (unsigned long long)ticket, (unsigned long long)failed_pending,
++             (unsigned)failed_watched, (unsigned)failed_finalized, (unsigned long long)failed_total);
++    }
+ }
+ static void submit_retirement(struct remote_host *host)
+ {

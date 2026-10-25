@@ -1,5 +1,8 @@
 # Engine R v1 主题迁移
 
+最新[102](../../docs/research/102-r-v1-cocoa-model-retirement-20261026.md)：0022 Cocoa model退役完成owner已实现、链接和限定复审；真实selfprocess/CAContext两PE各20/0，省略保护负例各20/1精准CHECK12，受控false完成重试各20/0；原窗口各1415/56/168通过。raw/组件/清理恢复独立绑定，完成8整树已按差异归档清理。只证明model层，尚非compositor/GPU、跨进程renderer或游戏。下一终端完成发布/取消序号及producer资源仍提案，foreign/默认不启用。
+
+
 最新[101](../../docs/research/101-r-v1-real-close-inflight-20261026.md)：真实NtClose保护失败/同句柄成功重试双向各28/0；最终在途对照修后保留PENDING，去掉保护条件则在有效句柄仍在途时过早SUCCESS。四客户端28/0且最终关闭，负例依据是不变量而非泄漏。严格时钟/独立源审/raw组件清理绑定完成，已归档清理15整树。下一步先补Cocoa实际退役完成栅栏，再做producer资源/撤销状态、事件reparent及两三进程像素；当前该栅栏是提案，foreign/默认/游戏未启用。
 
 

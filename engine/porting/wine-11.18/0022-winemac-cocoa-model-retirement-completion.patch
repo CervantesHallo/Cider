@@ -1,0 +1,237 @@
+Cocoa model detach completion ownership; not compositor/GPU quiescence.
+
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -364,7 +364,7 @@
+     - (BOOL) addCALayerHostViewWithContextId:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z commit:(bool (*)(void *))commit context:(void *)context;
+     - (void) updateCALayerHost:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z;
+     - (void) removeCALayerHostView:(CAContextID)contextId;
+-    - (void) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation;
++    - (BOOL) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation;
+ 
+ @end
+ 
+@@ -721,10 +721,12 @@
+         }
+     }
+ 
+-    - (void) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation
++    - (BOOL) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation
+     {
+         WineRemoteLayerHost *host = [_caLayerHosts objectForKey:@(contextId)];
+         if (host && host.generation == generation) [self removeCALayerHostView:contextId];
++        host = [_caLayerHosts objectForKey:@(contextId)];
++        return !host || host.generation != generation;
+     }
+ 
+     - (void) removeCALayerHostView:(CAContextID)contextId
+@@ -4092,13 +4094,31 @@
+                                             frame, clip, z, valid_z, NULL, NULL, NULL);
+ }
+ 
++void macdrv_window_release_remote_host_deferred_checked(WineWindow *window, unsigned int context_id,
++    uint64_t generation, macdrv_remote_retirement_callback completion, void *context)
++{
++    OnMainThreadAsync(^{
++        bool removed = false;
++        @try
++        {
++            NSView *content = [window contentView];
++            if (!content) removed = true; /* no layer can remain attached to this root */
++            else if ([content isKindOfClass:[WineContentView class]])
++                removed = [(WineContentView *)content removeCALayerHostView:context_id generation:generation];
++        }
++        @catch (NSException *exception)
++        {
++            ERR(@"Cocoa remote retirement exception %@; completion remains failed\n", [exception name]);
++        }
++        @finally
++        {
++            if (completion) completion(context, removed);
++        }
++    });
++}
+ void macdrv_window_release_remote_host_deferred(WineWindow *window, unsigned int context_id, uint64_t generation)
+ {
+-    OnMainThreadAsync(^{
+-        NSView *content = [window contentView];
+-        if ([content isKindOfClass:[WineContentView class]])
+-            [(WineContentView *)content removeCALayerHostView:context_id generation:generation];
+-    });
++    macdrv_window_release_remote_host_deferred_checked(window, context_id, generation, NULL, NULL);
+ }
+ 
+ void macdrv_window_release_ca_layer_host_view(WineWindow *window, unsigned int context_id)
+--- a/dlls/winemac.drv/macdrv_cocoa.h
++++ b/dlls/winemac.drv/macdrv_cocoa.h
+@@ -561,6 +561,9 @@
+ extern void macdrv_window_update_remote_host(WineWindow *window, unsigned int context_id, uint64_t generation,
+                                               CGRect frame, CGRect clip, double z, bool valid_z);
+ extern void macdrv_window_release_remote_host_deferred(WineWindow *window, unsigned int context_id, uint64_t generation);
++typedef void (*macdrv_remote_retirement_callback)(void *context, bool removed);
++extern void macdrv_window_release_remote_host_deferred_checked(WineWindow *window, unsigned int context_id,
++    uint64_t generation, macdrv_remote_retirement_callback completion, void *context);
+ extern void macdrv_window_create_ca_layer_host_view(WineWindow *window, unsigned int context_id);
+ extern void macdrv_window_release_ca_layer_host_view(WineWindow *window, unsigned int context_id);
+ extern void macdrv_create_remote_layer(void* hwnd, unsigned int context_id);
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -45,7 +45,8 @@
+     UINT context_id;
+     UINT64 ticket, update_serial, prepared_revision;
+     enum host_state state;
+-    BOOL installed;
++    BOOL installed, retirement_pending, retirement_queued;
++    struct remote_host *retry_next;
+     struct remote_producer *producer;
+ };
+ struct producer_history
+@@ -63,6 +64,7 @@
+     DWORD pid;
+     UINT64 id, birth, generation, last_sequence;
+     UINT32 cleanup_inflight;
++    UINT64 pending_retirements;
+     BOOL active, listed, watched, watch_started, busy, cleanup_pending, cleanup_listed;
+     BOOL completion_requested, finalized;
+ };
+@@ -85,6 +87,9 @@
+ static pthread_mutex_t remote_lock = PTHREAD_MUTEX_INITIALIZER;
+ static struct remote_root *roots;
+ static struct remote_host *hosts;
++static UINT64 retirement_outstanding;
++static struct remote_host *retirement_retries;
++static struct remote_host **retirement_retry_tail = &retirement_retries;
+ static UINT64 next_identity = 1;
+ 
+ /* Root epochs, tickets and update serials share a non-reusing namespace.
+@@ -105,7 +110,7 @@
+ static void host_release(struct remote_host *host)
+ {
+     if (InterlockedDecrement(&host->refs)) return;
+-    assert(!host->predecessors);
++    assert(!host->predecessors && !host->retirement_pending && !host->retirement_queued);
+     producer_release(host->producer);
+     root_release(host->root);
+     free(host);
+@@ -133,20 +138,79 @@
+     for (cursor = &hosts; *cursor != host; cursor = &(*cursor)->next) assert(*cursor);
+     *cursor = host->next;
+     host->state = HOST_RETIRED;
++    if (host->installed)
++    {
++        host->retirement_pending = TRUE;
++        assert(retirement_outstanding != ~(UINT64)0);
++        ++retirement_outstanding;
++        if (host->producer)
++        {
++            assert(host->producer->pending_retirements != ~(UINT64)0);
++            ++host->producer->pending_retirements;
++        }
++    }
+     TRACE("remote retire root %p ticket %#llx context %u\n", host->root->hwnd,
+           (unsigned long long)host->ticket, host->context_id);
+     host->retire_next = *retired;
+     *retired = host;
+ }
++/* The retired-list owner transfers to one Cocoa completion or the retry FIFO.
++ * Count physical retirement before dropping the native lookup-list owner. */
++static void remote_retirement_complete(void *context, bool removed)
++{
++    struct remote_host *host = context;
++    UINT64 ticket = host->ticket;
++    pthread_mutex_lock(&remote_lock);
++    assert(host->retirement_pending && !host->retirement_queued);
++    if (removed)
++    {
++        host->retirement_pending = FALSE;
++        assert(retirement_outstanding);
++        --retirement_outstanding;
++        if (host->producer)
++        {
++            assert(host->producer->pending_retirements);
++            --host->producer->pending_retirements;
++        }
++    }
++    else
++    {
++        host->retirement_queued = TRUE;
++        host->retry_next = NULL;
++        *retirement_retry_tail = host;
++        retirement_retry_tail = &host->retry_next;
++    }
++    pthread_mutex_unlock(&remote_lock);
++    if (removed) host_release(host);
++    else ERR("remote Cocoa retirement failed; owner retained for ticket %#llx\n", (unsigned long long)ticket);
++}
++static void submit_retirement(struct remote_host *host)
++{
++    macdrv_window_release_remote_host_deferred_checked(host->root->window,
++        host->context_id, host->ticket, remote_retirement_complete, host);
++}
++static void retry_one_retirement(void)
++{
++    struct remote_host *host;
++    pthread_mutex_lock(&remote_lock);
++    host = retirement_retries;
++    if (host)
++    {
++        retirement_retries = host->retry_next;
++        if (!retirement_retries) retirement_retry_tail = &retirement_retries;
++        host->retirement_queued = FALSE;
++    }
++    pthread_mutex_unlock(&remote_lock);
++    if (host) submit_retirement(host);
++}
+ static void dispose_retired(struct remote_host *retired)
+ {
+     while (retired)
+     {
+         struct remote_host *next = retired->retire_next;
+-        if (retired->installed)
+-            macdrv_window_release_remote_host_deferred(retired->root->window,
+-                                                       retired->context_id, retired->ticket);
+-        host_release(retired);
++        retired->retire_next = NULL;
++        if (retired->installed) submit_retirement(retired);
++        else host_release(retired);
+         retired = next;
+     }
+ }
+@@ -504,7 +568,7 @@
+ {
+     if (!producer || InterlockedDecrement(&producer->refs)) return;
+     assert(!producer->process && !producer->cleanup_process && !producer->listed &&
+-           !producer->watched && !producer->cleanup_listed && !producer->cleanup_inflight);
++           !producer->watched && !producer->cleanup_listed && !producer->cleanup_inflight && !producer->pending_retirements);
+     root_release(producer->root);
+     free(producer);
+ }
+@@ -541,7 +605,7 @@
+     BOOL detached = FALSE;
+     pthread_mutex_lock(&remote_lock);
+     if (producer->watched && producer->completion_requested && !producer->process &&
+-        !producer->cleanup_process && !producer->cleanup_listed && !producer->cleanup_inflight)
++        !producer->cleanup_process && !producer->cleanup_listed && !producer->cleanup_inflight && !producer->pending_retirements)
+     {
+         for (cursor = &producer_watches; *cursor != producer; cursor = &(*cursor)->watch_next) assert(*cursor);
+         *cursor = producer->watch_next;
+@@ -859,6 +923,7 @@
+     if (size || !macdrv_remote_packet_header_valid(packet) || packet->flags ||
+         packet->root != wine_server_user_handle(hwnd)) return 0;
+     retry_producer_cleanup();
++    retry_one_retirement();
+     status = NtQueryInformationProcess(NtCurrentProcess(), ProcessTimes, &times, sizeof(times), NULL);
+     if (status) { error = RtlNtStatusToDosError(status); goto reply; }
+     if (packet->root_pid || packet->root_create_time || !packet->producer_pid || !packet->producer_tid) goto reply;
+@@ -963,8 +1028,11 @@
+     if (!recovery || recovery->size != sizeof(*recovery) || recovery->version != MACDRV_REMOTE_WATCH_VERSION || recovery->reserved)
+         return STATUS_INVALID_PARAMETER;
+     retry_producer_cleanup();
++    retry_one_retirement();
+     pthread_mutex_lock(&remote_lock);
+     for (producer = producer_cleanup; producer; producer = producer->cleanup_next) ++count;
++    if (retirement_outstanding >= ~(UINT32)0 - count) count = ~(UINT32)0;
++    else count += (UINT32)retirement_outstanding;
+     pthread_mutex_unlock(&remote_lock);
+     recovery->pending = count;
+     return STATUS_SUCCESS;

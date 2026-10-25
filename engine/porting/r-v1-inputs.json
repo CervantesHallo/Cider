@@ -1092,5 +1092,28 @@
     "cocoaRetirementFenceImplemented": false,
     "latestResearch": "docs/research/101-r-v1-real-close-inflight-20261026.md",
     "latestEvidence": "docs/research/evidence/r-v1-real-close-inflight-20261026.json"
+  },
+  "cocoaModelRetirementCandidate": {
+    "research": "docs/research/102-r-v1-cocoa-model-retirement-20261026.md",
+    "evidence": "docs/research/evidence/r-v1-cocoa-model-retirement-20261026.json",
+    "patch": {
+      "file": "engine/porting/wine-11.18/0022-winemac-cocoa-model-retirement-completion.patch",
+      "sha256": "a1395e6c2d94abd61d0ab2b0368446077fadcc80e5215a7dacf88bc23424bde4"
+    },
+    "ordinaryNativeLinked": true,
+    "sourceReconstructionExact": true,
+    "diagnosticEachPe": {
+      "fixedChecks": 20,
+      "fixedFailures": 0,
+      "beforeFailures": 1,
+      "beforeCheck": 12,
+      "controlledFailureRetryChecks": 20,
+      "controlledFailureRetryFailures": 0
+    },
+    "affectedWindowChecksEachPe": 1415,
+    "scope": "Cocoa model detach only; actualselfprocess context/lease; notcompositor/GPU/foreignrouting",
+    "persistentTerminalPublicationImplemented": false,
+    "foreignRendererRouteEnabled": false,
+    "defaultAdopted": false
   }
 }

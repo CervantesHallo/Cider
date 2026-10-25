@@ -1,0 +1,205 @@
+{
+  "schema": "cider.r-v1-cocoa-model-retirement/v1",
+  "date": "2026-10-26",
+  "rawRoot": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025",
+  "files": [
+    {
+      "file": "engine/porting/wine-11.18/0022-winemac-cocoa-model-retirement-completion.patch",
+      "sha256": "a1395e6c2d94abd61d0ab2b0368446077fadcc80e5215a7dacf88bc23424bde4"
+    },
+    {
+      "file": "tests/graphics/remote-retirement/README.md",
+      "sha256": "5d10a5c866439643c40b4440204ed68569be5bf26b9ca2d425e2af983850286b"
+    },
+    {
+      "file": "tests/graphics/remote-retirement/before.patch",
+      "sha256": "1b583b0dda9240807672deb43e55c47c8fb6f292d8c3648b979e356aee1ef74f"
+    },
+    {
+      "file": "tests/graphics/remote-retirement/client.c",
+      "sha256": "0987a61a44e4041eb6d13b3a1c65ce0807e882dc8397674f0ab2536da710c13e"
+    },
+    {
+      "file": "tests/graphics/remote-retirement/cocoa.inc",
+      "sha256": "37e6ea4b4502a5e201d03f80426e1f04117ce9793c2c6791a50a5f92d11d92b9"
+    },
+    {
+      "file": "tests/graphics/remote-retirement/diagnostic.patch",
+      "sha256": "74cdf1feb034506c13b33abcd8d1ca76df4ac00f9b4828438b93369b95b8aa11"
+    },
+    {
+      "file": "tests/graphics/remote-retirement/failure.patch",
+      "sha256": "9d9b217c916ca4492f23fb38921efcd9bb1c2168a138588861ea5539c26e5fa2"
+    },
+    {
+      "file": "tests/graphics/remote-retirement/fixture.h",
+      "sha256": "9ef6ebfff3f927fe8fa1abd2c7c20af7b153ee286202c8e5135366ebac921c17"
+    },
+    {
+      "file": "tests/graphics/remote-retirement/native.inc",
+      "sha256": "57a455e7008f6d15a92d127f07fb61d412568c2832c1c46d9a983028d9920fca"
+    },
+    {
+      "file": "tests/graphics/remote-retirement/probe.h",
+      "sha256": "6c251cdfc9e4ba34a73231ca34c9497e40e0575248322c7f3fb54eacbf281b02"
+    },
+    {
+      "file": "tests/graphics/remote-retirement/winemac-fixture.spec",
+      "sha256": "7079a07d9e1430b1f361d1e14da076ad9f4902fb3f55d44353b2a16a9b2322ed"
+    }
+  ],
+  "records": [
+    {
+      "file": "retirement-fence-build-v2/build-v1.json",
+      "sha256": "5de17ec072762dcba0f2eda73e2bc7997176c80d2ecca178bdf3339a525c1a3b"
+    },
+    {
+      "file": "retirement-fence-build-v3/build-v1.json",
+      "sha256": "399ee40a2455fc2b928763d3dab0d39ee2ff933610b2cea159a148789e4e8edf"
+    },
+    {
+      "file": "retirement-fence-warning-origin-v3.json",
+      "sha256": "d7f65a13ae47b920607c4db6d93b46aab17b3d519a455caa0ed658a1ccf0fb92"
+    },
+    {
+      "file": "retirement-fence-review-v3.json",
+      "sha256": "213d9c622a3aef7a231dd2084cb6b686ffd6ee9d5f14f7fad09e9622107ae8f7"
+    },
+    {
+      "file": "retirement-fixture-integration-review-v1.json",
+      "sha256": "27deb925520031fe78f30e71c8b730467fb16dbf92202e1ed0db1500f9459ea1"
+    },
+    {
+      "file": "retirement-runtime-parent-admission-v1.json",
+      "sha256": "a3de5b9e1964761ebe5ca1a1672f238ea401b79e2224a19b02aa58821328f4c1"
+    },
+    {
+      "file": "retirement-fence-client-build-v2/build-v1.json",
+      "sha256": "56fcfabc42dbd69cab7463471338a5a74fde22411447ceb523efa2965a0c8196"
+    },
+    {
+      "file": "retirement-fence-client-build-v3/build-v1.json",
+      "sha256": "9f8aae255a6a9ff9a9b52a6957ab2b443b492faeef1128f702eb077a26a881b7"
+    },
+    {
+      "file": "retirement-fence-diagnostic-build-v2/build-v1.json",
+      "sha256": "e32fdca55026838bd3ba71a4498d995d0de3fce55f0310399346705e92c2c511"
+    },
+    {
+      "file": "retirement-fence-diagnostic-build-v3/build-v1.json",
+      "sha256": "a1966d081fd43dec22f90d170fbfdf53d92eb04fd4841866b92c90b7601842a4"
+    },
+    {
+      "file": "retirement-fence-before-build-v1/build-v1.json",
+      "sha256": "9d578e35ad622490a9c78675527f61b8e7c770cc7e414bc0152a6b6df19fc919"
+    },
+    {
+      "file": "retirement-fence-failure-build-v1/build-v1.json",
+      "sha256": "72c0ad06c747a41ab42434021163c3b72cc080799088a00fd71e78b55d1649bd"
+    },
+    {
+      "file": "retirement-fence-failure-build-v2/build-v1.json",
+      "sha256": "20f7d4826b352aed577bbd65f2d9121691d112060d1a2b99caa431088ea116ed"
+    },
+    {
+      "file": "retirement-failure-parent-admission-v1.json",
+      "sha256": "2395dbd93a0aeff0729de7acdd70347db4b1b04b564c988ded04f78a60333f3a"
+    },
+    {
+      "file": "retirement-fence-fixed-runtime-v1.json",
+      "sha256": "b72dc80d9f269941730cf426d239b4fc5c2ab11a0b92fe25982a3009d76854da"
+    },
+    {
+      "file": "retirement-fence-before-runtime-v1.json",
+      "sha256": "39eba41b624894fb4838ad1f201ebed753ca7ee9cdf182b362352fa35b6d1a2c"
+    },
+    {
+      "file": "retirement-fence-failure-runtime-v1.json",
+      "sha256": "c5508a2f32f5abe39b7d2d9aad713ec6e65d01a9f0fa92f851cf6461db72cbe6"
+    },
+    {
+      "file": "retirement-runtime-independent-validation-v1.json",
+      "sha256": "ec5a13432cc43b9135a882a343001ef3f73c29a5000c0d560f58c67597a312ac"
+    },
+    {
+      "file": "retirement-window-lifecycle-v1.json",
+      "sha256": "44908117053f6aa6f8475e37b93e241346ffb8e0fee4f1993eaa6197cdd5d7d2"
+    },
+    {
+      "file": "retirement-window-independent-validation-v1.json",
+      "sha256": "f3d19ac94fae5809c5ee91ff1e166859fef3ba2bce8f6fa85ce2e433828dedfa"
+    },
+    {
+      "file": "retirement-public-reconstruction-v1.json",
+      "sha256": "6e15a80f87d6a91cd6cbed4b680ddefe8d2ac854b864eb6ed01f59f8d8295f8e"
+    }
+  ],
+  "ordinarySourceFiles": 3,
+  "ordinaryNativeLinked": true,
+  "unchangedSdkWarnings": 10,
+  "sourceReconstructionExact": true,
+  "boundedIndependentSourceReview": {
+    "P1": 0,
+    "P2": 0,
+    "scope": "ordinary three-file fence and fixedfixture integration; controlled falsecompletion delta parent-reviewed separately"
+  },
+  "diagnostic": {
+    "nativeUnixEntries": 8,
+    "wow64UnixEntries": 8,
+    "fixtureBytes": 80,
+    "processTopology": "same-process root/child/realCAContext/producer",
+    "fixed": {
+      "pe64Checks": 20,
+      "pe32Checks": 20,
+      "failures": 0
+    },
+    "before": {
+      "pe64Checks": 20,
+      "pe32Checks": 20,
+      "failuresEach": 1,
+      "onlyFailedCheck": 12
+    },
+    "falseCompletionRetry": {
+      "pe64Checks": 20,
+      "pe32Checks": 20,
+      "failures": 0,
+      "failuresInjectedEach": 1,
+      "ownerAfterFailure": {
+        "pending": 1,
+        "watched": 1,
+        "finalized": 0,
+        "retirementTotal": 1
+      }
+    },
+    "lease": 8589934607,
+    "ticket": 8589934608,
+    "actualContextIDsFromCAContext": true,
+    "high32BitsVerified": true
+  },
+  "affectedWindow": {
+    "checksEach": 1415,
+    "swapchainsEach": 56,
+    "presentsEach": 168,
+    "snapshotDetachDestroyEach": 56,
+    "failures": 0
+  },
+  "ordinaryRestored": true,
+  "protectedFourUnchanged": true,
+  "artifactCompaction": {
+    "file": "out/storage-cleanup-20261025/retirement-model-batch-cleanup.json",
+    "sha256": "fdfa942feee3146cc1cc1ff72273d4066ee766b3f5c1499e82bdbf31d6b87b77",
+    "deletedTrees": 8,
+    "actualReclaimedBytes": 95526912,
+    "retainedWorkingEngine": "cider-lab-wine11.18-retirement-fence-fixed-r1-x86_64"
+  },
+  "modelDetachFenceImplemented": true,
+  "compositorGpuQuiescenceAccepted": false,
+  "completeContextIdAbaAccepted": false,
+  "persistentTerminalPublicationImplemented": false,
+  "foreignRendererRouteEnabled": false,
+  "pixelsCefGameAccepted": false,
+  "defaultAdopted": false,
+  "windowsOperations": 0,
+  "actionsRuns": 0,
+  "newAutomations": 0
+}
