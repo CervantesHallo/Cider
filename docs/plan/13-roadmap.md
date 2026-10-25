@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+CEF/foreign-child当前源准备见[95文末](../research/95-r-v1-legacy-window-bridge-20261025.md)：0019几何/独立裁剪容器/代次限定host helpers已精确重建并链接，源审两P2修后闭合；仍未签名/接route/运行或解除foreign-child拒绝。下一步root coordinator的事件/租约/退役，再做两/三进程真实验收；完整ABA/跨backend reparent等缺口保持，不能借旧1415作为新模块通过。
+
 窗口生命周期后续已接续[95文末](../research/95-r-v1-legacy-window-bridge-20261025.md)：最终双PE各1415检查/4窗口/56交换链/168Present零失败，真实detach/destroy各56；夹具源审两P2修后复审及新运行完成。纹理读回不代替屏幕，精确重入/同token并发/foreign-child仍待。继续原CEF跨进程迁移，不切默认引擎。
 
 最新回调接续[96](../research/96-r-v1-registry-roundtrip-20261025.md)：0018修真实RegCreate安全属性及尾部分隔符；双PE各33回调检查/195直接API检查通过，四精确负例与五故意错误变体拒绝完成，14运行独立绑定。原底层4失败和旧尾路径12失败保留；不是完整权限/Windows/内核/游戏验收。诊断候选不采用，继续95的窗口释放/重建→foreign-child/CEF；HY顺序、U8/15、Windowsbusy待重启不变。

@@ -85,3 +85,15 @@
 父代理已有 `foreign-geometry-v1/remote_geometry.c` 准备源：使用 child **client rect**，将完整源 frame 与祖先交集 clip 分开，显式隐藏真实零面积；防观察到的重复祖先，不照搬旧固定深度上限。显式 SDK15.4/min14 原生编译零诊断；尚未链接到驱动、没有运行验收，也没有解除 foreign-child 拒绝。不得拿该对象文件作为完成证据。
 
 该方案的收益是保留客户端纹理尺寸和真实父子关系，避免裁剪时缩放整图；成本是 host/context 状态、窗口事件路由和额外裁剪状态。验收要分别覆盖两/三进程、带边框/嵌套、零尺寸恢复、排序、重建失败、先后销毁及 reparent；任意 region、混合本地/远程遮挡、context ID 复用和无重建 local↔foreign 转换仍是未解项。提案不进入默认配方，回退仍是原稳定引擎。所有子代理已关闭，继续以此接续点实施。
+
+### 跨进程宿主基础候选 0019（已链接，未运行）
+
+上述准备继续形成 0019：child client 几何和祖先 clip 保持独立；Cocoa 新容器以完整图像为源，只裁剪可见区域，实际零面积保持隐藏，Retina 切换按同一 raw 坐标重放。新 host 建立后才替换旧项，失败保留旧项；创建返回实际安装结果。保留旧 root 兼容入口，没有解除 foreign-child 分支的拒绝。
+
+首版局部源审两项 P2 与父代理自审一致：新容器未继承父 layer 的翻转坐标，以及迟到更新/删除可能误作用于同 context 的新 host。最终 v4 继承实际父几何约定，新 API 带完整 uint64 generation，主线程精确检查后才更新/删除；已有 slot 的相同 create 幂等、旧代次不能替换新代次，关闭窗口不再创建/更新。复审两项在限定调用契约下闭合，无新增具体 P1/P2。
+
+这些 helper **要求未来 root coordinator** 持有有效代次：为替换分配不同且不复用的代次、绑定 root/content 实例、保存退役历史并拒绝空 slot 中的迟到 create。旧 generation0/按 context 删除入口不能混入新托管所有权。没有把 helper 内的代次比较当作完整 HWND/context ABA、进程租约或重设父级已解决。
+
+最终五文件 zero fuzz/offset 精确重建，显式 SDK15.4/min14 编译并链接私有 `winemac.so`。Cocoa 10 条警告的消息和源码行全部与原件一致，无新增警告。首次链接暴露 native 几何函数误调用 PE `IntersectRect`，失败原件保留；改用真实等价的四边 max/min 相交后，v3/v4 链接通过。当前源为 `foreign-source-v4`，构建/限定复审/绑定在 `foreign-build-v4`。
+
+尚未签名、组装运行或进入默认引擎；路由、root/child 生命周期协调器与实际跨进程呈现仍未接入。下一步先闭合该协调器的事件、租约和退役，再做真实两/三进程及像素验收。原本进程 1415 项不自动转给此新模块，不能把链接成功当作 CEF 通过。

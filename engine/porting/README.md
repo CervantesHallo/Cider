@@ -1,5 +1,7 @@
 # Engine R v1 主题迁移
 
+0019已补foreign-host基础：client frame/祖先clip独立，Cocoa裁剪不缩图、主线程代次匹配及关闭保护；精确重建/固定SDK链接/两P2修后源审闭合。当前未接root coordinator/事件租约/路由，未运行或解除foreign-child拒绝，完整契约与两/三进程验收见[95文末](../../docs/research/95-r-v1-legacy-window-bridge-20261025.md)。原本进程运行证据不自动转给新模块。
+
 注册表往返最新见[96](../../docs/research/96-r-v1-registry-roundtrip-20261025.md)：0018修正底层RegCreate安全属性传递及尾部分隔符叶键；双PE回调各33项、直接A/W/三视图各195项通过，故障所有权、四admission负例和五错误变体拒绝已实际完成。公开夹具在tests/runtime/legacy-registry和registry-security；诊断不进入普通引擎，真实Windows/完整权限及完整桥接仍待，继续窗口生命周期和foreign-child/CEF。
 
 完整legacy窗口前端最新见[95](../../docs/research/95-r-v1-legacy-window-bridge-20261025.md)：0015/16/17保留24槽192B接口及120B快照，使用现有managed surface并修缓存/重入销毁；registry v2按位宽封送完整有效安全属性与动态数据。原M-A双PE各120 Present零失败并进入新前端。API往返/故障清理、反复窗口生命周期、视觉与foreign-child/CEF仍待；未进入默认配方或完整R v1验收。

@@ -4,6 +4,8 @@
 
 ## 最新实际运行接续（2026-10-25）
 
+CEF基础继续到0019/foreign-source-v4：完整frame与clip分开，Cocoa container保留源尺寸/真实空/Retina；父代理及局部独立源审两P2（几何翻转、迟到update/remove误作用替换项）修后限定0新P1/P2。新helper带root coordinator的uint64代次，主线程精确检查，创建已有同代幂等/拒旧代、closed拒新；未来coordinator仍必须持有效root/content代次和退役历史，不能混旧generation0/context-only清理，未解完整ABA/租约/reparent。五文件精确重建、固定SDK15.4/min14 native链接过，10警告均原消息/原行；v2误用PE IntersectRect的链接失败保留，v3/v4真实native相交修后过。公开0019绑定在95/evidence，资料foreign-build-v4；未签名/运行/接route/切默认，本进程1415不借给新模块。下一步root owner消息/child事件/租约和成功替换退役→两/三进程真实像素。所有代理已关闭，Windows/Actions/定时/Goal仍0。
+
 CEF当前准备点：out/engine-dxmt-bridge-20261025/foreign-child-design-v1.md已交付并由父代理核对，全部代理关闭。getMetalLayer仅创建时取一次，reparent必须事件通知原host；client rect/full frame/ancestor clip分开，真实0面积不能填满root，仍复用managed/token/lease。父代理foreign-geometry-v1/remote_geometry.c（ad6215d9…）显式SDK15.4/min14零诊断对象，尚未链接/运行/接入路由，不算foreign-child通过。继续root owner消息及Cocoa成功替换/退役；context复用ABA、任意region/混合遮挡和无重建local↔foreign仍未解。不改默认/门禁/用户数据。
 
 95窗口后续：公开d3d11-window-lifecycle最终两PE各1415检查/4窗/56交换链/168Present零失败，真实56快照/56detach/56destroy。首轮1247夹具虽过，源审2P2（final Release后缺Flush、未断言resize实际extent）已修，增加phase尺寸/布局和变化颜色，最终源审0新P1/P2后新双PE实际通过；旧源/log保留。最终session/log/16PE+2native/清理恢复四摘要独立核对；非屏幕/完整泄漏/精确QUERY_EVENT或同token并发证明。接续foreign-child/CEF设计与实现，继续私有不切用户引擎。

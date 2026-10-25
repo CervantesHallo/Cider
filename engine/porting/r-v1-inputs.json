@@ -998,6 +998,21 @@
       "detachAndDestroyEachPerPe": 56,
       "bothPePassed": true,
       "exactRaceOrScreenAccepted": false
+    },
+    "foreignHostFoundation": {
+      "patch": {
+        "file": "engine/porting/wine-11.18/0019-winemac-clipped-versioned-remote-host-foundation.patch",
+        "sha256": "90f5299bf07602137337c19ebcef2c4d50fda84edb4d1835e440ac8605a2f7ae"
+      },
+      "linkedModuleSHA256": "c4de8fadc403fe5f7449819dc9376260e1413d86672d4c2cfe9f73f5fc033ada",
+      "exactReconstruction": true,
+      "sourceP2Closed": 2,
+      "reviewSHA256": "9299b8096e29d432b2584821c2d6cdcde8f27a0d5394a16bcf1b49d3d9226a88",
+      "linked": true,
+      "runtimeAccepted": false,
+      "foreignChildEnabled": false,
+      "defaultAdopted": false,
+      "localCoordinatorContract": "distinct nonreused root/content-bound generations; reject stale create after retirement; do not mix legacy unversioned cleanup with qualified ownership"
     }
   },
   "registryRoundtripCandidate": {

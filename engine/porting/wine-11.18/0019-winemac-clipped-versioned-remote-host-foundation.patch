@@ -1,0 +1,374 @@
+Native clipped/versioned remote-host preparation after0017, not full foreign-child routing.
+Source/clip remain distinct; new helpers require an owned root-coordinator generation.
+Original unversioned root compatibility entry points remain. Runtime/adoption still gated.
+
+--- a/dlls/winemac.drv/Makefile.in
++++ b/dlls/winemac.drv/Makefile.in
+@@ -40,6 +40,7 @@
+ 	macdrv_main.c \
+ 	mouse.c \
+ 	opengl.c \
++	remote_geometry.c \
+ 	surface.c \
+ 	systray.c \
+ 	vulkan.c \
+--- a/dlls/winemac.drv/macdrv.h
++++ b/dlls/winemac.drv/macdrv.h
+@@ -192,6 +192,14 @@
+     unsigned int        fullscreen : 1;         /* is the window visible rect fullscreen? (unrelated to native AppKit/Cocoa fullscreen) */
+ };
+ 
++/* Foreign-host geometry in root-visible raw pixels. Source and clip are distinct. */
++struct macdrv_remote_geometry
++{
++    RECT frame, clip;
++};
++extern BOOL macdrv_get_remote_geometry(HWND root, HWND child, POINT content_offset,
++                                       struct macdrv_remote_geometry *geometry);
++
+ struct macdrv_client_surface
+ {
+     struct client_surface   client;
+--- a/dlls/winemac.drv/macdrv_cocoa.h
++++ b/dlls/winemac.drv/macdrv_cocoa.h
+@@ -545,6 +545,11 @@
+ extern id_MTLDevice macdrv_swapchain_get_device(id_WineMetalSwapChain swapchain);
+ extern void macdrv_destroy_swapchain(id_WineMetalSwapChain swapchain);
+ extern void macdrv_destroy_swapchain_deferred(id_WineMetalSwapChain swapchain);
++extern bool macdrv_window_create_remote_host(WineWindow *window, unsigned int context_id, uint64_t generation,
++                                              CGRect frame, CGRect clip, double z, bool valid_z);
++extern void macdrv_window_update_remote_host(WineWindow *window, unsigned int context_id, uint64_t generation,
++                                              CGRect frame, CGRect clip, double z, bool valid_z);
++extern void macdrv_window_release_remote_host_deferred(WineWindow *window, unsigned int context_id, uint64_t generation);
+ extern void macdrv_window_create_ca_layer_host_view(WineWindow *window, unsigned int context_id);
+ extern void macdrv_window_release_ca_layer_host_view(WineWindow *window, unsigned int context_id);
+ extern void macdrv_create_remote_layer(void* hwnd, unsigned int context_id);
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -233,6 +233,103 @@
+ @end
+ 
+ 
++/* A clipping container owns the host; clipping never resizes the source image. */
++@interface WineRemoteLayerHost : CALayer
++{
++    CALayerHost *source_layer;
++    CGRect source_pixels, clip_pixels;
++    CGFloat pixel_scale;
++    uint64_t host_generation;
++}
++- (instancetype)initWithContextId:(CAContextID)contextId generation:(uint64_t)generation;
++- (uint64_t)generation;
++- (void)setSourceFrame:(CGRect)frame clip:(CGRect)clip;
++- (void)setRetinaMode:(BOOL)mode;
++@end
++
++@implementation WineRemoteLayerHost
++- (instancetype)initWithContextId:(CAContextID)contextId generation:(uint64_t)generation
++{
++    if (!(self = [super init])) return nil;
++    if (!(source_layer = [[CALayerHost alloc] init]))
++    {
++        [self release];
++        return nil;
++    }
++    host_generation = generation;
++    [source_layer setContextId:contextId];
++    source_layer.magnificationFilter = kCAFilterNearest;
++    source_pixels = clip_pixels = CGRectNull;
++    pixel_scale = retina_on ? 2.0 : 1.0;
++    self.masksToBounds = YES;
++    [self addSublayer:source_layer];
++    [self setRetinaMode:retina_on];
++    return self;
++}
++- (uint64_t)generation
++{
++    return host_generation;
++}
++- (void)dealloc
++{
++    [source_layer removeFromSuperlayer];
++    [source_layer release];
++    [super dealloc];
++}
++- (void)layoutSublayers
++{
++    [super layoutSublayers];
++    if (CGRectIsNull(source_pixels)) source_layer.frame = self.bounds;
++}
++- (void)setSourceFrame:(CGRect)frame clip:(CGRect)clip
++{
++    source_pixels = frame;
++    clip_pixels = clip;
++    [CATransaction begin];
++    [CATransaction setDisableActions:YES];
++    if (CGRectIsNull(frame))
++    {
++        /* Only the explicit root sentinel fills the content view. */
++        self.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
++        self.frame = self.superlayer ? self.superlayer.bounds : CGRectZero;
++        self.hidden = NO;
++        source_layer.frame = self.bounds;
++    }
++    else
++    {
++        CGRect visible;
++        self.autoresizingMask = 0;
++        visible = CGRectIsNull(clip) ? frame : CGRectIntersection(frame, clip);
++        if (CGRectIsNull(visible) || CGRectIsEmpty(visible) || CGRectIsEmpty(frame))
++        {
++            self.hidden = YES;
++            self.frame = CGRectZero;
++        }
++        else
++        {
++            /* One raw-pixel to point conversion, using this view's current
++             * mode, including during a Retina transition. No edge snapping. */
++            CGRect points = CGRectMake(visible.origin.x / pixel_scale, visible.origin.y / pixel_scale,
++                                       visible.size.width / pixel_scale, visible.size.height / pixel_scale);
++            self.frame = points;
++            source_layer.frame = CGRectMake((frame.origin.x - visible.origin.x) / pixel_scale,
++                                            (frame.origin.y - visible.origin.y) / pixel_scale,
++                                            frame.size.width / pixel_scale, frame.size.height / pixel_scale);
++            self.hidden = NO;
++        }
++    }
++    [CATransaction commit];
++}
++- (void)setRetinaMode:(BOOL)mode
++{
++    pixel_scale = mode ? 2.0 : 1.0;
++    self.contentsScale = pixel_scale;
++    source_layer.contentsScale = pixel_scale;
++    [self setSourceFrame:source_pixels clip:clip_pixels];
++}
++@end
++
++
+ @interface WineContentView : WineBaseView <NSTextInputClient, NSViewLayerContentScaleDelegate>
+ {
+     CGRect surfaceRect;
+@@ -251,7 +348,7 @@
+     int backingSize[2];
+ 
+     WineMetalView *_metalView;
+-    NSMutableDictionary<NSNumber*, CALayerHost*>* _caLayerHosts;
++    NSMutableDictionary<NSNumber*, WineRemoteLayerHost*>* _caLayerHosts;
+ }
+ 
+ @property (readonly, nonatomic) BOOL everHadGLContext;
+@@ -264,8 +361,10 @@
+     - (void) wine_setBackingSize:(const int*)newBackingSize;
+ 
+     - (WineMetalView*) newMetalViewWithDevice:(id<MTLDevice>)device;
+-    - (void) addCALayerHostViewWithContextId:(CAContextID)contextId;
++    - (BOOL) addCALayerHostViewWithContextId:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z;
++    - (void) updateCALayerHost:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z;
+     - (void) removeCALayerHostView:(CAContextID)contextId;
++    - (void) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation;
+ 
+ @end
+ 
+@@ -583,24 +682,46 @@
+         return _metalView;
+     }
+ 
+-    - (void) addCALayerHostViewWithContextId:(CAContextID)contextId
+-    {
+-        if (!_caLayerHosts)
+-            _caLayerHosts = [[NSMutableDictionary alloc] init];
+-
++    - (BOOL) addCALayerHostViewWithContextId:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z
++    {
++        WineRemoteLayerHost *host, *current = [_caLayerHosts objectForKey:@(contextId)];
++        if (!contextId) return NO;
++        /* The root coordinator owns monotonic generations. Repeated creation
++         * for the same instance is idempotent; an older live request cannot
++         * replace a newer instance. Retired-slot history stays with that owner. */
++        if (current && generation <= current.generation) return generation == current.generation;
++        if (!_caLayerHosts && !(_caLayerHosts = [[NSMutableDictionary alloc] init])) return NO;
++        if (!(host = [[WineRemoteLayerHost alloc] initWithContextId:contextId generation:generation])) return NO;
++        host.geometryFlipped = self.layer.geometryFlipped;
++        [self.layer addSublayer:host];
++        [host setSourceFrame:frame clip:clip];
++        if (valid_z) host.zPosition = z;
++        /* Keep the old host until the replacement has actually been created. */
+         [self removeCALayerHostView:contextId];
+-
+-        CALayerHost* host = [CALayerHost layer];
+-        [host setContextId:contextId];
+-        host.magnificationFilter = kCAFilterNearest;
+-        host.contentsScale = retina_on ? 2.0 : 1.0;
+-        host.frame = self.layer.bounds;
+-        host.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+-
+-        [self.layer addSublayer:host];
+         [_caLayerHosts setObject:host forKey:@(contextId)];
+-
++        [host release];
+         [(WineWindow*)self.window windowDidDrawContent];
++        return YES;
++    }
++
++    - (void) updateCALayerHost:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z
++    {
++        WineRemoteLayerHost *host = [_caLayerHosts objectForKey:@(contextId)];
++        if (!host || host.generation != generation) return;
++        [host setSourceFrame:frame clip:clip];
++        if (valid_z)
++        {
++            [CATransaction begin];
++            [CATransaction setDisableActions:YES];
++            host.zPosition = z;
++            [CATransaction commit];
++        }
++    }
++
++    - (void) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation
++    {
++        WineRemoteLayerHost *host = [_caLayerHosts objectForKey:@(contextId)];
++        if (host && host.generation == generation) [self removeCALayerHostView:contextId];
+     }
+ 
+     - (void) removeCALayerHostView:(CAContextID)contextId
+@@ -649,8 +770,8 @@
+         [self updateGLContexts];
+         [self setLayerRetinaProperties:mode];
+ 
+-        for (CALayerHost* host in [_caLayerHosts allValues])
+-            host.contentsScale = mode ? 2.0 : 1.0;
++        for (WineRemoteLayerHost* host in [_caLayerHosts allValues])
++            [host setRetinaMode:mode];
+ 
+         [super setRetinaMode:mode];
+     }
+@@ -3900,17 +4021,44 @@
+     [swapchain release];
+ }
+ 
++bool macdrv_window_create_remote_host(WineWindow *window, unsigned int context_id, uint64_t generation,
++                                      CGRect frame, CGRect clip, double z, bool valid_z)
++{
++@autoreleasepool
++{
++    __block BOOL installed = NO;
++    OnMainThread(^{
++        NSView *content = [window contentView];
++        if (!window.closing && [content isKindOfClass:[WineContentView class]])
++            installed = [(WineContentView *)content addCALayerHostViewWithContextId:context_id generation:generation
++                                          frame:frame clip:clip z:z validZ:valid_z];
++    });
++    return installed;
++}
++}
++
+ void macdrv_window_create_ca_layer_host_view(WineWindow *window, unsigned int context_id)
+ {
+-@autoreleasepool
+-{
+-    OnMainThread(^{
+-        NSView* content_view = [window contentView];
+-
+-        if ([content_view isKindOfClass:[WineContentView class]])
+-            [(WineContentView*)content_view addCALayerHostViewWithContextId:context_id];
++    macdrv_window_create_remote_host(window, context_id, 0, CGRectNull, CGRectNull, 0.0, false);
++}
++
++void macdrv_window_update_remote_host(WineWindow *window, unsigned int context_id, uint64_t generation,
++                                      CGRect frame, CGRect clip, double z, bool valid_z)
++{
++    OnMainThreadAsync(^{
++        NSView *content = [window contentView];
++        if (!window.closing && [content isKindOfClass:[WineContentView class]])
++            [(WineContentView *)content updateCALayerHost:context_id generation:generation frame:frame clip:clip z:z validZ:valid_z];
+     });
+ }
++
++void macdrv_window_release_remote_host_deferred(WineWindow *window, unsigned int context_id, uint64_t generation)
++{
++    OnMainThreadAsync(^{
++        NSView *content = [window contentView];
++        if ([content isKindOfClass:[WineContentView class]])
++            [(WineContentView *)content removeCALayerHostView:context_id generation:generation];
++    });
+ }
+ 
+ void macdrv_window_release_ca_layer_host_view(WineWindow *window, unsigned int context_id)
+--- /dev/null
++++ b/dlls/winemac.drv/remote_geometry.c
+@@ -0,0 +1,74 @@
++/* Foreign child geometry for the managed-surface port. Native preparation only.
++ * Output rectangles are raw pixels in the root content view, never Cocoa points.
++ * Keep the full source rectangle separate from its clip: clipping must not scale
++ * the exported texture or shift its source origin. */
++#if 0
++#pragma makedep unix
++#endif
++#include "config.h"
++#include <stdlib.h>
++#include <string.h>
++#include "macdrv.h"
++
++static BOOL map_client_rect(HWND window, HWND root, UINT dpi, RECT *rect)
++{
++    if (!NtUserGetClientRect(window, rect, dpi)) return FALSE;
++    RtlSetLastWin32Error(0);
++    if (!NtUserMapWindowPoints(window, root, (POINT *)rect, 2, dpi) && RtlGetLastWin32Error()) return FALSE;
++    return TRUE;
++}
++
++BOOL macdrv_get_remote_geometry(HWND root, HWND child, POINT content_offset,
++                               struct macdrv_remote_geometry *geometry)
++{
++    HWND cursor, inline_seen[16], *seen = inline_seen;
++    SIZE_T count = 0, capacity = ARRAYSIZE(inline_seen), i;
++    UINT dpi = NtUserGetWinMonitorDpi(root, MDT_RAW_DPI);
++    BOOL visible = TRUE, ok = FALSE;
++    RECT frame, clip, ancestor;
++
++    if (!geometry || !root || !child || !dpi || NtUserGetAncestor(child, GA_ROOT) != root) return FALSE;
++    if (!map_client_rect(child, root, dpi, &frame) || !map_client_rect(root, root, dpi, &clip)) return FALSE;
++    for (cursor = child; cursor; cursor = NtUserGetAncestor(cursor, GA_PARENT))
++    {
++        DWORD style;
++        /* A sequence of separately valid reparent operations can repeat a
++         * handle in this observed walk. Reject that inconsistent snapshot.
++         * Do not impose the old fixed32-depth cap on a valid window tree. */
++        for (i = 0; i < count; ++i) if (seen[i] == cursor) goto done;
++        if (count == capacity)
++        {
++            HWND *next;
++            if (capacity > ~(SIZE_T)0 / (2 * sizeof(*seen))) goto done;
++            if (!(next = malloc(2 * capacity * sizeof(*seen)))) goto done;
++            memcpy(next, seen, count * sizeof(*seen));
++            if (seen != inline_seen) free(seen);
++            seen = next;
++            capacity *= 2;
++        }
++        seen[count++] = cursor;
++        if (!NtUserGetWindowThread(cursor, NULL)) goto done;
++        style = NtUserGetWindowLongW(cursor, GWL_STYLE);
++        if (!(style & WS_VISIBLE) || (style & WS_MINIMIZE)) visible = FALSE;
++        if (!map_client_rect(cursor, root, dpi, &ancestor)) goto done;
++        /* Native driver cannot call the PE user32 IntersectRect import. */
++        clip.left = max(clip.left, ancestor.left);
++        clip.top = max(clip.top, ancestor.top);
++        clip.right = min(clip.right, ancestor.right);
++        clip.bottom = min(clip.bottom, ancestor.bottom);
++        if (IsRectEmpty(&clip)) SetRectEmpty(&clip);
++        if (cursor == root) break;
++    }
++    if (cursor != root || NtUserGetAncestor(child, GA_ROOT) != root) goto done;
++    if (!visible) SetRectEmpty(&clip);
++    /* Preserve empty geometry explicitly, rather than treating0x0 as the
++     * old root-fills-view sentinel. Offset both rectangles in one space. */
++    OffsetRect(&frame, content_offset.x, content_offset.y);
++    OffsetRect(&clip, content_offset.x, content_offset.y);
++    geometry->frame = frame;
++    geometry->clip = clip;
++    ok = TRUE;
++done:
++    if (seen != inline_seen) free(seen);
++    return ok;
++}

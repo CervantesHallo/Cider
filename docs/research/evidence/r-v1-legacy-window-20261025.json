@@ -253,5 +253,68 @@
     "screenOrExactRaceOrForeignChildAccepted": false,
     "ordinaryLabRestored": true,
     "protectedFourUnchanged": true
+  },
+  "foreignHostFoundation": {
+    "patch": {
+      "file": "engine/porting/wine-11.18/0019-winemac-clipped-versioned-remote-host-foundation.patch",
+      "sha256": "90f5299bf07602137337c19ebcef2c4d50fda84edb4d1835e440ac8605a2f7ae"
+    },
+    "files": [
+      {
+        "file": "dlls/winemac.drv/Makefile.in",
+        "sha256": "1ef1c2f7efb1da882cb6cf48afcbf2b394b9cadd0a38c57d6d79d9faf8557378"
+      },
+      {
+        "file": "dlls/winemac.drv/macdrv.h",
+        "sha256": "c3c1f1f59de710a3fdccd7dd092a83e7d4ac0ef3df7263a2a40e5d6b3ba19b32"
+      },
+      {
+        "file": "dlls/winemac.drv/macdrv_cocoa.h",
+        "sha256": "9c6b8c8a5854fe989060581a883db795a162233dbe456cc2d278da2dc17730bd"
+      },
+      {
+        "file": "dlls/winemac.drv/cocoa_window.m",
+        "sha256": "f6764298a40088a295c561e93ee90e44a95216dc9d1de9e8a46c72c175543605"
+      },
+      {
+        "file": "dlls/winemac.drv/remote_geometry.c",
+        "sha256": "7ec8f9f875dda1ca982454cf5f52199769375fc9d63db5038fa5e972603cd5ee"
+      }
+    ],
+    "linkedModuleSHA256": "c4de8fadc403fe5f7449819dc9376260e1413d86672d4c2cfe9f73f5fc033ada",
+    "exactReconstruction": true,
+    "sourceP2Closed": 2,
+    "reviewSHA256": "9299b8096e29d432b2584821c2d6cdcde8f27a0d5394a16bcf1b49d3d9226a88",
+    "linked": true,
+    "runtimeAccepted": false,
+    "foreignChildEnabled": false,
+    "defaultAdopted": false,
+    "localCoordinatorContract": "distinct nonreused root/content-bound generations; reject stale create after retirement; do not mix legacy unversioned cleanup with qualified ownership",
+    "receipts": [
+      {
+        "file": "out/engine-dxmt-bridge-20261025/foreign-build-v1/review-v1.json",
+        "sha256": "d1010656c1131aa23f1a796df2c55ce5d1cab0a68a0aaeb845f2ab5c12bb78e6"
+      },
+      {
+        "file": "out/engine-dxmt-bridge-20261025/foreign-build-v2/build-v1.json",
+        "sha256": "71083c8b9614272f38d7656d52eb16c7871590501d46413f62bf707e0c068323"
+      },
+      {
+        "file": "out/engine-dxmt-bridge-20261025/foreign-build-v4/build-v1.json",
+        "sha256": "b3115c38721ee87c0da1c0beac938b88145f1e164fb1264c4cb8839542ffa4c8"
+      },
+      {
+        "file": "out/engine-dxmt-bridge-20261025/foreign-build-v4/binding-v1.json",
+        "sha256": "1119eaf52043fc2b5dac91d4e1a40e4249cf6401dc8a8efe2eaaa84441cc7dea"
+      },
+      {
+        "file": "out/engine-dxmt-bridge-20261025/foreign-build-v4/review-v1.json",
+        "sha256": "9299b8096e29d432b2584821c2d6cdcde8f27a0d5394a16bcf1b49d3d9226a88"
+      },
+      {
+        "file": "out/engine-dxmt-bridge-20261025/foreign-child-design-v1.md",
+        "sha256": "8182244286a5ad9bcd2da717db3d686acdb478dd5b909c494e8084535b936d22"
+      }
+    ]
   }
 }
