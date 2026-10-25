@@ -1,0 +1,18 @@
+MinGW-w64 v14.0.0 private C++ runtime candidate. Clear a live TLS slot before
+invoking its registered destructor; reentrant readers must not receive freed
+storage. Invoke the destructor only after successful ownership detachment.
+No user-installed toolchain or Wine core is modified. Runtime pending.
+
+--- a/mingw-w64-crt/crt/tlsthrd.c
++++ b/mingw-w64-crt/crt/tlsthrd.c
+@@ -109,7 +109,9 @@
+       LPVOID value = TlsGetValue (keyp->key);
+       if (GetLastError () == ERROR_SUCCESS)
+         {
+-          if (value)
++          /* The callback may free the value or reenter TLS. Detach ownership
++             first, as a POSIX TLS destructor invocation does. */
++          if (value && TlsSetValue (keyp->key, NULL))
+             (*keyp->dtor) (value);
+         }
+       keyp = keyp->next;

@@ -1,0 +1,222 @@
+{
+  "schema": "cider.r-v1-gpu-teardown/v1",
+  "date": "2026-10-25",
+  "scope": "Private Mac component acceptance; not full engine/native Windows/window/game/default adoption",
+  "sourceFiles": [
+    {
+      "file": "engine/porting/wine-11.18/0012-mfplat-release-owned-samples-before-device-managers.patch",
+      "sha256": "f544aa34a12392a76216a31eb8efca25b7bbdd56d8de10edde1cb520822e5fb2"
+    },
+    {
+      "file": "engine/porting/wine-11.18/0013-mfreadwrite-keep-manager-through-owned-stream-teardown.patch",
+      "sha256": "ed5ad524a4860d6bbba9a93fd0615d03ed993b298f8943949ec0570c0923e29d"
+    },
+    {
+      "file": "engine/porting/wine-11.18/0014-rtworkq-release-result-payload-before-callback-owner.patch",
+      "sha256": "160674e4625c9ac6efefeed08705243724fb9358d924b63cf03507982a47317d"
+    },
+    {
+      "file": "engine/porting/mingw-w64/0001-detach-tls-value-before-destructor-callback.patch",
+      "sha256": "88db265a869ded36fe34da0183c3a3b1c5d08349ed8e9613618573ad4fb1ae6f"
+    },
+    {
+      "file": "tests/media/mf-allocator-lifetime.c",
+      "sha256": "64d3aee0aa8d185a38697374c59c57eee8f79e55112949e782a9a504e225ed8d"
+    },
+    {
+      "file": "tests/runtime/cxx-tls-lifetime/probe.c",
+      "sha256": "f116b79ebfc9c85cc149ee610745e501f6e8b1ffcdedb6c9f2f033809adcc7c7"
+    },
+    {
+      "file": "tests/runtime/cxx-tls-lifetime/library.cpp",
+      "sha256": "678d2263d30fefd320db982097fa44ce3c40bb261098844adc1f6ee6707e621f"
+    }
+  ],
+  "rawRoot": "out/engine-dxmt-bridge-20261025",
+  "records": [
+    {
+      "file": "cleanup-review-v1.json",
+      "sha256": "f6cfbf84f55b416bca6fe25bd42328185e264e105a4240c14d9cfaec0c10325b",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "allocator-lifetime-review-v1.json",
+      "sha256": "ae4dd6bbbc508f3247ab54dd2dbbe4dd3a42eb96eafaba440db5b3e581dda58b",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "allocator-lifetime-review-v2.json",
+      "sha256": "f4cbd47132b1d045e1629598cfb617533acef83ac6c31931484cee216950e397",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "reader-cleanup-review-v1.json",
+      "sha256": "d9ef0eeb5dc7324c543c8fd193e2794b98f9f9ff6b6a12ff503e46bcc55778c9",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "rtworkq-cleanup-review-v1.json",
+      "sha256": "f454ff7f78b41c24efe7b861ef3fc97cb1324ba880b397f05935c07f52907bd2",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "cleanup-reconstruction-v1.json",
+      "sha256": "d3a651a68d62d1dc753729b7cf30e1781d9b86c89bbcde762844ebf168f1d99f",
+      "state": null,
+      "passed": true
+    },
+    {
+      "file": "reader-rtworkq-reconstruction-v1.json",
+      "sha256": "72e282291845fc6e91ca14b5ad487c4c9b0b1d42453969ba7cbf799dbf25b1f7",
+      "state": null,
+      "passed": true
+    },
+    {
+      "file": "crt-original-source-binding-v1.json",
+      "sha256": "021ee354417b9e18c4b4a812be1f61dbba6168af1f69b7a75077aa4637ef26c9",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "crt-i386-archive-binding-v1.json",
+      "sha256": "1070f2fbbee272bc6f3e39182d28a48698a9178038e9863fea5f062728fe6c35",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "crt-x86_64-archive-binding-v1.json",
+      "sha256": "8bc435569f10f49ccaf81df5799ef14b06cff9f6c368d29daf0775f04ab6a0a3",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "crt-i386-build-v1.json",
+      "sha256": "33937080a8855b5772d2ae2a37d7469fef03733df98e6fb45f336e5a74b35b58",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "crt-x86_64-build-v1.json",
+      "sha256": "a8c2186fe363457b7f024af8fff163f911922810d2d2a6515847994d82243788",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "dxmt-crt-relink-v1.json",
+      "sha256": "918ad36968446e01792517a059d46e3115889363b9f396504d6193af855b4dda",
+      "state": null,
+      "passed": true
+    },
+    {
+      "file": "mfplat-cleanup-build-v1.json",
+      "sha256": "17157068a9a042e317c2943e138008e25f637fe6cd01bb8833d1eb79475833de",
+      "state": null,
+      "passed": true
+    },
+    {
+      "file": "reader-cleanup-build-v1.json",
+      "sha256": "7240abd1140b09cb9f4407580ebcf6849a5f3aae6b17a5fff1360bc3a53bcf69",
+      "state": null,
+      "passed": true
+    },
+    {
+      "file": "rtworkq-cleanup-build-v1.json",
+      "sha256": "20e86f66df2e8c5abb6e6fcd3ac5669b45f82e7bbc2926e5ca5a741bfa65e380",
+      "state": null,
+      "passed": true
+    },
+    {
+      "file": "staging-gpu-cleanup-candidate-v3.json",
+      "sha256": "c2bae86d18e2155f77e59b44fdd209d74acd73c1475f39ba2211041b50689ad1",
+      "state": null,
+      "passed": null
+    },
+    {
+      "file": "allocator-lifetime-baseline-x86_64-v2.json",
+      "sha256": "9ae8db629db38e5be94ba5d9878ea1533a6d80e8139732396f21c3d61677fdb5",
+      "state": "negative-observed",
+      "passed": null
+    },
+    {
+      "file": "allocator-lifetime-baseline-i386-v2.json",
+      "sha256": "796167375d4aca17439320b4890e934e917fb9578468ea4a99c6007134c911c1",
+      "state": "negative-observed",
+      "passed": null
+    },
+    {
+      "file": "allocator-lifetime-candidate-x86_64-v2.json",
+      "sha256": "f318a86ddb1b0a6eef3aa5abcef31634042ffd48a79d7b23810829a9949ab0ad",
+      "state": "complete",
+      "passed": null
+    },
+    {
+      "file": "allocator-lifetime-candidate-i386-v2.json",
+      "sha256": "80e3ffc880bf4b372ba9ab27b69978d4d419a1351d5dec9992b5f8e4ac56cf1d",
+      "state": "complete",
+      "passed": null
+    },
+    {
+      "file": "mf-forward-cleanup-runtime-v1.json",
+      "sha256": "37bf93b9d04d1a1a765b917058ce8cd037d26c1d5675f66fbbb5dc010e017b27",
+      "state": "failed",
+      "passed": false
+    },
+    {
+      "file": "mf-forward-cleanup-runtime-v2.json",
+      "sha256": "a950c2406eaab3e76234a6afbc97bd6cc661ab62079ae11f4fdabf29e4166347",
+      "state": "failed",
+      "passed": false
+    },
+    {
+      "file": "mf-forward-cleanup-fault-v3.json",
+      "sha256": "4a54731caf17fed4ca4fcc8c06c26cb90eb486ab14eb448d9541e0cad5b5c674",
+      "state": "complete",
+      "passed": true
+    },
+    {
+      "file": "mf-forward-cleanup-runtime-v3.json",
+      "sha256": "2f59502d48ae0b0e5a23427f559ccdc3429d7a35b833be739346e3729cdf8ee4",
+      "state": "complete",
+      "passed": true
+    },
+    {
+      "file": "offscreen-cleanup-runtime-v1.json",
+      "sha256": "a7b189a2448f44c84319a7a4d8c0224eb260ce3e5b96318215dd8201d0a9df99",
+      "state": "complete",
+      "passed": true
+    },
+    {
+      "file": "cleanup-runtime-independent-validation-v1.json",
+      "sha256": "28be2853480179ed44bf57387a3bf3f498d5d093bf6302deb94f928d36448908",
+      "state": null,
+      "passed": true
+    },
+    {
+      "file": "tls-terminal-independent-validation-v2.json",
+      "sha256": "c61d3b799caa5ebc34a72643772857998047f65ebb5ba9f46672dd16b71b8fe6",
+      "state": null,
+      "passed": true
+    }
+  ],
+  "results": {
+    "tlsBothPePaired": true,
+    "allocatorBothPePairedChecks": 46,
+    "gpuChecksPerPe": 575,
+    "gpuPaths": 4,
+    "offscreenChecksPerPe": 46,
+    "nativeFaultsInAcceptedGpuRuns": 0,
+    "allOrdinaryLabRestorationsConfirmed": true,
+    "protectedFourUnchanged": true,
+    "completeLegacyWindowBridge": false,
+    "fullMfCrtPassed": false,
+    "nativeWindowsOrGamesPassed": false,
+    "defaultAdopted": false,
+    "windowsActionsAutomationGoalOperations": 0
+  },
+  "reviewBoundary": "Three source-only bounded reviews plus parent raw-module/session/log/cleanup verification; no full concurrency or native-Windows approval"
+}

@@ -4,6 +4,8 @@
 
 ## 最新实际运行接续（2026-10-25）
 
+最新[94](research/94-r-v1-gpu-teardown-20261025.md)：私有CRT先清TLS槽后调用dtor，两PE归档各只换1对象/其余30成员逐字不变；最终公开TLS探针四项新旧对照，旧均fault1/CLI1，新均fault0/CLI0。0012 MF allocator缓存样本先于manager销毁，最终v2独立双PE旧各final-release AV/117，新各46检查/2路径通过。0013 reader manager保持到streams/responses全部释放；仅加0012/13的R2原GPU fixture仍第四case AV/5，失败保持，不能称其已修。关键后续0014 rtworkq改为object/state先于已有callback owner释放，闭合tracking callback→allocator→manager及result→sample的销毁依赖。新R3原GPU fixture双PE各575/4case/零TODO及native fault通过，受影响offscreen双PE各46通过；父代理原始log/session/14模块/GUI退出两空/恢复四摘要独立核对。0013/14限定源审无新具体P1/P2，所有代理已关闭。不是完整MF/CRT/窗口/原生Windows/游戏或默认采用，早期无trace退出5不追认精确根因。接续93原完整legacy/foreign-child/CEF窗口迁移，U8/15未过、Windowsbusy/待重启/零操作、用户数据/Actions/定时/Goal保持。工作树另有非本批AppModel+Bottles.swift改动，未覆盖或纳入该批提交。
+
 最新[93](research/93-r-v1-gpu-shared-and-window-foundation-20261025.md)：原DXMT0.80 keyed接口E_NOINTERFACE失败保留；固定现用Highball7421db2成组组件在F27/MF新base上双PE各39项，再补错误key/持有/递归/未持有释放及交回后双PE各46项通过。全部私有实验，finally普通MF R3配置/DLL恢复、GUI退出/两空和四摘要确认。0011窗口基础补真实设备retain/匹配与分配失败清理；缓存设备P2修后限定复审闭合、两native单元/链接与四文件重建过，11条SDK原行警告保留。legacy table/foreign-child/CEF和窗口运行仍未完成。
 
 93后续：DXMT顺序补丁独立源审无新P1/P2，完整PE依赖闭包双架构各4DLL已编译/链接/builtin处理，native/Metallib/MF/F27核心保持。新候选id cider-lab-wine11.18-mf-dxmt-device-r1-x86_64，staging-device-order-v1.json。首次实际PE64不再有BAADF设备NS异常，但4th分享不匹配case执行AV、CLI5；新批次仍拒绝，没跑PE32。加观察VEH/loaddll的fault-v2同断言575过且没复现，**不当修复证明**。当前继续定向heap/生命周期取证，勿反复原样跑到通过。handler原v1生成器误命中注释、编译拒绝/无运行，v2正确定位函数；保留旧源。GCC新组件每架构有一条原unsupported callback no-return告警，未来采用前仍要处理。原Windowsbusy/用户数据/U8/15/门禁不动。

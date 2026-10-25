@@ -1,0 +1,22 @@
+Wine11.18 allocator final-release candidate: destroy allocator-owned GPU buffers
+while its device-manager owners still keep the device alive. No extra public
+references, sample-policy changes, sleeps or synthetic success. Runtime pending.
+
+--- a/dlls/mfplat/sample.c
++++ b/dlls/mfplat/sample.c
+@@ -1200,13 +1200,14 @@
+     {
+         if (allocator->callback)
+             IMFVideoSampleAllocatorNotify_Release(allocator->callback);
++        /* Cached textures can call back into their parent device on release. */
++        sample_allocator_release_samples(allocator);
+         if (allocator->d3d9_device_manager)
+             IDirect3DDeviceManager9_Release(allocator->d3d9_device_manager);
+         if (allocator->dxgi_device_manager)
+             IMFDXGIDeviceManager_Release(allocator->dxgi_device_manager);
+         sample_allocator_set_media_type(allocator, NULL);
+         sample_allocator_set_attributes(allocator, NULL);
+-        sample_allocator_release_samples(allocator);
+         DeleteCriticalSection(&allocator->cs);
+         free(allocator);
+     }

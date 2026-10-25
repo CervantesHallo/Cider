@@ -1,5 +1,7 @@
 # Engine R v1 主题迁移
 
+销毁依赖修复接续[94](../../docs/research/94-r-v1-gpu-teardown-20261025.md)：新增0012/13/14及私有MinGW TLS候选，保留原队列和GPU上传后备。最终两种PE的TLS/allocator新旧对照完成；R2仍失败，增加0014后R3原GPU各575项和offscreen各46通过。候选非默认，完整MF/CRT/legacy窗口/foreign-child/CEF与游戏仍待；原失败保留，不重做无变化同步性能队列。
+
 GPU/窗口最新见[93](../../docs/research/93-r-v1-gpu-shared-and-window-foundation-20261025.md)：Highball共享/keyed边界双PE各46项过，MF真实GPU样本PE64四case575项过，PE32 native异常仍拒绝。设备初始化顺序源修正成组重建，窗口0011基础已编译/修后复审；完整桥接和运行未完成，不默认采用。MF前次结果见[92](../../docs/research/92-r-v1-mf-allocator-20261025.md)，公开夹具在tests/media/mf-source-reader。
 
 最新媒体接续见[91](../../docs/research/91-r-v1-media-preparation-20261024.md)：显式准备后WMA双PE实际数据/耗尽通过，原全冷20s失败保留；产品托管媒体准备、缓存失效与真实Stop路径已实现/验证，导入不执行。完整MF/视频/游戏和R v1默认采用仍待，接续Highball0010。下方早期组件结论为历史记录。

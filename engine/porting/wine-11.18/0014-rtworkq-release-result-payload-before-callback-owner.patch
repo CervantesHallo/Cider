@@ -1,0 +1,22 @@
+Keep the existing callback reference through result object/state destruction.
+MF tracking callbacks can own the allocator and its device manager.
+No extra refs, waits, queue scheduling or synthetic results.
+
+--- a/dlls/rtworkq/queue.c
++++ b/dlls/rtworkq/queue.c
+@@ -1117,12 +1117,13 @@
+ 
+     if (!refcount)
+     {
+-        if (result->result.pCallback)
+-            IRtwqAsyncCallback_Release(result->result.pCallback);
++        /* The callback can own resources needed by the result object. */
+         if (result->object)
+             IUnknown_Release(result->object);
+         if (result->state)
+             IUnknown_Release(result->state);
++        if (result->result.pCallback)
++            IRtwqAsyncCallback_Release(result->result.pCallback);
+         if (result->result.hEvent)
+             CloseHandle(result->result.hEvent);
+ 

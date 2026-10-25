@@ -1,0 +1,26 @@
+Apply after0010 final reader v7. Keep the existing device-manager reference
+until all owned streams, transforms, allocators and responses are destroyed.
+No added references, fixture pins, sleep, queue policy or synthetic results.
+
+--- a/dlls/mfreadwrite/reader.c
++++ b/dlls/mfreadwrite/reader.c
+@@ -245,8 +245,6 @@
+ 
+     if (!refcount)
+     {
+-        if (reader->device_manager)
+-            IUnknown_Release(reader->device_manager);
+         if (reader->async_callback)
+             IMFSourceReaderCallback_Release(reader->async_callback);
+         if (reader->descriptor)
+@@ -262,6 +260,10 @@
+         }
+         source_reader_release_responses(reader, NULL);
+         free(reader->streams);
++        /* Stream transforms, allocators and queued samples may own textures
++         * whose destructors still need this device-manager owner. */
++        if (reader->device_manager)
++            IUnknown_Release(reader->device_manager);
+         DeleteCriticalSection(&reader->cs);
+         free(reader);
+     }
