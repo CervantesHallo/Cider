@@ -4,6 +4,8 @@
 
 ## 最新实际运行接续（2026-10-25）
 
+CEF当前准备点：out/engine-dxmt-bridge-20261025/foreign-child-design-v1.md已交付并由父代理核对，全部代理关闭。getMetalLayer仅创建时取一次，reparent必须事件通知原host；client rect/full frame/ancestor clip分开，真实0面积不能填满root，仍复用managed/token/lease。父代理foreign-geometry-v1/remote_geometry.c（ad6215d9…）显式SDK15.4/min14零诊断对象，尚未链接/运行/接入路由，不算foreign-child通过。继续root owner消息及Cocoa成功替换/退役；context复用ABA、任意region/混合遮挡和无重建local↔foreign仍未解。不改默认/门禁/用户数据。
+
 95窗口后续：公开d3d11-window-lifecycle最终两PE各1415检查/4窗/56交换链/168Present零失败，真实56快照/56detach/56destroy。首轮1247夹具虽过，源审2P2（final Release后缺Flush、未断言resize实际extent）已修，增加phase尺寸/布局和变化颜色，最终源审0新P1/P2后新双PE实际通过；旧源/log保留。最终session/log/16PE+2native/清理恢复四摘要独立核对；非屏幕/完整泄漏/精确QUERY_EVENT或同token并发证明。接续foreign-child/CEF设计与实现，继续私有不切用户引擎。
 
 最新[96](research/96-r-v1-registry-roundtrip-20261025.md)：真实native→PE五API首次33项有4安全属性失败，定位固定Wine kernelbase忽略sa；0018转交真实描述符/OBJ_INHERIT并保留原权限/错误，中间键默认、已有键不改ACL。源审P2尾部分隔符丢叶SD已修；同EXE旧候选195项12失败，最终两PE各195/18case/3view零失败。最终回调两PE各33项、大值131073、3安全属性及2实际清理失败均过，native/PE各[3,1,2,5,7]、pending1/1/0，无重放。四精确admission负例和五故意错误变体拒绝完成；夹具所有权/任意失败误接纳问题修后限定复审0新P1/P2。首次spec模块名错误及4失败/观察原件保留，观察stage源摘要有显式更正sidecar，复制runner的泛scope不作范围依据。最终14运行log/session/18PE+2native/GUI两空及普通配置恢复/四摘要独立核对，公开诊断/变体重建与实际源逐字一致。所有诊断只私有不采用；真实Windows/完整权限/内核/游戏未过。接续窗口释放重建与foreign-child/CEF，原U8/15、HY顺序、Windowsbusy待重启保持，无Windows/Actions/定时/Goal。非本批AppModel+Bottles.swift保留不提交。

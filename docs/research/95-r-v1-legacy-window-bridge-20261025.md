@@ -77,3 +77,11 @@
 原夹具源码/1247 日志和两份审查保留；不追认原结果为最终加强验收。父代理独立核对最终 log/session、EXE、16 个 PE/2 个 native 模块、真实 GUI 退出/两空和普通实验配置恢复，四个保护摘要保持。资料为 `window-lifecycle-runtime-v2.json`、`window-lifecycle-independent-validation-v2.json` 及 `window-lifecycle-v1/review-v2.json`，均在同一私有资料根。
 
 本轮证明所列本进程资源/API/纹理读回行为；detach/destroy 计数不是完整 native 内存无泄漏证明，纹理像素不是屏幕图像，未控制精确 QUERY_EVENT 竞态或测试同 token 并发创建。下一项仍是 CEF 跨进程子窗口及其几何/上下文退役；未改变原性能、Windows 和游戏门槛。
+
+### 跨进程迁移准备（尚未接入）
+
+限定只读设计已交付 `foreign-child-design-v1.md`，父代理核对旧 oracle、新 managed surface、SetParent 和实际消费者：Metal layer 只在创建时取得一次，不能用每帧 getter 驱动 reparent。候选继续保留原 token/lease/cache，以实际 root owner 路由 CREATE/UPDATE/RELEASE；窗口 owner 必须在 SetParent/DestroyWindow 通知原 host。先成功建立新 host，再按准确 context 退役旧 host。没有把旧私有布局或第二套 pending surface owner 搬入新引擎。
+
+父代理已有 `foreign-geometry-v1/remote_geometry.c` 准备源：使用 child **client rect**，将完整源 frame 与祖先交集 clip 分开，显式隐藏真实零面积；防观察到的重复祖先，不照搬旧固定深度上限。显式 SDK15.4/min14 原生编译零诊断；尚未链接到驱动、没有运行验收，也没有解除 foreign-child 拒绝。不得拿该对象文件作为完成证据。
+
+该方案的收益是保留客户端纹理尺寸和真实父子关系，避免裁剪时缩放整图；成本是 host/context 状态、窗口事件路由和额外裁剪状态。验收要分别覆盖两/三进程、带边框/嵌套、零尺寸恢复、排序、重建失败、先后销毁及 reparent；任意 region、混合本地/远程遮挡、context ID 复用和无重建 local↔foreign 转换仍是未解项。提案不进入默认配方，回退仍是原稳定引擎。所有子代理已关闭，继续以此接续点实施。
