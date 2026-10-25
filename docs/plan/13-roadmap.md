@@ -1,5 +1,8 @@
 # 13 路线图与待办（执行顺序）
 
+最新[99](../research/99-r-v1-typed-producer-leases-20261025.md)：0021类型化消息/真实进程租约及PE恢复实现已精确重建、成组链接、NDEBUG编译和限定复审；最终双向跨位宽各68项、实际退出/主动释放/高32位代次拒绝通过，原窗口受影响双PE各1415/56交换链/168Present通过并有独立log/组件/清理恢复绑定。0020旧PE32清理缺口另已定向补齐，旧failed保持。下一步失败清理/worker死亡真实对照→CAContext资源及事件/reparent→两三进程呈现；foreign路由仍未启用，故障/屏幕/CEF/游戏不计完成，不切默认。
+
+
 用户要求的紧急存储清理已完成，首批净回收60.29GiB；本轮再归档3套诊断引擎/4套stage/3份重复备份，当前系统可用约60GiB。完整清单和精确差异保留，当前工具链/工作包/用户游戏存档不动，见[97](../research/97-storage-cleanup-and-coordinator-checkpoint-20261025.md)。按峰值+20GiB规则继续，旧stage缺失不自动重下大包。
 
 协调器最新见[98](../research/98-r-v1-root-host-coordinator-20261025.md)：0020普通root-local源码/链接/耗尽P2修后复审完成；实际双PE高位夹具各32项/9snapshot/两故障零失败，旧耗尽分支精确4失败，清理恢复及独立绑定完成。普通窗口双PE各1415项零失败，但PE32首次清理回执丢失、断言失败，原因未知，整批仍拒绝；最终及收尾无pending/普通恢复已确认。保留该缺口，后续控制器先保存原始清理结果再判断，不盲重跑。继续producer租约/消息/进程退出/reparent→两/三进程实际呈现；foreign-child/完整桥接未通过，不切默认或提升游戏。最新私有恢复点work-resume-checkpoint-v2.json；原HY顺序、U8/15和Windows条件保持。

@@ -1,0 +1,1471 @@
+Cider-Topic: winemac/typed-producer-leases
+Upstream: candidate; not default adopted
+Cider-Test: bounded USER/process-lease acceptance; see research99 once recorded
+Cider-Review-By: source-bound adversarial reports; runtime separate
+
+--- a/dlls/winemac.drv/Makefile.in
++++ b/dlls/winemac.drv/Makefile.in
+@@ -42,6 +42,7 @@
+ 	opengl.c \
+ 	remote_geometry.c \
+ 	remote_coordinator.c \
++	remote_watch_pe.c \
+ 	surface.c \
+ 	systray.c \
+ 	vulkan.c \
+--- a/dlls/winemac.drv/macdrv.h
++++ b/dlls/winemac.drv/macdrv.h
+@@ -36,6 +36,7 @@
+ #include "wine/debug.h"
+ #include "wine/gdi_driver.h"
+ #include "unixlib.h"
++#include "wine/macdrv_remote.h"
+ 
+ 
+ extern BOOL allow_vsync;
+@@ -210,6 +211,11 @@
+ extern BOOL macdrv_remote_host_refresh(UINT64 ticket);
+ extern void macdrv_remote_root_changed(HWND hwnd);
+ extern void macdrv_remote_child_destroyed(HWND hwnd);
++extern NTSTATUS macdrv_remote_watch_init(void *args);
++extern NTSTATUS macdrv_remote_watch_complete(void *args);
++extern NTSTATUS macdrv_remote_watch_recover(void *args);
++extern LRESULT macdrv_remote_packet_receive(HWND hwnd, WPARAM size, struct macdrv_remote_packet *packet);
++extern BOOL macdrv_remote_packet_send(HWND root, struct macdrv_remote_packet *packet);
+ 
+ struct macdrv_client_surface
+ {
+--- a/dlls/winemac.drv/window.c
++++ b/dlls/winemac.drv/window.c
+@@ -1574,6 +1574,8 @@
+ 
+     switch(msg)
+     {
++    case WM_MACDRV_REMOTE_HOST_PACKET:
++        return macdrv_remote_packet_receive(hwnd, wp, (struct macdrv_remote_packet *)lp);
+     case WM_MACDRV_SET_WIN_REGION:
+         if ((data = get_win_data(hwnd)))
+         {
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -9,11 +9,21 @@
+ #include <stdlib.h>
+ #include <string.h>
+ #include "macdrv.h"
++#include "winternl.h"
++#include "remote_watch.h"
++#include "wine/macdrv_remote.h"
++#include "wine/server.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
+ 
+ extern void *macdrv_legacy_retain_object(void *object);
+ extern void macdrv_legacy_release_object(void *object);
++
++struct remote_producer;
++struct producer_history;
++struct remote_root;
++static void producer_release(struct remote_producer *producer);
++static void root_revoke_producers(struct remote_root *root);
+ 
+ enum host_state { HOST_PENDING, HOST_INSTALLED, HOST_RETIRED };
+ struct remote_root
+@@ -24,6 +34,7 @@
+     WineWindow *window;
+     UINT64 epoch, revision;
+     BOOL open;
++    struct producer_history *history;
+ };
+ struct remote_host
+ {
+@@ -35,7 +46,30 @@
+     UINT64 ticket, update_serial, prepared_revision;
+     enum host_state state;
+     BOOL installed;
++    struct remote_producer *producer;
+ };
++struct producer_history
++{
++    struct producer_history *next;
++    DWORD pid;
++    UINT64 birth, highwater;
++};
++struct remote_producer
++{
++    struct remote_producer *next, *watch_next, *cleanup_next;
++    LONG refs;
++    struct remote_root *root;
++    HANDLE process, cleanup_process;
++    DWORD pid;
++    UINT64 id, birth, generation, last_sequence;
++    UINT32 cleanup_inflight;
++    BOOL active, listed, watched, watch_started, busy, cleanup_pending, cleanup_listed;
++    BOOL completion_requested, finalized;
++};
++static struct remote_producer *producers, *producer_watches, *producer_cleanup;
++static struct remote_producer **producer_cleanup_tail = &producer_cleanup;
++static LONG64 watch_callback;
++static struct remote_producer *producer_lookup_locked(UINT64 id);
+ struct update_job
+ {
+     struct remote_host *host;
+@@ -61,7 +95,10 @@
+ }
+ static void root_release(struct remote_root *root)
+ {
++    struct producer_history *history, *next;
+     if (InterlockedDecrement(&root->refs)) return;
++    for (history = root->history; history; history = next)
++    { next = history->next; free(history); }
+     macdrv_legacy_release_object(root->window);
+     free(root);
+ }
+@@ -69,6 +106,7 @@
+ {
+     if (InterlockedDecrement(&host->refs)) return;
+     assert(!host->predecessors);
++    producer_release(host->producer);
+     root_release(host->root);
+     free(host);
+ }
+@@ -169,7 +207,11 @@
+     }
+     pthread_mutex_unlock(&remote_lock);
+     dispose_retired(retired);
+-    if (root) root_release(root);
++    if (root)
++    {
++        root_revoke_producers(root);
++        root_release(root);
++    }
+ }
+ 
+ /* Walk current Win32 paint order bottom-to-top, parent before descendants.
+@@ -254,7 +296,8 @@
+     BOOL accepted;
+     pthread_mutex_lock(&remote_lock);
+     accepted = host->state == HOST_PENDING && host->root->open &&
+-               host->prepared_revision == host->root->revision;
++               host->prepared_revision == host->root->revision &&
++               (!host->producer || host->producer->active);
+     if (accepted)
+     {
+         host->state = HOST_INSTALLED;
+@@ -272,7 +315,7 @@
+     pthread_mutex_unlock(&remote_lock);
+     return accepted;
+ }
+-UINT64 macdrv_remote_host_install(HWND hwnd, UINT64 root_epoch, HWND child, UINT context_id)
++static UINT64 host_install(HWND hwnd, UINT64 root_epoch, HWND child, UINT context_id, UINT64 lease_id, DWORD pid, UINT64 generation)
+ {
+     struct remote_root *root;
+     struct remote_host *host, *old, *next, *retired = NULL;
+@@ -287,6 +330,18 @@
+         pthread_mutex_unlock(&remote_lock);
+         free(host);
+         return 0;
++    }
++    if (lease_id)
++    {
++        host->producer = producer_lookup_locked(lease_id);
++        if (!host->producer || !host->producer->active || host->producer->root != root ||
++            host->producer->pid != pid || host->producer->generation != generation)
++        {
++            pthread_mutex_unlock(&remote_lock);
++            free(host);
++            return 0;
++        }
++        InterlockedIncrement(&host->producer->refs);
+     }
+     host->refs = 2; /* lookup-list owner + this synchronous install pin */
+     host->root = root;
+@@ -318,6 +373,10 @@
+     host_release(host);
+     return result;
+ }
++UINT64 macdrv_remote_host_install(HWND hwnd, UINT64 root_epoch, HWND child, UINT context_id)
++{
++    return host_install(hwnd, root_epoch, child, context_id, 0, 0, 0);
++}
+ void macdrv_remote_host_release(UINT64 ticket)
+ {
+     struct remote_host *host, *retired = NULL;
+@@ -334,7 +393,8 @@
+     BOOL accepted;
+     pthread_mutex_lock(&remote_lock);
+     accepted = host->state == HOST_INSTALLED && host->root->open &&
+-               host->root->revision == job->revision && host->update_serial == job->serial;
++               host->root->revision == job->revision && host->update_serial == job->serial &&
++               (!host->producer || host->producer->active);
+     pthread_mutex_unlock(&remote_lock);
+     return accepted;
+ }
+@@ -399,8 +459,11 @@
+             next = host->next;
+             if (host->root == root) retire_locked(host, &retired);
+         }
++        InterlockedIncrement(&root->refs);
+         pthread_mutex_unlock(&remote_lock);
+         dispose_retired(retired);
++        root_revoke_producers(root);
++        root_release(root);
+         return;
+     }
+     root->revision = revision;
+@@ -426,3 +489,483 @@
+     pthread_mutex_unlock(&remote_lock);
+     dispose_retired(retired);
+ }
++
++/* Producer state is a Wine process-object lease, not a Unix PID observation.
++ * Revocation is called on Wine threads (USER handler or PE wait completion).
++ * Cocoa validation/disposal only reads state or releases plain native pins. */
++static struct remote_producer *producer_lookup_locked(UINT64 id)
++{
++    struct remote_producer *producer;
++    for (producer = producers; producer; producer = producer->next)
++        if (producer->id == id) return producer;
++    return NULL;
++}
++static void producer_release(struct remote_producer *producer)
++{
++    if (!producer || InterlockedDecrement(&producer->refs)) return;
++    assert(!producer->process && !producer->cleanup_process && !producer->listed &&
++           !producer->watched && !producer->cleanup_listed && !producer->cleanup_inflight);
++    root_release(producer->root);
++    free(producer);
++}
++static DWORD watch_control(UINT operation, HANDLE process, UINT64 id, BOOL *acknowledged)
++{
++    struct macdrv_remote_watch_request request = {0};
++    struct macdrv_remote_watch_reply reply;
++    void *returned = NULL;
++    ULONG size = 0;
++    NTSTATUS status;
++    UINT_PTR handle = (UINT_PTR)process;
++    if (acknowledged) *acknowledged = FALSE;
++    if (handle != (UINT32)handle) return ERROR_INVALID_HANDLE;
++    request.dispatch.callback = (UINT64)InterlockedCompareExchange64(&watch_callback, 0, 0);
++    request.magic = MACDRV_REMOTE_WATCH_MAGIC;
++    request.version = MACDRV_REMOTE_WATCH_VERSION;
++    request.operation = operation;
++    request.process_handle = handle;
++    request.lease_id = id;
++    status = KeUserDispatchCallback(&request.dispatch, sizeof(request), &returned, &size);
++    if (status) return RtlNtStatusToDosError(status);
++    if (!returned || size != sizeof(reply)) return ERROR_INVALID_DATA;
++    memcpy(&reply, returned, sizeof(reply));
++    if (reply.magic != request.magic || reply.version != request.version ||
++        reply.operation != operation || reply.lease_id != id) return ERROR_INVALID_DATA;
++    if (acknowledged) *acknowledged = TRUE;
++    return reply.status;
++}
++/* Stable final acknowledgement includes handle-owning control frames, not
++ * only nullable fields. Check and detach share remote_lock; finalized is terminal. */
++static void finalize_producer_watch(struct remote_producer *producer)
++{
++    struct remote_producer **cursor;
++    BOOL detached = FALSE;
++    pthread_mutex_lock(&remote_lock);
++    if (producer->watched && producer->completion_requested && !producer->process &&
++        !producer->cleanup_process && !producer->cleanup_listed && !producer->cleanup_inflight)
++    {
++        for (cursor = &producer_watches; *cursor != producer; cursor = &(*cursor)->watch_next) assert(*cursor);
++        *cursor = producer->watch_next;
++        producer->watched = FALSE;
++        producer->finalized = TRUE;
++        detached = TRUE;
++    }
++    pthread_mutex_unlock(&remote_lock);
++    if (detached) producer_release(producer); /* completion registry owner */
++}
++/* One explicit cleanup-list owner survives failed STOP/NtClose. Future USER
++ * requests retry at most one cleanup, never ACQUIRE/INSTALL or other mutations. */
++static void queue_producer_cleanup(struct remote_producer *producer)
++{
++    pthread_mutex_lock(&remote_lock);
++    if (!producer->cleanup_listed && (producer->cleanup_process || (producer->cleanup_pending && producer->watched)))
++    {
++        InterlockedIncrement(&producer->refs);
++        producer->cleanup_listed = TRUE;
++        producer->cleanup_next = NULL;
++        *producer_cleanup_tail = producer;
++        producer_cleanup_tail = &producer->cleanup_next;
++    }
++    pthread_mutex_unlock(&remote_lock);
++}
++static DWORD close_producer_process(struct remote_producer *producer, HANDLE process)
++{
++    NTSTATUS status;
++    if (!process || !(status = NtClose(process))) return ERROR_SUCCESS;
++    pthread_mutex_lock(&remote_lock);
++    assert(!producer->cleanup_process);
++    producer->cleanup_process = process;
++    pthread_mutex_unlock(&remote_lock);
++    queue_producer_cleanup(producer);
++    ERR("remote producer process close failed %#x; handle owner retained\n", (unsigned int)status);
++    return RtlNtStatusToDosError(status);
++}
++static DWORD stop_producer_watch(struct remote_producer *producer)
++{
++    DWORD status;
++    BOOL watched, acknowledged;
++    pthread_mutex_lock(&remote_lock);
++    watched = producer->watched;
++    if (watched) ++producer->cleanup_inflight;
++    pthread_mutex_unlock(&remote_lock);
++    if (!watched) return ERROR_SUCCESS;
++    status = watch_control(MACDRV_REMOTE_WATCH_STOP, NULL, producer->id, &acknowledged);
++    pthread_mutex_lock(&remote_lock);
++    if (acknowledged && status == ERROR_NOT_FOUND)
++    {
++        producer->completion_requested = TRUE;
++        status = ERROR_SUCCESS;
++    }
++    producer->cleanup_pending = status != ERROR_SUCCESS;
++    --producer->cleanup_inflight;
++    pthread_mutex_unlock(&remote_lock);
++    if (status)
++    {
++        queue_producer_cleanup(producer);
++        ERR("remote producer %#llx stop failed %u; watch owner retained\n",
++            (unsigned long long)producer->id, (unsigned)status);
++    }
++    finalize_producer_watch(producer);
++    return status;
++}
++static void retry_producer_cleanup(void)
++{
++    struct remote_producer *producer;
++    HANDLE process = NULL;
++    BOOL pending = FALSE;
++    pthread_mutex_lock(&remote_lock);
++    producer = producer_cleanup;
++    if (producer)
++    {
++        producer_cleanup = producer->cleanup_next;
++        if (!producer_cleanup) producer_cleanup_tail = &producer_cleanup;
++        producer->cleanup_listed = FALSE;
++        ++producer->cleanup_inflight; /* transfer queue owner before clearing handle */
++        process = producer->cleanup_process;
++        producer->cleanup_process = NULL;
++        pending = producer->cleanup_pending && producer->watched && !producer->completion_requested;
++        if (producer->completion_requested) producer->cleanup_pending = FALSE;
++    }
++    pthread_mutex_unlock(&remote_lock);
++    if (!producer) return;
++    close_producer_process(producer, process);
++    if (pending) stop_producer_watch(producer);
++    pthread_mutex_lock(&remote_lock);
++    --producer->cleanup_inflight;
++    pthread_mutex_unlock(&remote_lock);
++    finalize_producer_watch(producer);
++    producer_release(producer); /* transferred cleanup-list owner */
++}
++static DWORD producer_revoke(struct remote_producer *producer, BOOL stop_worker)
++{
++    struct remote_producer **cursor;
++    struct remote_host *host, *next, *retired = NULL;
++    HANDLE process;
++    BOOL listed, started;
++    DWORD status, stop_status;
++    pthread_mutex_lock(&remote_lock);
++    producer->active = FALSE;
++    ++producer->cleanup_inflight; /* owns process locally until close/requeue completes */
++    process = producer->process;
++    producer->process = NULL;
++    listed = producer->listed;
++    if (listed)
++    {
++        for (cursor = &producers; *cursor != producer; cursor = &(*cursor)->next) assert(*cursor);
++        *cursor = producer->next;
++        producer->listed = FALSE;
++    }
++    started = producer->watch_started;
++    for (host = hosts; host; host = next)
++    {
++        next = host->next;
++        if (host->producer == producer) retire_locked(host, &retired);
++    }
++    pthread_mutex_unlock(&remote_lock);
++    dispose_retired(retired);
++    status = close_producer_process(producer, process);
++    if (stop_worker && started)
++    {
++        stop_status = stop_producer_watch(producer);
++        if (!status) status = stop_status;
++    }
++    pthread_mutex_lock(&remote_lock);
++    --producer->cleanup_inflight;
++    pthread_mutex_unlock(&remote_lock);
++    finalize_producer_watch(producer);
++    if (listed) producer_release(producer);
++    return status;
++}
++static void root_revoke_producers(struct remote_root *root)
++{
++    struct remote_producer *producer;
++    for (;;)
++    {
++        pthread_mutex_lock(&remote_lock);
++        for (producer = producers; producer; producer = producer->next)
++            if (producer->root == root) break;
++        if (producer) InterlockedIncrement(&producer->refs);
++        pthread_mutex_unlock(&remote_lock);
++        if (!producer) break;
++        producer_revoke(producer, TRUE);
++        producer_release(producer);
++    }
++}
++NTSTATUS macdrv_remote_watch_init(void *args)
++{
++    struct macdrv_remote_watch_init *init = args;
++    LONG64 old;
++    if (!init || init->magic != MACDRV_REMOTE_WATCH_MAGIC || init->version != MACDRV_REMOTE_WATCH_VERSION || !init->callback)
++        return STATUS_INVALID_PARAMETER;
++    old = InterlockedCompareExchange64(&watch_callback, init->callback, 0);
++    return !old || (UINT64)old == init->callback ? STATUS_SUCCESS : STATUS_INVALID_PARAMETER;
++}
++NTSTATUS macdrv_remote_watch_complete(void *args)
++{
++    const struct macdrv_remote_watch_completion *completion = args;
++    struct remote_producer *producer;
++    DWORD cleanup_status;
++    BOOL pending;
++    if (!completion || !completion->lease_id || completion->outcome < MACDRV_REMOTE_WATCH_EXITED ||
++        completion->outcome > MACDRV_REMOTE_WATCH_FAILED ||
++        (completion->outcome != MACDRV_REMOTE_WATCH_FAILED && completion->error)) return STATUS_INVALID_PARAMETER;
++    pthread_mutex_lock(&remote_lock);
++    for (producer = producer_watches; producer; producer = producer->watch_next)
++        if (producer->id == completion->lease_id) break;
++    if (producer)
++    {
++        InterlockedIncrement(&producer->refs);
++        producer->completion_requested = TRUE;
++        producer->cleanup_pending = FALSE;
++    }
++    pthread_mutex_unlock(&remote_lock);
++    if (!producer) return STATUS_NOT_FOUND;
++    TRACE("remote producer complete %#llx outcome %u error %u\n", (unsigned long long)producer->id,
++          completion->outcome, completion->error);
++    if (completion->outcome == MACDRV_REMOTE_WATCH_FAILED)
++        ERR("remote process wait failed %u; producer revoked\n", completion->error);
++    cleanup_status = producer_revoke(producer, FALSE);
++    pthread_mutex_lock(&remote_lock);
++    pending = !producer->finalized;
++    pthread_mutex_unlock(&remote_lock);
++    producer_release(producer);
++    return cleanup_status || pending ? STATUS_PENDING : STATUS_SUCCESS;
++}
++static UINT64 producer_acquire(HWND hwnd, UINT64 epoch, DWORD pid, DWORD tid, UINT64 generation, DWORD *error)
++{
++    OBJECT_ATTRIBUTES attributes = {sizeof(attributes)};
++    CLIENT_ID client = {ULongToHandle(pid), ULongToHandle(tid)};
++    THREAD_BASIC_INFORMATION thread_info;
++    KERNEL_USER_TIMES times;
++    LARGE_INTEGER zero = {0};
++    HANDLE thread = NULL, process = NULL;
++    struct remote_producer *producer, *current;
++    struct remote_root *root;
++    struct producer_history *history, *prepared;
++    UINT64 result = 0;
++    NTSTATUS status;
++    DWORD start_status;
++    *error = ERROR_INVALID_PARAMETER;
++    if (!pid || !tid || !generation) return 0;
++    if (!InterlockedCompareExchange64(&watch_callback, 0, 0))
++    { *error = ERROR_PROC_NOT_FOUND; return 0; }
++    if ((status = NtOpenThread(&thread, THREAD_QUERY_INFORMATION, &attributes, &client))) goto fail;
++    if ((status = NtQueryInformationThread(thread, ThreadBasicInformation, &thread_info, sizeof(thread_info), NULL))) goto fail;
++    if (thread_info.ClientId.UniqueProcess != client.UniqueProcess || thread_info.ClientId.UniqueThread != client.UniqueThread)
++    { status = STATUS_INVALID_CID; goto fail; }
++    /* Keep the thread's process reference until the process object is opened. */
++    client.UniqueThread = NULL;
++    if ((status = NtOpenProcess(&process, PROCESS_QUERY_INFORMATION | SYNCHRONIZE, &attributes, &client))) goto fail;
++    NtClose(thread); thread = NULL;
++    if ((status = NtQueryInformationProcess(process, ProcessTimes, &times, sizeof(times), NULL))) goto fail;
++    if ((status = NtWaitForSingleObject(process, FALSE, &zero)) != STATUS_TIMEOUT)
++    { if (!status) status = STATUS_PROCESS_IS_TERMINATING; goto fail; }
++    producer = calloc(1, sizeof(*producer));
++    prepared = calloc(1, sizeof(*prepared));
++    if (!producer || !prepared)
++    { free(producer); free(prepared); *error = ERROR_NOT_ENOUGH_MEMORY; NtClose(process); return 0; }
++    producer->refs = 1; /* local acquisition pin */
++    producer->pid = pid; producer->generation = generation;
++    producer->birth = times.CreateTime.QuadPart;
++    producer->process = process;
++    pthread_mutex_lock(&remote_lock);
++    root = root_lookup_locked(hwnd);
++    if (!root || !root->open || !root->revision || root->epoch != epoch) goto rejected;
++    for (current = producers; current; current = current->next)
++        if (current->root == root && current->pid == pid && current->birth == producer->birth && current->generation == generation)
++        {
++            if (current->active && current->watch_started) result = current->id;
++            goto rejected;
++        }
++    for (history = root->history; history; history = history->next)
++        if (history->pid == pid && history->birth == producer->birth) break;
++    if ((history && generation <= history->highwater) || !(producer->id = identity_locked())) goto rejected;
++    if (!history)
++    {
++        history = prepared; prepared = NULL;
++        history->pid = pid; history->birth = producer->birth;
++        history->next = root->history; root->history = history;
++    }
++    history->highwater = generation; /* failed setup still consumes the generation */
++    producer->root = root; InterlockedIncrement(&root->refs);
++    producer->active = producer->listed = producer->watched = TRUE;
++    producer->refs += 2; /* lookup registry + completion registry */
++    producer->next = producers; producers = producer;
++    producer->watch_next = producer_watches; producer_watches = producer;
++    pthread_mutex_unlock(&remote_lock);
++    free(prepared);
++    start_status = watch_control(MACDRV_REMOTE_WATCH_START, process, producer->id, NULL);
++    pthread_mutex_lock(&remote_lock);
++    if (!start_status) producer->watch_started = TRUE;
++    if (!start_status && producer->active && root->open && root->revision) result = producer->id;
++    pthread_mutex_unlock(&remote_lock);
++    if (!result)
++    {
++        producer_revoke(producer, TRUE);
++        if (start_status)
++        {
++            /* A malformed callback return cannot prove START did no work. */
++            stop_producer_watch(producer);
++        }
++    }
++    *error = result ? ERROR_SUCCESS : (start_status ? start_status : ERROR_PROCESS_ABORTED);
++    producer_release(producer);
++    return result;
++rejected:
++    pthread_mutex_unlock(&remote_lock);
++    free(prepared); free(producer); NtClose(process);
++    *error = result ? ERROR_SUCCESS : ERROR_INVALID_HANDLE;
++    return result;
++fail:
++    if (thread) NtClose(thread);
++    if (process) NtClose(process);
++    *error = RtlNtStatusToDosError(status);
++    return 0;
++}
++
++static DWORD packet_producer_begin(const struct macdrv_remote_packet *packet, struct remote_producer **result)
++{
++    struct remote_producer *producer;
++    DWORD error = ERROR_INVALID_HANDLE;
++    *result = NULL;
++    pthread_mutex_lock(&remote_lock);
++    producer = producer_lookup_locked(packet->lease_id);
++    if (producer && producer->active && producer->root->open && producer->root->revision &&
++        producer->root->epoch == packet->root_epoch && wine_server_user_handle(producer->root->hwnd) == packet->root &&
++        producer->pid == packet->producer_pid && producer->generation == packet->producer_generation)
++    {
++        if (!packet->sequence || packet->sequence <= producer->last_sequence) error = ERROR_RETRY;
++        else if (producer->busy && packet->operation != MACDRV_REMOTE_RELEASE_PRODUCER) error = ERROR_BUSY;
++        else
++        {
++            producer->busy = TRUE;
++            producer->last_sequence = packet->sequence;
++            InterlockedIncrement(&producer->refs);
++            *result = producer;
++            error = ERROR_SUCCESS;
++        }
++    }
++    pthread_mutex_unlock(&remote_lock);
++    return error;
++}
++LRESULT macdrv_remote_packet_receive(HWND hwnd, WPARAM size, struct macdrv_remote_packet *packet)
++{
++    struct remote_producer *producer = NULL;
++    struct remote_host *host;
++    KERNEL_USER_TIMES times;
++    BOOL owned;
++    DWORD error = ERROR_INVALID_PARAMETER;
++    NTSTATUS status;
++    HWND child;
++    if (size || !macdrv_remote_packet_header_valid(packet) || packet->flags ||
++        packet->root != wine_server_user_handle(hwnd)) return 0;
++    retry_producer_cleanup();
++    status = NtQueryInformationProcess(NtCurrentProcess(), ProcessTimes, &times, sizeof(times), NULL);
++    if (status) { error = RtlNtStatusToDosError(status); goto reply; }
++    if (packet->root_pid || packet->root_create_time || !packet->producer_pid || !packet->producer_tid) goto reply;
++    switch (packet->operation)
++    {
++    case MACDRV_REMOTE_QUERY_ROOT:
++        if (packet->child || packet->producer_generation || packet->root_epoch || packet->lease_id ||
++            packet->host_ticket || packet->context_id) goto reply;
++        break;
++    case MACDRV_REMOTE_ACQUIRE_PRODUCER:
++        if (!packet->producer_generation || !packet->root_epoch || packet->lease_id || packet->host_ticket ||
++            packet->child || packet->context_id) goto reply;
++        break;
++    case MACDRV_REMOTE_INSTALL_HOST:
++        if (!packet->context_id || packet->host_ticket) goto reply;
++        break;
++    case MACDRV_REMOTE_REFRESH_HOST:
++    case MACDRV_REMOTE_RELEASE_HOST:
++        if (!packet->host_ticket || packet->context_id || packet->child) goto reply;
++        break;
++    case MACDRV_REMOTE_RELEASE_PRODUCER:
++        if (packet->host_ticket || packet->context_id || packet->child) goto reply;
++        break;
++    }
++    packet->root_pid = GetCurrentProcessId();
++    packet->root_create_time = times.CreateTime.QuadPart;
++    if (packet->operation == MACDRV_REMOTE_QUERY_ROOT)
++    {
++        packet->root_epoch = macdrv_remote_root_epoch(hwnd);
++        error = packet->root_epoch ? ERROR_SUCCESS : ERROR_INVALID_HANDLE;
++        goto reply;
++    }
++    if (packet->operation == MACDRV_REMOTE_ACQUIRE_PRODUCER)
++    {
++        packet->lease_id = producer_acquire(hwnd, packet->root_epoch, packet->producer_pid,
++                                            packet->producer_tid, packet->producer_generation, &error);
++        goto reply;
++    }
++    if ((error = packet_producer_begin(packet, &producer))) goto reply;
++    switch (packet->operation)
++    {
++    case MACDRV_REMOTE_INSTALL_HOST:
++        child = packet->child ? wine_server_ptr_handle(packet->child) : hwnd;
++        packet->host_ticket = host_install(hwnd, packet->root_epoch, child, packet->context_id,
++                                            producer->id, producer->pid, producer->generation);
++        error = packet->host_ticket ? ERROR_SUCCESS : ERROR_INVALID_HANDLE;
++        break;
++    case MACDRV_REMOTE_REFRESH_HOST:
++    case MACDRV_REMOTE_RELEASE_HOST:
++        pthread_mutex_lock(&remote_lock);
++        host = host_lookup_locked(packet->host_ticket);
++        owned = host && host->producer == producer;
++        pthread_mutex_unlock(&remote_lock);
++        if (!owned) { error = ERROR_INVALID_HANDLE; break; }
++        if (packet->operation == MACDRV_REMOTE_REFRESH_HOST)
++            error = macdrv_remote_host_refresh(packet->host_ticket) ? ERROR_SUCCESS : ERROR_INVALID_HANDLE;
++        else
++        {
++            macdrv_remote_host_release(packet->host_ticket);
++            error = ERROR_SUCCESS;
++        }
++        break;
++    case MACDRV_REMOTE_RELEASE_PRODUCER:
++        error = producer_revoke(producer, TRUE);
++        break;
++    }
++    pthread_mutex_lock(&remote_lock);
++    producer->busy = FALSE;
++    if (!producer->active && packet->operation != MACDRV_REMOTE_RELEASE_PRODUCER) error = ERROR_PROCESS_ABORTED;
++    pthread_mutex_unlock(&remote_lock);
++    producer_release(producer);
++reply:
++    packet->status = error;
++    packet->flags = MACDRV_REMOTE_PACKET_RESPONSE;
++    return 1; /* copied reply delivered; packet.status is the actual operation result */
++}
++BOOL macdrv_remote_packet_send(HWND root, struct macdrv_remote_packet *packet)
++{
++    struct send_message_timeout_params timeout = { .flags = SMTO_ABORTIFHUNG, .timeout = 3000 };
++    LRESULT delivered;
++    packet->size = sizeof(*packet);
++    packet->version = MACDRV_REMOTE_PACKET_VERSION;
++    packet->root = wine_server_user_handle(root);
++    packet->producer_pid = GetCurrentProcessId();
++    packet->producer_tid = GetCurrentThreadId();
++    packet->status = ERROR_IO_PENDING;
++    packet->flags = 0;
++    packet->reserved = 0;
++    packet->root_pid = 0;
++    packet->root_create_time = 0;
++    delivered = NtUserMessageCall(root, WM_MACDRV_REMOTE_HOST_PACKET, 0, (LPARAM)packet,
++                                  &timeout, NtUserSendMessageTimeout, FALSE);
++    return delivered && timeout.result == 1 && packet->flags == MACDRV_REMOTE_PACKET_RESPONSE &&
++           macdrv_remote_packet_header_valid(packet);
++}
++
++NTSTATUS macdrv_remote_watch_recover(void *args)
++{
++    struct macdrv_remote_watch_recovery *recovery = args;
++    struct remote_producer *producer;
++    UINT32 count = 0;
++    if (!recovery || recovery->size != sizeof(*recovery) || recovery->version != MACDRV_REMOTE_WATCH_VERSION || recovery->reserved)
++        return STATUS_INVALID_PARAMETER;
++    retry_producer_cleanup();
++    pthread_mutex_lock(&remote_lock);
++    for (producer = producer_cleanup; producer; producer = producer->cleanup_next) ++count;
++    pthread_mutex_unlock(&remote_lock);
++    recovery->pending = count;
++    return STATUS_SUCCESS;
++}
+--- /dev/null
++++ b/dlls/winemac.drv/remote_watch.h
+@@ -0,0 +1,25 @@
++/* Process-object waits stay on Wine threads, not raw Cocoa/dispatch threads. */
++#ifndef __WINE_MACDRV_REMOTE_WATCH_H
++#define __WINE_MACDRV_REMOTE_WATCH_H
++#include "ntuser.h"
++#define MACDRV_REMOTE_WATCH_MAGIC 0x3157504dU
++#define MACDRV_REMOTE_WATCH_VERSION 1U
++enum macdrv_remote_watch_operation { MACDRV_REMOTE_WATCH_START = 1, MACDRV_REMOTE_WATCH_STOP };
++enum macdrv_remote_watch_outcome { MACDRV_REMOTE_WATCH_EXITED = 1, MACDRV_REMOTE_WATCH_CANCELED, MACDRV_REMOTE_WATCH_FAILED };
++struct macdrv_remote_watch_init { UINT32 magic, version; UINT64 callback; };
++struct macdrv_remote_watch_request
++{
++    struct dispatch_callback_params dispatch;
++    UINT32 magic, version, operation, process_handle;
++    UINT64 lease_id;
++};
++struct macdrv_remote_watch_reply { UINT32 magic, version, operation, status; UINT64 lease_id; };
++struct macdrv_remote_watch_completion { UINT64 lease_id; UINT32 outcome, error; };
++struct macdrv_remote_watch_recovery { UINT32 size, version, pending, reserved; };
++C_ASSERT(sizeof(struct macdrv_remote_watch_recovery) == 16);
++C_ASSERT(sizeof(struct macdrv_remote_watch_init) == 16);
++C_ASSERT(sizeof(struct macdrv_remote_watch_request) == 32);
++C_ASSERT(sizeof(struct macdrv_remote_watch_reply) == 24);
++C_ASSERT(sizeof(struct macdrv_remote_watch_completion) == 16);
++extern NTSTATUS WINAPI macdrv_remote_watch_callback(void *args, ULONG size);
++#endif
+--- /dev/null
++++ b/dlls/winemac.drv/remote_watch_pe.c
+@@ -0,0 +1,315 @@
++/* A PE worker waits on the real Wine process object and an owned stop event.
++ * The process handle pins its incarnation; no Unix PID sampling or reuse guess.
++ * One registry ref and one worker ref. Completion failure retains an explicit
++ * registry owner; a later STOP retries only cleanup notification, never START. */
++#include <assert.h>
++#include <stdarg.h>
++#include <string.h>
++#include "ntstatus.h"
++#define WIN32_NO_STATUS
++#include "windef.h"
++#include "winbase.h"
++#include "winternl.h"
++#include "unixlib.h"
++#include "remote_watch.h"
++#include "wine/debug.h"
++WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
++
++struct process_watch
++{
++    struct process_watch *next;
++    LONG refs, worker_ref_live;
++    HANDLE process, stop, thread;
++    UINT32 original_handle;
++    BOOL linked, completion_ready, native_completed;
++    struct macdrv_remote_watch_completion completion;
++};
++static SRWLOCK watch_lock = SRWLOCK_INIT;
++static struct process_watch *watches;
++
++/* One timer per active process-local watch set. It supplies a runnable cleanup
++ * owner after publication failure or a dead wait worker, and is retired when
++ * the registry becomes empty. Timer callbacks never retain caller frames. */
++struct recovery_timer { struct recovery_timer *next; HANDLE handle; };
++static struct recovery_timer *active_timer, *retired_timers;
++static struct recovery_timer **retired_timer_tail = &retired_timers;
++static void CALLBACK recovery_tick(void *context, BOOLEAN fired);
++static DWORD arm_recovery_locked(void)
++{
++    struct recovery_timer *timer;
++    DWORD error;
++    if (active_timer) return ERROR_SUCCESS;
++    timer = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*timer));
++    if (!timer) return ERROR_NOT_ENOUGH_MEMORY;
++    if (!CreateTimerQueueTimer(&timer->handle, NULL, recovery_tick, NULL, 250, 250, WT_EXECUTEDEFAULT))
++    { error = GetLastError(); HeapFree(GetProcessHeap(), 0, timer); return error; }
++    active_timer = timer;
++    return ERROR_SUCCESS;
++}
++static void cleanup_one_retired_timer(void)
++{
++    struct recovery_timer *timer;
++    DWORD error;
++    AcquireSRWLockExclusive(&watch_lock);
++    timer = retired_timers;
++    if (timer)
++    {
++        retired_timers = timer->next;
++        if (!retired_timers) retired_timer_tail = &retired_timers;
++    }
++    ReleaseSRWLockExclusive(&watch_lock);
++    if (!timer) return;
++    if (DeleteTimerQueueTimer(NULL, timer->handle, NULL)) error = ERROR_SUCCESS;
++    else error = GetLastError();
++    /* IO_PENDING confirms deferred cancellation; callbacks use NULL context,
++     * pinned driver code and the global protected registry, not this owner. */
++    if (error == ERROR_SUCCESS || error == ERROR_IO_PENDING)
++        HeapFree(GetProcessHeap(), 0, timer);
++    else
++    {
++        AcquireSRWLockExclusive(&watch_lock);
++        timer->next = NULL; *retired_timer_tail = timer; retired_timer_tail = &timer->next;
++        ReleaseSRWLockExclusive(&watch_lock);
++        ERR("remote recovery timer delete failed %u; owner retained\n", (unsigned)error);
++    }
++}
++static void retire_empty_timer(void)
++{
++    AcquireSRWLockExclusive(&watch_lock);
++    if (!watches && active_timer)
++    {
++        active_timer->next = NULL;
++        *retired_timer_tail = active_timer;
++        retired_timer_tail = &active_timer->next;
++        active_timer = NULL;
++    }
++    ReleaseSRWLockExclusive(&watch_lock);
++    cleanup_one_retired_timer();
++}
++
++static void watch_release(struct process_watch *watch)
++{
++    if (InterlockedDecrement(&watch->refs)) return;
++    if (watch->process) CloseHandle(watch->process);
++    if (watch->stop) CloseHandle(watch->stop);
++    if (watch->thread) CloseHandle(watch->thread);
++    HeapFree(GetProcessHeap(), 0, watch);
++}
++static struct process_watch *watch_find(UINT64 id)
++{
++    struct process_watch *watch;
++    for (watch = watches; watch; watch = watch->next)
++        if (watch->completion.lease_id == id) return watch;
++    return NULL;
++}
++static void publish_completion(struct process_watch *watch)
++{
++    struct process_watch **cursor;
++    BOOL unlinked = FALSE, acknowledged, ended;
++    NTSTATUS status = STATUS_SUCCESS;
++    AcquireSRWLockShared(&watch_lock);
++    acknowledged = watch->native_completed;
++    ReleaseSRWLockShared(&watch_lock);
++    if (!acknowledged) status = MACDRV_CALL(remote_watch_complete, &watch->completion);
++    if (status && status != STATUS_NOT_FOUND)
++    {
++        if (status == STATUS_PENDING)
++            WARN("remote process cleanup pending %#llx; owner retained\n", (unsigned long long)watch->completion.lease_id);
++        else
++            ERR("remote process completion %#llx failed %#x; owner retained\n",
++                (unsigned long long)watch->completion.lease_id, (unsigned int)status);
++        return;
++    }
++    ended = WaitForSingleObject(watch->thread, 0) == WAIT_OBJECT_0;
++    AcquireSRWLockExclusive(&watch_lock);
++    watch->native_completed = TRUE;
++    /* Native acknowledgement alone does not retire the worker owner. Keep the
++     * recovery registry/timer until the kernel confirms that thread ended and
++     * its ref ledger was reconciled. */
++    if (watch->linked && ended && !watch->worker_ref_live)
++    {
++        for (cursor = &watches; *cursor != watch; cursor = &(*cursor)->next) assert(*cursor);
++        *cursor = watch->next;
++        watch->linked = FALSE;
++        unlinked = TRUE;
++    }
++    ReleaseSRWLockExclusive(&watch_lock);
++    if (unlinked) watch_release(watch); /* registry ref, caller still pins */
++    retire_empty_timer();
++}
++static DWORD WINAPI process_worker(void *context)
++{
++    struct process_watch *watch = context;
++    HANDLE handles[2] = { watch->stop, watch->process };
++    DWORD result = WaitForMultipleObjects(2, handles, FALSE, INFINITE), error = 0;
++    UINT32 outcome;
++    if (result == WAIT_OBJECT_0) outcome = MACDRV_REMOTE_WATCH_CANCELED;
++    else if (result == WAIT_OBJECT_0 + 1) outcome = MACDRV_REMOTE_WATCH_EXITED;
++    else
++    {
++        outcome = MACDRV_REMOTE_WATCH_FAILED;
++        error = result == WAIT_FAILED ? GetLastError() : ERROR_INVALID_DATA;
++    }
++    AcquireSRWLockExclusive(&watch_lock);
++    watch->completion.outcome = outcome;
++    watch->completion.error = error;
++    watch->completion_ready = TRUE;
++    ReleaseSRWLockExclusive(&watch_lock);
++    publish_completion(watch);
++    AcquireSRWLockExclusive(&watch_lock);
++    if (watch->worker_ref_live)
++    {
++        LONG remaining;
++        watch->worker_ref_live = 0;
++        /* Paired ledger update while registry ownership still exists. There
++         * is no killable exchange-to-release gap outside the lock. */
++        remaining = InterlockedDecrement(&watch->refs);
++        assert(remaining > 0);
++        (void)remaining;
++    }
++    ReleaseSRWLockExclusive(&watch_lock);
++    return 0; /* no further access to watch; timer observes kernel thread exit */
++}
++static DWORD start_watch(const struct macdrv_remote_watch_request *request)
++{
++    struct process_watch *watch;
++    HANDLE thread;
++    DWORD status;
++    if (!request->process_handle || !request->lease_id) return ERROR_INVALID_PARAMETER;
++    if (!(watch = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*watch)))) return ERROR_NOT_ENOUGH_MEMORY;
++    watch->refs = 2;
++    watch->worker_ref_live = 1;
++    watch->completion.lease_id = request->lease_id;
++    watch->original_handle = request->process_handle;
++    if (!DuplicateHandle(GetCurrentProcess(), ULongToHandle(request->process_handle), GetCurrentProcess(),
++                         &watch->process, SYNCHRONIZE, FALSE, 0))
++    {
++        status = GetLastError();
++        watch_release(watch); watch_release(watch);
++        return status;
++    }
++    if (!(watch->stop = CreateEventW(NULL, TRUE, FALSE, NULL)))
++    {
++        status = GetLastError();
++        watch_release(watch); watch_release(watch);
++        return status;
++    }
++    AcquireSRWLockExclusive(&watch_lock);
++    if (watch_find(request->lease_id))
++    {
++        ReleaseSRWLockExclusive(&watch_lock);
++        watch_release(watch); watch_release(watch);
++        return ERROR_ALREADY_EXISTS;
++    }
++    status = arm_recovery_locked();
++    if (status)
++    {
++        ReleaseSRWLockExclusive(&watch_lock);
++        watch_release(watch); watch_release(watch);
++        return status;
++    }
++    watch->next = watches;
++    watches = watch;
++    watch->linked = TRUE;
++    /* The worker cannot finish/unlink until this construction lock is released. */
++    thread = CreateThread(NULL, 0, process_worker, watch, 0, NULL);
++    watch->thread = thread;
++    if (!thread)
++    {
++        status = GetLastError();
++        watches = watch->next;
++        watch->linked = FALSE;
++        ReleaseSRWLockExclusive(&watch_lock);
++        watch_release(watch); watch_release(watch);
++        retire_empty_timer();
++        return status;
++    }
++    ReleaseSRWLockExclusive(&watch_lock);
++    return ERROR_SUCCESS;
++}
++static void CALLBACK recovery_tick(void *context, BOOLEAN fired)
++{
++    struct process_watch *watch, **snapshot;
++    SIZE_T count = 0, index = 0;
++    struct macdrv_remote_watch_recovery recovery = {sizeof(recovery), MACDRV_REMOTE_WATCH_VERSION, 0, 0};
++    NTSTATUS recovered;
++    (void)context; (void)fired;
++    recovered = MACDRV_CALL(remote_watch_recover, &recovery);
++    if (recovered) ERR("remote native cleanup retry failed %#x\n", (unsigned int)recovered);
++    cleanup_one_retired_timer();
++    AcquireSRWLockExclusive(&watch_lock);
++    for (watch = watches; watch; watch = watch->next) ++count;
++    snapshot = count && count <= ~(SIZE_T)0 / sizeof(*snapshot) ?
++               HeapAlloc(GetProcessHeap(), 0, count * sizeof(*snapshot)) : NULL;
++    if (snapshot)
++        for (watch = watches; watch; watch = watch->next)
++        { InterlockedIncrement(&watch->refs); snapshot[index++] = watch; }
++    ReleaseSRWLockExclusive(&watch_lock);
++    if (!snapshot) { retire_empty_timer(); return; }
++    for (index = 0; index < count; ++index)
++    {
++        DWORD state;
++        BOOL ready;
++        watch = snapshot[index];
++        state = WaitForSingleObject(watch->thread, 0);
++        AcquireSRWLockExclusive(&watch_lock);
++        if (state == WAIT_OBJECT_0)
++        {
++            if (!watch->completion_ready)
++            {
++                watch->completion.outcome = MACDRV_REMOTE_WATCH_FAILED;
++                watch->completion.error = ERROR_OPERATION_ABORTED;
++                watch->completion_ready = TRUE;
++            }
++            if (watch->worker_ref_live)
++            {
++                LONG remaining;
++                watch->worker_ref_live = 0;
++                remaining = InterlockedDecrement(&watch->refs);
++                assert(remaining > 0); /* snapshot pin remains */
++                (void)remaining;
++            }
++        }
++        ready = watch->completion_ready;
++        ReleaseSRWLockExclusive(&watch_lock);
++        if (state == WAIT_FAILED)
++            ERR("remote worker identity unreadable %u; registry retained\n", (unsigned)GetLastError());
++        if (ready) publish_completion(watch);
++        watch_release(watch); /* timer snapshot pin */
++    }
++    HeapFree(GetProcessHeap(), 0, snapshot);
++    retire_empty_timer();
++}
++static DWORD stop_watch(UINT64 id)
++{
++    struct process_watch *watch;
++    BOOL ready;
++    DWORD status = ERROR_SUCCESS;
++    AcquireSRWLockExclusive(&watch_lock);
++    watch = watch_find(id);
++    if (watch)
++    {
++        InterlockedIncrement(&watch->refs);
++        ready = watch->completion_ready;
++        if (!ready && !SetEvent(watch->stop)) status = GetLastError();
++    }
++    ReleaseSRWLockExclusive(&watch_lock);
++    if (!watch) return ERROR_NOT_FOUND;
++    if (ready) publish_completion(watch);
++    watch_release(watch);
++    return status;
++}
++NTSTATUS WINAPI macdrv_remote_watch_callback(void *args, ULONG size)
++{
++    struct macdrv_remote_watch_request request;
++    struct macdrv_remote_watch_reply reply;
++    if (!args || size != sizeof(request)) return STATUS_INVALID_PARAMETER;
++    memcpy(&request, args, sizeof(request));
++    if (request.magic != MACDRV_REMOTE_WATCH_MAGIC || request.version != MACDRV_REMOTE_WATCH_VERSION ||
++        !request.lease_id || (request.operation != MACDRV_REMOTE_WATCH_START && request.operation != MACDRV_REMOTE_WATCH_STOP) ||
++        (request.operation == MACDRV_REMOTE_WATCH_STOP && request.process_handle)) return STATUS_INVALID_PARAMETER;
++    reply.magic = request.magic; reply.version = request.version;
++    reply.operation = request.operation; reply.lease_id = request.lease_id;
++    reply.status = request.operation == MACDRV_REMOTE_WATCH_START ? start_watch(&request) : stop_watch(request.lease_id);
++    return NtCallbackReturn(&reply, sizeof(reply), STATUS_SUCCESS);
++}
+--- a/dlls/winemac.drv/unixlib.h
++++ b/dlls/winemac.drv/unixlib.h
+@@ -24,6 +24,9 @@
+     unix_init,
+     unix_quit_result,
+     unix_legacy_registry_init,
++    unix_remote_watch_init,
++    unix_remote_watch_complete,
++    unix_remote_watch_recover,
+     unix_funcs_count
+ };
+ 
+--- a/dlls/winemac.drv/macdrv_main.c
++++ b/dlls/winemac.drv/macdrv_main.c
+@@ -611,6 +611,9 @@
+     macdrv_init,
+     macdrv_quit_result,
+     macdrv_legacy_registry_init,
++    macdrv_remote_watch_init,
++    macdrv_remote_watch_complete,
++    macdrv_remote_watch_recover,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_funcs) == unix_funcs_count );
+@@ -638,6 +641,9 @@
+     wow64_init,
+     macdrv_quit_result,
+     macdrv_legacy_registry_init,
++    macdrv_remote_watch_init,
++    macdrv_remote_watch_complete,
++    macdrv_remote_watch_recover,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_wow64_funcs) == unix_funcs_count );
+--- a/dlls/winemac.drv/dllmain.c
++++ b/dlls/winemac.drv/dllmain.c
+@@ -27,6 +27,7 @@
+ #include "shellapi.h"
+ #include "unixlib.h"
+ #include "legacy_registry.h"
++#include "remote_watch.h"
+ #include "wine/debug.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
+@@ -374,6 +375,7 @@
+ {
+     struct init_params params;
+     struct macdrv_legacy_reg_init registry;
++    struct macdrv_remote_watch_init watch;
+ 
+     struct localized_string *str;
+     struct localized_string strings[] = {
+@@ -411,6 +413,10 @@
+     registry.magic = MACDRV_LEGACY_REG_MAGIC;
+     registry.version = MACDRV_LEGACY_REG_VERSION;
+     if (MACDRV_CALL(legacy_registry_init, &registry)) return FALSE;
++    watch.magic = MACDRV_REMOTE_WATCH_MAGIC;
++    watch.version = MACDRV_REMOTE_WATCH_VERSION;
++    watch.callback = (UINT_PTR)macdrv_remote_watch_callback;
++    if (MACDRV_CALL(remote_watch_init, &watch)) return FALSE;
+ 
+     return TRUE;
+ }
+--- a/dlls/win32u/message.c
++++ b/dlls/win32u/message.c
+@@ -36,6 +36,9 @@
+ #include "dde.h"
+ #include "immdev.h"
+ #include "wine/debug.h"
++#ifdef __APPLE__
++#include "wine/macdrv_remote.h"
++#endif
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(msg);
+ WINE_DECLARE_DEBUG_CHANNEL(key);
+@@ -295,6 +298,9 @@
+ 
+ union packed_structs
+ {
++#ifdef __APPLE__
++    struct macdrv_remote_packet remote_packet;
++#endif
+     struct packed_CREATESTRUCTW cs;
+     struct packed_DRAWITEMSTRUCT dis;
+     struct packed_MEASUREITEMSTRUCT mis;
+@@ -408,12 +414,33 @@
+ /* check whether a given message type includes pointers */
+ static inline BOOL is_pointer_message( UINT message, WPARAM wparam )
+ {
++#ifdef __APPLE__
++    if (message == WM_MACDRV_REMOTE_HOST_PACKET) return TRUE;
++#endif
+     if (message >= 8*sizeof(message_pointer_flags)) return FALSE;
+     if (message == WM_DEVICECHANGE && !(wparam & 0x8000)) return FALSE;
+     return (message_pointer_flags[message / 32] & SET(message)) != 0;
+ }
+ 
+ #undef SET
++
++#ifdef __APPLE__
++static BOOL macdrv_remote_packet_valid( const struct macdrv_remote_packet *packet, UINT flags )
++{
++    return macdrv_remote_packet_header_valid( packet ) && packet->flags == flags;
++}
++
++static BOOL macdrv_remote_reply_matches( const struct macdrv_remote_packet *request,
++                                         const struct macdrv_remote_packet *reply )
++{
++    return macdrv_remote_packet_valid( request, 0 ) &&
++           macdrv_remote_packet_valid( reply, MACDRV_REMOTE_PACKET_RESPONSE ) &&
++           reply->operation == request->operation && reply->root == request->root &&
++           reply->producer_generation == request->producer_generation &&
++           reply->sequence == request->sequence &&
++           reply->producer_pid == request->producer_pid && reply->producer_tid == request->producer_tid;
++}
++#endif
+ 
+ static BOOL init_win_proc_params( struct win_proc_params *params, HWND hwnd, UINT msg,
+                                   WPARAM wparam, LPARAM lparam, BOOL ansi )
+@@ -577,6 +604,22 @@
+ 
+     switch(message)
+     {
++#ifdef __APPLE__
++    case WM_MACDRV_REMOTE_HOST_PACKET:
++    {
++        struct macdrv_remote_packet packet;
++        LPARAM wire_lparam = *lparam;
++
++        /* reply_message() also packs replies after unpack failure. Never leave
++         * the untrusted wire lparam available for that path to dereference. */
++        *lparam = 0;
++        if (*wparam || wire_lparam || size != sizeof(packet) || !*buffer) return FALSE;
++        memcpy( &packet, *buffer, sizeof(packet) );
++        if (!macdrv_remote_packet_valid( &packet, 0 )) return FALSE;
++        *lparam = (LPARAM)*buffer;
++        return TRUE;
++    }
++#endif
+      case WM_NCCREATE:
+      case WM_CREATE:
+      {
+@@ -998,6 +1041,23 @@
+     data->count = 0;
+     switch(message)
+     {
++#ifdef __APPLE__
++    case WM_MACDRV_REMOTE_HOST_PACKET:
++        if (wparam || !lparam) goto invalid_remote_packet;
++        memcpy( &data->ps.remote_packet, (const void *)lparam, sizeof(data->ps.remote_packet) );
++        if (!macdrv_remote_packet_valid( &data->ps.remote_packet, 0 )) goto invalid_remote_packet;
++        /* These are sender observations, not an authentication boundary. */
++        data->ps.remote_packet.producer_pid = GetCurrentProcessId();
++        data->ps.remote_packet.producer_tid = GetCurrentThreadId();
++        push_data( data, &data->ps.remote_packet, sizeof(data->ps.remote_packet) );
++        /* Detect oversized replies even when the server truncates to capacity. */
++        return sizeof(data->ps.remote_packet) + 1;
++
++    invalid_remote_packet:
++        data->count = -1;
++        RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
++        return 0;
++#endif
+     case WM_NCCREATE:
+     case WM_CREATE:
+     {
+@@ -1343,6 +1403,14 @@
+     data->count = 0;
+     switch(message)
+     {
++#ifdef __APPLE__
++    case WM_MACDRV_REMOTE_HOST_PACKET:
++        if (!res || wparam || !lparam) break;
++        memcpy( &data->ps.remote_packet, (const void *)lparam, sizeof(data->ps.remote_packet) );
++        if (macdrv_remote_packet_valid( &data->ps.remote_packet, MACDRV_REMOTE_PACKET_RESPONSE ))
++            push_data( data, &data->ps.remote_packet, sizeof(data->ps.remote_packet) );
++        break;
++#endif
+     case WM_NCCREATE:
+     case WM_CREATE:
+     {
+@@ -1497,6 +1565,19 @@
+ 
+     switch(message)
+     {
++#ifdef __APPLE__
++    case WM_MACDRV_REMOTE_HOST_PACKET:
++    {
++        struct macdrv_remote_packet request, reply;
++
++        if (wparam || !lparam || !buffer || size != sizeof(reply)) break;
++        memcpy( &request, (const void *)lparam, sizeof(request) );
++        memcpy( &reply, buffer, sizeof(reply) );
++        if (macdrv_remote_reply_matches( &request, &reply ))
++            memcpy( (void *)lparam, &reply, sizeof(reply) );
++        break;
++    }
++#endif
+     case WM_NCCREATE:
+     case WM_CREATE:
+         if (size >= sizeof(ps->cs))
+@@ -2965,6 +3046,9 @@
+     unsigned char buffer_init[1024];
+     size_t buffer_size = sizeof(buffer_init);
+     void *buffer = buffer_init;
++#ifdef __APPLE__
++    struct macdrv_remote_packet remote_packet;
++#endif
+ 
+     if (!first && !last) last = ~0;
+     if (hwnd == HWND_BROADCAST) hwnd = HWND_TOPMOST;
+@@ -3050,9 +3134,21 @@
+         case MSG_ASCII:
+         case MSG_UNICODE:
+             info.flags = ISMEX_SEND;
++#ifdef __APPLE__
++            if (info.msg.message == WM_MACDRV_REMOTE_HOST_PACKET)
++            {
++                /* Interthread packets must have copied data, even in this process. */
++                info.msg.lParam = 0;
++                reply_message( &info, 0, &info.msg );
++                continue;
++            }
++#endif
+             break;
+         case MSG_NOTIFY:
+             info.flags = ISMEX_NOTIFY;
++#ifdef __APPLE__
++            if (info.msg.message == WM_MACDRV_REMOTE_HOST_PACKET) continue;
++#endif
+             /* unpack_message may have to reallocate */
+             if (buffer == buffer_init)
+             {
+@@ -3065,6 +3161,14 @@
+             break;
+         case MSG_CALLBACK:
+             info.flags = ISMEX_CALLBACK;
++#ifdef __APPLE__
++            if (info.msg.message == WM_MACDRV_REMOTE_HOST_PACKET)
++            {
++                info.msg.lParam = 0;
++                reply_message( &info, 0, &info.msg );
++                continue;
++            }
++#endif
+             break;
+         case MSG_CALLBACK_RESULT:
+             if (size >= sizeof(msg_data->callback))
+@@ -3142,6 +3246,23 @@
+             continue;
+         case MSG_OTHER_PROCESS:
+             info.flags = ISMEX_SEND;
++#ifdef __APPLE__
++            if (info.msg.message == WM_MACDRV_REMOTE_HOST_PACKET)
++            {
++                if (!unpack_message( info.msg.hwnd, info.msg.message, &info.msg.wParam,
++                                     &info.msg.lParam, &buffer, size, &buffer_size ))
++                {
++                    reply_message( &info, 0, &info.msg );
++                    continue;
++                }
++                /* Own an aligned packet for the whole dispatch/reply, independent
++                 * of the sender and the server receive buffer. Nested peeks have
++                 * their own frame, so they cannot overwrite this packet. */
++                memcpy( &remote_packet, (const void *)info.msg.lParam, sizeof(remote_packet) );
++                info.msg.lParam = (LPARAM)&remote_packet;
++                break;
++            }
++#endif
+             /* unpack_message may have to reallocate */
+             if (buffer == buffer_init)
+             {
+@@ -3180,6 +3301,9 @@
+             {
+                 if (flags & PM_REMOVE)
+                 {
++#ifdef __APPLE__
++                    if (info.msg.message == WM_MACDRV_REMOTE_HOST_PACKET) continue;
++#endif
+                     handle_internal_message( info.msg.hwnd, info.msg.message,
+                                              info.msg.wParam, info.msg.lParam );
+                     /* if this is a nested call return right away */
+@@ -3712,6 +3836,9 @@
+         req->msg     = info->msg;
+         req->wparam  = info->wparam;
+         req->lparam  = info->lparam;
++#ifdef __APPLE__
++        if (info->msg == WM_MACDRV_REMOTE_HOST_PACKET) req->lparam = 0;
++#endif
+         req->timeout = timeout;
+ 
+         if (info->flags & SMTO_ABORTIFHUNG) req->flags |= SEND_MSG_ABORT_IF_HUNG;
+@@ -3878,6 +4005,15 @@
+ 
+     assert( msg & 0x80000000 );  /* must be an internal Wine message */
+ 
++#ifdef __APPLE__
++    /* This protocol is addressed to a root HWND, with copyback validation in
++     * process_message(). Do not bypass it through the windowless helper. */
++    if (msg == WM_MACDRV_REMOTE_HOST_PACKET)
++    {
++        RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
++        return 0;
++    }
++#endif
+     if (is_exiting_thread( dest_tid )) return 0;
+ 
+     if (dest_tid == GetCurrentThreadId())
+@@ -4405,6 +4541,70 @@
+     return ret;
+ }
+ 
++#ifdef __APPLE__
++/* Internal driver messages bypass the PE winproc callback. Keep this packet
++ * fixed-width throughout, including a PE32 caller's 64-bit ids and epochs.
++ * wparam is reserved (zero); lparam points to a readable/writable 96-byte
++ * caller packet for the duration of this synchronous call only. */
++static BOOL send_macdrv_remote_packet( const struct send_message_info *info, DWORD_PTR *res_ptr )
++{
++    struct macdrv_remote_packet request, packet;
++    struct send_message_info send = *info;
++    LRESULT result = 0;
++
++    if (info->type != MSG_ASCII && info->type != MSG_UNICODE && info->type != MSG_OTHER_PROCESS)
++    {
++        RtlSetLastWin32Error( ERROR_MESSAGE_SYNC_ONLY );
++        return FALSE;
++    }
++    if (info->wparam || !info->lparam || is_broadcast( info->hwnd ))
++    {
++        RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
++        return FALSE;
++    }
++    memcpy( &packet, (const void *)info->lparam, sizeof(packet) );
++    if (!macdrv_remote_packet_valid( &packet, 0 ))
++    {
++        RtlSetLastWin32Error( ERROR_INVALID_PARAMETER );
++        return FALSE;
++    }
++
++    /* Preserve these stamped fields in the response. They describe the actual
++     * sending Wine thread; they do not provide security isolation from it. */
++    packet.producer_pid = GetCurrentProcessId();
++    packet.producer_tid = GetCurrentThreadId();
++    request = packet;
++
++    if (!(send.dest_tid = get_window_thread( info->hwnd, NULL ))) return FALSE;
++    if (is_exiting_thread( send.dest_tid )) return FALSE;
++    send.type = MSG_OTHER_PROCESS;
++    send.lparam = (LPARAM)&packet;
++    send.params = NULL;  /* always dispatch internally, including same-thread SendMessage */
++
++    if (send.dest_tid == GetCurrentThreadId())
++        result = call_window_proc( send.hwnd, send.msg, send.wparam, send.lparam,
++                                   send.type, TRUE, send.wm_char, FALSE );
++    else
++    {
++        /* Also copy for same-process interthread sends: a timed out receiver
++         * must never retain a pointer into this thread's stack. */
++        if (!send_inter_thread_message( &send, &result )) return FALSE;
++    }
++
++    /* A handled packet has both a nonzero driver result and a matching response.
++     * An unsupported driver, malformed reply or timeout cannot echo a request
++     * as success. status remains the driver's operation result, without fixups. */
++    if (!result || !macdrv_remote_reply_matches( &request, &packet ))
++    {
++        RtlSetLastWin32Error( ERROR_INVALID_DATA );
++        return FALSE;
++    }
++    memcpy( (void *)info->lparam, &packet, sizeof(packet) );
++    if (res_ptr) *res_ptr = result;
++    return TRUE;
++}
++#endif
++
+ /***********************************************************************
+  *           process_message
+  *
+@@ -4417,6 +4617,9 @@
+     BOOL ret;
+     LRESULT result = 0;
+ 
++#ifdef __APPLE__
++    if (info->msg == WM_MACDRV_REMOTE_HOST_PACKET) return send_macdrv_remote_packet( info, res_ptr );
++#endif
+     if (is_broadcast( info->hwnd )) return broadcast_message( info, res_ptr );
+ 
+     if (!(info->dest_tid = get_window_thread( info->hwnd, &dest_pid ))) return FALSE;
+--- /dev/null
++++ b/include/wine/macdrv_remote.h
+@@ -0,0 +1,35 @@
++/* Private, fixed-width native USER-driver transport. No native pointers on wire. */
++#ifndef __WINE_MACDRV_REMOTE_H
++#define __WINE_MACDRV_REMOTE_H
++#include <stddef.h>
++#include <stdint.h>
++#define WM_MACDRV_REMOTE_HOST_PACKET 0x80001800u
++#define MACDRV_REMOTE_PACKET_VERSION 1u
++#define MACDRV_REMOTE_PACKET_RESPONSE 1u
++enum macdrv_remote_operation
++{
++    MACDRV_REMOTE_QUERY_ROOT = 1,
++    MACDRV_REMOTE_ACQUIRE_PRODUCER,
++    MACDRV_REMOTE_INSTALL_HOST,
++    MACDRV_REMOTE_REFRESH_HOST,
++    MACDRV_REMOTE_RELEASE_HOST,
++    MACDRV_REMOTE_RELEASE_PRODUCER
++};
++struct macdrv_remote_packet
++{
++    uint32_t size, version, operation, status;
++    uint32_t root, child, producer_pid, producer_tid;
++    uint64_t producer_generation, root_epoch, lease_id, host_ticket, sequence;
++    uint32_t context_id, flags, root_pid, reserved;
++    uint64_t root_create_time;
++};
++_Static_assert(sizeof(struct macdrv_remote_packet) == 96, "remote packet width");
++_Static_assert(offsetof(struct macdrv_remote_packet, producer_generation) == 32, "remote producer offset");
++_Static_assert(offsetof(struct macdrv_remote_packet, root_create_time) == 88, "remote root offset");
++static inline int macdrv_remote_packet_header_valid(const struct macdrv_remote_packet *packet)
++{
++    return packet && packet->size == sizeof(*packet) && packet->version == MACDRV_REMOTE_PACKET_VERSION &&
++           packet->operation >= MACDRV_REMOTE_QUERY_ROOT && packet->operation <= MACDRV_REMOTE_RELEASE_PRODUCER &&
++           !packet->reserved;
++}
++#endif

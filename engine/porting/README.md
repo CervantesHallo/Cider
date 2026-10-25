@@ -1,5 +1,8 @@
 # Engine R v1 主题迁移
 
+最新[99](../../docs/research/99-r-v1-typed-producer-leases-20261025.md)：0021类型化消息/真实进程租约及PE恢复实现已精确重建、成组链接、NDEBUG编译和限定复审；最终双向跨位宽各68项、实际退出/主动释放/高32位代次拒绝通过，原窗口受影响双PE各1415/56交换链/168Present通过并有独立log/组件/清理恢复绑定。0020旧PE32清理缺口另已定向补齐，旧failed保持。下一步失败清理/worker死亡真实对照→CAContext资源及事件/reparent→两三进程呈现；foreign路由仍未启用，故障/屏幕/CEF/游戏不计完成，不切默认。
+
+
 0020最新见[98](../../docs/research/98-r-v1-root-host-coordinator-20261025.md)：真实根实例/宿主ticket、成功后提交、关闭/耗尽撤销和局部事件钩子已重建/链接；双PE高位诊断各32项零失败，旧耗尽分支精确4失败。普通窗口双PE各1415项零失败，但PE32第一次清理回执丢失、整批仍拒绝，最后清理恢复真实确认。producer租约/跨进程传输仍未接入，foreign-child未启用；诊断入口和故障不进普通引擎。完整临时包已按SHA差异归档清理，恢复先查清单。
 
 0019已补foreign-host基础：client frame/祖先clip独立，Cocoa裁剪不缩图、主线程代次匹配及关闭保护；精确重建/固定SDK链接/两P2修后源审闭合。当前未接root coordinator/事件租约/路由，未运行或解除foreign-child拒绝，完整契约与两/三进程验收见[95文末](../../docs/research/95-r-v1-legacy-window-bridge-20261025.md)。原本进程运行证据不自动转给新模块。

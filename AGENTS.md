@@ -36,6 +36,8 @@ cd Tools/ciderctl && swift build          # optional development client; delegat
 
 `CIDER_HOME=/tmp/x` redirects all data (App Support, Caches, Logs) for experiments. Unit tests need the `Testing` module, which ships with Xcode, not the Command Line Tools.
 
+For incremental engine experiments, reuse recorded compiler arguments and redirect outputs to the private experiment directory. Avoid `make -n -B` / `--always-make`: Makefile regeneration may execute configure even during a dry run. A target-scoped `make -n -W <absolute source> <object target>` is the narrower fallback for argument extraction. Keep ownership updates outside `assert`; `NDEBUG` must not change reference counts or cleanup.
+
 The packaged GUI is the Wine spawner (ADR-007). A standalone development client locates the checkout's `out/Cider.app`, `CIDER_APP`, or `/Applications/Cider.app`; it never falls back to spawning Wine itself. A command already submitted is not automatically replayed after disconnect. Concurrent `run --wait` must retain separate admission/execution capacity for `kill`.
 
 `scripts/build-app.sh` also packages `Cider.app/Contents/MacOS/ciderctl`; that CLI shares the app's resource data independent of cwd. For the standalone development CLI above, run from the checkout root or set `CIDER_DATA` to the checkout's absolute `data` path. A CLI built in isolation does not bundle the compatibility data.

@@ -1,0 +1,148 @@
+{
+  "schema": "cider.r-v1-typed-producer-leases/v1",
+  "date": "2026-10-25",
+  "rawRoot": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025",
+  "files": [
+    {
+      "file": "engine/porting/wine-11.18/0021-winemac-typed-producer-process-leases.patch",
+      "sha256": "f10089e172550af42564ec33fb39233ed6bac3eb18c65ed5c1cadf240101f3b8"
+    },
+    {
+      "file": "tests/graphics/remote-transport/README.md",
+      "sha256": "ac9b9705b0c0638f1408d4a3fc800211698165ffc367883ee86a8298345bbe0d"
+    },
+    {
+      "file": "tests/graphics/remote-transport/client.c",
+      "sha256": "0dbb67257e235cd89040643d9f74dc5235576c7760c5c37da9420647a7239e36"
+    },
+    {
+      "file": "tests/graphics/remote-transport/diagnostic.patch",
+      "sha256": "d6cf8b891e7da7fd4855153d8daa8ea7ae57e506016b7e79ced9064d44f81829"
+    },
+    {
+      "file": "tests/graphics/remote-transport/probe.h",
+      "sha256": "6c251cdfc9e4ba34a73231ca34c9497e40e0575248322c7f3fb54eacbf281b02"
+    },
+    {
+      "file": "tests/graphics/remote-transport/winemac-fixture.spec",
+      "sha256": "6b622d6dec27381fe5ab7ac64c7fc49db46eee8d0c338c9b9b6b7684ffa2b50f"
+    }
+  ],
+  "records": [
+    {
+      "file": "transport-reconstruction-v1.json",
+      "sha256": "36d03e50408249c654c13dabe9ab0a50152e2745089e3937c6cfdad21a016c80"
+    },
+    {
+      "file": "transport-message-build-v2/build-v1.json",
+      "sha256": "04081d23dc25c73e00ef80a5196a77d159f07ffb7e5fed48ad930d12128a6314"
+    },
+    {
+      "file": "transport-recovery-build-v5/build-v1.json",
+      "sha256": "36b940a820cbcccfd86af8b4f89248c1e0ee24373c44cbbbbb90c478ac2a5d9f"
+    },
+    {
+      "file": "transport-final-native-v6/build-v1.json",
+      "sha256": "d9710bf9caa888da30fcc378579748378cc38c5723c3857514af52993d87296c"
+    },
+    {
+      "file": "transport-observer-build-v4/build-v1.json",
+      "sha256": "ed8c932ad19c678e39299ff6d6206a9957ffec500d7691f7274672d2a1857b68"
+    },
+    {
+      "file": "transport-producer-review-v6.json",
+      "sha256": "119004b4cd4b2ebb2351a3b15fa6d08d666bb8a85816411bad06aa7cee689f62"
+    },
+    {
+      "file": "transport-fixture-review-v2.json",
+      "sha256": "6f382f5e21cb6f7a4b7768b6068be97133a200799b4429788e28c39685ea681f"
+    },
+    {
+      "file": "transport-fixture-v7/build-v1.json",
+      "sha256": "360c110eb7c472423587dfeefb708272b4253829fa49d436c4cd7e02abb86469"
+    },
+    {
+      "file": "transport-review-admission-v3.json",
+      "sha256": "fe52855dd8bf5b2fd7f220d3d223fa29ab0320fbf6f6e20edd4f97c7d02c0b74"
+    },
+    {
+      "file": "staging-transport-diagnostic-v3.json",
+      "sha256": "c1c979dc13a9b12b18a8784dac8b963630cc9ed065ce4860a9232e795ba488f2"
+    },
+    {
+      "file": "transport-runtime-v3.json",
+      "sha256": "ef239c573062e231d61f90bb51c104995459b53c68eac998eba8e20405cd7ffc"
+    },
+    {
+      "file": "transport-runtime-independent-validation-v1.json",
+      "sha256": "317d4c35bb4332a7e9fcf3837d020c1c0963a00557728dc48e1c5d157c61057b"
+    },
+    {
+      "file": "transport-window-lifecycle-v1.json",
+      "sha256": "b40b577cf02b6453ff2d1bb4d9cbcac0feea3f3b6b9eeb8ab729e5a32a8ccb24"
+    },
+    {
+      "file": "transport-window-lifecycle-v2.json",
+      "sha256": "da83328adbdd8c0280fa22a0a1ecf52c306745ee971b77e47f995875b4091b84"
+    },
+    {
+      "file": "transport-window-independent-validation-v1.json",
+      "sha256": "fe8bb2a450e317a06c3d8bfa8cdce0acc0326101cc5916fbb2821a9e1b4bed4f"
+    },
+    {
+      "file": "transport-public-diagnostic-reconstruction-v1.json",
+      "sha256": "93a64d407471c7fa404168a8aec65376e9f1a1b32e2ac961c2c97176e6cc40f7"
+    },
+    {
+      "file": "window-coordinator-lifecycle-v2.json",
+      "sha256": "b6705cb49b8c96249e6b427032dd8c9126872a3aa98d88b47c1bbf8ec42e2065"
+    },
+    {
+      "file": "window-coordinator-independent-observations-v3.json",
+      "sha256": "7a4b366f34f383280cbb9b7975403edd3d739780e8c6a97b773beec9e673b262"
+    }
+  ],
+  "ordinarySourceReconstructionExact": true,
+  "diagnosticSourceReconstructionExact": true,
+  "ordinaryNativeAndBothPeLinked": true,
+  "ndebugBothPeCompiled": true,
+  "boundedSourceReviewNewP1": 0,
+  "boundedSourceReviewNewP2": 0,
+  "crossBitRuntime": {
+    "directions": [
+      "64-to-32",
+      "32-to-64"
+    ],
+    "checksEach": 68,
+    "childChecks": [
+      15,
+      13,
+      26
+    ],
+    "failures": 0,
+    "leases": [
+      8589934604,
+      8589934605,
+      8589934606,
+      8589934607
+    ],
+    "actualProcessExitObserved": true,
+    "independentlyValidated": true
+  },
+  "affectedOriginalWindow": {
+    "checksEach": 1415,
+    "swapchainsEach": 56,
+    "presentsEach": 168,
+    "failures": 0,
+    "firstBatchStillFailedDueWrongTraceSelector": true,
+    "verifiedPe64SubsetReused": true,
+    "pe32FollowupPassed": true
+  },
+  "controlledCleanupFaultRuntimeAccepted": false,
+  "foreignRendererRouteEnabled": false,
+  "pixelsOrCefOrGameAccepted": false,
+  "defaultAdopted": false,
+  "windowsOperations": 0,
+  "actionsRuns": 0,
+  "newAutomations": 0
+}

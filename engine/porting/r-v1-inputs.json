@@ -1060,9 +1060,28 @@
     "high32BitIdentityVerified": true,
     "oldExhaustionBranchFailures": 4,
     "ordinaryLifecycleFullBatchAccepted": false,
-    "ordinaryLifecycleCleanupEvidenceGap": true,
+    "ordinaryLifecycleCleanupEvidenceGap": false,
     "producerTransportEnabled": false,
     "foreignChildEnabled": false,
+    "defaultAdopted": false,
+    "ordinaryLifecycleFollowupResearch": "docs/research/99-r-v1-typed-producer-leases-20261025.md",
+    "oldFailedBatchStillFailed": true
+  },
+  "typedProducerLeasesCandidate": {
+    "research": "docs/research/99-r-v1-typed-producer-leases-20261025.md",
+    "evidence": "docs/research/evidence/r-v1-typed-producer-leases-20261025.json",
+    "patch": {
+      "file": "engine/porting/wine-11.18/0021-winemac-typed-producer-process-leases.patch",
+      "sha256": "f10089e172550af42564ec33fb39233ed6bac3eb18c65ed5c1cadf240101f3b8"
+    },
+    "sourceReconstructionExact": true,
+    "ordinaryNativeAndBothPeLinked": true,
+    "ndebugBothPeCompiled": true,
+    "crossBitDiagnosticChecksPerDirection": 68,
+    "actualProcessExitObserved": true,
+    "affectedWindowChecksPerPe": 1415,
+    "controlledCleanupFaultRuntimeAccepted": false,
+    "foreignRendererRouteEnabled": false,
     "defaultAdopted": false
   }
 }
