@@ -1,0 +1,518 @@
+Apply after0011 and0015. Native surface frontend and complete ABI layout.
+Legacy disposal queues Cocoa work without synchronous query pumping.
+The complete table/callback integration follows in0017.
+
+--- /dev/null
++++ b/dlls/winemac.drv/legacy_abi.h
+@@ -0,0 +1,77 @@
++/* Legacy native renderer ABI, not the PE/native callback wire protocol. */
++#ifndef MACDRV_LEGACY_ABI_H
++#define MACDRV_LEGACY_ABI_H
++#include <stddef.h>
++
++typedef struct macdrv_opaque_window *macdrv_window;
++typedef struct macdrv_opaque_view *macdrv_view;
++typedef struct macdrv_opaque_metal_device *macdrv_metal_device;
++typedef struct macdrv_opaque_metal_view *macdrv_metal_view;
++typedef struct macdrv_opaque_metal_layer *macdrv_metal_layer;
++
++typedef LONG LSTATUS;
++struct macdrv_legacy_win_data;
++struct macdrv_legacy_functions
++{
++    void (*macdrv_init_display_devices)(BOOL);
++    struct macdrv_legacy_win_data* (*get_win_data)(HWND hwnd);
++    void (*release_win_data)(struct macdrv_legacy_win_data *data);
++    macdrv_window(*macdrv_get_cocoa_window)(HWND hwnd, BOOL require_on_screen);
++    macdrv_metal_device (*macdrv_create_metal_device)(void);
++    void (*macdrv_release_metal_device)(macdrv_metal_device d);
++    macdrv_metal_view (*macdrv_view_create_metal_view)(macdrv_view v, macdrv_metal_device d);
++    macdrv_metal_layer (*macdrv_view_get_metal_layer)(macdrv_metal_view v);
++    void (*macdrv_view_release_metal_view)(macdrv_metal_view v);
++    void (*on_main_thread)(dispatch_block_t b);
++    LSTATUS(WINAPI*RegQueryValueExA)(HKEY, LPCSTR, LPDWORD, LPDWORD, BYTE*, LPDWORD);
++    LSTATUS(WINAPI*RegSetValueExA)(HKEY, LPCSTR, DWORD, DWORD, const BYTE*, DWORD);
++    LSTATUS(WINAPI*RegOpenKeyExA)(HKEY, LPCSTR, DWORD, DWORD, HKEY*);
++    LSTATUS(WINAPI*RegCreateKeyExA)(HKEY, LPCSTR, DWORD, LPSTR, DWORD, DWORD, LPSECURITY_ATTRIBUTES, HKEY*, LPDWORD);
++    LSTATUS(WINAPI*RegCloseKey)(HKEY);
++    BOOL(WINAPI*EnumDisplayMonitors)(HDC,LPRECT,MONITORENUMPROC,LPARAM);
++    BOOL(WINAPI*GetMonitorInfoA)(HMONITOR,LPMONITORINFO);
++    BOOL(WINAPI*AdjustWindowRectEx)(LPRECT,DWORD,BOOL,DWORD);
++    LONG_PTR(WINAPI*GetWindowLongPtrW)(HWND,int);
++    BOOL(WINAPI*GetWindowRect)(HWND,LPRECT);
++    BOOL(WINAPI*MoveWindow)(HWND,int,int,int,int,BOOL);
++    BOOL(WINAPI*SetWindowPos)(HWND,HWND,int,int,int,int,UINT);
++    INT(WINAPI*GetSystemMetrics)(INT);
++    LONG_PTR(WINAPI*SetWindowLongPtrW)(HWND,INT,LONG_PTR);
++};
++C_ASSERT(sizeof(struct macdrv_legacy_functions) == 192);
++
++/* ABI snapshot only: never cast current Wine private data to this type. */
++struct macdrv_legacy_win_data
++{
++    HWND                hwnd;                   /* hwnd that this private data belongs to */
++    macdrv_window       cocoa_window;
++    macdrv_view         cocoa_view;
++    macdrv_view         client_cocoa_view;
++    RECT                window_rect;            /* USER window rectangle relative to parent */
++    RECT                whole_rect;             /* Mac window rectangle for the whole window relative to parent */
++    RECT                client_rect;            /* client area relative to parent */
++    int                 pixel_format;           /* pixel format for GL */
++    COLORREF            color_key;              /* color key for layered window; CLR_INVALID is not color keyed */
++    HANDLE              drag_event;             /* event to signal that Cocoa-driven window dragging has ended */
++    unsigned int        on_screen : 1;          /* is window ordered in? (minimized or not) */
++    unsigned int        shaped : 1;             /* is window using a custom region shape? */
++    unsigned int        layered : 1;            /* is window layered and with valid attributes? */
++    unsigned int        ulw_layered : 1;        /* has UpdateLayeredWindow() been called for window? */
++    unsigned int        per_pixel_alpha : 1;    /* is window using per-pixel alpha? */
++    unsigned int        minimized : 1;          /* is window minimized? */
++    void *              padding[2];             /* used to be struct window_surface* surface/unminimized_surface */
++};
++
++C_ASSERT(sizeof(struct macdrv_legacy_win_data) == 120);
++
++C_ASSERT(offsetof(struct macdrv_legacy_win_data, client_cocoa_view) == 24);
++C_ASSERT(offsetof(struct macdrv_legacy_functions, RegQueryValueExA) == 80);
++C_ASSERT(offsetof(struct macdrv_legacy_functions, SetWindowLongPtrW) == 184);
++
++struct macdrv_legacy_win_data *macdrv_legacy_get_win_data(HWND hwnd);
++void macdrv_legacy_release_win_data(struct macdrv_legacy_win_data *snapshot);
++macdrv_metal_view macdrv_legacy_create_metal_view(macdrv_view view, macdrv_metal_device device);
++macdrv_metal_layer macdrv_legacy_get_metal_layer(macdrv_metal_view view);
++void macdrv_legacy_release_metal_view(macdrv_metal_view view);
++
++#endif
+--- /dev/null
++++ b/dlls/winemac.drv/legacy_surface.c
+@@ -0,0 +1,221 @@
++/* Native legacy-renderer frontend over Wine's managed client surfaces.
++ * Candidate only: no public function table until the complete ABI is linked. */
++#include "config.h"
++#include <pthread.h>
++#include <stdlib.h>
++#include "macdrv.h"
++#include "legacy_abi.h"
++
++WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
++
++extern struct client_surface *macdrv_create_legacy_client_surface(HWND hwnd);
++extern void *macdrv_legacy_retain_object(void *object);
++extern void macdrv_legacy_release_object(void *object);
++
++struct legacy_surface
++{
++    struct list entry;
++    unsigned int refs, renderers;
++    BOOL creating;
++    struct macdrv_client_surface *surface;
++    macdrv_view retained_view;
++};
++
++static pthread_mutex_t legacy_lock = PTHREAD_MUTEX_INITIALIZER;
++static struct list legacy_surfaces = LIST_INIT(legacy_surfaces);
++
++/* Only pointer equality is used until membership and a live reference are
++ * established. The token is the actual retained Cocoa view, preserving the
++ * legacy snapshot while renderer operations remain routed through this owner. */
++static struct legacy_surface *legacy_surface_lookup(const void *token)
++{
++    struct legacy_surface *entry, *found = NULL;
++
++    pthread_mutex_lock(&legacy_lock);
++    LIST_FOR_EACH_ENTRY(entry, &legacy_surfaces, struct legacy_surface, entry)
++    {
++        if (entry->retained_view != token) continue;
++        ++entry->refs;
++        found = entry;
++        break;
++    }
++    pthread_mutex_unlock(&legacy_lock);
++    return found;
++}
++
++static void legacy_surface_release(struct legacy_surface *entry)
++{
++    BOOL destroy;
++
++    pthread_mutex_lock(&legacy_lock);
++    destroy = !--entry->refs;
++    if (destroy) list_remove(&entry->entry);
++    pthread_mutex_unlock(&legacy_lock);
++    if (destroy)
++    {
++        void *view = entry->retained_view;
++        /* Retirement uses win32u's existing cache, not a second HWND table. */
++        client_surface_end_external_use(&entry->surface->client);
++        client_surface_release(&entry->surface->client);
++        macdrv_legacy_release_object(view);
++        free(entry);
++    }
++}
++
++struct macdrv_legacy_win_data *macdrv_legacy_get_win_data(HWND hwnd)
++{
++    struct macdrv_legacy_win_data *snapshot;
++    struct legacy_surface *entry;
++    struct macdrv_win_data *data;
++    struct client_surface *client;
++
++    TRACE("legacy snapshot hwnd %p\n", hwnd);
++    if (!(snapshot = calloc(1, sizeof(*snapshot)))) return NULL;
++    if (!(entry = calloc(1, sizeof(*entry))))
++    {
++        free(snapshot);
++        return NULL;
++    }
++    if (!(client = macdrv_create_legacy_client_surface(hwnd))) goto failed;
++    entry->surface = impl_from_client_surface(client);
++    entry->retained_view = macdrv_legacy_retain_object(entry->surface->cocoa_view);
++    if (!client_surface_begin_external_use(client))
++    {
++        void *view = entry->retained_view;
++        client_surface_release(client);
++        macdrv_legacy_release_object(view);
++        goto failed;
++    }
++
++    entry->refs = 1; /* snapshot lease; creation adds a separate renderer lease */
++    pthread_mutex_lock(&legacy_lock);
++    list_add_tail(&legacy_surfaces, &entry->entry);
++    pthread_mutex_unlock(&legacy_lock);
++    snapshot->hwnd = hwnd;
++    snapshot->client_cocoa_view = entry->retained_view;
++    snapshot->padding[0] = entry;
++    snapshot->color_key = CLR_INVALID;
++
++    /* Never carry a private window-data lock into renderer/main-thread calls. */
++    if ((data = get_win_data(hwnd)))
++    {
++        snapshot->cocoa_window = macdrv_legacy_retain_object(data->cocoa_window);
++        snapshot->window_rect = data->rects.window;
++        snapshot->whole_rect = data->rects.visible;
++        snapshot->client_rect = data->rects.client;
++        snapshot->pixel_format = data->pixel_format;
++        if (data->drag_event)
++        {
++            /* The snapshot no longer holds the private window-data lock. */
++            if (NtDuplicateObject(NtCurrentProcess(), data->drag_event, NtCurrentProcess(),
++                    &snapshot->drag_event, 0, 0, DUPLICATE_SAME_ACCESS))
++            {
++                release_win_data(data);
++                macdrv_legacy_release_win_data(snapshot);
++                return NULL;
++            }
++        }
++        snapshot->on_screen = data->on_screen;
++        snapshot->shaped = data->shaped;
++        snapshot->layered = data->layered;
++        snapshot->ulw_layered = data->ulw_layered;
++        snapshot->per_pixel_alpha = data->per_pixel_alpha;
++        snapshot->minimized = data->minimized;
++        release_win_data(data);
++    }
++    else
++    {
++        HWND parent = NtUserGetAncestor(hwnd, GA_PARENT);
++        UINT dpi = NtUserGetWinMonitorDpi(hwnd, MDT_RAW_DPI);
++        RECT rect;
++
++        if (NtUserGetWindowRect(hwnd, &rect, dpi))
++        {
++            if (parent) NtUserMapWindowPoints(NULL, parent, (POINT *)&rect, 2, dpi);
++            snapshot->window_rect = snapshot->whole_rect = rect;
++        }
++        if (NtUserGetClientRect(hwnd, &rect, dpi))
++        {
++            NtUserMapWindowPoints(hwnd, parent, (POINT *)&rect, 2, dpi);
++            snapshot->client_rect = rect;
++        }
++        snapshot->on_screen = !!(NtUserGetWindowLongW(hwnd, GWL_STYLE) & WS_VISIBLE);
++    }
++    return snapshot;
++
++failed:
++    free(entry);
++    free(snapshot);
++    return NULL;
++}
++
++void macdrv_legacy_release_win_data(struct macdrv_legacy_win_data *snapshot)
++{
++    void *window;
++
++    if (!snapshot) return;
++    window = snapshot->cocoa_window;
++    if (snapshot->drag_event) NtClose(snapshot->drag_event);
++    legacy_surface_release(snapshot->padding[0]);
++    if (window) macdrv_legacy_release_object(window);
++    free(snapshot);
++}
++
++macdrv_metal_view macdrv_legacy_create_metal_view(macdrv_view token, macdrv_metal_device device)
++{
++    struct legacy_surface *entry = legacy_surface_lookup(token);
++    BOOL acquired = FALSE, creating;
++
++    if (!entry) return NULL;
++    pthread_mutex_lock(&legacy_lock);
++    creating = entry->creating;
++    if (!creating) entry->creating = TRUE;
++    pthread_mutex_unlock(&legacy_lock);
++    /* Never wait with a native registry lock held across a main-thread call.
++     * Concurrent creation of the same opaque view reports unavailable. */
++    if (!creating)
++    {
++        acquired = macdrv_client_surface_acquire_metal_swapchain_with_device(entry->surface, (id_MTLDevice)device);
++        if (acquired && !macdrv_swapchain_get_layer(entry->surface->metal_swapchain)) acquired = FALSE;
++        pthread_mutex_lock(&legacy_lock);
++        if (acquired)
++        {
++            ++entry->renderers;
++            ++entry->refs;
++        }
++        entry->creating = FALSE;
++        pthread_mutex_unlock(&legacy_lock);
++        if (acquired) client_surface_present(&entry->surface->client);
++    }
++    legacy_surface_release(entry);
++    return acquired ? (macdrv_metal_view)token : NULL;
++}
++
++macdrv_metal_layer macdrv_legacy_get_metal_layer(macdrv_metal_view token)
++{
++    struct legacy_surface *entry = legacy_surface_lookup(token);
++    macdrv_metal_layer layer = NULL;
++    BOOL ready;
++
++    if (!entry) return NULL;
++    pthread_mutex_lock(&legacy_lock);
++    ready = !!entry->renderers;
++    pthread_mutex_unlock(&legacy_lock);
++    if (ready) layer = (macdrv_metal_layer)macdrv_swapchain_get_layer(entry->surface->metal_swapchain);
++    legacy_surface_release(entry);
++    return layer;
++}
++
++void macdrv_legacy_release_metal_view(macdrv_metal_view token)
++{
++    struct legacy_surface *entry = legacy_surface_lookup(token);
++    BOOL renderer;
++
++    if (!entry) return;
++    pthread_mutex_lock(&legacy_lock);
++    renderer = !!entry->renderers;
++    if (renderer) --entry->renderers;
++    pthread_mutex_unlock(&legacy_lock);
++    if (renderer) legacy_surface_release(entry);
++    legacy_surface_release(entry);
++}
+--- /dev/null
++++ b/dlls/winemac.drv/legacy_objects.m
+@@ -0,0 +1,14 @@
++/* Keep Objective-C and Windows BOOL definitions in separate units. */
++#include "config.h"
++#include "macdrv_cocoa.h"
++#include "cocoa_app.h"
++
++void *macdrv_legacy_retain_object(void *object)
++{
++    return [(id)object retain];
++}
++
++void macdrv_legacy_release_object(void *object)
++{
++    if (object) OnMainThreadAsync(^{ [(id)object release]; });
++}
+--- a/dlls/winemac.drv/window.c
++++ b/dlls/winemac.drv/window.c
+@@ -1076,7 +1076,11 @@
+ 
+     TRACE("%s\n", debugstr_client_surface(client));
+ 
+-    if (surface->metal_swapchain) macdrv_destroy_swapchain(surface->metal_swapchain);
++    if (surface->metal_swapchain)
++    {
++        if (surface->deferred_destroy) macdrv_destroy_swapchain_deferred(surface->metal_swapchain);
++        else macdrv_destroy_swapchain(surface->metal_swapchain);
++    }
+ }
+ 
+ static void macdrv_client_surface_detach(struct client_surface *client)
+@@ -1096,7 +1100,8 @@
+             release_win_data(data);
+         }
+ 
+-        macdrv_dispose_view(surface->cocoa_view);
++        if (surface->deferred_destroy) macdrv_dispose_view_deferred(surface->cocoa_view);
++        else macdrv_dispose_view(surface->cocoa_view);
+     }
+ }
+ 
+@@ -1146,11 +1151,12 @@
+     return CONTAINING_RECORD(client, struct macdrv_client_surface, client);
+ }
+ 
+-struct client_surface *macdrv_CreateClientSurface(HWND hwnd, int pixel_format, BOOL raw)
++static struct client_surface *create_client_surface(HWND hwnd, int pixel_format, BOOL raw, BOOL present)
+ {
+     struct macdrv_client_surface *surface;
+ 
+     if (!(surface = client_surface_create(&macdrv_client_surface_funcs, hwnd, pixel_format, raw))) return NULL;
++    surface->deferred_destroy = !present;
+     if (!(surface->cocoa_view = macdrv_create_view(cgrect_from_rect(surface->client.monitor_rect))))
+     {
+         client_surface_release(&surface->client);
+@@ -1158,9 +1164,20 @@
+     }
+     macdrv_set_view_hidden(surface->cocoa_view, TRUE);
+     macdrv_client_surface_update(&surface->client);
+-    macdrv_client_surface_present(&surface->client, 0);
++    if (present) macdrv_client_surface_present(&surface->client, 0);
+ 
+     return &surface->client;
++}
++
++struct client_surface *macdrv_CreateClientSurface(HWND hwnd, int pixel_format, BOOL raw)
++{
++    return create_client_surface(hwnd, pixel_format, raw, TRUE);
++}
++
++struct client_surface *macdrv_create_legacy_client_surface(HWND hwnd)
++{
++    /* Keep retired renderer surfaces out of Vulkan(format0)/GL cache reuse. */
++    return create_client_surface(hwnd, -1, FALSE, FALSE);
+ }
+ 
+ BOOL macdrv_client_surface_acquire_metal_swapchain(struct macdrv_client_surface *surface)
+--- a/dlls/winemac.drv/macdrv.h
++++ b/dlls/winemac.drv/macdrv.h
+@@ -197,6 +197,7 @@
+     struct client_surface   client;
+     WineContentView        *cocoa_view;
+     id_WineMetalSwapChain   metal_swapchain;
++    BOOL                   deferred_destroy;
+ };
+ 
+ extern struct macdrv_client_surface *impl_from_client_surface(struct client_surface *client);
+--- a/dlls/winemac.drv/macdrv_cocoa.h
++++ b/dlls/winemac.drv/macdrv_cocoa.h
+@@ -526,6 +526,7 @@
+ extern void macdrv_set_window_min_max_sizes(WineWindow *window, CGSize min_size, CGSize max_size);
+ extern WineContentView *macdrv_create_view(CGRect rect);
+ extern void macdrv_dispose_view(WineContentView *view);
++extern void macdrv_dispose_view_deferred(WineContentView *view);
+ extern void macdrv_set_view_frame(WineContentView *view, CGRect rect);
+ extern void macdrv_set_view_superview(WineContentView *view, WineContentView *parent, WineWindow *window, WineContentView *prev, WineContentView *next);
+ extern void macdrv_set_view_hidden(WineContentView *view, bool hidden);
+@@ -543,6 +544,7 @@
+ extern CAMetalLayer *macdrv_swapchain_get_layer(id_WineMetalSwapChain swapchain);
+ extern id_MTLDevice macdrv_swapchain_get_device(id_WineMetalSwapChain swapchain);
+ extern void macdrv_destroy_swapchain(id_WineMetalSwapChain swapchain);
++extern void macdrv_destroy_swapchain_deferred(id_WineMetalSwapChain swapchain);
+ extern void macdrv_window_create_ca_layer_host_view(WineWindow *window, unsigned int context_id);
+ extern void macdrv_window_release_ca_layer_host_view(WineWindow *window, unsigned int context_id);
+ extern void macdrv_create_remote_layer(void* hwnd, unsigned int context_id);
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -3496,11 +3496,11 @@
+  *
+  * Destroys a view previously returned by macdrv_create_view.
+  */
+-void macdrv_dispose_view(WineContentView *view)
++static void dispose_view(WineContentView *view, BOOL deferred)
+ {
+ @autoreleasepool
+ {
+-    OnMainThread(^{
++    dispatch_block_t dispose = ^{
+         NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
+         WineWindow* window = (WineWindow*)[view window];
+ 
+@@ -3516,8 +3516,20 @@
+         [view removeFromSuperview];
+         [view release];
+         [window updateForGLSubviews];
+-    });
+-}
++    };
++    if (deferred) OnMainThreadAsync(dispose);
++    else OnMainThread(dispose);
++}
++}
++
++void macdrv_dispose_view(WineContentView *view)
++{
++    dispose_view(view, NO);
++}
++
++void macdrv_dispose_view_deferred(WineContentView *view)
++{
++    dispose_view(view, YES);
+ }
+ 
+ /***********************************************************************
+@@ -3690,6 +3702,7 @@
+ @protocol WineMetalSwapChain <NSObject>
+ 
+ - (CAMetalLayer*) layer;
++- (void) deferCleanup;
+ 
+ @end
+ 
+@@ -3697,6 +3710,7 @@
+ {
+     id<MTLDevice> device;
+     WineMetalView *metal_view;
++    BOOL deferred_cleanup;
+ }
+ 
+ - (instancetype) initWithView:(WineContentView *)view device:(id<MTLDevice>)provided_device;
+@@ -3730,9 +3744,22 @@
+     return (CAMetalLayer*)macdrv_view_get_metal_layer(metal_view);
+ }
+ 
++- (void) deferCleanup
++{
++    deferred_cleanup = YES;
++}
++
+ - (void) dealloc
+ {
+-    if (metal_view) macdrv_view_release_metal_view(metal_view);
++    if (metal_view && deferred_cleanup)
++    {
++        WineMetalView *view = metal_view;
++        OnMainThreadAsync(^{
++            [view removeFromSuperview];
++            [view release];
++        });
++    }
++    else if (metal_view) macdrv_view_release_metal_view(metal_view);
+     if (device) macdrv_release_metal_device(device);
+     [super dealloc];
+ }
+@@ -3807,6 +3834,11 @@
+     return offscreen_layer;
+ }
+ 
++- (void) deferCleanup
++{
++    /* Cocoa resources are already released asynchronously by dealloc. */
++}
++
+ - (void) dealloc
+ {
+     if (context_id) macdrv_release_remote_layer(hwnd, context_id);
+@@ -3859,6 +3891,12 @@
+ 
+ void macdrv_destroy_swapchain(id<WineMetalSwapChain> swapchain)
+ {
++    [swapchain release];
++}
++
++void macdrv_destroy_swapchain_deferred(id<WineMetalSwapChain> swapchain)
++{
++    [swapchain deferCleanup];
+     [swapchain release];
+ }
+ 

@@ -1,0 +1,982 @@
+Apply after0016. Full24-slot/192-byte table, PE32/64 callback registration.
+Registry v2 uses a fixed callback frame and owned guest-visible packet VM.
+No ignored security attributes or arbitrary64KiB packet cap.
+A failed VM release keeps its owner and does not replace a real API result.
+Foreign-child and full behavioral acceptance remain separate.
+
+--- /dev/null
++++ b/dlls/winemac.drv/legacy_registry.h
+@@ -0,0 +1,90 @@
++/* Native/PE registry bridge. The fixed callback frame contains a code address
++ * and one explicit packet address belonging to a checked guest-visible VM
++ * allocation. Caller strings, buffers, descriptors and output pointers never
++ * cross directly; packet members are fixed-width values and relative offsets.
++ */
++#ifndef __CIDER_LEGACY_REGISTRY_H
++#define __CIDER_LEGACY_REGISTRY_H
++
++#include <stddef.h>
++#include "ntuser.h"
++#include "winreg.h"
++
++#define MACDRV_LEGACY_REG_MAGIC 0x3147524dU
++#define MACDRV_LEGACY_REG_VERSION 2U
++/* Only this fixed-size envelope is copied onto the PE callback stack.
++ * The packet is an explicitly owned, guest-addressable VM allocation. */
++struct macdrv_legacy_reg_dispatch
++{
++    struct dispatch_callback_params dispatch;
++    UINT32 magic, version;
++    UINT64 packet;
++    UINT32 packet_size, zero;
++};
++C_ASSERT(sizeof(struct macdrv_legacy_reg_dispatch) == 32);
++
++enum macdrv_legacy_reg_op
++{
++    MACDRV_LEGACY_REG_QUERY = 1,
++    MACDRV_LEGACY_REG_SET,
++    MACDRV_LEGACY_REG_OPEN,
++    MACDRV_LEGACY_REG_CREATE,
++    MACDRV_LEGACY_REG_CLOSE
++};
++
++#define MACDRV_LEGACY_REG_TYPE       0x01U
++#define MACDRV_LEGACY_REG_DATA       0x02U
++#define MACDRV_LEGACY_REG_SIZE       0x04U
++#define MACDRV_LEGACY_REG_DISPOSITION 0x08U
++#define MACDRV_LEGACY_REG_SECURITY   0x10U
++
++struct macdrv_legacy_reg_request
++{
++    struct dispatch_callback_params dispatch;
++    UINT32 magic, version, operation, total_size;
++    UINT32 key, flags;
++    UINT32 reserved, type, options, access;
++    UINT32 name_offset, name_bytes;
++    UINT32 class_offset, class_bytes;
++    UINT32 data_offset, data_bytes;
++    UINT32 query_capacity, reserved0;
++    UINT32 reply_offset, reply_capacity;
++    UINT32 buffer_capacity, zero;
++};
++
++struct macdrv_legacy_reg_reply
++{
++    UINT32 magic, version, operation, total_size;
++    UINT32 status, type, value_size, data_bytes;
++    UINT32 key, disposition, flags, zero;
++    /* Returned query bytes immediately follow. Never a PE/native pointer. */
++};
++
++C_ASSERT(sizeof(struct dispatch_callback_params) == 8);
++C_ASSERT(sizeof(struct macdrv_legacy_reg_request) == 96);
++C_ASSERT(offsetof(struct macdrv_legacy_reg_request, key) == 24);
++C_ASSERT(offsetof(struct macdrv_legacy_reg_request, reply_offset) == 80);
++C_ASSERT(sizeof(struct macdrv_legacy_reg_reply) == 48);
++
++/* A separate appended Unix-call entry leaves existing init_params unchanged. */
++struct macdrv_legacy_reg_init
++{
++    UINT64 callback;
++    UINT32 magic, version;
++};
++C_ASSERT(sizeof(struct macdrv_legacy_reg_init) == 16);
++
++/* PE entrypoint; its code address is registered, not exported as a table. */
++NTSTATUS WINAPI macdrv_legacy_registry_callback(void *args, ULONG size);
++
++/* Native initialization: one stable PE callback address per process/bitted driver. */
++NTSTATUS macdrv_legacy_registry_initialize(UINT64 callback);
++NTSTATUS macdrv_legacy_registry_init(void *args);
++LONG WINAPI macdrv_legacy_RegQueryValueExA(HKEY, LPCSTR, LPDWORD, LPDWORD, BYTE *, LPDWORD);
++LONG WINAPI macdrv_legacy_RegSetValueExA(HKEY, LPCSTR, DWORD, DWORD, const BYTE *, DWORD);
++LONG WINAPI macdrv_legacy_RegOpenKeyExA(HKEY, LPCSTR, DWORD, REGSAM, HKEY *);
++LONG WINAPI macdrv_legacy_RegCreateKeyExA(HKEY, LPCSTR, DWORD, LPSTR, DWORD, REGSAM,
++                                       LPSECURITY_ATTRIBUTES, HKEY *, LPDWORD);
++LONG WINAPI macdrv_legacy_RegCloseKey(HKEY);
++
++#endif
+--- /dev/null
++++ b/dlls/winemac.drv/legacy_registry_pe.c
+@@ -0,0 +1,219 @@
++/* PE-only full unit. No caller data/result address is taken from the wire. */
++#include <stdarg.h>
++#include <string.h>
++#include "ntstatus.h"
++#define WIN32_NO_STATUS
++#include "windef.h"
++#include "winbase.h"
++#include "winreg.h"
++#include "winternl.h"
++#include "legacy_registry.h"
++
++static BOOL input_range(const struct macdrv_legacy_reg_request *r, UINT32 off, UINT32 len)
++{
++    return off >= sizeof(*r) && off <= r->reply_offset && len <= r->reply_offset - off;
++}
++
++static BOOL wire_string(const struct macdrv_legacy_reg_request *r, BYTE *packet,
++                        UINT32 off, UINT32 len, char **str)
++{
++    *str = NULL;
++    if (!off && !len) return TRUE;
++    if (!off || !len || !input_range(r, off, len)) return FALSE;
++    if (memchr(packet + off, 0, len) != packet + off + len - 1) return FALSE;
++    *str = (char *)packet + off;
++    return TRUE;
++}
++
++static HKEY decode_key(UINT32 key)
++{
++    return (HKEY)(LONG_PTR)(LONG)key;
++}
++
++static BOOL encode_key(HKEY key, UINT32 *wire)
++{
++    UINT_PTR value = (UINT_PTR)key;
++    *wire = (UINT32)value;
++#ifdef _WIN64
++    return value == (UINT_PTR)*wire || value == (UINT_PTR)(LONG_PTR)(LONG)*wire;
++#else
++    return TRUE;
++#endif
++}
++
++static BOOL relative_descriptor(const BYTE *bytes, UINT32 length)
++{
++    const SECURITY_DESCRIPTOR_RELATIVE *descriptor;
++    UINT32 offsets[4], i, offset, part_length;
++
++    if (length < sizeof(*descriptor)) return FALSE;
++    descriptor = (const SECURITY_DESCRIPTOR_RELATIVE *)bytes;
++    if (descriptor->Revision != SECURITY_DESCRIPTOR_REVISION || !(descriptor->Control & SE_SELF_RELATIVE))
++        return FALSE;
++    offsets[0] = descriptor->Owner;
++    offsets[1] = descriptor->Group;
++    offsets[2] = (descriptor->Control & SE_SACL_PRESENT) ? descriptor->Sacl : 0;
++    offsets[3] = (descriptor->Control & SE_DACL_PRESENT) ? descriptor->Dacl : 0;
++    for (i = 0; i < 4; ++i)
++    {
++        offset = offsets[i];
++        if (!offset) continue;
++        if (offset < sizeof(*descriptor) || offset > length) return FALSE;
++        if (i < 2)
++        {
++            const SID *sid;
++            if (length - offset < offsetof(SID, SubAuthority)) return FALSE;
++            sid = (const SID *)(bytes + offset);
++            if (sid->Revision != SID_REVISION || sid->SubAuthorityCount > SID_MAX_SUB_AUTHORITIES) return FALSE;
++            part_length = offsetof(SID, SubAuthority) + sid->SubAuthorityCount * sizeof(DWORD);
++        }
++        else
++        {
++            const ACL *acl;
++            if (length - offset < sizeof(*acl)) return FALSE;
++            acl = (const ACL *)(bytes + offset);
++            part_length = acl->AclSize;
++            if (part_length < sizeof(*acl)) return FALSE;
++        }
++        if (part_length > length - offset) return FALSE;
++    }
++    return TRUE;
++}
++
++NTSTATUS WINAPI macdrv_legacy_registry_callback(void *args, ULONG size)
++{
++    struct macdrv_legacy_reg_request r;
++    struct macdrv_legacy_reg_dispatch envelope;
++    struct macdrv_legacy_reg_reply *reply;
++    BYTE *packet, *data = NULL;
++    char *name, *class_name;
++    HKEY opened = NULL;
++    DWORD type, count, disposition = 0;
++    LONG status;
++    UINT32 allowed;
++    NTSTATUS returned;
++    SECURITY_ATTRIBUTES attributes = {sizeof(attributes), NULL, FALSE};
++
++    if (!args || size != sizeof(envelope)) return STATUS_INVALID_PARAMETER;
++    memcpy(&envelope, args, sizeof(envelope));
++    if (envelope.magic != MACDRV_LEGACY_REG_MAGIC || envelope.version != MACDRV_LEGACY_REG_VERSION ||
++        envelope.zero || envelope.packet < 0x10000 || envelope.packet > 0xffffffffu ||
++        envelope.packet_size < sizeof(r) ||
++        envelope.packet_size > 0x100000000ULL - envelope.packet) return STATUS_INVALID_PARAMETER;
++    packet = (BYTE *)(UINT_PTR)envelope.packet;
++    memcpy(&r, packet, sizeof(r));
++    if (r.magic != MACDRV_LEGACY_REG_MAGIC || r.version != MACDRV_LEGACY_REG_VERSION ||
++        r.total_size != envelope.packet_size || r.zero || r.reserved0 || r.reply_offset < sizeof(r) ||
++        (r.reply_offset & 3) || r.reply_offset > r.total_size ||
++        r.reply_capacity != r.total_size - r.reply_offset || r.reply_capacity < sizeof(*reply))
++        return STATUS_INVALID_PARAMETER;
++
++    switch (r.operation)
++    {
++    case MACDRV_LEGACY_REG_QUERY:
++        allowed = MACDRV_LEGACY_REG_TYPE | MACDRV_LEGACY_REG_DATA | MACDRV_LEGACY_REG_SIZE;
++        break;
++    case MACDRV_LEGACY_REG_SET: allowed = MACDRV_LEGACY_REG_DATA; break;
++    case MACDRV_LEGACY_REG_CREATE:
++        allowed = MACDRV_LEGACY_REG_DISPOSITION | MACDRV_LEGACY_REG_SECURITY;
++        break;
++    case MACDRV_LEGACY_REG_OPEN:
++    case MACDRV_LEGACY_REG_CLOSE: allowed = 0; break;
++    default: return STATUS_INVALID_PARAMETER;
++    }
++    if ((r.flags & ~allowed) ||
++        !wire_string(&r, packet, r.name_offset, r.name_bytes, &name) ||
++        !wire_string(&r, packet, r.class_offset, r.class_bytes, &class_name))
++        return STATUS_INVALID_PARAMETER;
++    if (r.operation != MACDRV_LEGACY_REG_CREATE && class_name) return STATUS_INVALID_PARAMETER;
++    if (r.operation == MACDRV_LEGACY_REG_CLOSE && name) return STATUS_INVALID_PARAMETER;
++    if (r.operation != MACDRV_LEGACY_REG_SET &&
++        !(r.operation == MACDRV_LEGACY_REG_CREATE && (r.flags & MACDRV_LEGACY_REG_SECURITY)) &&
++        (r.data_offset || r.data_bytes))
++        return STATUS_INVALID_PARAMETER;
++    if (r.operation != MACDRV_LEGACY_REG_QUERY && r.buffer_capacity)
++        return STATUS_INVALID_PARAMETER;
++
++    reply = (struct macdrv_legacy_reg_reply *)(packet + r.reply_offset);
++    memset(reply, 0, sizeof(*reply));
++    reply->magic = MACDRV_LEGACY_REG_MAGIC;
++    reply->version = MACDRV_LEGACY_REG_VERSION;
++    reply->operation = r.operation;
++    reply->flags = r.flags;
++    reply->total_size = sizeof(*reply);
++
++    switch (r.operation)
++    {
++    case MACDRV_LEGACY_REG_QUERY:
++        if (r.reserved || ((r.flags & MACDRV_LEGACY_REG_DATA) && !(r.flags & MACDRV_LEGACY_REG_SIZE)))
++            return STATUS_INVALID_PARAMETER;
++        if (r.buffer_capacity > r.query_capacity ||
++            r.buffer_capacity > r.reply_capacity - sizeof(*reply) ||
++            ((r.flags & MACDRV_LEGACY_REG_DATA) && r.reply_capacity == sizeof(*reply)))
++            return STATUS_INVALID_PARAMETER;
++        type = 0;
++        count = (r.flags & MACDRV_LEGACY_REG_DATA) ? r.buffer_capacity : r.query_capacity;
++        if (r.flags & MACDRV_LEGACY_REG_DATA) data = (BYTE *)(reply + 1);
++        status = RegQueryValueExA(decode_key(r.key), name, NULL,
++                (r.flags & MACDRV_LEGACY_REG_TYPE) ? &type : NULL, data,
++                (r.flags & MACDRV_LEGACY_REG_SIZE) ? &count : NULL);
++        reply->type = type;
++        reply->value_size = count;
++        if (status == ERROR_SUCCESS && data)
++        {
++            if (count > r.buffer_capacity) return STATUS_DATA_ERROR;
++            reply->data_bytes = count;
++            reply->total_size += count;
++        }
++        break;
++    case MACDRV_LEGACY_REG_SET:
++        if (r.flags & MACDRV_LEGACY_REG_DATA)
++        {
++            if (!r.data_offset || !input_range(&r, r.data_offset, r.data_bytes ? r.data_bytes : 1))
++                return STATUS_INVALID_PARAMETER;
++            data = packet + r.data_offset;
++        }
++        else if (r.data_offset || r.data_bytes) return STATUS_INVALID_PARAMETER;
++        status = RegSetValueExA(decode_key(r.key), name, r.reserved, r.type, data, r.data_bytes);
++        break;
++    case MACDRV_LEGACY_REG_OPEN:
++        status = RegOpenKeyExA(decode_key(r.key), name, r.options, r.access, &opened);
++        break;
++    case MACDRV_LEGACY_REG_CREATE:
++        if (r.flags & MACDRV_LEGACY_REG_SECURITY)
++        {
++            attributes.bInheritHandle = r.type;
++            if (r.data_offset || r.data_bytes)
++            {
++                if (!r.data_offset || (r.data_offset & 3) || !input_range(&r, r.data_offset, r.data_bytes) ||
++                    !relative_descriptor(packet + r.data_offset, r.data_bytes)) return STATUS_INVALID_SECURITY_DESCR;
++                attributes.lpSecurityDescriptor = packet + r.data_offset;
++            }
++        }
++        status = RegCreateKeyExA(decode_key(r.key), name, r.reserved, class_name,
++                r.options, r.access, (r.flags & MACDRV_LEGACY_REG_SECURITY) ? &attributes : NULL, &opened,
++                (r.flags & MACDRV_LEGACY_REG_DISPOSITION) ? &disposition : NULL);
++        break;
++    default:
++        status = RegCloseKey(decode_key(r.key));
++        break;
++    }
++
++    if (r.operation == MACDRV_LEGACY_REG_OPEN || r.operation == MACDRV_LEGACY_REG_CREATE)
++    {
++        if (status == ERROR_SUCCESS && (!opened || !encode_key(opened, &reply->key)))
++        {
++            if (opened) RegCloseKey(opened);
++            opened = NULL;
++            reply->key = 0;
++            status = ERROR_NOT_SUPPORTED;
++        }
++        if (status == ERROR_SUCCESS) reply->disposition = disposition;
++    }
++    reply->status = status;
++    /* The native owner retains the shared mapping through this callback return.
++     * NtCallbackReturn normally unwinds and does not return to this statement. */
++    returned = NtCallbackReturn(reply, reply->total_size, STATUS_SUCCESS);
++    if (opened && status == ERROR_SUCCESS) RegCloseKey(opened);
++    return returned;
++}
+--- /dev/null
++++ b/dlls/winemac.drv/legacy_registry_unix.c
+@@ -0,0 +1,414 @@
++/* Native-only full unit. Parent assigns these wrappers to the existing table.
++ * This file does not define or publish macdrv_functions. */
++#if 0
++#pragma makedep unix
++#endif
++#include "config.h"
++#include <stdlib.h>
++#include <pthread.h>
++#include <string.h>
++#include "ntstatus.h"
++#define WIN32_NO_STATUS
++#include "macdrv.h"
++#include "legacy_registry.h"
++
++WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
++
++static LONG64 callback_address;
++struct registry_mapping_owner
++{
++    struct registry_mapping_owner *next;
++    void *base;
++    SIZE_T size;
++    NTSTATUS last_error;
++};
++static pthread_mutex_t mapping_lock = PTHREAD_MUTEX_INITIALIZER;
++static struct registry_mapping_owner *pending_mappings;
++static struct registry_mapping_owner **pending_tail = &pending_mappings;
++
++/* A failed release retains an explicit owner. It cannot erase a registry
++ * operation's result or lose the only published HKEY. Never replay mutations. */
++static void release_mapping(struct registry_mapping_owner *owner)
++{
++    void *base = owner->base;
++    SIZE_T zero = 0;
++    NTSTATUS status = NtFreeVirtualMemory(NtCurrentProcess(), &base, &zero, MEM_RELEASE);
++    if (!status)
++    {
++        free(owner);
++        return;
++    }
++    owner->last_error = status;
++    pthread_mutex_lock(&mapping_lock);
++    owner->next = NULL;
++    *pending_tail = owner;
++    pending_tail = &owner->next;
++    pthread_mutex_unlock(&mapping_lock);
++    ERR("legacy registry mapping cleanup failed %#x; owner retained, operation result unchanged\n", (unsigned int)status);
++}
++
++/* At most one old mapping is retried per new operation, outside the mutex.
++ * This only retries resource cleanup, never RegCreate/RegSet or other APIs. */
++static void retry_pending_mapping(void)
++{
++    struct registry_mapping_owner *owner;
++    pthread_mutex_lock(&mapping_lock);
++    owner = pending_mappings;
++    if (owner)
++    {
++        pending_mappings = owner->next;
++        if (!pending_mappings) pending_tail = &pending_mappings;
++    }
++    pthread_mutex_unlock(&mapping_lock);
++    if (owner) release_mapping(owner);
++}
++
++NTSTATUS macdrv_legacy_registry_initialize(UINT64 callback)
++{
++    LONG64 previous;
++    if (!callback) return STATUS_INVALID_PARAMETER;
++    previous = InterlockedCompareExchange64(&callback_address, callback, 0);
++    return !previous || (UINT64)previous == callback ? STATUS_SUCCESS : STATUS_INVALID_PARAMETER;
++}
++
++NTSTATUS macdrv_legacy_registry_init(void *args)
++{
++    const struct macdrv_legacy_reg_init *init = args;
++    if (!init || init->magic != MACDRV_LEGACY_REG_MAGIC || init->version != MACDRV_LEGACY_REG_VERSION)
++        return STATUS_INVALID_PARAMETER;
++    return macdrv_legacy_registry_initialize(init->callback);
++}
++
++static LONG encode_key(HKEY key, UINT32 *wire)
++{
++    UINT_PTR value = (UINT_PTR)key;
++    *wire = (UINT32)value;
++    if (value != (UINT_PTR)*wire && value != (UINT_PTR)(LONG_PTR)(LONG)*wire)
++        return ERROR_INVALID_HANDLE;
++    return ERROR_SUCCESS;
++}
++
++static struct macdrv_legacy_reg_request *new_request(UINT32 operation, HKEY key, LONG *status)
++{
++    struct macdrv_legacy_reg_request *r;
++    UINT32 wire;
++    *status = encode_key(key, &wire);
++    if (*status) return NULL;
++    if (!(r = calloc(1, sizeof(*r))))
++    {
++        *status = ERROR_NOT_ENOUGH_MEMORY;
++        return NULL;
++    }
++    r->magic = MACDRV_LEGACY_REG_MAGIC;
++    r->version = MACDRV_LEGACY_REG_VERSION;
++    r->operation = operation;
++    r->key = wire;
++    r->reply_offset = sizeof(*r);
++    return r;
++}
++
++static LONG append_bytes(struct macdrv_legacy_reg_request **request, const void *bytes,
++                         UINT32 len, size_t offset_field)
++{
++    struct macdrv_legacy_reg_request *r = *request, *next;
++    UINT32 stored = len ? len : 1, offset = r->reply_offset;
++    if (stored > ~0u - offset) return ERROR_NOT_ENOUGH_MEMORY;
++    if (!(next = realloc(r, (size_t)offset + stored))) return ERROR_NOT_ENOUGH_MEMORY;
++    *request = next;
++    *(UINT32 *)((BYTE *)next + offset_field) = offset;
++    if (len) memcpy((BYTE *)next + offset, bytes, len);
++    else *((BYTE *)next + offset) = 0;
++    next->reply_offset = offset + stored;
++    return ERROR_SUCCESS;
++}
++
++static LONG append_string(struct macdrv_legacy_reg_request **request, const char *str,
++                          size_t offset_field, size_t length_field)
++{
++    size_t length;
++    LONG status;
++    *(UINT32 *)((BYTE *)*request + offset_field) = 0;
++    *(UINT32 *)((BYTE *)*request + length_field) = 0;
++    if (!str) return ERROR_SUCCESS;
++    length = strlen(str);
++    if (length >= ~0u) return ERROR_NOT_ENOUGH_MEMORY;
++    status = append_bytes(request, str, (UINT32)length + 1, offset_field);
++    if (!status) *(UINT32 *)((BYTE *)*request + length_field) = (UINT32)length + 1;
++    return status;
++}
++
++#define FIELD(name) offsetof(struct macdrv_legacy_reg_request, name)
++
++/* Serialize absolute or self-relative native descriptors without exporting
++ * any native pointer to PE32. Offset-bearing descriptors are architecture-neutral. */
++static LONG append_security(struct macdrv_legacy_reg_request **request, LPSECURITY_ATTRIBUTES attributes)
++{
++    const SECURITY_DESCRIPTOR *absolute;
++    const SECURITY_DESCRIPTOR_RELATIVE *relative;
++    const BYTE *parts[4] = {0};
++    UINT32 lengths[4] = {0}, offsets[4] = {0}, total, i, pad;
++    SECURITY_DESCRIPTOR_RELATIVE *copy;
++    SECURITY_DESCRIPTOR_CONTROL control;
++    BYTE zeros[3] = {0};
++    LONG status;
++
++    if (!attributes) return ERROR_SUCCESS;
++    if (attributes->nLength != sizeof(*attributes)) return ERROR_INVALID_PARAMETER;
++    (*request)->flags |= MACDRV_LEGACY_REG_SECURITY;
++    (*request)->type = attributes->bInheritHandle;
++    if (!(absolute = attributes->lpSecurityDescriptor)) return ERROR_SUCCESS;
++    if (absolute->Revision != SECURITY_DESCRIPTOR_REVISION) return ERROR_UNKNOWN_REVISION;
++    control = absolute->Control;
++    if (control & SE_SELF_RELATIVE)
++    {
++        relative = (const SECURITY_DESCRIPTOR_RELATIVE *)absolute;
++        offsets[0] = relative->Owner;
++        offsets[1] = relative->Group;
++        offsets[2] = (control & SE_SACL_PRESENT) ? relative->Sacl : 0;
++        offsets[3] = (control & SE_DACL_PRESENT) ? relative->Dacl : 0;
++        for (i = 0; i < 4; ++i)
++        {
++            if (!offsets[i]) continue;
++            if (offsets[i] < sizeof(*relative)) return ERROR_INVALID_SECURITY_DESCR;
++            parts[i] = (const BYTE *)relative + offsets[i];
++        }
++    }
++    else
++    {
++        parts[0] = absolute->Owner;
++        parts[1] = absolute->Group;
++        parts[2] = (control & SE_SACL_PRESENT) ? (const BYTE *)absolute->Sacl : NULL;
++        parts[3] = (control & SE_DACL_PRESENT) ? (const BYTE *)absolute->Dacl : NULL;
++    }
++    total = sizeof(*copy);
++    for (i = 0; i < 4; ++i)
++    {
++        if (!parts[i]) continue;
++        if (i < 2)
++        {
++            const SID *sid = (const SID *)parts[i];
++            if (sid->Revision != SID_REVISION || sid->SubAuthorityCount > SID_MAX_SUB_AUTHORITIES)
++                return ERROR_INVALID_SID;
++            lengths[i] = offsetof(SID, SubAuthority) + sid->SubAuthorityCount * sizeof(DWORD);
++        }
++        else
++        {
++            const ACL *acl = (const ACL *)parts[i];
++            if (acl->AclSize < sizeof(*acl)) return ERROR_INVALID_ACL;
++            lengths[i] = acl->AclSize;
++        }
++        total = (total + 3) & ~3u;
++        offsets[i] = total;
++        total += lengths[i];
++    }
++    if (!(copy = calloc(1, total))) return ERROR_NOT_ENOUGH_MEMORY;
++    copy->Revision = absolute->Revision;
++    copy->Sbz1 = absolute->Sbz1;
++    copy->Control = control | SE_SELF_RELATIVE;
++    copy->Owner = parts[0] ? offsets[0] : 0;
++    copy->Group = parts[1] ? offsets[1] : 0;
++    copy->Sacl = parts[2] ? offsets[2] : 0;
++    copy->Dacl = parts[3] ? offsets[3] : 0;
++    for (i = 0; i < 4; ++i)
++        if (parts[i]) memcpy((BYTE *)copy + offsets[i], parts[i], lengths[i]);
++    pad = (0u - (*request)->reply_offset) & 3;
++    status = pad ? append_bytes(request, zeros, pad, FIELD(data_offset)) : ERROR_SUCCESS;
++    if (!status) status = append_bytes(request, copy, total, FIELD(data_offset));
++    if (!status) (*request)->data_bytes = total;
++    free(copy);
++    return status;
++}
++
++static LONG dispatch(struct macdrv_legacy_reg_request *r, struct macdrv_legacy_reg_reply **answer)
++{
++    struct macdrv_legacy_reg_dispatch call = {0};
++    struct macdrv_legacy_reg_reply *reply;
++    MEM_ADDRESS_REQUIREMENTS requirements = {0};
++    MEM_EXTENDED_PARAMETER parameter = {0};
++    void *shared = NULL, *returned = NULL;
++    SIZE_T region_size;
++    ULONG length = 0;
++    UINT32 input_bytes = r->reply_offset, payload = 0;
++    NTSTATUS status;
++    struct registry_mapping_owner *owner;
++
++    *answer = NULL;
++    retry_pending_mapping();
++    call.dispatch.callback = (UINT64)InterlockedCompareExchange64(&callback_address, 0, 0);
++    if (!call.dispatch.callback) return ERROR_PROC_NOT_FOUND;
++    if (r->reply_offset > ~0u - 3) return ERROR_NOT_ENOUGH_MEMORY;
++    r->reply_offset = (r->reply_offset + 3) & ~3u;
++    if (r->operation == MACDRV_LEGACY_REG_QUERY && (r->flags & MACDRV_LEGACY_REG_DATA))
++    {
++        r->buffer_capacity = r->query_capacity;
++        payload = r->query_capacity ? r->query_capacity : 1;
++    }
++    if (payload > ~0u - sizeof(*reply) ||
++        r->reply_offset > ~0u - sizeof(*reply) - payload) return ERROR_NOT_ENOUGH_MEMORY;
++    r->reply_capacity = sizeof(*reply) + payload;
++    r->total_size = r->reply_offset + r->reply_capacity;
++    /* Allocate the reply before any side effect, not after opening a key. */
++    if (!(reply = malloc(r->reply_capacity))) return ERROR_NOT_ENOUGH_MEMORY;
++    if (!(owner = calloc(1, sizeof(*owner))))
++    {
++        free(reply);
++        return ERROR_NOT_ENOUGH_MEMORY;
++    }
++    requirements.LowestStartingAddress = (void *)(UINT_PTR)0x10000;
++    requirements.HighestEndingAddress = (void *)(UINT_PTR)0xffffffffu;
++    parameter.Type = MemExtendedParameterAddressRequirements;
++    parameter.Pointer = &requirements;
++    region_size = r->total_size;
++    status = NtAllocateVirtualMemoryEx(NtCurrentProcess(), &shared, &region_size,
++            MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE, &parameter, 1);
++    if (status)
++    {
++        free(owner);
++        free(reply);
++        return RtlNtStatusToDosError(status);
++    }
++    owner->base = shared;
++    owner->size = region_size;
++    if ((UINT64)(UINT_PTR)shared > 0xffffffffu ||
++        region_size > 0x100000000ULL - (UINT64)(UINT_PTR)shared)
++        status = STATUS_INVALID_ADDRESS;
++    else
++    {
++        memcpy(shared, r, input_bytes);
++        call.magic = MACDRV_LEGACY_REG_MAGIC;
++        call.version = MACDRV_LEGACY_REG_VERSION;
++        call.packet = (UINT_PTR)shared;
++        call.packet_size = r->total_size;
++        status = KeUserDispatchCallback(&call.dispatch, sizeof(call), &returned, &length);
++        if (!status)
++        {
++            if (returned != (BYTE *)shared + r->reply_offset ||
++                length < sizeof(*reply) || length > r->reply_capacity) status = STATUS_DATA_ERROR;
++            else memcpy(reply, returned, length);
++        }
++    }
++    release_mapping(owner);
++    if (status)
++    {
++        free(reply);
++        return RtlNtStatusToDosError(status);
++    }
++    if (reply->magic != MACDRV_LEGACY_REG_MAGIC || reply->version != MACDRV_LEGACY_REG_VERSION ||
++        reply->operation != r->operation || reply->flags != r->flags || reply->zero ||
++        reply->total_size != length || reply->data_bytes != length - sizeof(*reply)) { free(reply); return ERROR_INVALID_DATA; }
++    if (r->operation == MACDRV_LEGACY_REG_QUERY)
++    {
++        if ((reply->status == ERROR_SUCCESS && (r->flags & MACDRV_LEGACY_REG_DATA)) ?
++            (reply->data_bytes != reply->value_size || reply->data_bytes > r->buffer_capacity) : reply->data_bytes)
++            { free(reply); return ERROR_INVALID_DATA; }
++        if (reply->key || reply->disposition) { free(reply); return ERROR_INVALID_DATA; }
++    }
++    else if (reply->data_bytes || reply->type || reply->value_size) { free(reply); return ERROR_INVALID_DATA; }
++    if (r->operation == MACDRV_LEGACY_REG_OPEN || r->operation == MACDRV_LEGACY_REG_CREATE)
++    {
++        if ((reply->status == ERROR_SUCCESS) != !!reply->key) { free(reply); return ERROR_INVALID_DATA; }
++    }
++    else if (reply->key || reply->disposition) { free(reply); return ERROR_INVALID_DATA; }
++    *answer = reply;
++    return (LONG)reply->status;
++}
++
++LONG WINAPI macdrv_legacy_RegQueryValueExA(HKEY key, LPCSTR name, LPDWORD reserved,
++                                         LPDWORD type, BYTE *data, LPDWORD count)
++{
++    struct macdrv_legacy_reg_request *r;
++    struct macdrv_legacy_reg_reply *reply = NULL;
++    LONG status;
++    if (reserved || (data && !count)) return ERROR_INVALID_PARAMETER;
++    if (!(r = new_request(MACDRV_LEGACY_REG_QUERY, key, &status))) return status;
++    r->flags = (type ? MACDRV_LEGACY_REG_TYPE : 0) | (data ? MACDRV_LEGACY_REG_DATA : 0) |
++               (count ? MACDRV_LEGACY_REG_SIZE : 0);
++    /* Type is out-only; size is out-only for a size query. Do not read either
++     * caller variable before the API is required to consume its value. */
++    r->query_capacity = data ? *count : 0;
++    if (!(status = append_string(&r, name, FIELD(name_offset), FIELD(name_bytes))))
++    {
++        status = dispatch(r, &reply);
++        if (reply && (status == ERROR_SUCCESS || status == ERROR_MORE_DATA))
++        {
++            if (type) *type = reply->type;
++            if (count) *count = reply->value_size;
++            if (!status && data && reply->data_bytes) memcpy(data, reply + 1, reply->data_bytes);
++        }
++    }
++    free(reply);
++    free(r);
++    return status;
++}
++
++LONG WINAPI macdrv_legacy_RegSetValueExA(HKEY key, LPCSTR name, DWORD reserved,
++                                       DWORD type, const BYTE *data, DWORD count)
++{
++    struct macdrv_legacy_reg_request *r;
++    struct macdrv_legacy_reg_reply *reply = NULL;
++    LONG status;
++    if (!data && count) return ERROR_INVALID_PARAMETER;
++    if (!(r = new_request(MACDRV_LEGACY_REG_SET, key, &status))) return status;
++    r->flags = data ? MACDRV_LEGACY_REG_DATA : 0;
++    r->reserved = reserved;
++    r->type = type;
++    r->data_bytes = count;
++    if (!(status = append_string(&r, name, FIELD(name_offset), FIELD(name_bytes))) &&
++        (!data || !(status = append_bytes(&r, data, count, FIELD(data_offset))))) status = dispatch(r, &reply);
++    free(reply);
++    free(r);
++    return status;
++}
++
++static LONG open_key(UINT32 op, HKEY key, LPCSTR name, DWORD reserved, LPSTR class_name,
++                     DWORD options, REGSAM access, LPSECURITY_ATTRIBUTES security, HKEY *opened, LPDWORD disposition)
++{
++    struct macdrv_legacy_reg_request *r;
++    struct macdrv_legacy_reg_reply *reply = NULL;
++    LONG status;
++    if (!opened) return ERROR_INVALID_PARAMETER;
++    if (!(r = new_request(op, key, &status))) return status;
++    r->reserved = reserved;
++    r->options = options;
++    r->access = access;
++    r->flags = disposition ? MACDRV_LEGACY_REG_DISPOSITION : 0;
++    if (!(status = append_string(&r, name, FIELD(name_offset), FIELD(name_bytes))) &&
++        !(status = append_string(&r, class_name, FIELD(class_offset), FIELD(class_bytes))) &&
++        !(status = append_security(&r, security)))
++    {
++        status = dispatch(r, &reply);
++        if (!status)
++        {
++            *opened = (HKEY)(LONG_PTR)(LONG)reply->key;
++            if (disposition) *disposition = reply->disposition;
++        }
++    }
++    free(reply);
++    free(r);
++    return status;
++}
++
++LONG WINAPI macdrv_legacy_RegOpenKeyExA(HKEY key, LPCSTR name, DWORD options, REGSAM access, HKEY *opened)
++{
++    return open_key(MACDRV_LEGACY_REG_OPEN, key, name, 0, NULL, options, access, NULL, opened, NULL);
++}
++
++LONG WINAPI macdrv_legacy_RegCreateKeyExA(HKEY key, LPCSTR name, DWORD reserved, LPSTR class_name,
++                                        DWORD options, REGSAM access, LPSECURITY_ATTRIBUTES security,
++                                        HKEY *opened, LPDWORD disposition)
++{
++    if (!opened) return ERROR_INVALID_PARAMETER;
++    return open_key(MACDRV_LEGACY_REG_CREATE, key, name, reserved, class_name, options, access, security, opened, disposition);
++}
++
++LONG WINAPI macdrv_legacy_RegCloseKey(HKEY key)
++{
++    struct macdrv_legacy_reg_request *r;
++    struct macdrv_legacy_reg_reply *reply = NULL;
++    LONG status;
++    if (!(r = new_request(MACDRV_LEGACY_REG_CLOSE, key, &status))) return status;
++    status = dispatch(r, &reply);
++    free(reply);
++    free(r);
++    return status;
++}
+--- /dev/null
++++ b/dlls/winemac.drv/legacy_table.c
+@@ -0,0 +1,138 @@
++/* Complete native legacy table. Candidate, not a default engine. */
++#if 0
++#pragma makedep unix
++#endif
++#include "config.h"
++#include "macdrv.h"
++#include "legacy_abi.h"
++#include "legacy_registry.h"
++
++WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
++extern void OnMainThread(dispatch_block_t block);
++
++static void legacy_init_display_devices(BOOL force)
++{
++    UINT32 paths = 0, modes = 0;
++    LONG status;
++    /* Wine now owns display-cache refresh through its display-config path. */
++    status = NtUserGetDisplayConfigBufferSizes(QDC_ONLY_ACTIVE_PATHS, &paths, &modes);
++    TRACE("legacy display init force %d, status %ld, paths %u modes %u\n", force, (long)status, paths, modes);
++}
++
++static macdrv_window legacy_get_cocoa_window(HWND hwnd, BOOL require_on_screen)
++{
++    return (macdrv_window)macdrv_get_cocoa_window(hwnd, require_on_screen);
++}
++
++static macdrv_metal_device legacy_create_metal_device(void)
++{
++    return (macdrv_metal_device)macdrv_create_metal_device();
++}
++
++static void legacy_release_metal_device(macdrv_metal_device device)
++{
++    macdrv_release_metal_device((id_MTLDevice)device);
++}
++
++static BOOL WINAPI macdrv_legacy_EnumDisplayMonitors(HDC h, LPRECT p2, MONITORENUMPROC p3, LPARAM p4)
++{
++    TRACE("EnumDisplayMonitors %p %p %p %ld\n", h, p2, p3, p4);
++    return NtUserEnumDisplayMonitors(h, p2, p3, p4);
++}
++
++static BOOL WINAPI macdrv_legacy_GetMonitorInfoA(HMONITOR monitor, LPMONITORINFO info)
++{
++    MONITORINFOEXW miW;
++    BOOL ret;
++
++    TRACE("GetMonitorInfoA %p %p\n", monitor, info);
++
++    if (info->cbSize == sizeof(MONITORINFO)) return NtUserGetMonitorInfo( monitor, info );
++    if (info->cbSize != sizeof(MONITORINFOEXA)) return FALSE;
++
++    miW.cbSize = sizeof(miW);
++    ret = NtUserGetMonitorInfo( monitor, (MONITORINFO *)&miW );
++    if (ret)
++    {
++        MONITORINFOEXA *miA = (MONITORINFOEXA *)info;
++        ULONG size;
++        miA->rcMonitor = miW.rcMonitor;
++        miA->rcWork = miW.rcWork;
++        miA->dwFlags = miW.dwFlags;
++        RtlUnicodeToUTF8N(miA->szDevice, sizeof(miA->szDevice), &size, miW.szDevice, lstrlenW(miW.szDevice) * sizeof(WCHAR));
++    }
++    return ret;
++}
++
++static BOOL WINAPI macdrv_legacy_AdjustWindowRectEx(LPRECT p1,DWORD p2,BOOL p3,DWORD p4)
++{
++    TRACE("AdjustWindowRectEx %p %u %d %u\n", p1, p2, p3, p4);
++    return NtUserAdjustWindowRect(p1, p2, p3, p4, NtUserGetSystemDpiForProcess(NULL));
++}
++
++static LONG_PTR WINAPI macdrv_legacy_GetWindowLongPtrW(HWND h,int nIndex)
++{
++    TRACE("GetWindowLongPtrW %p\n", h);
++    /* ignore possibility of DWLP_DLGPROC */
++    return NtUserGetWindowLongPtrW(h, nIndex);
++}
++
++static BOOL WINAPI macdrv_legacy_GetWindowRect(HWND h, LPRECT rect)
++{
++    TRACE("GetWindowRect %p %p\n", h, rect);
++    return NtUserGetWindowRect(h, rect, NtUserGetWinMonitorDpi(h, MDT_DEFAULT));
++}
++
++static BOOL WINAPI macdrv_legacy_MoveWindow(HWND h, int X,int Y,int nWidth,int nHeight,BOOL bRepaint)
++{
++    TRACE("MoveWindow %p %d %d %d %d %d\n", h, X, Y, nWidth, nHeight, bRepaint);
++    return NtUserMoveWindow(h, X, Y, nWidth, nHeight, bRepaint);
++}
++
++static BOOL WINAPI macdrv_legacy_SetWindowPos(HWND h,HWND h2,int x,int y,int cx,int cy,UINT flags)
++{
++    TRACE("SetWindowPos %p %p %d %d %d %d %u\n", h, h2, x, y, cx, cy, flags);
++    return NtUserSetWindowPos(h, h2, x, y, cx, cy, flags);
++}
++
++static INT WINAPI macdrv_legacy_GetSystemMetrics(INT index)
++{
++    TRACE("GetSystemMetrics %d\n", index);
++    return NtUserGetSystemMetrics( index );
++}
++
++static LONG_PTR WINAPI macdrv_legacy_SetWindowLongPtrW(HWND hwnd, INT offset, LONG_PTR newval)
++{
++    TRACE("SetWindowLongPtrW %p %d %ld\n", hwnd, offset, newval);
++    /* ignore possibility of DWLP_DLGPROC */
++    return NtUserSetWindowLongPtr( hwnd, offset, newval, FALSE );
++}
++
++
++DECLSPEC_EXPORT struct macdrv_legacy_functions macdrv_functions =
++{
++    legacy_init_display_devices,
++    macdrv_legacy_get_win_data,
++    macdrv_legacy_release_win_data,
++    legacy_get_cocoa_window,
++    legacy_create_metal_device,
++    legacy_release_metal_device,
++    macdrv_legacy_create_metal_view,
++    macdrv_legacy_get_metal_layer,
++    macdrv_legacy_release_metal_view,
++    OnMainThread,
++    macdrv_legacy_RegQueryValueExA,
++    macdrv_legacy_RegSetValueExA,
++    macdrv_legacy_RegOpenKeyExA,
++    macdrv_legacy_RegCreateKeyExA,
++    macdrv_legacy_RegCloseKey,
++    macdrv_legacy_EnumDisplayMonitors,
++    macdrv_legacy_GetMonitorInfoA,
++    macdrv_legacy_AdjustWindowRectEx,
++    macdrv_legacy_GetWindowLongPtrW,
++    macdrv_legacy_GetWindowRect,
++    macdrv_legacy_MoveWindow,
++    macdrv_legacy_SetWindowPos,
++    macdrv_legacy_GetSystemMetrics,
++    macdrv_legacy_SetWindowLongPtrW,
++};
+--- a/dlls/winemac.drv/Makefile.in
++++ b/dlls/winemac.drv/Makefile.in
+@@ -1,7 +1,7 @@
+ MODULE    = winemac.drv
+ UNIXLIB   = winemac.so
+ IMPORTS   = uuid rpcrt4 user32 gdi32 win32u
+-DELAYIMPORTS = ole32 shell32 imm32
++DELAYIMPORTS = advapi32 ole32 shell32 imm32
+ UNIX_LIBS    = \
+ 	-lwin32u \
+ 	-framework AppKit \
+@@ -32,6 +32,11 @@
+ 	gdi.c \
+ 	image.c \
+ 	keyboard.c \
++	legacy_registry_pe.c \
++	legacy_surface.c \
++	legacy_table.c \
++	legacy_objects.m \
++	legacy_registry_unix.c \
+ 	macdrv_main.c \
+ 	mouse.c \
+ 	opengl.c \
+--- a/dlls/winemac.drv/unixlib.h
++++ b/dlls/winemac.drv/unixlib.h
+@@ -23,6 +23,7 @@
+ {
+     unix_init,
+     unix_quit_result,
++    unix_legacy_registry_init,
+     unix_funcs_count
+ };
+ 
+--- a/dlls/winemac.drv/dllmain.c
++++ b/dlls/winemac.drv/dllmain.c
+@@ -26,6 +26,7 @@
+ #include "macdrv_res.h"
+ #include "shellapi.h"
+ #include "unixlib.h"
++#include "legacy_registry.h"
+ #include "wine/debug.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
+@@ -372,6 +373,7 @@
+ static BOOL process_attach(void)
+ {
+     struct init_params params;
++    struct macdrv_legacy_reg_init registry;
+ 
+     struct localized_string *str;
+     struct localized_string strings[] = {
+@@ -402,6 +404,14 @@
+ 
+     if (MACDRV_CALL(init, &params)) return FALSE;
+ 
++    /* Native renderer addresses remain valid for this process lifetime. */
++    if (LdrAddRefDll(LDR_ADDREF_DLL_PIN, macdrv_module)) return FALSE;
++
++    registry.callback = (UINT_PTR)macdrv_legacy_registry_callback;
++    registry.magic = MACDRV_LEGACY_REG_MAGIC;
++    registry.version = MACDRV_LEGACY_REG_VERSION;
++    if (MACDRV_CALL(legacy_registry_init, &registry)) return FALSE;
++
+     return TRUE;
+ }
+ 
+--- a/dlls/winemac.drv/macdrv_main.c
++++ b/dlls/winemac.drv/macdrv_main.c
+@@ -31,6 +31,7 @@
+ 
+ #include "ntstatus.h"
+ #include "macdrv.h"
++#include "legacy_registry.h"
+ #include "shellapi.h"
+ #include "wine/server.h"
+ 
+@@ -609,6 +610,7 @@
+ {
+     macdrv_init,
+     macdrv_quit_result,
++    macdrv_legacy_registry_init,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_funcs) == unix_funcs_count );
+@@ -635,6 +637,7 @@
+ {
+     wow64_init,
+     macdrv_quit_result,
++    macdrv_legacy_registry_init,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_wow64_funcs) == unix_funcs_count );
+--- a/dlls/winemac.drv/legacy_surface.c
++++ b/dlls/winemac.drv/legacy_surface.c
+@@ -1,5 +1,8 @@
+ /* Native legacy-renderer frontend over Wine's managed client surfaces.
+  * Candidate only: no public function table until the complete ABI is linked. */
++#if 0
++#pragma makedep unix
++#endif
+ #include "config.h"
+ #include <pthread.h>
+ #include <stdlib.h>

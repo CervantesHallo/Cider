@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新窗口接续[95](../research/95-r-v1-legacy-window-bridge-20261025.md)：完整24槽表/120B快照、两PE驱动和2native模块已构建/精确重建；原M-A双PE各120 Present/零失败且实际走新前端。缓存重复消耗和持锁同步主线程两P2、快照event借用及registry清理失败所有权均修后限定源审闭合。registry v2无64KiB/忽略SA限制，真实五API往返/释放故障注入仍待；窗口视觉、反复销毁/重建、同token并发、foreign-child/CEF未验收。接着做这些新缺口，不重跑无变化基线，不默认采用或提升游戏。原HY顺序/Windowsbusy待重启/U8/15保持。
+
 最新销毁依赖接续见[94](../research/94-r-v1-gpu-teardown-20261025.md)：私有CRT TLS及allocator最终公开探针均有双PE新旧故障对照；reader/allocator次序修正后R2集成仍失败，原件保留。再修rtworkq result payload先于callback owner释放后，R3原GPU fixture双PE各575项/4路径和受影响offscreen各46通过，真实清理/恢复/四摘要核对。限定独立源审闭合，不等于完整MF/CRT或R v1采用。继续原legacy窗口桥接→foreign-child/CEF与真实窗口运行；Windowsbusy/待重启、U8/15、原HY顺序和游戏门禁保持。
 
 最新图形接续（2026-10-25）见[93](../research/93-r-v1-gpu-shared-and-window-foundation-20261025.md)：固定Highball共享/keyed边界双PE各46项过；真实MF样本PE64四case575项过，PE32 native异常仍拒绝，不能按主线程零失败放行。设备初始化顺序源修正成组重建，窗口0011基础已编译/修后复审，完整桥接/窗口运行仍待。继续此真实缺口再接原CEF主题，原HY顺序/Windows忙与待重启/U8/15/门禁不变。

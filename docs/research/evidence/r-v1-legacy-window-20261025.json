@@ -1,0 +1,179 @@
+{
+  "schema": "cider.r-v1-legacy-window/v1",
+  "date": "2026-10-25",
+  "rawRoot": "out/engine-dxmt-bridge-20261025",
+  "sourcePatches": [
+    {
+      "file": "engine/porting/wine-11.18/0015-win32u-register-external-client-surface-lifetimes.patch",
+      "sha256": "745af0b0db1f9f1b6e50c4bcaaee2a4b2dab28e1a49e5b78ed0350f4bfcdd9d2"
+    },
+    {
+      "file": "engine/porting/wine-11.18/0016-winemac-managed-legacy-surface-frontend.patch",
+      "sha256": "fc192a4238b5e979b7f358edfa576f2079d89bbfa8e5f56bbd4e5f0a5c05ec05"
+    },
+    {
+      "file": "engine/porting/wine-11.18/0017-winemac-complete-legacy-table-and-registry-callbacks.patch",
+      "sha256": "81e8d7b98fe2a4bcb3cd4014a1a41e693d10280b8958ebe0d3c78581faf0fe2d"
+    }
+  ],
+  "records": [
+    {
+      "file": "legacy-surface-review-v1.json",
+      "sha256": "d7143435303e19ca3dcd19b597cb8a1545b995f8612f2dbdc36cca0594cbcf35",
+      "passed": null,
+      "state": null,
+      "runtimeAccepted": null
+    },
+    {
+      "file": "legacy-surface-review-v2.json",
+      "sha256": "6f93791c6b5f2fbae5ca5f252b8357ac2de917c52981641f5675f465bf56c943",
+      "passed": null,
+      "state": null,
+      "runtimeAccepted": null
+    },
+    {
+      "file": "legacy-registry-v2/review-v1.json",
+      "sha256": "52a7c25df26cde86cb7528bf29e4c1252eb760a643d83940c9df118fd3c000fb",
+      "passed": null,
+      "state": null,
+      "runtimeAccepted": null
+    },
+    {
+      "file": "legacy-registry-v2/review-v2.json",
+      "sha256": "537266d9b82ebfafda8ac17fae1774b519e2454e5621b82ee5e67f9ac8c7caa2",
+      "passed": null,
+      "state": null,
+      "runtimeAccepted": null
+    },
+    {
+      "file": "legacy-review-build-v1.json",
+      "sha256": "034a45c2b0ed2220e51f945b26c77e1e3674d96695234890e55f2a187dbd0a6b",
+      "passed": true,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "legacy-window-format-build-v1.json",
+      "sha256": "c2f987bc4aa9899bbb14ffac9fc0657fba2f239027859167d54bb856dbfa996f",
+      "passed": null,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "legacy-sdk-warning-binding-v1.json",
+      "sha256": "8c313becf6dd48684d98b16b03fe87714dc8ad099c4bcb7b31791c4649d8226f",
+      "passed": null,
+      "state": null,
+      "runtimeAccepted": null
+    },
+    {
+      "file": "legacy-review-link-v2.json",
+      "sha256": "aae6b4adcdf9d24840975ce246b6fa14b2a367f05e8d965f7e5af32a0056a379",
+      "passed": true,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "legacy-registry-v2/compile-v2.json",
+      "sha256": "e259e630caac15f24e1b534569bb2005928d3e5eb79382d04bd03da2dff05643",
+      "passed": true,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "legacy-registry-v2/compile-owner-v3.json",
+      "sha256": "c32a221aaa431d7926e4dac1a5f3fd96dd37912564f3a89793346bae34f99530",
+      "passed": null,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "legacy-integrated-pe-v1.json",
+      "sha256": "3f3b50ea47ba191a0f81e5fe6e85fb3572ad7fbb093f576ff74be6df14efa3b4",
+      "passed": true,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "legacy-native-integrated-v1.json",
+      "sha256": "278cb518f695a6ff71699c3ecf22ec181e7140f7cbbaf4cab25feda565fed18c",
+      "passed": false,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "legacy-table-build-v2.json",
+      "sha256": "2cc1598dbcf44a60002e0b199f6f7ca05ff60fe2af11fcf2305bdd0e8e264f59",
+      "passed": null,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "legacy-native-integrated-link-v1.json",
+      "sha256": "b3c3600747b85e2f3dffa21902f5f19acc055e3a6e0a1b353a92772baa8e3f86",
+      "passed": null,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "legacy-final-reconstruction-v2.json",
+      "sha256": "ed7cf4d372e4cc2106c01319e125a47c5b7a2bd13e30475f81c3e84d072ea415",
+      "passed": true,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "staging-window-legacy-v1.json",
+      "sha256": "bb0a9b507b53798d98f727c39daf92fe03d37c07c1ea2ae9f95be24c2c63233b",
+      "passed": null,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "window-triangle-v1/build-v1.json",
+      "sha256": "73fbf3ee56436df1b3bee124dd0cbb259fcb52aeb8d0bf4c4cf13d4c42a90108",
+      "passed": true,
+      "state": null,
+      "runtimeAccepted": false
+    },
+    {
+      "file": "window-triangle-runtime-v1.json",
+      "sha256": "62e29b5c943509bd0e15ace87d2af38a3b9de9bbc01011a1be65eaf37c0fa109",
+      "passed": true,
+      "state": "complete",
+      "runtimeAccepted": null
+    },
+    {
+      "file": "window-runtime-independent-validation-v1.json",
+      "sha256": "8e7193a16e7c44112702ad79757949c3c21517e2d2e8840ccb1a95c0ef385346",
+      "passed": true,
+      "state": null,
+      "runtimeAccepted": null
+    }
+  ],
+  "results": {
+    "tableSlots": 24,
+    "tableBytes": 192,
+    "snapshotBytes": 120,
+    "sourceWindowP2Closed": 2,
+    "sourceRegistryCleanupP2Closed": 1,
+    "localWindowArches": [
+      "i686",
+      "x86_64"
+    ],
+    "presentsPerArchitecture": 120,
+    "failedPresents": 0,
+    "newNativeFrontendObserved": true,
+    "prefixModuleBindings": 16,
+    "newNativeModuleBindings": 2,
+    "ordinaryLabRestored": true,
+    "protectedFourUnchanged": true,
+    "fullRegistryRoundTripPassed": false,
+    "vmReleaseFailureInjectionPassed": false,
+    "visualInputRetinaWindowLifecyclePassed": false,
+    "foreignChildCefPassed": false,
+    "completeBridgeOrEngineOrGamesAccepted": false,
+    "defaultAdopted": false,
+    "windowsActionsAutomationGoalOperations": 0
+  }
+}

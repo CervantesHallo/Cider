@@ -914,7 +914,9 @@
     "unexplainedExecutionAccessViolation": true,
     "latestTeardownEvidence": "docs/research/evidence/r-v1-gpu-teardown-20261025.json",
     "fixedCandidateBoundedGpuRuntimeAccepted": true,
-    "latestGpuPe32Accepted": true
+    "latestGpuPe32Accepted": true,
+    "latestLocalWindowEvidence": "docs/research/evidence/r-v1-legacy-window-20261025.json",
+    "completeLegacyTableLinked": true
   },
   "gpuTeardownCandidate": {
     "research": "docs/research/94-r-v1-gpu-teardown-20261025.md",
@@ -949,6 +951,44 @@
     "fullMfCrtAccepted": false,
     "windowAccepted": false,
     "nativeWindowsOrGamesAccepted": false,
+    "defaultAdopted": false
+  },
+  "legacyWindowFrontendCandidate": {
+    "research": "docs/research/95-r-v1-legacy-window-bridge-20261025.md",
+    "evidence": "docs/research/evidence/r-v1-legacy-window-20261025.json",
+    "patches": [
+      {
+        "file": "engine/porting/wine-11.18/0015-win32u-register-external-client-surface-lifetimes.patch",
+        "sha256": "745af0b0db1f9f1b6e50c4bcaaee2a4b2dab28e1a49e5b78ed0350f4bfcdd9d2"
+      },
+      {
+        "file": "engine/porting/wine-11.18/0016-winemac-managed-legacy-surface-frontend.patch",
+        "sha256": "fc192a4238b5e979b7f358edfa576f2079d89bbfa8e5f56bbd4e5f0a5c05ec05"
+      },
+      {
+        "file": "engine/porting/wine-11.18/0017-winemac-complete-legacy-table-and-registry-callbacks.patch",
+        "sha256": "81e8d7b98fe2a4bcb3cd4014a1a41e693d10280b8958ebe0d3c78581faf0fe2d"
+      }
+    ],
+    "engineID": "cider-lab-wine11.18-window-legacy-r1-x86_64",
+    "tableSlots": 24,
+    "tableBytes": 192,
+    "snapshotBytes": 120,
+    "registryProtocol": 2,
+    "callbackFrameBytes": 32,
+    "dynamicGuestVisiblePacket": true,
+    "serializedSecurityAttributes": true,
+    "arbitrary64KiBPacketCap": false,
+    "localWindowPresentsPerPe": 120,
+    "localWindowFailedPresents": 0,
+    "localWindowCreatePresentBothPePassed": true,
+    "windowSourceP2Closed": 2,
+    "registryCleanupSourceP2Closed": 1,
+    "registryRoundTripAccepted": false,
+    "cleanupFaultInjectionAccepted": false,
+    "sameTokenConcurrentCreateAccepted": false,
+    "foreignChildCefAccepted": false,
+    "fullBridgeAccepted": false,
     "defaultAdopted": false
   }
 }

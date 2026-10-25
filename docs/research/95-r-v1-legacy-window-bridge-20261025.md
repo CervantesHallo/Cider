@@ -1,0 +1,67 @@
+# R v1：完整 legacy 接口与首次本进程窗口呈现
+
+日期：2026-10-25。接续 93/94 的窗口主题。全部操作在 Mac 私有实验环境中完成，Windows、用户引擎、生产 App 和用户瓶子未改变。
+
+## 实现与状态
+
+| 范围 | 源码/构建 | 实际运行 |
+|---|---|---|
+| 24 槽、192 字节 native 函数表；120 字节快照 | 完整表已编译、链接、导出；偏移断言通过 | 原 DXMT 消费者实际进入新快照/Metal 前端，双 PE 创建并 Present 通过 |
+| 现有 win32u 管理表面的登记、退役和缓存 | 0015/16 已修正所有权及延迟销毁，限定复审闭合 | 本轮只有本进程初次窗口；精确销毁竞态和重复重建仍待 |
+| 注册表回调 v2，五个真实 API | PE32/PE64/native 单元和驱动链接通过，限定源审闭合 | 注册成功已随驱动加载；五个 API 的行为/故障往返仍待单独运行 |
+| foreign-child/CEF、几何/Retina/视觉交互 | 保留下一项，未解除旧 foreign-child 拒绝 | 未验收 |
+
+完整表保留现有 Highball 和用户导入 D3DMetal 的接口形状。快照真正持有 Cocoa view/window 和拖动事件的引用；没有将当前 Wine 私有窗口结构强转成旧布局。快照不再跨 renderer 调用持有私有窗口数据锁。新表面等待 renderer 创建成功后才显示。
+
+新前端使用现有 win32u client-surface 列表和退役缓存，专用内部 format=-1 防止被 Vulkan(0)/GL 缓存复用。没有另建按 HWND 维持生命周期的替代列表；native token 表只管理快照及 renderer 的已有引用。重复释放、失败创建和 HWND 脱离路径均在限定源码审查中核对，不能由此宣称任意并发已实际运行。
+
+同一 token 同时发起第二次 create 时，候选返回暂不可用，避免在主线程调用期间阻塞等待。每个正常 get_win_data 分配独立表面；该并发行为仍须与实际消费者对照，未作为完整兼容语义采用。
+
+## 审查发现和修复
+
+首次窗口源审发现两个 P2，原报告和候选均保留：
+
+1. 缓存退役与 caller Release 之间，两个窗口更新可以重复消耗同一个缓存引用。修复在缓存淘汰和 HWND 销毁两条路径中，先移除/脱离列表，再消费唯一缓存引用；其他存活引用不会再次被缓存遍历释放。
+2. 持有 surfaces_lock 的 finalizer 原先会同步等待主线程，期间 QUERY_EVENT 可重入窗口过程，再次获取同一锁。新 legacy 路径将 Cocoa view 和 Metal view 销毁排入主线程队列；没有在主线程异步块中再次调用同步 OnMainThread。对象所有者保持到相应块执行，现有非 legacy 路径保持。
+
+父代理另补快照拖动事件的 Duplicate/Close，关闭解除私有锁后的借用 HANDLE 窗口。最终限定复审确认两项 P2 在源码闭合，无新增具体 P1/P2；正常路径的几何及显隐 helper 原本已经异步，未扩大为全 Wine 回调重构。
+
+## 回调 v2 保留原功能
+
+子任务首稿的 64 KiB 数据上限和非 NULL SECURITY_ATTRIBUTES 拒绝均没有采用。父代理重整为：
+
+- 栈上只传 32 字节固定 envelope，数据位于显式持有、限制在 PE32 可访问地址范围的 VM 中。字符串、缓冲区和输出地址不直接跨位宽传递；数据用固定宽度字段和相对偏移描述。资源不足正常失败，未缩小调用者给出的查询容量。
+- 原生绝对/自相对安全描述符、NULL 描述符、SID/ACL/control 和继承标志按相对表示封送，在 PE 中重建本地 SECURITY_ATTRIBUTES，再调用真实 RegCreateKeyExA。没有丢弃安全属性或改变访问检查。接口要求见微软 [RegCreateKeyExA](https://learn.microsoft.com/en-us/windows/win32/api/winreg/nf-winreg-regcreatekeyexa)。
+- 相同 PE 驱动及 callback 地址按进程生命周期固定，native 和两个 PE 驱动使用同一追加 Unix-call 编号及协议版本。原初始化/icon 布局保持。
+- 源审又发现一次条件性 P2：真实 Open/Create 成功后若 VM 释放失败，原候选可能丢掉 HKEY 及 mapping 所有者。修复交付真实操作结果/句柄，另保存失败清理的 owner/base/size/status 并记录错误；后续每项操作最多重试一个 FIFO 中的清理，不重放注册表操作。该失败分支不被报告为清理成功。
+
+修后限定源审无新增具体 P1/P2。实际 API 往返、描述符结果和释放故障注入仍待；不能把源码和编译结果称为完整注册表或 Windows 契约通过。
+
+## 双位宽首次运行
+
+使用原计划 M-A 的 `tests/graphics/d3d11-triangle.c`，源码没有修改；每架构运行 120 帧：
+
+| 架构 | Device/Swapchain | feature level | Present | CLI |
+|---|---|---|---|---|
+| PE64 | HRESULT 0 | 11.0 | 120 帧、0 失败 | 0 |
+| PE32 | HRESULT 0 | 11.0 | 120 帧、0 失败 | 0 |
+
+两份日志都有新前端的 `macdrv_legacy_get_win_data` 标记，确认实际走了新 native 表。严格拒绝访问异常、Objective-C 异常、越栈、invalid block 和失败清理标记。本轮日志未见这些标记。
+
+该原探针没有完整资源释放循环或屏幕像素 oracle；这次不证明视觉/输入、销毁重建、跨进程或游戏，也不把探针打印的 fps 当性能基准。驱动注册成功不等于五个 registry wrapper 均已调用。
+
+## 构建和清理身份
+
+本次受影响 native 单元和两个新模块最终使用显式 macOS15.4 SDK/min14 编译和链接；固定的其他组件未重新构建。早期未显式传 SDK 的准备对象未用于这次运行。Cocoa 单元的 10 条 SDK 告警逐一映射到未改的旧源码行；其余受影响 native 单元、两个 PE 驱动及回调编译零诊断。两个 native 副本签名前后所有文件支撑 section 摘要一致，严格签名验证通过。
+
+固定 Wine loader 使用 dlopen(RTLD_NOW)；本机 dlopen(3) 明确此平台默认 GLOBAL。新导出和真实消费路径已经成立，未修改全局 loader 标志。最终 native/PE 组来自同一候选；原冻结 ntdll/wineserver 四摘要保持。
+
+父代理独立核对两个 session、原始 log、16 个 prefix 模块及 2 个新 native 模块。每批 finally 确认 GUI 真实退出、至少两次空观察、无 pending，逐字恢复普通实验瓶配置/DLL；四个生产保护摘要保持。新候选为 `cider-lab-wine11.18-window-legacy-r1-x86_64`。
+
+资料根为 `out/engine-dxmt-bridge-20261025`，公开指纹见[证据摘要](evidence/r-v1-legacy-window-20261025.json)。0015→0016→0017 在基础 0011 后 zero fuzz/offset 重建，共 15 个文件逐字一致。初版格式/语言边界编译失败、源审反例及旧源码均保留。
+
+## 取舍与接续
+
+采用现有管理列表与完整 legacy ABI 的收益是保留图形组件接口及窗口退役语义；成本是两个内部 native API、追加回调协议、进程期 callback 固定及延迟 Cocoa 清理。验收仍须包括回调实际往返、故障所有权、窗口反复创建/释放、位置/尺寸/Retina及 foreign-child；回退为保留的稳定引擎，候选不进入默认配方。
+
+下一步继续上述运行缺口及原 CEF/foreign-child 迁移。U90 原 8/15 单元超 ±3% 仍未通过；原 HY1→HY2→HY3→HY4/HY5、Windows 忙/待重启和游戏门禁保持。此次不是完整 R v1、Windows 内核或三款游戏验收。没有新增定时任务、恢复 Goal 或消耗 Actions。
