@@ -1,0 +1,15 @@
+--- a/client.c
++++ b/client.c
+@@ -219,10 +219,10 @@
+         init_packet(&self,MACDRV_REMOTE_QUERY_ROOT,root);
+         CHECK(send_packet(root,&self));CHECK(self.status==ERROR_SUCCESS);
+         CHECK(self.root_pid==GetCurrentProcessId()&&self.root_epoch>=UINT64_C(8589934592));
+-        for(mode=1;mode<=3;++mode)run_child(root,argc>1?argv[1]:executable,mode);
++        for(mode=1;mode<=1;++mode)run_child(root,argc>1?argv[1]:executable,mode);
+         CHECK(DestroyWindow(root));
+     }
+     CHECK(UnregisterClassW(cls.lpszClassName,instance));
+-    printf("{\"type\":\"transport-owner\",\"bits\":%u,\"checks\":%u,\"failures\":%u,\"cases\":3}\n",(unsigned)(8*sizeof(void*)),checks,failures);fflush(stdout);
++    printf("{\"type\":\"transport-owner\",\"bits\":%u,\"checks\":%u,\"failures\":%u,\"cases\":1}\n",(unsigned)(8*sizeof(void*)),checks,failures);fflush(stdout);
+     return failures?1:0;
+ }

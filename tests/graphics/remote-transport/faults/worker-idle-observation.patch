@@ -1,0 +1,40 @@
+--- a/client.c
++++ b/client.c
+@@ -122,24 +122,29 @@
+ }
+ static BOOL wait_idle(void)
+ {
++    struct transport_probe state={0};BOOL valid=FALSE;
+     ULONGLONG end=GetTickCount64()+3000;
+     for(;;)
+     {
+-        struct transport_probe state;MSG msg;ULONGLONG now;
+-        if(GetTickCount64()>=end)return FALSE;
+-        if(!read_probe(0,&state))return FALSE;
+-        if(GetTickCount64()>=end)return FALSE;
++        MSG msg;ULONGLONG now;
++        if(GetTickCount64()>=end)goto failed;
++        valid=read_probe(0,&state);if(!valid)goto failed;
++        if(GetTickCount64()>=end)goto failed;
+         if(!state.producers&&!state.watch_pins&&!state.hosts&&!state.pe_watches&&!state.cleanup_pins)return TRUE;
+-        now=GetTickCount64();if(now>=end)return FALSE;
++        now=GetTickCount64();if(now>=end)goto failed;
+         MsgWaitForMultipleObjectsEx(0,NULL,(DWORD)((end-now)<25?(end-now):25),QS_ALLINPUT,MWMO_INPUTAVAILABLE);
+-        if(GetTickCount64()>=end)return FALSE;
++        if(GetTickCount64()>=end)goto failed;
+         while(PeekMessageW(&msg,NULL,0,0,PM_REMOVE))
+         {
+-            if(GetTickCount64()>=end)return FALSE;
++            if(GetTickCount64()>=end)goto failed;
+             TranslateMessage(&msg);DispatchMessageW(&msg);
+-            if(GetTickCount64()>=end)return FALSE;
++            if(GetTickCount64()>=end)goto failed;
+         }
+     }
++failed:
++    printf("{\"type\":\"transport-idle-failure-observation\",\"valid\":%u,\"size\":%u,\"version\":%u,\"roots\":%u,\"producers\":%u,\"watch_pins\":%u,\"hosts\":%u,\"pe_watches\":%u,\"cleanup_pins\":%u}\n",(unsigned)valid,state.size,state.version,state.roots,state.producers,state.watch_pins,state.hosts,state.pe_watches,state.cleanup_pins);
++    fflush(stdout);
++    return FALSE;
+ }
+ static void run_child(HWND root,const char *executable,unsigned mode)
+ {

@@ -1,0 +1,196 @@
+{
+  "schema": "cider.r-v1-process-lease-faults/v1",
+  "date": "2026-10-25",
+  "rawRoot": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025",
+  "files": [
+    {
+      "file": "tests/graphics/remote-transport/faults/README.md",
+      "sha256": "e291b24a493450a7a3ee4bd64156e163fbf934f54ce8c2b1cfa24ba33ff1b072"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/stop-before.patch",
+      "sha256": "b72d2bc4abbf5ebe6e248c895ad83fe7a4dc0719ded45c54dcca909f99a7d0fb"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/stop-client.patch",
+      "sha256": "3c2196671f7dd901f76acb12c184d0434631f06c6741ac4475207ea4bc1c61f4"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/stop-delivery-loss.patch",
+      "sha256": "a649a09ee94da9fbc4d075ffad348fda1713efbfcdaa5b3817bb1aefb8ee24ad"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/stop-idle-observation.patch",
+      "sha256": "a6d538a8f8d5897e55eb1e8c520ddc22ffc8e5e6188a8353014b6230349b12a3"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/worker-before.patch",
+      "sha256": "efbcc9b26837549e63b0f0c017140cda62a15f56acbe84bb70a02f7b49e7ad3d"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/worker-client.patch",
+      "sha256": "aff6dd1535f726f738aa62610869d7f180a9bdac3e11bb4fe19b669444a5b786"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/worker-exit-after-stop.patch",
+      "sha256": "bf0e8e1cd3c9d0119b0e0b4e6fa5923e74af12377d92cc372b5e66923938813c"
+    },
+    {
+      "file": "tests/graphics/remote-transport/faults/worker-idle-observation.patch",
+      "sha256": "a6d538a8f8d5897e55eb1e8c520ddc22ffc8e5e6188a8353014b6230349b12a3"
+    }
+  ],
+  "records": [
+    {
+      "file": "transport-fault-source-review-binding-v1.json",
+      "sha256": "6525e2e9bcd29dd254b1b26a7b6a4ac246cacb625ac59df4ac701a7f387120b9"
+    },
+    {
+      "file": "transport-stop-fault-review-v1.json",
+      "sha256": "86c6ea3051ebf19682516f45e37a368d1fa3b3458ebdc5bfbfca2d65788178fb"
+    },
+    {
+      "file": "transport-worker-fault-review-v2.json",
+      "sha256": "5628671be4964cc3cefa47fb3a8a19a3e89904cef49de9dd66f9df7269681d8e"
+    },
+    {
+      "file": "transport-stop-fault-v1/build-v1.json",
+      "sha256": "71ed21039347f4f8a5747135d13af53efaecd493dc38f740d032a0fc89f5a029"
+    },
+    {
+      "file": "transport-worker-fault-v2/build-v1.json",
+      "sha256": "0b49b5570e9fa909fbcdba7df9c06f8eb028b0379f9d28d2eff32f25a9b9688f"
+    },
+    {
+      "file": "transport-stop-fault-fixed-runtime-v1.json",
+      "sha256": "9c6220bfd4da1064439b6690c9abffa1ab5d72073a2f16a8dafeb568ab1873ee"
+    },
+    {
+      "file": "stop-fault-log-admission-correction-v1.json",
+      "sha256": "4e1d9a42a4a562b6d1475bb4cb9f5916ba334ac3a003f0f005f17a583e25bcb4"
+    },
+    {
+      "file": "transport-stop-fault-fixed-runtime-v2.json",
+      "sha256": "a41960a6efc58f2393ebfe8c98c0af7ef1143b90dfb3c8505faead397b38bd36"
+    },
+    {
+      "file": "transport-stop-fault-before-runtime-v2.json",
+      "sha256": "e10e31eb41b10530f3f17a2ce92d9dfb7363494ccc43b6f2b3739b1aad76129c"
+    },
+    {
+      "file": "transport-worker-fault-fixed-runtime-v2.json",
+      "sha256": "a1204400354daeabed9251f1b0d9fc8a8f9c63b6173fd6c3f3f6283b33ddf8a1"
+    },
+    {
+      "file": "transport-worker-fault-before-runtime-v2.json",
+      "sha256": "51913164b896fc00ef05ce14c365e6fc39e988cae1bdb87b258475b2baa95395"
+    },
+    {
+      "file": "transport-faults-independent-validation-v1.json",
+      "sha256": "ff275352a53582b5c0f65f0fc8810bcf6a74a2970e187208037f4cb401a87075"
+    },
+    {
+      "file": "fault-observation-parent-admission-v3.json",
+      "sha256": "7f1d8027ba723193d028df7d58a3a92f5ee9f1364b0d8f858d73b1e6b7f023bc"
+    },
+    {
+      "file": "transport-stop-fault-observation-v3/build-v1.json",
+      "sha256": "212e19f5065dea6104c28648f787dbd015a631370e97f313926a63b9a18182c2"
+    },
+    {
+      "file": "transport-worker-fault-observation-v3/build-v1.json",
+      "sha256": "8889aa636682f0212281692cd4d0b8d66082861c36d7c221674d9a480f6c3953"
+    },
+    {
+      "file": "transport-stop-fault-before-observation-runtime-v3.json",
+      "sha256": "0427af557b8a49a31722ac7795a2a66bda71429f7b5e740619d951fd2eca942a"
+    },
+    {
+      "file": "transport-worker-fault-before-observation-runtime-v3.json",
+      "sha256": "d4d0fe9ff7f69876d7646db86d2a60a3a7b2afd46f21b3bee824454486e5bdc3"
+    },
+    {
+      "file": "transport-fault-observations-independent-validation-v1.json",
+      "sha256": "c9922fb54eda5e9bb2dc6fef96a5c6d5cee7b3dfc87b1863dde2b5be832accc0"
+    },
+    {
+      "file": "public-transport-fault-reconstruction-v1.json",
+      "sha256": "ebe874e66cd583878de3e5a7bdbb63565871c9d6af4978a3bb5a9123b3e556be"
+    },
+    {
+      "file": "public-idle-observation-reconstruction-v1.json",
+      "sha256": "e12d641380c04f576f544e47189e4997ff10e174124a341610a217fae4cea63c"
+    }
+  ],
+  "sourceAndNegativeReconstructionExact": true,
+  "boundedIndependentSourceReview": {
+    "newP1": 0,
+    "newP2": 0,
+    "scope": "original STOPv1 and workerv2 fault schedules; failure-only observation delta parent-reviewed separately"
+  },
+  "stopLoss": {
+    "directions": 2,
+    "positiveChecksEach": 68,
+    "positiveFailures": 0,
+    "negativeChecksEach": 68,
+    "negativeFailuresEach": 1,
+    "negativeCheckIDs": [
+      17
+    ],
+    "actualSingleLossMarked": true,
+    "positiveCompletionOutcomes": [
+      1,
+      2,
+      2,
+      2
+    ],
+    "negativeCompletionOutcomes": [
+      1,
+      2,
+      2
+    ]
+  },
+  "workerExit": {
+    "directions": 2,
+    "positiveChecksEach": 28,
+    "positiveFailures": 0,
+    "negativeChecksEach": 28,
+    "negativeFailuresEach": 2,
+    "negativeCheckIDs": [
+      17,
+      23
+    ],
+    "actualExitAfterRealStopWait": true,
+    "completionOutcome": 3,
+    "completionError": 995,
+    "preWaitV1NotRun": true
+  },
+  "failureObservations": {
+    "runs": 4,
+    "allValidTrue": true,
+    "probeBytes": 48,
+    "probeVersion": 2,
+    "nativeProducerWatchHostEach": 0,
+    "peWatchAndTimerEach": 1,
+    "positiveBaselineNotRerun": true
+  },
+  "acceptedComparisonRuns": 12,
+  "firstEightCleanupAttempts": 19,
+  "observationCleanupAttempts": 8,
+  "ordinaryRestored": true,
+  "protectedFourUnchanged": true,
+  "artifactCompaction": {
+    "file": "out/storage-cleanup-20261025/transport-fault-batch-cleanup.json",
+    "sha256": "9364b308a29f4ff3599f448aa351555d1324172665c4a08391377f2d3b4d38f0",
+    "deletedTrees": 19,
+    "actualReclaimedBytes": 239812608,
+    "exactDeltaCasRetained": true
+  },
+  "failedCloseConcurrentPublicationRuntimeAccepted": false,
+  "foreignRendererRouteEnabled": false,
+  "pixelsOrCefOrGameAccepted": false,
+  "defaultAdopted": false,
+  "windowsOperations": 0,
+  "actionsRuns": 0,
+  "newAutomations": 0
+}

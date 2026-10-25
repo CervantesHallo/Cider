@@ -1,0 +1,20 @@
+--- a/dlls/winemac.drv/remote_watch_pe.c
++++ b/dlls/winemac.drv/remote_watch_pe.c
+@@ -149,6 +149,17 @@
+     HANDLE handles[2] = { watch->stop, watch->process };
+     DWORD result = WaitForMultipleObjects(2, handles, FALSE, INFINITE), error = 0;
+     UINT32 outcome;
++    /* DIAGNOSTIC ONLY: after the real STOP wait returns, terminate one actual
++     * worker before normal publication/ref epilogue. No SRW/native lock held. */
++    if (result == WAIT_OBJECT_0)
++    {
++        static LONG death_once;
++        if (!InterlockedCompareExchange(&death_once, 1, 0))
++        {
++            WARN("transport-worker-fault exit-after-stop %#llx\n", (unsigned long long)watch->completion.lease_id);
++            ExitThread(0x43494445);
++        }
++    }
+     if (result == WAIT_OBJECT_0) outcome = MACDRV_REMOTE_WATCH_CANCELED;
+     else if (result == WAIT_OBJECT_0 + 1) outcome = MACDRV_REMOTE_WATCH_EXITED;
+     else

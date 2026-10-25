@@ -1,0 +1,11 @@
+--- a/client.c
++++ b/client.c
+@@ -58,7 +58,7 @@
+     if(mode!=2)
+     {
+         lease_packet(&p,MACDRV_REMOTE_RELEASE_PRODUCER,root,epoch,generation,lease,sequence++);
+-        CHECK(send_packet(root,&p));CHECK(p.status==ERROR_SUCCESS);
++        CHECK(send_packet(root,&p));CHECK(p.status==ERROR_SUCCESS || (mode==1 && p.status==ERROR_NOT_FOUND));
+     }
+     if(mode==3)
+     {

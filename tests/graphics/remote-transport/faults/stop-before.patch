@@ -1,0 +1,11 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -601,7 +601,7 @@
+     if (!watched) return ERROR_SUCCESS;
+     status = watch_control(MACDRV_REMOTE_WATCH_STOP, NULL, producer->id, &acknowledged);
+     pthread_mutex_lock(&remote_lock);
+-    if (acknowledged && status == ERROR_NOT_FOUND)
++    if (status == ERROR_NOT_FOUND) /* DIAGNOSTIC negative: discard ack provenance. */
+     {
+         producer->completion_requested = TRUE;
+         status = ERROR_SUCCESS;

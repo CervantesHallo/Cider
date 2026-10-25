@@ -46,3 +46,5 @@ producer 租约绑定真实根实例、进程对象/创建时间、单调64位 g
 收益是保留原窗口路径并用实际对象和完整64位身份约束跨进程生命周期；成本是逐根历史、worker/timer、回调和清理队列。性能尚未采用，回退保留普通稳定实验组。候选不切用户默认引擎，不改游戏评级/反作弊门禁；原HY顺序、U90的8/15归因缺口、Windows忙/待重启不变。无Windows、Actions、定时或Goal操作。
 
 结构化指纹与原始记录索引见[证据](evidence/r-v1-typed-producer-leases-20261025.json)。原始资料在 `out/engine-dxmt-bridge-20261025/`；stage删除后须按确切组件清单恢复，不能仅凭manifest相同。
+
+后续[100](100-r-v1-process-lease-faults-20261025.md)已经补齐一次STOP交付丢失与STOP后真实worker终止的修后/故意错误分支对照；失败NtClose/在途完成及真实renderer路由仍未覆盖，本篇原始记录保持。

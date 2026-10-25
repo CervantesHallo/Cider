@@ -1080,8 +1080,11 @@
     "crossBitDiagnosticChecksPerDirection": 68,
     "actualProcessExitObserved": true,
     "affectedWindowChecksPerPe": 1415,
-    "controlledCleanupFaultRuntimeAccepted": false,
+    "controlledCleanupFaultRuntimeAccepted": true,
     "foreignRendererRouteEnabled": false,
-    "defaultAdopted": false
+    "defaultAdopted": false,
+    "controlledCleanupFaultScope": "single STOP delivery loss and worker exit after actual STOP wait only; failed NtClose/concurrent finalization still pending",
+    "faultResearch": "docs/research/100-r-v1-process-lease-faults-20261025.md",
+    "faultEvidence": "docs/research/evidence/r-v1-process-lease-faults-20261025.json"
   }
 }

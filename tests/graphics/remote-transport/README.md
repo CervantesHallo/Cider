@@ -23,3 +23,5 @@
 - 核对 session/EXE/全部成组模块、致命异常和完整清理回执；GUI实际退出、至少两次空观察、无pending后恢复普通实验配置/DLL。
 
 本夹具没有主动注入 STOP 丢回执、NtClose 失败或 worker 非预期终止；普通运行通过不能代替这些故障恢复验收。PID/TID 是消息来源观察，不是安全认证边界。证据和确切范围见 research99。
+
+限定清理故障的独立对照现已另交付，见 [faults](faults/README.md) 与 research100；普通夹具本身仍不注入这些故障。

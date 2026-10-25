@@ -1,0 +1,18 @@
+--- a/dlls/winemac.drv/remote_watch_pe.c
++++ b/dlls/winemac.drv/remote_watch_pe.c
+@@ -279,14 +279,7 @@
+                 watch->completion.error = ERROR_OPERATION_ABORTED;
+                 watch->completion_ready = TRUE;
+             }
+-            if (watch->worker_ref_live)
+-            {
+-                LONG remaining;
+-                watch->worker_ref_live = 0;
+-                remaining = InterlockedDecrement(&watch->refs);
+-                assert(remaining > 0); /* snapshot pin remains */
+-                (void)remaining;
+-            }
++            /* DIAGNOSTIC negative: omit dead-worker ref reconciliation. */
+         }
+         ready = watch->completion_ready;
+         ReleaseSRWLockExclusive(&watch_lock);
