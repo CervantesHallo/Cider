@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+窗口生命周期后续已接续[95文末](../research/95-r-v1-legacy-window-bridge-20261025.md)：最终双PE各1415检查/4窗口/56交换链/168Present零失败，真实detach/destroy各56；夹具源审两P2修后复审及新运行完成。纹理读回不代替屏幕，精确重入/同token并发/foreign-child仍待。继续原CEF跨进程迁移，不切默认引擎。
+
 最新回调接续[96](../research/96-r-v1-registry-roundtrip-20261025.md)：0018修真实RegCreate安全属性及尾部分隔符；双PE各33回调检查/195直接API检查通过，四精确负例与五故意错误变体拒绝完成，14运行独立绑定。原底层4失败和旧尾路径12失败保留；不是完整权限/Windows/内核/游戏验收。诊断候选不采用，继续95的窗口释放/重建→foreign-child/CEF；HY顺序、U8/15、Windowsbusy待重启不变。
 
 最新窗口接续[95](../research/95-r-v1-legacy-window-bridge-20261025.md)：完整24槽表/120B快照、两PE驱动和2native模块已构建/精确重建；原M-A双PE各120 Present/零失败且实际走新前端。缓存重复消耗和持锁同步主线程两P2、快照event借用及registry清理失败所有权均修后限定源审闭合。registry v2无64KiB/忽略SA限制，真实五API往返/释放故障注入仍待；窗口视觉、反复销毁/重建、同token并发、foreign-child/CEF未验收。接着做这些新缺口，不重跑无变化基线，不默认采用或提升游戏。原HY顺序/Windowsbusy待重启/U8/15保持。

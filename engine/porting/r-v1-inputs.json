@@ -989,7 +989,16 @@
     "sameTokenConcurrentCreateAccepted": false,
     "foreignChildCefAccepted": false,
     "fullBridgeAccepted": false,
-    "defaultAdopted": false
+    "defaultAdopted": false,
+    "lifecycleFollowup": {
+      "checksPerPe": 1415,
+      "windowsPerPe": 4,
+      "swapchainsPerPe": 56,
+      "presentsPerPe": 168,
+      "detachAndDestroyEachPerPe": 56,
+      "bothPePassed": true,
+      "exactRaceOrScreenAccepted": false
+    }
   },
   "registryRoundtripCandidate": {
     "research": "docs/research/96-r-v1-registry-roundtrip-20261025.md",

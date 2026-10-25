@@ -175,5 +175,83 @@
     "completeBridgeOrEngineOrGamesAccepted": false,
     "defaultAdopted": false,
     "windowsActionsAutomationGoalOperations": 0
+  },
+  "lifecycleFollowup": {
+    "source": {
+      "file": "tests/graphics/d3d11-window-lifecycle.c",
+      "sha256": "2aab197ad0b83956a60a9991b4aeea7f829102ee03448d030bc3e27e2d6015e1"
+    },
+    "receipts": [
+      {
+        "file": "out/engine-dxmt-bridge-20261025/window-lifecycle-runtime-v1.json",
+        "sha256": "8c5dd545e5c4171dd9fa4525a4f008632e1d8520f64ae1433de5c602fb98f561"
+      },
+      {
+        "file": "out/engine-dxmt-bridge-20261025/window-lifecycle-runtime-v2.json",
+        "sha256": "364405f5be6cb44c6461bf7e25c0059aaa169618e6ed19f495dc66bdab8362af"
+      },
+      {
+        "file": "out/engine-dxmt-bridge-20261025/window-lifecycle-independent-validation-v2.json",
+        "sha256": "cf1129eb7595bfb30824c502e1f21a87fff8f791e5e7cee0871dfff14e8cb68b"
+      },
+      {
+        "file": "out/engine-dxmt-bridge-20261025/window-lifecycle-v1/review-v1.json",
+        "sha256": "a3f5c04899f9f11a2f0833dc985cc09cfd0fb0b665287718165be90d9e9b0c3e"
+      },
+      {
+        "file": "out/engine-dxmt-bridge-20261025/window-lifecycle-v1/review-v2.json",
+        "sha256": "0aa84571dfba49dfa328ee478b1856bd90f9bf627a804b00efbb717527796af7"
+      },
+      {
+        "file": "out/engine-dxmt-bridge-20261025/window-lifecycle-v2/build-v1.json",
+        "sha256": "86dcb29194df55fe7e6bd796c206baae7f5726252eb997acdb42d690c66bba41"
+      }
+    ],
+    "rows": [
+      {
+        "arch": "x86_64",
+        "logSHA256": "88265d47a7060bad1dbd13b9399db529bcd3a4d06c442d941bf8f95e45b5e4ed",
+        "sessionSHA256": "b750b6cbff25a8ae980ff974718ed882ad8180c8a46d990e663514e5d50b8e07",
+        "exeSHA256": "519985314275cb2862f697f764247d380af4bef2e09e9ec5a1a8659caf79d75c",
+        "fixture": {
+          "type": "window-lifecycle",
+          "bits": 64,
+          "checks": 1415,
+          "failures": 0,
+          "windows": 4,
+          "swapchains": 56,
+          "presents": 168
+        },
+        "snapshotCalls": 56,
+        "surfaceDetachCalls": 56,
+        "surfaceDestroyCalls": 56,
+        "cleanupConfirmed": true
+      },
+      {
+        "arch": "i686",
+        "logSHA256": "4e46411246fda3e95417662975d85cb793decff7b4b4e52ce0f84e2d00b7beaf",
+        "sessionSHA256": "21d38a12dacc5fae1c4a82a9ea60f2088ed1365d1d9f87c45fbc4d7fd3ac402b",
+        "exeSHA256": "cf5288e0af560e16dd902af2548b54905bc87368fa2c40571bb080e6e2f54bc3",
+        "fixture": {
+          "type": "window-lifecycle",
+          "bits": 32,
+          "checks": 1415,
+          "failures": 0,
+          "windows": 4,
+          "swapchains": 56,
+          "presents": 168
+        },
+        "snapshotCalls": 56,
+        "surfaceDetachCalls": 56,
+        "surfaceDestroyCalls": 56,
+        "cleanupConfirmed": true
+      }
+    ],
+    "sourceP2Closed": 2,
+    "originalSubsetChecks": 1247,
+    "finalChecksPerPe": 1415,
+    "screenOrExactRaceOrForeignChildAccepted": false,
+    "ordinaryLabRestored": true,
+    "protectedFourUnchanged": true
   }
 }

@@ -2,6 +2,8 @@
 
 日期：2026-10-25。接续 93/94 的窗口主题。全部操作在 Mac 私有实验环境中完成，Windows、用户引擎、生产 App 和用户瓶子未改变。
 
+同日后续：注册表运行已由 [96](96-r-v1-registry-roundtrip-20261025.md) 接续。下列首次呈现阶段之后，新增的窗口生命周期检查也已完成，见文末；foreign-child/CEF、截图/输入、精确重入交错仍未验收。历史阶段的“待运行”不能覆盖这些后续结果。
+
 ## 实现与状态
 
 | 范围 | 源码/构建 | 实际运行 |
@@ -65,3 +67,13 @@
 采用现有管理列表与完整 legacy ABI 的收益是保留图形组件接口及窗口退役语义；成本是两个内部 native API、追加回调协议、进程期 callback 固定及延迟 Cocoa 清理。验收仍须包括回调实际往返、故障所有权、窗口反复创建/释放、位置/尺寸/Retina及 foreign-child；回退为保留的稳定引擎，候选不进入默认配方。
 
 下一步继续上述运行缺口及原 CEF/foreign-child 迁移。U90 原 8/15 单元超 ±3% 仍未通过；原 HY1→HY2→HY3→HY4/HY5、Windows 忙/待重启和游戏门禁保持。此次不是完整 R v1、Windows 内核或三款游戏验收。没有新增定时任务、恢复 Goal 或消耗 Actions。
+
+## 同日后续：显式释放与重建
+
+公开 `tests/graphics/d3d11-window-lifecycle.c` 在同一私有 window-legacy-r1 候选运行，两种 PE 各 **1415 检查、4 个窗口、56 次交换链创建/释放、168 次 Present，零失败，CLI 0**。每个交换链执行初次 96×64、实际 ResizeBuffers 后 128×80、移动/隐藏再显示三个阶段；分别用不同颜色检查全部纹理像素。两种位宽的原始 trace 均有 56 次快照、56 次表面 detach 和 56 次表面 destroy。两种 HWND/renderer 释放顺序均覆盖。
+
+首轮夹具虽然各 1247 项通过，独立审查仍发现两项 P2：final Release 后缺少强制延迟销毁的 Flush，且尺寸只信任 GetDesc，可能接受成功但未缩放的错误后端。父代理修复后重新编译两种 PE，补严格阶段尺寸/格式/采样布局和变化颜色读回；最终限定复审两项闭合、无新增具体 P1/P2，才运行上述 1415 项。Flip 替换需在最后引用释放后执行 ClearState/Flush，依据微软 [Flush 文档](https://learn.microsoft.com/en-us/windows/win32/api/d3d11/nf-d3d11-id3d11devicecontext-flush)。没有加 sleep 或资源 pin 掩盖释放。
+
+原夹具源码/1247 日志和两份审查保留；不追认原结果为最终加强验收。父代理独立核对最终 log/session、EXE、16 个 PE/2 个 native 模块、真实 GUI 退出/两空和普通实验配置恢复，四个保护摘要保持。资料为 `window-lifecycle-runtime-v2.json`、`window-lifecycle-independent-validation-v2.json` 及 `window-lifecycle-v1/review-v2.json`，均在同一私有资料根。
+
+本轮证明所列本进程资源/API/纹理读回行为；detach/destroy 计数不是完整 native 内存无泄漏证明，纹理像素不是屏幕图像，未控制精确 QUERY_EVENT 竞态或测试同 token 并发创建。下一项仍是 CEF 跨进程子窗口及其几何/上下文退役；未改变原性能、Windows 和游戏门槛。
