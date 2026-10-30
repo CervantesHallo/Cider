@@ -1,0 +1,118 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -106 +106 @@
+-static UINT64 next_identity = 1;
++static UINT64 next_identity = (UINT64)1 << 33;
+@@ -749,0 +750,2 @@
++static UINT64 producer_startup_retry_before_finalize(struct remote_producer *producer);
++static void producer_startup_retry_observed(struct remote_producer *producer, UINT64 attempt);
+@@ -752,0 +755 @@
++    UINT64 fixture_clear_attempt;
+@@ -774,0 +778 @@
++    fixture_clear_attempt = producer_startup_retry_before_finalize(producer);
+@@ -775,0 +780 @@
++    producer_startup_retry_observed(producer, fixture_clear_attempt);
+@@ -1031,0 +1037,10 @@
++    /* PRIVATE FAULT: actual protected temporary thread handle; its ordinary
++     * first NtClose and aborted-setup retries must retain that same owner. */
++    {
++        OBJECT_HANDLE_FLAG_INFORMATION flags;
++        status = NtQueryObject(thread, ObjectHandleFlagInformation, &flags, sizeof(flags), NULL);
++        if (status) goto fail;
++        flags.ProtectFromClose = TRUE;
++        status = NtSetInformationObject(thread, ObjectHandleFlagInformation, &flags, sizeof(flags));
++        if (status) goto fail;
++    }
+@@ -1278,0 +1294,35 @@
++
++/* Diagnostic-only read-only owner counts; not pixels or complete heap accounting. */
++#include "fixture.h"
++NTSTATUS macdrv_remote_transport_probe(void *args)
++{
++    struct producer_startup_owner_probe *probe = args;
++    struct remote_root *root;
++    struct remote_host *host;
++    struct remote_producer *producer;
++    if (!probe || probe->size != sizeof(*probe) || probe->version != 2) return STATUS_INVALID_PARAMETER;
++    probe->roots = probe->producers = probe->watch_pins = probe->hosts = 0;
++    probe->target_active = probe->target_watched = 0;
++    pthread_mutex_lock(&remote_lock);
++    for (root = roots; root; root = root->next) ++probe->roots;
++    for (host = hosts; host; host = host->next) ++probe->hosts;
++    for (producer = producers; producer; producer = producer->next)
++    {
++        ++probe->producers;
++        if (producer->id == probe->target_lease && producer->active && producer->watch_started &&
++            producer->root->open && producer->root->revision) probe->target_active = 1;
++    }
++    for (producer = producer_watches; producer; producer = producer->watch_next)
++    {
++        ++probe->watch_pins;
++        if (producer->id == probe->target_lease) probe->target_watched = 1;
++    }
++    for (producer = producer_cleanup; producer; producer = producer->cleanup_next) ++probe->cleanup_pins;
++    pthread_mutex_unlock(&remote_lock);
++    return STATUS_SUCCESS;
++}
++
++
++
++
++#include "native.inc"
+--- a/dlls/winemac.drv/remote_watch_pe.c
++++ b/dlls/winemac.drv/remote_watch_pe.c
+@@ -28,0 +29 @@
++static LONG fixture_live_watches, fixture_live_timers;
+@@ -45,0 +47 @@
++    InterlockedIncrement(&fixture_live_timers);
+@@ -47 +49 @@
+-    { error = GetLastError(); HeapFree(GetProcessHeap(), 0, timer); return error; }
++    { error = GetLastError(); InterlockedDecrement(&fixture_live_timers); HeapFree(GetProcessHeap(), 0, timer); return error; }
+@@ -81,0 +84,2 @@
++    {
++        InterlockedDecrement(&fixture_live_timers);
+@@ -82,0 +87 @@
++    }
+@@ -110,0 +116 @@
++    InterlockedDecrement(&fixture_live_watches);
+@@ -194,0 +201 @@
++    InterlockedIncrement(&fixture_live_watches);
+@@ -339,0 +347,21 @@
++
++#include "fixture.h"
++NTSTATUS WINAPI cider_remote_transport_probe(void *args)
++{
++    struct producer_startup_owner_probe *probe = args;
++    if (!probe || probe->size != sizeof(*probe) || probe->version != 2) return STATUS_INVALID_PARAMETER;
++    probe->pe_watches = InterlockedCompareExchange(&fixture_live_watches, 0, 0);
++    probe->cleanup_pins = InterlockedCompareExchange(&fixture_live_timers, 0, 0);
++    return MACDRV_CALL(remote_transport_probe, probe);
++}
++NTSTATUS WINAPI cider_producer_startup_failure_fixture(void *args)
++{
++    struct producer_startup_failure_fixture *frame = args;
++    NTSTATUS status;
++    if (!frame || frame->size != sizeof(*frame) || frame->version != PRODUCER_STARTUP_FIXTURE_VERSION || frame->reserved)
++        return STATUS_INVALID_PARAMETER;
++    status = MACDRV_CALL(producer_startup_failure_fixture, frame);
++    frame->pe_watches = InterlockedCompareExchange(&fixture_live_watches, 0, 0);
++    frame->pe_timers = InterlockedCompareExchange(&fixture_live_timers, 0, 0);
++    return status;
++}
+--- a/dlls/winemac.drv/macdrv_main.c
++++ b/dlls/winemac.drv/macdrv_main.c
+@@ -608,0 +609,3 @@
++extern NTSTATUS macdrv_remote_transport_probe(void *args);
++extern NTSTATUS macdrv_producer_startup_failure_fixture(void *args);
++
+@@ -616,0 +620,2 @@
++    macdrv_remote_transport_probe,
++    macdrv_producer_startup_failure_fixture,
+@@ -646,0 +652,2 @@
++    macdrv_remote_transport_probe,
++    macdrv_producer_startup_failure_fixture,
+--- a/dlls/winemac.drv/unixlib.h
++++ b/dlls/winemac.drv/unixlib.h
+@@ -29,0 +30,2 @@
++    unix_remote_transport_probe,
++    unix_producer_startup_failure_fixture,

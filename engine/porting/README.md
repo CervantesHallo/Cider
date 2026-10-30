@@ -1,5 +1,7 @@
 # Engine R v1 主题迁移
 
+最新[107](../../docs/research/107-r-v1-startup-failure-recovery-20261030.md)：0025在恢复finalizer之后、旧FIFO引用归还之前交接剩余清理owner。两种真实NT启动故障无PE watch，PE32/64各25/0，Root销毁后清保护并自主归零；独立源码审查、前后关联实际retry见证、模块/清理恢复绑定完成。仍不切默认，FIFO/epoch指定时序与per-host/取消/资源和呈现继续。
+
 最新[106](../../docs/research/106-r-v1-producer-terminal-cell-20261030.md)：0024七文件含Native源/Makefile，实际whole-producer状态发布、NT owner失败保留和预先恢复驱动；限定源码修复/复审及匹配构建完成。双向正常读回、精确guard负例、真实c0000235关闭失败恢复共6次实际运行独立绑定，普通恢复/保护4一致。仍非完整Wine/release或renderer采用；失败START无watch、临时H、FIFO/epoch尚待实际验收，然后补per-host/取消/资源与像素。旧实验包按清单恢复，不凭manifest混用字节。
 
 最新[105](../../docs/research/105-r-v1-request-inflight-20261030.md)：0023保留实际请求pin到同步处置返回，finalizer要求请求排空；普通/NDEBUG/native链接与精确重建、限定源审完成。最终真实准入pin/typed RELEASE/STOP对照两PE各20/0，省略保护各20/1精准CHECK12，夹具两项P2已修后重验并独立绑定。103/104完成页原语及连续跨位宽发布已有局部证据，但尚未接入真实producer发布。继续取消/未知安装与资源接入；不切默认、不启用foreign。旧实验包已归档差异并清理，参考105清单恢复。

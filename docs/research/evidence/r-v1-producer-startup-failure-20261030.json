@@ -1,0 +1,1989 @@
+{
+  "schema": "cider.r-v1.producer-startup-failure-evidence/v1",
+  "date": "2026-10-30",
+  "scope": "actual before-WatchSTART failed acquisition, noPEwatch autonomous retained NT cleanup after targetRoot destruction, two trueNTfaults",
+  "review": {
+    "schema_version": 3,
+    "review_type": "bounded independent source delta rereview",
+    "base_directory": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025",
+    "supersedes": "producer-startup-failure-review-v2.json for the exact current candidate hashes below",
+    "current_candidate": {
+      "fixture": "producer-startup-failure-fixture-v4",
+      "diagnostic_variants": [
+        "producer-startup-cell-diagnostic-source-v5",
+        "producer-startup-thread-diagnostic-source-v5"
+      ],
+      "ordinary": "producer-status-source-v6 + producer-status-requeue-v6.patch"
+    },
+    "admission": true,
+    "admission_scope": "Admitted in source for parent-controlled bounded runtime evaluation under the existing isolated first-acting-CLEAR contract. This is not a claim of successful compilation, actual fault observation, autonomous runtime drain, complete cleanup or game compatibility.",
+    "verdict": "PSF-P2-02 is resolved by the two-sided attempt-correlated witness. The previously reviewed ordinary v6 queue handoff remains byte-identical. No new concrete P1/P2 defect was found in this narrow delta. The target-root epoch bit, actual NT fault/clear semantics and existing client acceptance gates are preserved.",
+    "finding_counts": {
+      "P1": 0,
+      "P2": 0
+    },
+    "findings": [],
+    "process": {
+      "instructions": "AGENTS.md was read in this continuing bounded review; no additional project scope was taken on.",
+      "activities": [
+        "Compared fixture v3 to v4 and both diagnostic-source v4 to v5 variants.",
+        "Read the changed hooks, CLEAR admission/counter placement and retry call sequence.",
+        "Rechecked the ordinary v6 coordinator and patch hashes against the prior source review.",
+        "Rechecked all listed file hashes before writing this JSON."
+      ],
+      "not_performed": [
+        "build",
+        "runtime execution",
+        "tests",
+        "network",
+        "source edits",
+        "credential or Windows/defaults/Actions/Goal work"
+      ],
+      "author_or_parent_report_used_as_verification": false,
+      "runtime_claims": [],
+      "only_written_file": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/producer-startup-failure-review-v3.json"
+    },
+    "sourceSHA256": [
+      {
+        "path": "producer-startup-failure-fixture-v3/fixture.h",
+        "sha256": "f6c68a059625781d1c80b1d12a1a75236a88b214f01d46ced70abee4ed0a2186",
+        "bytes": 3293,
+        "lines": 79,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-failure-fixture-v3/client.c",
+        "sha256": "3d5bdadab27a3a0da6fe2e8895038e46ddc6a64127410806b6804e4832b7a1d8",
+        "bytes": 20667,
+        "lines": 382,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-failure-fixture-v3/README.md",
+        "sha256": "6cb42f5ded619f2ed2b86b00e6e35702476b092a7f5e08a9631e428495b0e70c",
+        "bytes": 9426,
+        "lines": 156,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-failure-fixture-v3/native.inc",
+        "sha256": "5cc29eecc00d770307981acdacb23401d3b8dd85f7fa93b05143e61bab353f3a",
+        "bytes": 15580,
+        "lines": 319,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-failure-fixture-v4/fixture.h",
+        "sha256": "f6c68a059625781d1c80b1d12a1a75236a88b214f01d46ced70abee4ed0a2186",
+        "bytes": 3293,
+        "lines": 79,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-failure-fixture-v4/client.c",
+        "sha256": "3d5bdadab27a3a0da6fe2e8895038e46ddc6a64127410806b6804e4832b7a1d8",
+        "bytes": 20667,
+        "lines": 382,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-failure-fixture-v4/README.md",
+        "sha256": "6cb42f5ded619f2ed2b86b00e6e35702476b092a7f5e08a9631e428495b0e70c",
+        "bytes": 9426,
+        "lines": 156,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-failure-fixture-v4/native.inc",
+        "sha256": "d0715532329674902024389de7da30129954be85d38ee64c2ea66d39b8343510",
+        "bytes": 16428,
+        "lines": 335,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-cell-diagnostic-source-v4/dlls/winemac.drv/remote_watch_pe.c",
+        "sha256": "64533344726c510953c793997663bbec2a9df675602143e3cc6bba1642a37b3a",
+        "bytes": 14797,
+        "lines": 367,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-cell-diagnostic-source-v4/dlls/winemac.drv/macdrv_main.c",
+        "sha256": "a6e863c22390929ede2bbdabd9aba04eceaec02d01c4ac4c994e0accac1e73ba",
+        "bytes": 21449,
+        "lines": 658,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-cell-diagnostic-source-v4/dlls/winemac.drv/unixlib.h",
+        "sha256": "6e8c8efd300d9301d030b4901ddd163ca232e79acc3d31aeaa0941d7a2c3e7d9",
+        "bytes": 1970,
+        "lines": 83,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-cell-diagnostic-source-v4/dlls/winemac.drv/remote_coordinator.c",
+        "sha256": "9ab902c7e1e693e425bd408601a276a686ac62f5214f9035dab87a5f9edf8354",
+        "bytes": 53482,
+        "lines": 1315,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-cell-diagnostic-source-v4/dlls/winemac.drv/status_cell.c",
+        "sha256": "1dd2ea4b22eed97a9bae899f596949ab8285691b413317f6535e0ec09a089525",
+        "bytes": 7674,
+        "lines": 151,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-thread-diagnostic-source-v4/dlls/winemac.drv/remote_watch_pe.c",
+        "sha256": "64533344726c510953c793997663bbec2a9df675602143e3cc6bba1642a37b3a",
+        "bytes": 14797,
+        "lines": 367,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-thread-diagnostic-source-v4/dlls/winemac.drv/macdrv_main.c",
+        "sha256": "a6e863c22390929ede2bbdabd9aba04eceaec02d01c4ac4c994e0accac1e73ba",
+        "bytes": 21449,
+        "lines": 658,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-thread-diagnostic-source-v4/dlls/winemac.drv/unixlib.h",
+        "sha256": "6e8c8efd300d9301d030b4901ddd163ca232e79acc3d31aeaa0941d7a2c3e7d9",
+        "bytes": 1970,
+        "lines": 83,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-thread-diagnostic-source-v4/dlls/winemac.drv/remote_coordinator.c",
+        "sha256": "ee454c6361962428bc9677b32ce0fc71293d908fc1441bcb2fe32ea070791c8e",
+        "bytes": 53996,
+        "lines": 1325,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-thread-diagnostic-source-v4/dlls/winemac.drv/status_cell.c",
+        "sha256": "59d1b5e8e1dfe1d4687b418847eb0494040edeb8308bd23aca549ba24210be51",
+        "bytes": 6663,
+        "lines": 139,
+        "role": "comparison_baseline"
+      },
+      {
+        "path": "producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/remote_watch_pe.c",
+        "sha256": "64533344726c510953c793997663bbec2a9df675602143e3cc6bba1642a37b3a",
+        "bytes": 14797,
+        "lines": 367,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/macdrv_main.c",
+        "sha256": "a6e863c22390929ede2bbdabd9aba04eceaec02d01c4ac4c994e0accac1e73ba",
+        "bytes": 21449,
+        "lines": 658,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/unixlib.h",
+        "sha256": "6e8c8efd300d9301d030b4901ddd163ca232e79acc3d31aeaa0941d7a2c3e7d9",
+        "bytes": 1970,
+        "lines": 83,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/remote_coordinator.c",
+        "sha256": "ed0abcf4162b1a23e835cc584b83d22a45f12bba0e60e2269e871e0672064fc4",
+        "bytes": 53721,
+        "lines": 1318,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/status_cell.c",
+        "sha256": "1dd2ea4b22eed97a9bae899f596949ab8285691b413317f6535e0ec09a089525",
+        "bytes": 7674,
+        "lines": 151,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/remote_watch_pe.c",
+        "sha256": "64533344726c510953c793997663bbec2a9df675602143e3cc6bba1642a37b3a",
+        "bytes": 14797,
+        "lines": 367,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/macdrv_main.c",
+        "sha256": "a6e863c22390929ede2bbdabd9aba04eceaec02d01c4ac4c994e0accac1e73ba",
+        "bytes": 21449,
+        "lines": 658,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/unixlib.h",
+        "sha256": "6e8c8efd300d9301d030b4901ddd163ca232e79acc3d31aeaa0941d7a2c3e7d9",
+        "bytes": 1970,
+        "lines": 83,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/remote_coordinator.c",
+        "sha256": "14e126504fc0764c66607f61c3fc263f01a4347a6f078ebb1d6872e7f4c1f8c2",
+        "bytes": 54235,
+        "lines": 1328,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/status_cell.c",
+        "sha256": "59d1b5e8e1dfe1d4687b418847eb0494040edeb8308bd23aca549ba24210be51",
+        "bytes": 6663,
+        "lines": 139,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-status-source-v6/dlls/winemac.drv/remote_coordinator.c",
+        "sha256": "f6eaa887cf6c3a565cd99e317d00a93189a426a6e961949262b71934802dc4b6",
+        "bytes": 51934,
+        "lines": 1278,
+        "role": "current_candidate"
+      },
+      {
+        "path": "producer-status-requeue-v6.patch",
+        "sha256": "29073b32b390ed3ded2b57a8a6ddc1c004cc811227488ca485b82aafd07c6794",
+        "bytes": 315,
+        "lines": 6,
+        "role": "current_candidate"
+      }
+    ],
+    "resolved_findings": [
+      {
+        "id": "PSF-P2-02",
+        "status": "resolved in reviewed source; runtime verification pending",
+        "locations": [
+          {
+            "path": "producer-startup-failure-fixture-v4/native.inc",
+            "start_line": 181,
+            "end_line": 203
+          },
+          {
+            "path": "producer-startup-failure-fixture-v4/native.inc",
+            "start_line": 235,
+            "end_line": 272
+          },
+          {
+            "path": "producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/remote_coordinator.c",
+            "start_line": 750,
+            "end_line": 784
+          },
+          {
+            "path": "producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/remote_coordinator.c",
+            "start_line": 750,
+            "end_line": 784
+          }
+        ],
+        "proof": "Each actual retry captures a local UINT64 token immediately before calling finalize_producer_watch. The locked pre-hook returns nonzero only when the captured section owner already has this CLEAR active, a cleanup_inflight pin, status_cleanup and its current clear_attempt. The post-hook is after the actual finalizer call and before the ordinary queue handoff; it accepts only the same nonzero attempt while that matched owner is still clearing with its pin and status cleanup. CLEAR can set clearing=true only after advancing clear_attempt under the same lock. Its paths that release the pin set clearing=false under that lock. Attempts cannot wrap. Thus a matching token and active postcondition cannot bridge a completed/aborted CLEAR followed by a different one.",
+        "original_false_positive_rejected": "If the timer completes its finalizer before CLEAR starts, the earlier pre-hook token is zero. CLEAR starting in the finalizer-to-post-hook gap cannot make attempt && attempt==clear_attempt true. An already requeued protected-close failure can no longer fabricate this two-sided witness.",
+        "concrete_source_schedule_after_fix": [
+          "CLEAR acquires the attached section borrow, producer reference and actual cleanup_inflight pin, advances its attempt, sets clearing and enters the bounded wait before NT query/set.",
+          "A real timer retry consumes a FIFO owner and drops only its own transfer pin. The pre-hook captures the already active CLEAR attempt.",
+          "The actual finalizer sees the remaining CLEAR pin and cannot detach/close the section. The post-hook confirms the same attempt is still active and records the historical witness.",
+          "The ordinary queue helper then acquires a runnable FIFO reference before the popped reference is released. CLEAR may observe the witness and finish its NT flag clear before or after that helper call; persistent status_cleanup and locked deduplication preserve the handoff.",
+          "A subsequent independent timer retry is responsible for actual close/finalization after CLEAR drops its pin. These steps are source reasoning, not an executed schedule."
+        ]
+      },
+      {
+        "id": "PSF-P2-01",
+        "status": "prior source resolution preserved; runtime verification pending",
+        "locations": [
+          {
+            "path": "producer-status-source-v6/dlls/winemac.drv/remote_coordinator.c",
+            "start_line": 750,
+            "end_line": 779
+          },
+          {
+            "path": "producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/remote_coordinator.c",
+            "start_line": 778,
+            "end_line": 784
+          }
+        ],
+        "proof": "Ordinary v6 and producer-status-requeue-v6.patch have the exact previously reviewed hashes. The queue_producer_cleanup call remains after finalization and before the transferred popped-FIFO reference is released. Its existing locked work predicate and deduplication acquire a replacement reference when needed, avoid duplicate queue ownership and do nothing after successful cleanup. Both diagnostic v5 coordinators retain that ordinary call after the diagnostic post-hook. No repair was moved into CLEAR or SNAPSHOT."
+      }
+    ],
+    "adversarial_delta_checks": [
+      {
+        "case": "CLEAR starts after the pre-hook, including after finalizer return",
+        "result": "The captured token is zero, so that retry cannot set the witness. This may require another timer retry, but cannot supply the previously false temporal evidence."
+      },
+      {
+        "case": "CLEAR times out or finishes between the two hooks",
+        "result": "The matching attempt is no longer clearing, so the post-hook rejects it. A later acting CLEAR increments the attempt and also fails equality with the old token. No timer-owned record pointer is stored in the fixture frame."
+      },
+      {
+        "case": "Attempt exhaustion or a non-acting CLEAR result",
+        "locations": [
+          {
+            "path": "producer-startup-failure-fixture-v4/native.inc",
+            "start_line": 235,
+            "end_line": 272
+          }
+        ],
+        "result": "The UINT64 maximum check occurs before producer refs/cleanup_inflight, any handle operation or attempt increment. Detached/missing/busy owners return before incrementing. The valid acting path increments after obtaining the section borrow/pin (or mode-2 protected raw handle), then publishes clearing under the same lock. Valid attempt tokens are nonzero and never wrap. Already-cleared idempotent success remains non-acting."
+      },
+      {
+        "case": "Finalizer removes the Native completion registry owner",
+        "locations": [
+          {
+            "path": "producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/remote_coordinator.c",
+            "start_line": 758,
+            "end_line": 784
+          }
+        ],
+        "result": "The retry still owns its transferred popped-FIFO reference through both hooks and queue handoff. Reading producer ID/state is safe even if finalization released another reference. The post-hook adds no queue reference, NT call, cleanup or caller-frame retention."
+      },
+      {
+        "case": "New witness wait fails or reaches its two-second deadline",
+        "locations": [
+          {
+            "path": "producer-startup-failure-fixture-v4/native.inc",
+            "start_line": 204,
+            "end_line": 223
+          },
+          {
+            "path": "producer-startup-failure-fixture-v4/native.inc",
+            "start_line": 274,
+            "end_line": 281
+          }
+        ],
+        "result": "The wait body is unchanged from v3 and uses actual checked NtQueryPerformanceCounter plus NtDelayExecution pacing. The timeout path clears clearing, drops only its cleanup_inflight pin/reference and returns ERROR_TIMEOUT before query/set. It calls no finalize/retry/queue. The ordinary v6 handoff remains responsible for runnable cleanup ownership; parent process cleanup is still required if protection remains."
+      },
+      {
+        "case": "Mode 2 and common PE/client reuse",
+        "result": "The new hooks match only owner_kind SECTION_FAILURE, so the thread/setup case does not acquire a false retry witness or enter the section wait. Fixture header/client/README and all common PE/Unix registration/status-cell files are byte-identical to the reviewed baseline. Client remains at 25 checks, KNOWN_FLAGS 0x3ffff, and requires the retry bit only in mode-1 check 19. The frame remains 96 bytes/version1 and Native/Wow64 remain slot7/count8. PE does not interpret either added flag value; unchanged ABI-compatible PE/client objects are source-compatible, subject to parent binary/input binding."
+      }
+    ],
+    "preserved_evidence_boundaries": [
+      "The target root bit still uses the captured actual HWND plus actual nonzero epoch under remote_lock; it must be set before root destruction and absent afterward/final. Unrelated Wine internal roots are allowed. Global producer/watch/setup/cleanup/model, host and PE owner zero predicates remain mandatory.",
+      "Actual NT faults are unchanged: mode 1 real READ|QUERY section create plus ProtectFromClose, actual RW map failure and actual protected NtClose; mode 2 real protected temporary thread close and retained setup FIFO. The observation-only status-cell logs still read the owned cell before transfer/free and preserve actual status values.",
+      "SNAPSHOT and the independent probe remain observation-only. CLEAR waits for actual retry evidence, performs actual NT flag query/set, and releases only its own borrow/pin. Neither hook queues, closes, retries or finalizes. The ordinary timer path performs the queue handoff and later cleanup.",
+      "Applied-clear accounting before client deadline rejection, no replay after definitive/uncorrelated errors, mandatory pending retention after root destruction, actual clear acknowledgement, Native/PE timer-owner zero and independent final probe are unchanged. Earlier failures cannot be erased by failed-case cleanup."
+    ],
+    "limits": [
+      "Admission applies only to the exact listed sources and isolated bounded experiment. No code was built, run or tested by this reviewer, and no actual NT return code, scheduling event, loaded module, zero drain or process termination was observed.",
+      "The immutable retry_under_pin boolean remains historical across the fixture process. This admission relies on the existing client rule: no new acting CLEAR after a definitive/uncorrelated error or timeout, only retrying explicitly non-acting IO_PENDING. It is not a general proof that every independently repeated CLEAR waits for a fresh per-attempt witness.",
+      "The monotone token proves continuity of a matching CLEAR attempt across the two hooks; it is not an OS scheduling guarantee that a timer will run before the two-second deadline. Parent watchdog and controlled failure cleanup remain necessary.",
+      "The byte-identical ordinary v6 repair and previously reviewed unchanged source bodies were carried forward by exact hash comparison. No broad ordinary/core repository review was repeated.",
+      "Copied native.inc/fixture.h resolution, transitive inputs, .spec exports, actual watch header VERSION2, build configuration and resulting/loaded Native/common-PE/client module hashes remain parent binding responsibilities. A source-compatible PE/client reuse conclusion is not independent verification of the actual artifacts selected.",
+      "Runtime acceptance still needs correlated mode-1 actual map 0xc0000022 and close 0xc0000235 records for the same process/root_pid/lease/handle, or the mode-2 actual setup close witness, then required root/owner/witness/clear/zero checks in each intended PE width. Source admission does not supply these outcomes.",
+      "Counters track defined ownership rather than all allocations, OS objects or callback quiescence. Native and PE snapshots are separate observations, and timer-owner zero after DeleteTimerQueueTimer ERROR_IO_PENDING does not prove every callback has returned.",
+      "The two-/four-second clock checks cannot cancel a stuck synchronous NT or stdio call. Parent must bound the output sink and overall run and confirm fixture-process/Wine cleanup on failure.",
+      "The README remains the unchanged v1 text and omits the added root/witness bits and wait protocol; exact current behavior is in the reviewed source. No documentation or source was edited."
+    ]
+  },
+  "binding": {
+    "path": "out/engine-dxmt-bridge-20261025/producer-startup-independent-binding-v4.json",
+    "sha256": "f5a7edab2d4ceeb5baf3840b5a6b9449bde7b6567ab5a253363ab20b69504c51",
+    "checks": [
+      {
+        "label": "independent source admission",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-failure-fixture-v3/fixture.h",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-failure-fixture-v3/client.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-failure-fixture-v3/README.md",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-failure-fixture-v3/native.inc",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-failure-fixture-v4/fixture.h",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-failure-fixture-v4/client.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-failure-fixture-v4/README.md",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-failure-fixture-v4/native.inc",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-cell-diagnostic-source-v4/dlls/winemac.drv/remote_watch_pe.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-cell-diagnostic-source-v4/dlls/winemac.drv/macdrv_main.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-cell-diagnostic-source-v4/dlls/winemac.drv/unixlib.h",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-cell-diagnostic-source-v4/dlls/winemac.drv/remote_coordinator.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-cell-diagnostic-source-v4/dlls/winemac.drv/status_cell.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-thread-diagnostic-source-v4/dlls/winemac.drv/remote_watch_pe.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-thread-diagnostic-source-v4/dlls/winemac.drv/macdrv_main.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-thread-diagnostic-source-v4/dlls/winemac.drv/unixlib.h",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-thread-diagnostic-source-v4/dlls/winemac.drv/remote_coordinator.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-thread-diagnostic-source-v4/dlls/winemac.drv/status_cell.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/remote_watch_pe.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/macdrv_main.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/unixlib.h",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/remote_coordinator.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-cell-diagnostic-source-v5/dlls/winemac.drv/status_cell.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/remote_watch_pe.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/macdrv_main.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/unixlib.h",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/remote_coordinator.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-startup-thread-diagnostic-source-v5/dlls/winemac.drv/status_cell.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-status-source-v6/dlls/winemac.drv/remote_coordinator.c",
+        "passed": true
+      },
+      {
+        "label": "review exact producer-status-requeue-v6.patch",
+        "passed": true
+      },
+      {
+        "label": "client effective build bytes",
+        "passed": true
+      },
+      {
+        "label": "controller complete cell",
+        "passed": true
+      },
+      {
+        "label": "runtime controller/admission exact",
+        "passed": true
+      },
+      {
+        "label": "reported ordinary/protected restoration",
+        "passed": true
+      },
+      {
+        "label": "five durable kernel/GUI cleanup receipts cell",
+        "passed": true
+      },
+      {
+        "label": "matched private ABI",
+        "passed": true
+      },
+      {
+        "label": "actual F27 core cell",
+        "passed": true
+      },
+      {
+        "label": "16 actual PE modules cell",
+        "passed": true
+      },
+      {
+        "label": "2 native modules cell",
+        "passed": true
+      },
+      {
+        "label": "native effective helper build cell",
+        "passed": true
+      },
+      {
+        "label": "actual pre-sign native module cell",
+        "passed": true
+      },
+      {
+        "label": "both PE fresh cases cell",
+        "passed": true
+      },
+      {
+        "label": "raw/session exact cellx86_64",
+        "passed": true
+      },
+      {
+        "label": "session engine/env",
+        "passed": true
+      },
+      {
+        "label": "actual source/prefix exe bytes",
+        "passed": true
+      },
+      {
+        "label": "independent JSON parsing",
+        "passed": true
+      },
+      {
+        "label": "exact25 all true",
+        "passed": true
+      },
+      {
+        "label": "complete accepted summary/CLI",
+        "passed": true
+      },
+      {
+        "label": "strict snapshots/no PE watch throughout samples",
+        "passed": true
+      },
+      {
+        "label": "pure probe evidence",
+        "passed": true
+      },
+      {
+        "label": "actual no-lease retained ownership",
+        "passed": true
+      },
+      {
+        "label": "mode owner/target root absent",
+        "passed": true
+      },
+      {
+        "label": "actual clear and autonomous owner/timer zero",
+        "passed": true
+      },
+      {
+        "label": "global internal roots reported, not false zero claim",
+        "passed": true
+      },
+      {
+        "label": "map DOSerror/real pinned-retry witness",
+        "passed": true
+      },
+      {
+        "label": "actual NT map denied owner binding",
+        "passed": true
+      },
+      {
+        "label": "same actual handle protected close and final close",
+        "passed": true
+      },
+      {
+        "label": "raw/session exact celli386",
+        "passed": true
+      },
+      {
+        "label": "session engine/env",
+        "passed": true
+      },
+      {
+        "label": "actual source/prefix exe bytes",
+        "passed": true
+      },
+      {
+        "label": "independent JSON parsing",
+        "passed": true
+      },
+      {
+        "label": "exact25 all true",
+        "passed": true
+      },
+      {
+        "label": "complete accepted summary/CLI",
+        "passed": true
+      },
+      {
+        "label": "strict snapshots/no PE watch throughout samples",
+        "passed": true
+      },
+      {
+        "label": "pure probe evidence",
+        "passed": true
+      },
+      {
+        "label": "actual no-lease retained ownership",
+        "passed": true
+      },
+      {
+        "label": "mode owner/target root absent",
+        "passed": true
+      },
+      {
+        "label": "actual clear and autonomous owner/timer zero",
+        "passed": true
+      },
+      {
+        "label": "global internal roots reported, not false zero claim",
+        "passed": true
+      },
+      {
+        "label": "map DOSerror/real pinned-retry witness",
+        "passed": true
+      },
+      {
+        "label": "actual NT map denied owner binding",
+        "passed": true
+      },
+      {
+        "label": "same actual handle protected close and final close",
+        "passed": true
+      },
+      {
+        "label": "independent original config",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "controller complete thread",
+        "passed": true
+      },
+      {
+        "label": "runtime controller/admission exact",
+        "passed": true
+      },
+      {
+        "label": "reported ordinary/protected restoration",
+        "passed": true
+      },
+      {
+        "label": "five durable kernel/GUI cleanup receipts thread",
+        "passed": true
+      },
+      {
+        "label": "matched private ABI",
+        "passed": true
+      },
+      {
+        "label": "actual F27 core thread",
+        "passed": true
+      },
+      {
+        "label": "16 actual PE modules thread",
+        "passed": true
+      },
+      {
+        "label": "2 native modules thread",
+        "passed": true
+      },
+      {
+        "label": "native effective helper build thread",
+        "passed": true
+      },
+      {
+        "label": "actual pre-sign native module thread",
+        "passed": true
+      },
+      {
+        "label": "both PE fresh cases thread",
+        "passed": true
+      },
+      {
+        "label": "raw/session exact threadx86_64",
+        "passed": true
+      },
+      {
+        "label": "session engine/env",
+        "passed": true
+      },
+      {
+        "label": "actual source/prefix exe bytes",
+        "passed": true
+      },
+      {
+        "label": "independent JSON parsing",
+        "passed": true
+      },
+      {
+        "label": "exact25 all true",
+        "passed": true
+      },
+      {
+        "label": "complete accepted summary/CLI",
+        "passed": true
+      },
+      {
+        "label": "strict snapshots/no PE watch throughout samples",
+        "passed": true
+      },
+      {
+        "label": "pure probe evidence",
+        "passed": true
+      },
+      {
+        "label": "actual no-lease retained ownership",
+        "passed": true
+      },
+      {
+        "label": "mode owner/target root absent",
+        "passed": true
+      },
+      {
+        "label": "actual clear and autonomous owner/timer zero",
+        "passed": true
+      },
+      {
+        "label": "global internal roots reported, not false zero claim",
+        "passed": true
+      },
+      {
+        "label": "actual temporary handle close witness",
+        "passed": true
+      },
+      {
+        "label": "same setup ID actual close error",
+        "passed": true
+      },
+      {
+        "label": "raw/session exact threadi386",
+        "passed": true
+      },
+      {
+        "label": "session engine/env",
+        "passed": true
+      },
+      {
+        "label": "actual source/prefix exe bytes",
+        "passed": true
+      },
+      {
+        "label": "independent JSON parsing",
+        "passed": true
+      },
+      {
+        "label": "exact25 all true",
+        "passed": true
+      },
+      {
+        "label": "complete accepted summary/CLI",
+        "passed": true
+      },
+      {
+        "label": "strict snapshots/no PE watch throughout samples",
+        "passed": true
+      },
+      {
+        "label": "pure probe evidence",
+        "passed": true
+      },
+      {
+        "label": "actual no-lease retained ownership",
+        "passed": true
+      },
+      {
+        "label": "mode owner/target root absent",
+        "passed": true
+      },
+      {
+        "label": "actual clear and autonomous owner/timer zero",
+        "passed": true
+      },
+      {
+        "label": "global internal roots reported, not false zero claim",
+        "passed": true
+      },
+      {
+        "label": "actual temporary handle close witness",
+        "passed": true
+      },
+      {
+        "label": "same setup ID actual close error",
+        "passed": true
+      },
+      {
+        "label": "independent original config",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "restored original DLL/absence",
+        "passed": true
+      },
+      {
+        "label": "protected4 actual current bytes",
+        "passed": true
+      },
+      {
+        "label": "same16PE actual comparison",
+        "passed": true
+      },
+      {
+        "label": "ordinary v6 Native/NDEBUG/link",
+        "passed": true
+      }
+    ]
+  },
+  "rows": [
+    {
+      "kind": "cell",
+      "arch": "x86_64",
+      "summary": {
+        "type": "producer-startup-failure",
+        "event": "summary",
+        "mode": 1,
+        "bits": 64,
+        "pid": 32,
+        "tid": 36,
+        "birth": 134378472261652980,
+        "checks": 25,
+        "expected_checks": 25,
+        "failures": 0,
+        "snapshots": 26,
+        "probes": 4,
+        "owner_id": 8589934604,
+        "root_destroyed": true,
+        "clear_applied": true,
+        "settled": true,
+        "cleanup": true,
+        "pending_observed": true,
+        "pending": {
+          "size": 96,
+          "version": 1,
+          "operation": 2,
+          "status": 0,
+          "mode": 1,
+          "root": 0,
+          "acquire_error": 5,
+          "flags": 2503,
+          "owner_id": 8589934604,
+          "returned_lease": 0,
+          "producers": 0,
+          "watches": 1,
+          "setups": 0,
+          "cleanup": 1,
+          "models": 0,
+          "owner_inflight": 0,
+          "pe_watches": 0,
+          "pe_timers": 1,
+          "last_close": 4294967295,
+          "query_status": 4294967295,
+          "set_status": 4294967295,
+          "reserved": 0
+        },
+        "final": {
+          "size": 96,
+          "version": 1,
+          "operation": 2,
+          "status": 0,
+          "mode": 1,
+          "root": 0,
+          "acquire_error": 5,
+          "flags": 188427,
+          "owner_id": 8589934604,
+          "returned_lease": 0,
+          "producers": 0,
+          "watches": 0,
+          "setups": 0,
+          "cleanup": 0,
+          "models": 0,
+          "owner_inflight": 0,
+          "pe_watches": 0,
+          "pe_timers": 0,
+          "last_close": 4294967295,
+          "query_status": 0,
+          "set_status": 0,
+          "reserved": 0
+        },
+        "io_error": false
+      },
+      "initialGlobalRoots": 3,
+      "finalGlobalRoots": 0,
+      "cellNt": [
+        {
+          "type": "startup-cell-nt",
+          "op": "map-rw",
+          "handle": 136,
+          "ntstatus": 3221225506,
+          "root_pid": 32,
+          "lease": 8589934604
+        },
+        {
+          "type": "startup-cell-nt",
+          "op": "close",
+          "handle": 136,
+          "ntstatus": 3221226037,
+          "root_pid": 32,
+          "lease": 8589934604
+        },
+        {
+          "type": "startup-cell-nt",
+          "op": "close",
+          "handle": 136,
+          "ntstatus": 0,
+          "root_pid": 32,
+          "lease": 8589934604
+        }
+      ],
+      "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261030T152015-producer-startup-cell-cross-x86_64-v4-6F7F5FF8-5E80-4214-ACEB-EDDB11A4F64A/wine.log",
+      "rawSHA256": "19a2502ec074ca3b841720d00651c383d968c06c836f57be489d9eff006f8068",
+      "sessionSHA256": "bf87cc34b88ea22632659f9f224abe53c306d1bb5dbd6e53836470e1dc27a609",
+      "exeSHA256": "adcee6815d4239ab1114731642e9cff9a24759133a11233db2e24278b43ed4ca"
+    },
+    {
+      "kind": "cell",
+      "arch": "i386",
+      "summary": {
+        "type": "producer-startup-failure",
+        "event": "summary",
+        "mode": 1,
+        "bits": 32,
+        "pid": 236,
+        "tid": 240,
+        "birth": 134378472385564160,
+        "checks": 25,
+        "expected_checks": 25,
+        "failures": 0,
+        "snapshots": 28,
+        "probes": 4,
+        "owner_id": 8589934604,
+        "root_destroyed": true,
+        "clear_applied": true,
+        "settled": true,
+        "cleanup": true,
+        "pending_observed": true,
+        "pending": {
+          "size": 96,
+          "version": 1,
+          "operation": 2,
+          "status": 0,
+          "mode": 1,
+          "root": 0,
+          "acquire_error": 5,
+          "flags": 2503,
+          "owner_id": 8589934604,
+          "returned_lease": 0,
+          "producers": 0,
+          "watches": 1,
+          "setups": 0,
+          "cleanup": 1,
+          "models": 0,
+          "owner_inflight": 0,
+          "pe_watches": 0,
+          "pe_timers": 1,
+          "last_close": 4294967295,
+          "query_status": 4294967295,
+          "set_status": 4294967295,
+          "reserved": 0
+        },
+        "final": {
+          "size": 96,
+          "version": 1,
+          "operation": 2,
+          "status": 0,
+          "mode": 1,
+          "root": 0,
+          "acquire_error": 5,
+          "flags": 188427,
+          "owner_id": 8589934604,
+          "returned_lease": 0,
+          "producers": 0,
+          "watches": 0,
+          "setups": 0,
+          "cleanup": 0,
+          "models": 0,
+          "owner_inflight": 0,
+          "pe_watches": 0,
+          "pe_timers": 0,
+          "last_close": 4294967295,
+          "query_status": 0,
+          "set_status": 0,
+          "reserved": 0
+        },
+        "io_error": false
+      },
+      "initialGlobalRoots": 3,
+      "finalGlobalRoots": 0,
+      "cellNt": [
+        {
+          "type": "startup-cell-nt",
+          "op": "map-rw",
+          "handle": 144,
+          "ntstatus": 3221225506,
+          "root_pid": 236,
+          "lease": 8589934604
+        },
+        {
+          "type": "startup-cell-nt",
+          "op": "close",
+          "handle": 144,
+          "ntstatus": 3221226037,
+          "root_pid": 236,
+          "lease": 8589934604
+        },
+        {
+          "type": "startup-cell-nt",
+          "op": "close",
+          "handle": 144,
+          "ntstatus": 0,
+          "root_pid": 236,
+          "lease": 8589934604
+        }
+      ],
+      "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261030T152035-producer-startup-cell-cross-i386-v4-B8584E4F-E59A-4EAF-85E9-4286E91CD280/wine.log",
+      "rawSHA256": "9c2e9c329218f150d3bb7c4f0869d6868dbdc3d6ac099e660bed29b84e7f305f",
+      "sessionSHA256": "4d2f6a72e7b988f0f69eabba958790d71cc1016dd0290822dc51558539c6d404",
+      "exeSHA256": "3317f7e7584bf54e5858cbd3b47ab64c4c692651e40a4a076163474ad829e1d8"
+    },
+    {
+      "kind": "thread",
+      "arch": "x86_64",
+      "summary": {
+        "type": "producer-startup-failure",
+        "event": "summary",
+        "mode": 2,
+        "bits": 64,
+        "pid": 32,
+        "tid": 36,
+        "birth": 134378473104593890,
+        "checks": 25,
+        "expected_checks": 25,
+        "failures": 0,
+        "snapshots": 26,
+        "probes": 4,
+        "owner_id": 8589934603,
+        "root_destroyed": true,
+        "clear_applied": true,
+        "settled": true,
+        "cleanup": true,
+        "pending_observed": true,
+        "pending": {
+          "size": 96,
+          "version": 1,
+          "operation": 2,
+          "status": 0,
+          "mode": 2,
+          "root": 0,
+          "acquire_error": 6,
+          "flags": 4167,
+          "owner_id": 8589934603,
+          "returned_lease": 0,
+          "producers": 0,
+          "watches": 0,
+          "setups": 1,
+          "cleanup": 1,
+          "models": 0,
+          "owner_inflight": 0,
+          "pe_watches": 0,
+          "pe_timers": 1,
+          "last_close": 3221226037,
+          "query_status": 4294967295,
+          "set_status": 4294967295,
+          "reserved": 0
+        },
+        "final": {
+          "size": 96,
+          "version": 1,
+          "operation": 2,
+          "status": 0,
+          "mode": 2,
+          "root": 0,
+          "acquire_error": 6,
+          "flags": 61451,
+          "owner_id": 8589934603,
+          "returned_lease": 0,
+          "producers": 0,
+          "watches": 0,
+          "setups": 0,
+          "cleanup": 0,
+          "models": 0,
+          "owner_inflight": 0,
+          "pe_watches": 0,
+          "pe_timers": 0,
+          "last_close": 3221226037,
+          "query_status": 0,
+          "set_status": 0,
+          "reserved": 0
+        },
+        "io_error": false
+      },
+      "initialGlobalRoots": 3,
+      "finalGlobalRoots": 0,
+      "cellNt": [],
+      "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261030T152137-producer-startup-thread-cross-x86_64-v4-2B63E66E-6A8E-4405-BC49-5C4939C8F29F/wine.log",
+      "rawSHA256": "9f56716fc2afc27c7a6ddacb1f5a48e2e5db4e860d79972041a75b36ea058f4e",
+      "sessionSHA256": "93890bef86591c3c8d5f64deb721dcef2d22e81da55e0f7869ab6f0984a24aed",
+      "exeSHA256": "adcee6815d4239ab1114731642e9cff9a24759133a11233db2e24278b43ed4ca"
+    },
+    {
+      "kind": "thread",
+      "arch": "i386",
+      "summary": {
+        "type": "producer-startup-failure",
+        "event": "summary",
+        "mode": 2,
+        "bits": 32,
+        "pid": 236,
+        "tid": 240,
+        "birth": 134378473221478960,
+        "checks": 25,
+        "expected_checks": 25,
+        "failures": 0,
+        "snapshots": 25,
+        "probes": 4,
+        "owner_id": 8589934603,
+        "root_destroyed": true,
+        "clear_applied": true,
+        "settled": true,
+        "cleanup": true,
+        "pending_observed": true,
+        "pending": {
+          "size": 96,
+          "version": 1,
+          "operation": 2,
+          "status": 0,
+          "mode": 2,
+          "root": 0,
+          "acquire_error": 6,
+          "flags": 4167,
+          "owner_id": 8589934603,
+          "returned_lease": 0,
+          "producers": 0,
+          "watches": 0,
+          "setups": 1,
+          "cleanup": 1,
+          "models": 0,
+          "owner_inflight": 0,
+          "pe_watches": 0,
+          "pe_timers": 1,
+          "last_close": 3221226037,
+          "query_status": 4294967295,
+          "set_status": 4294967295,
+          "reserved": 0
+        },
+        "final": {
+          "size": 96,
+          "version": 1,
+          "operation": 2,
+          "status": 0,
+          "mode": 2,
+          "root": 0,
+          "acquire_error": 6,
+          "flags": 61451,
+          "owner_id": 8589934603,
+          "returned_lease": 0,
+          "producers": 0,
+          "watches": 0,
+          "setups": 0,
+          "cleanup": 0,
+          "models": 0,
+          "owner_inflight": 0,
+          "pe_watches": 0,
+          "pe_timers": 0,
+          "last_close": 3221226037,
+          "query_status": 0,
+          "set_status": 0,
+          "reserved": 0
+        },
+        "io_error": false
+      },
+      "initialGlobalRoots": 3,
+      "finalGlobalRoots": 0,
+      "cellNt": [],
+      "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261030T152159-producer-startup-thread-cross-i386-v4-B25AE3B6-25B2-4CC3-93CB-80FBC4C349BD/wine.log",
+      "rawSHA256": "8c5627e418c914e24943d4bc6de9281e5fb8a939aef223b6b051b18f8c83a17c",
+      "sessionSHA256": "79265d0483060e5c61dd9de3e5db1d5d89ae275185c33a42d3df6dfdf97a87cd",
+      "exeSHA256": "3317f7e7584bf54e5858cbd3b47ab64c4c692651e40a4a076163474ad829e1d8"
+    }
+  ],
+  "sourceRebuild": {
+    "path": "out/engine-dxmt-bridge-20261025/producer-startup-public-rebuild-v4.json",
+    "sha256": "6cc182a8d45dc7136739e6438fa164638fe7b1ced8c177d974d179b168c374a9"
+  },
+  "ordinaryBuild": {
+    "path": "out/engine-dxmt-bridge-20261025/producer-status-build-v6/build-v2.json",
+    "sha256": "34a11337fb75f9bc453b11ceae507a313a0ff3e3d06c1239f612a1ffe4e3e7f0"
+  },
+  "runs": [
+    {
+      "kind": "cell",
+      "path": "out/engine-dxmt-bridge-20261025/producer-startup-cell-runtime-v4.json",
+      "sha256": "39c26889ac086b3587d7d47ff1d3368c68540cd28a0b4dca20196ab2d9ec58d1",
+      "modules": [
+        {
+          "module": "winemetal.dll",
+          "arch": "i386",
+          "sha256": "40eccc5433e4b260e5b510c842dc545cd1df4dbfeb82a7221e0fb9bb0f8f0241",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/i386-windows/winemetal.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/winemetal.dll"
+        },
+        {
+          "module": "dxgi.dll",
+          "arch": "i386",
+          "sha256": "e2b0b5b5dae5af1119db120ac1f688cfa075939e33e2076b715a12239b6ac517",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/i386-windows/dxgi.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/dxgi.dll"
+        },
+        {
+          "module": "d3d11.dll",
+          "arch": "i386",
+          "sha256": "f5eb9ffbfbfd02666045895da21e8ed28687db1ec933a6fe383e6ccd9affe4ca",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/i386-windows/d3d11.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/d3d11.dll"
+        },
+        {
+          "module": "d3d10core.dll",
+          "arch": "i386",
+          "sha256": "4eeefdf34133e749bb9e4fa64075c22135732f64fb88079e6de3c215d15a501c",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/i386-windows/d3d10core.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/d3d10core.dll"
+        },
+        {
+          "module": "winemetal.dll",
+          "arch": "x86_64",
+          "sha256": "69fdce5b95ab0b841be5d8be0f25a8c341da608092121b863d39e920d7580fed",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/x86_64-windows/winemetal.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/winemetal.dll"
+        },
+        {
+          "module": "dxgi.dll",
+          "arch": "x86_64",
+          "sha256": "f9a3e209f727f6185934c791946149be46bce4bce5f174f4e4283c23df206f9b",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/x86_64-windows/dxgi.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/dxgi.dll"
+        },
+        {
+          "module": "d3d11.dll",
+          "arch": "x86_64",
+          "sha256": "e3e2f401a3c2c310ed106b5f8aa926b3ae56a06464b5ac035f21ad782fbc1f92",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/x86_64-windows/d3d11.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/d3d11.dll"
+        },
+        {
+          "module": "d3d10core.dll",
+          "arch": "x86_64",
+          "sha256": "ae630930ad4835898b413592c84e39d9c1633a374541f78ad394428a2ced7ef6",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/x86_64-windows/d3d10core.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/d3d10core.dll"
+        },
+        {
+          "module": "mfplat.dll",
+          "arch": "i386",
+          "sha256": "191262cf431d50d5f621ce9b04a20a074d38ea6447492955e7bb200982d9859f",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/i386-windows/mfplat.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/mfplat.dll"
+        },
+        {
+          "module": "mfplat.dll",
+          "arch": "x86_64",
+          "sha256": "907e14cc1a9ea53b949fd59cf5af476b183ac24bd63e288e8ac4921cd650199d",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/x86_64-windows/mfplat.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/mfplat.dll"
+        },
+        {
+          "module": "mfreadwrite.dll",
+          "arch": "i386",
+          "sha256": "53afb66a7057b001ce86ac40cba2368fe4c84e9319b0870ac38fe08bd58e84f6",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/i386-windows/mfreadwrite.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/mfreadwrite.dll"
+        },
+        {
+          "module": "mfreadwrite.dll",
+          "arch": "x86_64",
+          "sha256": "58310f6a72b3c553d9cbaeb2e6295e110fdec5e554af516ad24eda302ee6eef6",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/x86_64-windows/mfreadwrite.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/mfreadwrite.dll"
+        },
+        {
+          "module": "rtworkq.dll",
+          "arch": "i386",
+          "sha256": "d9c5a8dba3c8f730efb1ec74da2d772cf77b7fe91c088c26a79d8a348b704aa5",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/i386-windows/rtworkq.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/rtworkq.dll"
+        },
+        {
+          "module": "rtworkq.dll",
+          "arch": "x86_64",
+          "sha256": "b0ff3f5a7c052efc9748774c5287778505a460a432ea82b473a35eb24d939396",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/x86_64-windows/rtworkq.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/rtworkq.dll"
+        },
+        {
+          "module": "winemac.drv",
+          "arch": "i386",
+          "sha256": "47903ff6d510caf25fdf38c8f5a355981fc9268eb7566fce35f187db01a20dd7",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/i386-windows/winemac.drv",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/winemac.drv"
+        },
+        {
+          "module": "winemac.drv",
+          "arch": "x86_64",
+          "sha256": "7fea078dd4aae8bcdd4c889893abc9f66ffa78e4083ca69da34fbca4cc1ee27d",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-cell-r4-x86_64/engine/lib/wine/x86_64-windows/winemac.drv",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/winemac.drv"
+        }
+      ],
+      "nativeModules": [
+        {
+          "file": "lib/wine/x86_64-unix/win32u.so",
+          "sourceSHA256": "836e6030bf9a872b101176e4b002cc5c6a035bc33c22a18de723b0029802c900",
+          "installedSHA256": "49a16b10deffa981dd99f2db89c85b616d299ac8b69c86f9095230f9ccfe2d65",
+          "sectionsUnchangedBySigning": true,
+          "diagnosticOnly": false
+        },
+        {
+          "file": "lib/wine/x86_64-unix/winemac.so",
+          "sourceSHA256": "713cc87b0844881528db1d2abec9086c84d825b26e25bd1f767862fc13cddc7e",
+          "installedSHA256": "82639316a1ed13115c3b8f80691c0ee35d2b00d6e13aeaae0aa8cf48a31ce014",
+          "sectionsUnchangedBySigning": true,
+          "diagnosticOnly": true
+        }
+      ],
+      "cleanupAttempts": [
+        {
+          "startedMonotonic": 0.085978291,
+          "command": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+            "stop-runtime",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          ],
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+          "stderr": "",
+          "parsedReceipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          },
+          "accepted": true,
+          "elapsedSeconds": 0.19872683400000002
+        },
+        {
+          "startedMonotonic": 2.792114458,
+          "command": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+            "stop-runtime",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          ],
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n      50759\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+          "stderr": "",
+          "parsedReceipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [
+                50759
+              ],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          },
+          "accepted": true,
+          "elapsedSeconds": 0.2005686670000002
+        },
+        {
+          "startedMonotonic": 23.29022825,
+          "command": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+            "stop-runtime",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          ],
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n      50799\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+          "stderr": "",
+          "parsedReceipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [
+                50799
+              ],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          },
+          "accepted": true,
+          "elapsedSeconds": 0.2579398750000017
+        },
+        {
+          "startedMonotonic": 35.1830295,
+          "command": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+            "stop-runtime",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          ],
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n      50885\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+          "stderr": "",
+          "parsedReceipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [
+                50885
+              ],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          },
+          "accepted": true,
+          "elapsedSeconds": 0.22982704099999296
+        },
+        {
+          "startedMonotonic": 35.419975208,
+          "command": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+            "stop-runtime",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          ],
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+          "stderr": "",
+          "parsedReceipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          },
+          "accepted": true,
+          "elapsedSeconds": 0.18250316700000013
+        }
+      ],
+      "ordinaryCandidateRestored": true,
+      "protectedUnchanged": {
+        "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": true,
+        "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": true,
+        "/Users/cervantes/Library/Application Support/Cider/Bottles/steam-hb-2574/cider-bottle.json": true,
+        "/Users/cervantes/Library/Application Support/Cider/Bottles/bottle-ca8f/cider-bottle.json": true
+      }
+    },
+    {
+      "kind": "thread",
+      "path": "out/engine-dxmt-bridge-20261025/producer-startup-thread-runtime-v4.json",
+      "sha256": "062d1262d7f216e39d3a546784e595ca57d813e621b940d51a573c665abab6e9",
+      "modules": [
+        {
+          "module": "winemetal.dll",
+          "arch": "i386",
+          "sha256": "40eccc5433e4b260e5b510c842dc545cd1df4dbfeb82a7221e0fb9bb0f8f0241",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/i386-windows/winemetal.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/winemetal.dll"
+        },
+        {
+          "module": "dxgi.dll",
+          "arch": "i386",
+          "sha256": "e2b0b5b5dae5af1119db120ac1f688cfa075939e33e2076b715a12239b6ac517",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/i386-windows/dxgi.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/dxgi.dll"
+        },
+        {
+          "module": "d3d11.dll",
+          "arch": "i386",
+          "sha256": "f5eb9ffbfbfd02666045895da21e8ed28687db1ec933a6fe383e6ccd9affe4ca",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/i386-windows/d3d11.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/d3d11.dll"
+        },
+        {
+          "module": "d3d10core.dll",
+          "arch": "i386",
+          "sha256": "4eeefdf34133e749bb9e4fa64075c22135732f64fb88079e6de3c215d15a501c",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/i386-windows/d3d10core.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/d3d10core.dll"
+        },
+        {
+          "module": "winemetal.dll",
+          "arch": "x86_64",
+          "sha256": "69fdce5b95ab0b841be5d8be0f25a8c341da608092121b863d39e920d7580fed",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/x86_64-windows/winemetal.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/winemetal.dll"
+        },
+        {
+          "module": "dxgi.dll",
+          "arch": "x86_64",
+          "sha256": "f9a3e209f727f6185934c791946149be46bce4bce5f174f4e4283c23df206f9b",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/x86_64-windows/dxgi.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/dxgi.dll"
+        },
+        {
+          "module": "d3d11.dll",
+          "arch": "x86_64",
+          "sha256": "e3e2f401a3c2c310ed106b5f8aa926b3ae56a06464b5ac035f21ad782fbc1f92",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/x86_64-windows/d3d11.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/d3d11.dll"
+        },
+        {
+          "module": "d3d10core.dll",
+          "arch": "x86_64",
+          "sha256": "ae630930ad4835898b413592c84e39d9c1633a374541f78ad394428a2ced7ef6",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/x86_64-windows/d3d10core.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/d3d10core.dll"
+        },
+        {
+          "module": "mfplat.dll",
+          "arch": "i386",
+          "sha256": "191262cf431d50d5f621ce9b04a20a074d38ea6447492955e7bb200982d9859f",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/i386-windows/mfplat.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/mfplat.dll"
+        },
+        {
+          "module": "mfplat.dll",
+          "arch": "x86_64",
+          "sha256": "907e14cc1a9ea53b949fd59cf5af476b183ac24bd63e288e8ac4921cd650199d",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/x86_64-windows/mfplat.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/mfplat.dll"
+        },
+        {
+          "module": "mfreadwrite.dll",
+          "arch": "i386",
+          "sha256": "53afb66a7057b001ce86ac40cba2368fe4c84e9319b0870ac38fe08bd58e84f6",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/i386-windows/mfreadwrite.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/mfreadwrite.dll"
+        },
+        {
+          "module": "mfreadwrite.dll",
+          "arch": "x86_64",
+          "sha256": "58310f6a72b3c553d9cbaeb2e6295e110fdec5e554af516ad24eda302ee6eef6",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/x86_64-windows/mfreadwrite.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/mfreadwrite.dll"
+        },
+        {
+          "module": "rtworkq.dll",
+          "arch": "i386",
+          "sha256": "d9c5a8dba3c8f730efb1ec74da2d772cf77b7fe91c088c26a79d8a348b704aa5",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/i386-windows/rtworkq.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/rtworkq.dll"
+        },
+        {
+          "module": "rtworkq.dll",
+          "arch": "x86_64",
+          "sha256": "b0ff3f5a7c052efc9748774c5287778505a460a432ea82b473a35eb24d939396",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/x86_64-windows/rtworkq.dll",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/rtworkq.dll"
+        },
+        {
+          "module": "winemac.drv",
+          "arch": "i386",
+          "sha256": "47903ff6d510caf25fdf38c8f5a355981fc9268eb7566fce35f187db01a20dd7",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/i386-windows/winemac.drv",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/winemac.drv"
+        },
+        {
+          "module": "winemac.drv",
+          "arch": "x86_64",
+          "sha256": "7fea078dd4aae8bcdd4c889893abc9f66ffa78e4083ca69da34fbca4cc1ee27d",
+          "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-startup-thread-r4-x86_64/engine/lib/wine/x86_64-windows/winemac.drv",
+          "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/winemac.drv"
+        }
+      ],
+      "nativeModules": [
+        {
+          "file": "lib/wine/x86_64-unix/win32u.so",
+          "sourceSHA256": "836e6030bf9a872b101176e4b002cc5c6a035bc33c22a18de723b0029802c900",
+          "installedSHA256": "49a16b10deffa981dd99f2db89c85b616d299ac8b69c86f9095230f9ccfe2d65",
+          "sectionsUnchangedBySigning": true,
+          "diagnosticOnly": false
+        },
+        {
+          "file": "lib/wine/x86_64-unix/winemac.so",
+          "sourceSHA256": "6eae61ddc4b9767a4e1ac7294d598854405c749ecc2d51ebeadf1b6569abdc03",
+          "installedSHA256": "2446b752da93dd43f7c775695d96bd471649268f14fe2383c79a472ef5d7b0ee",
+          "sectionsUnchangedBySigning": true,
+          "diagnosticOnly": true
+        }
+      ],
+      "cleanupAttempts": [
+        {
+          "startedMonotonic": 0.072917625,
+          "command": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+            "stop-runtime",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          ],
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+          "stderr": "",
+          "parsedReceipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          },
+          "accepted": true,
+          "elapsedSeconds": 0.235125708
+        },
+        {
+          "startedMonotonic": 2.951081958,
+          "command": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+            "stop-runtime",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          ],
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n      51012\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+          "stderr": "",
+          "parsedReceipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [
+                51012
+              ],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          },
+          "accepted": true,
+          "elapsedSeconds": 0.20224529199999974
+        },
+        {
+          "startedMonotonic": 24.874056791,
+          "command": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+            "stop-runtime",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          ],
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n      51023\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+          "stderr": "",
+          "parsedReceipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [
+                51023
+              ],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          },
+          "accepted": true,
+          "elapsedSeconds": 0.2286520000000003
+        },
+        {
+          "startedMonotonic": 35.92506325,
+          "command": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+            "stop-runtime",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          ],
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n      51091\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+          "stderr": "",
+          "parsedReceipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [
+                51091
+              ],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          },
+          "accepted": true,
+          "elapsedSeconds": 0.2259430000000009
+        },
+        {
+          "startedMonotonic": 36.157339708,
+          "command": [
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+            "stop-runtime",
+            "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          ],
+          "exitCode": 0,
+          "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+          "stderr": "",
+          "parsedReceipt": {
+            "captured": [],
+            "emptyObservations": 2,
+            "hostShutdown": {
+              "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+              "capturedPIDs": [],
+              "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+              "confirmed": true,
+              "kernelIdentityReadable": true,
+              "terminationRequested": true
+            },
+            "mode": "stop-runtime",
+            "pending": [],
+            "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+          },
+          "accepted": true,
+          "elapsedSeconds": 0.16592166699999922
+        }
+      ],
+      "ordinaryCandidateRestored": true,
+      "protectedUnchanged": {
+        "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": true,
+        "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": true,
+        "/Users/cervantes/Library/Application Support/Cider/Bottles/steam-hb-2574/cider-bottle.json": true,
+        "/Users/cervantes/Library/Application Support/Cider/Bottles/bottle-ca8f/cider-bottle.json": true
+      }
+    }
+  ],
+  "historical": [
+    {
+      "path": "out/engine-dxmt-bridge-20261025/producer-startup-failure-review-v1.json",
+      "sha256": "0b9fdf71e0e15ef1bf6443238736bb568f91a02c25792cce7d69ecd4845201b7",
+      "finalQualification": false
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/producer-startup-failure-review-v2.json",
+      "sha256": "e41c7796c437bf0d8897a625aee7c1b915b0f15935ca0d80f9ce92107fd3b0ac",
+      "finalQualification": false
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/producer-startup-cell-runtime-v1.json",
+      "sha256": "7d584415f6a25a9de6035f9940ead84bf4e450308caf3a2e614aa2fef0aee17f",
+      "finalQualification": false
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/producer-status-build-v6/build-v1.json",
+      "sha256": "2cd45d28c91b2fb229cd94131449315dc8475c6c9db11c67548f09e1cf0413b6",
+      "finalQualification": false
+    }
+  ],
+  "limits": [
+    "two PE widths separately; no renderer import or pixel/game/nativeWindows/performance evidence",
+    "target HWND+epoch registry absence, not globalNativeRoot zero; Wine internalroots remain",
+    "zero PE timerowner acknowledgescancellation, not zeroactivecallbacks; realprocesscleanupseparate",
+    "FIFO fairness and stalezeroepoch schedules beyond witnessedCLEARqueuehandoff remain",
+    "nonlocalabandonedNativeframe recovery/perhost/unknowninstall/cancel/resources stillpending; defaults/gates unchanged"
+  ],
+  "storageCompaction": {
+    "path": "out/storage-cleanup-20261025/producer-startup-batch-cleanup-v2.json",
+    "sha256": "ac50bc98f8ef200ad79688f0c9b4daae9fb34e0cf975f51b2f452981a16863fc",
+    "deletedTrees": 12,
+    "removedOwnedExecutableCopies": 6,
+    "beforeFreeBytes": 80000684032,
+    "afterFreeBytes": 80086429696,
+    "retainedBase": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-producer-cell-fixed-r3-x86_64",
+    "baseInventory": {
+      "file": "/Users/cervantes/Cider/out/storage-cleanup-20261025/producer-startup-retained-base-inventory.json",
+      "sha256": "cd36e8889e5e7b5b5cfbe2de2d9790b229e0e74dd55e86b7e24436be6c4da0ed"
+    },
+    "protectedFourUnchanged": true
+  }
+}

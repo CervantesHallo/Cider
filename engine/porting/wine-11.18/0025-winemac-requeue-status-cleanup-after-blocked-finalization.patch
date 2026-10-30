@@ -1,0 +1,6 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -775,0 +776,3 @@
++    /* A concurrent control frame may have blocked status close. Transfer a
++     * runnable FIFO owner before dropping this popped owner, even without a PE watch. */
++    queue_producer_cleanup(producer);

@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新[107](../research/107-r-v1-startup-failure-recovery-20261030.md)：无PE watch的真实section准备失败和临时thread关闭失败，两PE每模式各25/0/CLI0；Root销毁后owner保留、实际清保护后Native/PE timer owner自主归零。0025修复控制pin阻塞时最后FIFO交接丢失；前后关联的真实retry见证已复审并实际观察。4raw/组件/10清理/普通恢复/保护4独立绑定，旧基线/复审失败保留。FIFO多owner公平和旧zero指定时序仍待，然后继续per-host/未知安装取消/资源、事件reparent及呈现；foreign/默认/HY/U8/15不变。
+
 最新[106](../research/106-r-v1-producer-terminal-cell-20261030.md)：0024已接实际producer NT页/终端发布及writer清理；PS-01/02/FIFO源码修复、Native登记/普通NDEBUG/两PE匹配构建及限定复审完成。最终双向正常父29/0读22/0；唯一请求guard负例只读方CHECK16/SAFE5失败；真实close故障父33/0读22/0/c0000235、纯观察确认恢复。6raw/组件/14清理/普通恢复/保护4独立绑定。无watch失败启动/临时H故障及epoch/FIFO实测仍待，不用正常故障替代；接着补这些路径，再到per-host/未知安装取消和renderer资源。foreign/默认/原HY及U8/15保持。
 
 最新[105](../research/105-r-v1-request-inflight-20261030.md)：0023以真实request_inflight替代busy，最后请求归还后才允许finalize；普通/NDEBUG编译、native链接和精确重建过。夹具RIF-01/02经同锁决定记录及槽位引用转交修复，最终限定源审0新P1/P2；实际两PE修后各20/0，唯一省略guard负例各20/1、只CHECK12，绑定10清理/组件/普通恢复/保护4。不是PE终端ACK或实际Cocoa安装重入；状态发布、取消和producer资源接入继续。完成20旧树及24份prefix EXE副本归档清理，保留fixed-r3工作组，foreign/默认/原HY与U8/15不变。
