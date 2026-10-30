@@ -15,3 +15,9 @@
 `alias.c`两项只核对SC3-01：expected与out->identity同址、wire属于另一代身份。原header应分别错误返回SNAPSHOT0/SAFE_ONLY5，精确2失败/退出1；修后均MISMATCH3、零失败/退出0。不得把任意崩溃或提前失败当有效负例。
 
 本夹具不证明native驱动发布接入、取消/迟到安装、连续并发快照、compositor/GPU停止、完整context-ID ABA、安全隔离、原生Windows或游戏。source/build、实际运行与这些缺口分别记录，详见research103。
+
+## 连续发布
+
+`stress.c`在同一NT组件上启动相反位宽读方，每轮调用真实publisher一百万次。当前session/根及读方PID/birth为实际查询；其他高位身份和动态计数是明确的诊断载荷，不借给coordinator所有权。每次更新applied的高低word、quiescent及error/三个计数；读方由高word反推出n，逐字段核对相关性、`sequence==2+2*n`和单调性。RO view关闭section handle后仍继续读取。
+
+成功需父18/0、读10/0、最终n=1000000、两个进程退出0及实际清理；必须观察到真实RETRY和writer_running区间的中间快照。不能伪造奇序号或因调度不足降低门槛。区间包含yield/中点暂停，不宣称每次快照都与某条store指令同时，也不是读遍全部版本。动态state保持ACTIVE，终端和耗尽由103的其他检查覆盖；重试数量不作为性能基准。实际结果和中断回执恢复见research104。

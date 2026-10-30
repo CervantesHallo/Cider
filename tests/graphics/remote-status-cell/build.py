@@ -45,7 +45,7 @@ def compile_one(compiler, architecture, name, sources, includes):
 save()
 try:
     packet = args.wine_source / 'include/wine/macdrv_remote.h'
-    inputs = [fixture / 'client.c', fixture / 'alias.c', packet,
+    inputs = [fixture / 'client.c', fixture / 'alias.c', fixture / 'stress.c', packet,
               repo / 'tests/graphics/remote-retirement/fixture.h',
               *[component / name for name in ['status_wire.h', 'status_cell.h', 'status_cell.c']]]
     if args.before_wire:
@@ -58,6 +58,8 @@ try:
         compile_one(compiler, architecture, 'status-cell',
                     [fixture / 'client.c', component / 'status_cell.c'],
                     [component, repo / 'tests/graphics/remote-retirement', args.wine_source / 'include'])
+        compile_one(compiler, architecture, 'status-stress',
+                    [fixture / 'stress.c', component / 'status_cell.c'], [component])
         compile_one(compiler, architecture, 'alias-fixed', [fixture / 'alias.c'], [component])
         if args.before_wire:
             compile_one(compiler, architecture, 'alias-before', [fixture / 'alias.c'],
