@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新[110](../research/110-r-v1-partial-host-model-20261031.md)：0026补模型独立登记、安装/更新job退役栅栏及重入代次选择，三项具体审查问题修后接纳，普通source-v8/Native/NDEBUG构建完成。真实挂图层异常及首回滚异常，双PE正例各30/0；仅索引缺失即成功的对照各19/1只CHECK19，frozen removed/attached/ledger=1/1/1，内部cleanup=false保留，外层进程清理另证。4raw/组件/10清理/原字节恢复/保护4独立绑定，补丁精确重建。重入/legacy交接/一般Retina仍待实际验收；per-host页与已知ticket安装/取消接续，未切默认或提升游戏结论。
+
 最新[109](../research/109-r-v1-recovery-epoch-20261031.md)：旧zero/newARM指定竞态实际验收，普通代次判断保留；两PE各29/0/CLI0。仅去判断的反例均先过19项，再CHECK20实际needed0、CHECK23无法自主排空，23/2/CLI1；内部cleanup=false如实保留，外层实际进程清理另证。三份限定独立复审无新增P1/P2，10组有效include闭包/126项目输入，4raw及组件/10清理/普通恢复/保护4独立绑定，四文件补丁精确重建。接续per-host/未知INSTALL取消、真实资源、事件reparent及像素；不提升一般并发/渲染/游戏/默认结论。
 
 最新[108](../research/108-r-v1-recovery-fifo-20261031.md)：两真实protected setup owner，明确单消费者调度下锁内实际tail顺序旧/新1/0，两PE各20/0；只将失败retry插head的对照各20/1，仅CHECK14，实际0/1且完整清理。三P2修后复审完成，旧控制器错误单独更正，PE64有效raw复用仅补PE32，4raw/12清理/组件/恢复独立绑定。普通实现不变；继续旧zero/newARM代次，再per-host/取消/资源与呈现，不提升全并发/游戏/默认结论。

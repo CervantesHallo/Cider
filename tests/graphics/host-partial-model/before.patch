@@ -1,0 +1,14 @@
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -887,6 +887,11 @@
+ 
+     - (BOOL) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation
+     {
++        struct remote_host_selection *selection;
++        for (selection = _remoteHostSelections; selection; selection = selection->next)
++            if (selection->context_id == contextId) break;
++        if (!selection || !selection->current || selection->current->generation != generation)
++            return YES;
+         for (;;)
+         {
+             struct remote_host_model *model;

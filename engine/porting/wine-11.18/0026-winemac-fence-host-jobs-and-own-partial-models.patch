@@ -1,0 +1,626 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -46,7 +46,8 @@
+     UINT context_id;
+     UINT64 ticket, update_serial, prepared_revision;
+     enum host_state state;
+-    BOOL installed, retirement_pending, retirement_queued;
++    BOOL installed, model_possible, retirement_pending, retirement_queued;
++    UINT32 model_jobs;
+     struct remote_host *retry_next;
+     struct remote_producer *producer;
+ };
+@@ -123,7 +124,7 @@
+ static void host_release(struct remote_host *host)
+ {
+     if (InterlockedDecrement(&host->refs)) return;
+-    assert(!host->predecessors && !host->retirement_pending && !host->retirement_queued);
++    assert(!host->predecessors && !host->retirement_pending && !host->retirement_queued && !host->model_jobs);
+     producer_release(host->producer);
+     root_release(host->root);
+     free(host);
+@@ -151,7 +152,7 @@
+     for (cursor = &hosts; *cursor != host; cursor = &(*cursor)->next) assert(*cursor);
+     *cursor = host->next;
+     host->state = HOST_RETIRED;
+-    if (host->installed)
++    if (host->model_possible)
+     {
+         host->retirement_pending = TRUE;
+         assert(retirement_outstanding != ~(UINT64)0);
+@@ -174,7 +175,7 @@
+     struct remote_host *host = context;
+     UINT64 ticket = host->ticket;
+     pthread_mutex_lock(&remote_lock);
+-    assert(host->retirement_pending && !host->retirement_queued);
++    assert(host->retirement_pending && !host->retirement_queued && !host->model_jobs);
+     if (removed)
+     {
+         host->retirement_pending = FALSE;
+@@ -197,10 +198,45 @@
+     if (removed) host_release(host);
+     else ERR("remote Cocoa retirement failed; owner retained for ticket %#llx\n", (unsigned long long)ticket);
+ }
++/* This transferred owner cannot complete removal while an admitted model job
++ * can still attach or update the exact object. No Cocoa/NT call under the lock. */
+ static void submit_retirement(struct remote_host *host)
+ {
++    BOOL deferred;
++    pthread_mutex_lock(&remote_lock);
++    assert(host->retirement_pending && !host->retirement_queued);
++    deferred = host->model_jobs != 0;
++    if (deferred)
++    {
++        host->retirement_queued = TRUE;
++        host->retry_next = NULL;
++        *retirement_retry_tail = host;
++        retirement_retry_tail = &host->retry_next;
++    }
++    pthread_mutex_unlock(&remote_lock);
++    if (deferred) return;
+     macdrv_window_release_remote_host_deferred_checked(host->root->window,
+         host->context_id, host->ticket, remote_retirement_complete, host);
++}
++/* The last actual job transfers a waiting FIFO owner directly to removal.
++ * It does not depend on another USER request or a PE process watch. */
++static void finish_host_model_job(struct remote_host *host)
++{
++    struct remote_host **cursor, *ready = NULL;
++    pthread_mutex_lock(&remote_lock);
++    assert(host->model_jobs);
++    --host->model_jobs;
++    if (!host->model_jobs && host->retirement_queued)
++    {
++        for (cursor = &retirement_retries; *cursor != host; cursor = &(*cursor)->retry_next) assert(*cursor);
++        *cursor = host->retry_next;
++        if (!*cursor) retirement_retry_tail = cursor;
++        host->retry_next = NULL;
++        host->retirement_queued = FALSE;
++        ready = host; /* transferred FIFO owner, independent of the job pin */
++    }
++    pthread_mutex_unlock(&remote_lock);
++    if (ready) submit_retirement(ready);
+ }
+ static void retry_one_retirement(void)
+ {
+@@ -222,7 +258,7 @@
+     {
+         struct remote_host *next = retired->retire_next;
+         retired->retire_next = NULL;
+-        if (retired->installed) submit_retirement(retired);
++        if (retired->model_possible) submit_retirement(retired);
+         else host_release(retired);
+         retired = next;
+     }
+@@ -372,10 +408,12 @@
+     struct remote_host *host = context, *old, *next;
+     BOOL accepted;
+     pthread_mutex_lock(&remote_lock);
+-    accepted = host->state == HOST_PENDING && host->root->open &&
++    /* First call commits; later calls only revalidate this same pinned job.
++     * A superseded/retired install can never republish after Cocoa reentrancy. */
++    accepted = (host->state == HOST_PENDING || host->state == HOST_INSTALLED) && host->root->open &&
+                host->prepared_revision == host->root->revision &&
+                (!host->producer || host->producer->active);
+-    if (accepted)
++    if (accepted && host->state == HOST_PENDING)
+     {
+         host->state = HOST_INSTALLED;
+         host->installed = TRUE;
+@@ -427,6 +465,10 @@
+     host->child = child == hwnd ? NULL : child;
+     host->context_id = context_id;
+     host->state = HOST_PENDING;
++    /* Conservatively own possible partial imports before geometry/Cocoa work.
++     * Even a rejected install needs exact-ticket absence after its job settles. */
++    host->model_possible = TRUE;
++    host->model_jobs = 1;
+     for (old = hosts; old; old = next)
+     {
+         next = old->next;
+@@ -447,6 +489,7 @@
+     else if (host->state != HOST_RETIRED) retire_locked(host, &retired);
+     pthread_mutex_unlock(&remote_lock);
+     dispose_retired(retired);
++    finish_host_model_job(host);
+     host_release(host);
+     return result;
+ }
+@@ -478,6 +521,7 @@
+ static void update_dispose(void *context)
+ {
+     struct update_job *job = context;
++    finish_host_model_job(job->host);
+     host_release(job->host);
+     free(job);
+ }
+@@ -490,10 +534,11 @@
+     if (!job) return FALSE;
+     pthread_mutex_lock(&remote_lock);
+     host = host_lookup_locked(ticket);
+-    accepted = host && host->state == HOST_INSTALLED;
++    accepted = host && host->state == HOST_INSTALLED && host->model_jobs != ~(UINT32)0;
+     if (accepted)
+     {
+         job->host = host;
++        ++host->model_jobs;
+         InterlockedIncrement(&host->refs);
+         job->revision = host->root->revision;
+         job->serial = identity_locked();
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -241,30 +241,54 @@
+     CGFloat pixel_scale;
+     uint64_t host_generation;
+ }
+-- (instancetype)initWithContextId:(CAContextID)contextId generation:(uint64_t)generation;
++- (instancetype)initWithGeneration:(uint64_t)generation;
++- (BOOL)importContextId:(CAContextID)contextId;
+ - (uint64_t)generation;
+ - (void)setSourceFrame:(CGRect)frame clip:(CGRect)clip;
+ - (void)setRetinaMode:(BOOL)mode;
+ @end
+ 
++/* Main-thread-only selection uses no Objective-C sends when it is published.
++ * A committed generation remains a highwater even after its model is removed. */
++struct remote_host_selection
++{
++    struct remote_host_selection *next;
++    struct remote_host_model *current;
++    CAContextID context_id;
++    uint64_t generation, serial;
++};
++/* Every imported/partial object has its own registry-owned reference. A users
++ * pin keeps that reference alive across reentrant updates/Retina operations. */
++struct remote_host_model
++{
++    struct remote_host_model *next;
++    WineRemoteLayerHost *host;
++    CAContextID context_id;
++    uint64_t generation, selection_serial;
++    struct remote_host_selection *selection;
++    uint32_t users;
++    BOOL installing, busy, release_uncertain, retire_requested, managed;
++};
++
+ @implementation WineRemoteLayerHost
+-- (instancetype)initWithContextId:(CAContextID)contextId generation:(uint64_t)generation
++- (instancetype)initWithGeneration:(uint64_t)generation
+ {
+     if (!(self = [super init])) return nil;
+-    if (!(source_layer = [[CALayerHost alloc] init]))
+-    {
+-        [self release];
+-        return nil;
+-    }
+     host_generation = generation;
++    source_pixels = clip_pixels = CGRectNull;
++    pixel_scale = retina_on ? 2.0 : 1.0;
++    return self; /* no context import before the content view owns this object */
++}
++- (BOOL)importContextId:(CAContextID)contextId
++{
++    assert(!source_layer);
++    if (!(source_layer = [[CALayerHost alloc] init])) return NO;
+     [source_layer setContextId:contextId];
+     source_layer.magnificationFilter = kCAFilterNearest;
+-    source_pixels = clip_pixels = CGRectNull;
+-    pixel_scale = retina_on ? 2.0 : 1.0;
+     self.masksToBounds = YES;
+     [self addSublayer:source_layer];
+     [self setRetinaMode:retina_on];
+-    return self;
++    return YES;
+ }
+ - (uint64_t)generation
+ {
+@@ -286,39 +310,42 @@
+     source_pixels = frame;
+     clip_pixels = clip;
+     [CATransaction begin];
+-    [CATransaction setDisableActions:YES];
+-    if (CGRectIsNull(frame))
+-    {
+-        /* Only the explicit root sentinel fills the content view. */
+-        self.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
+-        self.frame = self.superlayer ? self.superlayer.bounds : CGRectZero;
+-        self.hidden = NO;
+-        source_layer.frame = self.bounds;
+-    }
+-    else
+-    {
+-        CGRect visible;
+-        self.autoresizingMask = 0;
+-        visible = CGRectIsNull(clip) ? frame : CGRectIntersection(frame, clip);
+-        if (CGRectIsNull(visible) || CGRectIsEmpty(visible) || CGRectIsEmpty(frame))
+-        {
+-            self.hidden = YES;
+-            self.frame = CGRectZero;
++    @try
++    {
++        [CATransaction setDisableActions:YES];
++        if (CGRectIsNull(frame))
++        {
++            /* Only the explicit root sentinel fills the content view. */
++            self.autoresizingMask = kCALayerWidthSizable | kCALayerHeightSizable;
++            self.frame = self.superlayer ? self.superlayer.bounds : CGRectZero;
++            self.hidden = NO;
++            source_layer.frame = self.bounds;
+         }
+         else
+         {
+-            /* One raw-pixel to point conversion, using this view's current
+-             * mode, including during a Retina transition. No edge snapping. */
+-            CGRect points = CGRectMake(visible.origin.x / pixel_scale, visible.origin.y / pixel_scale,
+-                                       visible.size.width / pixel_scale, visible.size.height / pixel_scale);
+-            self.frame = points;
+-            source_layer.frame = CGRectMake((frame.origin.x - visible.origin.x) / pixel_scale,
+-                                            (frame.origin.y - visible.origin.y) / pixel_scale,
+-                                            frame.size.width / pixel_scale, frame.size.height / pixel_scale);
+-            self.hidden = NO;
+-        }
+-    }
+-    [CATransaction commit];
++            CGRect visible;
++            self.autoresizingMask = 0;
++            visible = CGRectIsNull(clip) ? frame : CGRectIntersection(frame, clip);
++            if (CGRectIsNull(visible) || CGRectIsEmpty(visible) || CGRectIsEmpty(frame))
++            {
++                self.hidden = YES;
++                self.frame = CGRectZero;
++            }
++            else
++            {
++                /* One raw-pixel to point conversion, using this view's current
++                 * mode, including during a Retina transition. No edge snapping. */
++                CGRect points = CGRectMake(visible.origin.x / pixel_scale, visible.origin.y / pixel_scale,
++                                           visible.size.width / pixel_scale, visible.size.height / pixel_scale);
++                self.frame = points;
++                source_layer.frame = CGRectMake((frame.origin.x - visible.origin.x) / pixel_scale,
++                                                (frame.origin.y - visible.origin.y) / pixel_scale,
++                                                frame.size.width / pixel_scale, frame.size.height / pixel_scale);
++                self.hidden = NO;
++            }
++        }
++    }
++    @finally { [CATransaction commit]; }
+ }
+ - (void)setRetinaMode:(BOOL)mode
+ {
+@@ -348,7 +375,8 @@
+     int backingSize[2];
+ 
+     WineMetalView *_metalView;
+-    NSMutableDictionary<NSNumber*, WineRemoteLayerHost*>* _caLayerHosts;
++    struct remote_host_selection *_remoteHostSelections;
++    struct remote_host_model *_remoteHostModels;
+ }
+ 
+ @property (readonly, nonatomic) BOOL everHadGLContext;
+@@ -365,6 +393,8 @@
+     - (void) updateCALayerHost:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z;
+     - (void) removeCALayerHostView:(CAContextID)contextId;
+     - (BOOL) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation;
++    - (BOOL) removeRemoteHostModel:(struct remote_host_model *)model;
++    - (void) releaseRemoteHostUse:(struct remote_host_model *)model;
+ 
+ @end
+ 
+@@ -475,7 +505,20 @@
+         [markedText release];
+         [glContexts release];
+         [pendingGlContexts release];
+-        [_caLayerHosts release];
++        while (_remoteHostModels)
++        {
++            if (![self removeRemoteHostModel:_remoteHostModels])
++            {
++                ERR(@"Cocoa remote model teardown unresolved; retained owner cannot certify retirement\n");
++                break;
++            }
++        }
++        while (_remoteHostSelections)
++        {
++            struct remote_host_selection *next = _remoteHostSelections->next;
++            free(_remoteHostSelections);
++            _remoteHostSelections = next;
++        }
+         CGImageRelease(colorImage);
+         CGImageRelease(shapeImage);
+         [super dealloc];
+@@ -685,55 +728,180 @@
+     - (BOOL) addCALayerHostViewWithContextId:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z commit:(bool (*)(void *))commit context:(void *)context
+     {
+         CALayer *parent = self.layer;
+-        WineRemoteLayerHost *host, *current = [_caLayerHosts objectForKey:@(contextId)];
++        struct remote_host_selection *selection;
++        struct remote_host_model *model, *previous;
++        WineRemoteLayerHost *host;
++        BOOL installed = NO;
+         if (!contextId || !parent) return NO;
+-        /* The root coordinator owns monotonic generations. Repeated creation
+-         * for the same instance is idempotent; an older live request cannot
+-         * replace a newer instance. Retired-slot history stays with that owner. */
+-        if (current && generation <= current.generation)
+-            return generation == current.generation && (!commit || commit(context));
+-        if (!_caLayerHosts && !(_caLayerHosts = [[NSMutableDictionary alloc] init])) return NO;
+-        if (!(host = [[WineRemoteLayerHost alloc] initWithContextId:contextId generation:generation])) return NO;
+-        if (commit && !commit(context)) { [host release]; return NO; }
+-        host.geometryFlipped = parent.geometryFlipped;
+-        [parent addSublayer:host];
+-        [host setSourceFrame:frame clip:clip];
+-        if (valid_z) host.zPosition = z;
+-        /* Keep the old host until the replacement has actually been created. */
+-        [self removeCALayerHostView:contextId];
+-        [_caLayerHosts setObject:host forKey:@(contextId)];
+-        [host release];
+-        [(WineWindow*)self.window windowDidDrawContent];
+-        return YES;
++        for (selection = _remoteHostSelections; selection; selection = selection->next)
++            if (selection->context_id == contextId) break;
++        if (!selection)
++        {
++            if (!(selection = calloc(1, sizeof(*selection)))) return NO;
++            selection->context_id = contextId;
++            selection->next = _remoteHostSelections;
++            _remoteHostSelections = selection;
++        }
++        if (generation < selection->generation) return NO;
++        if (selection->current && generation == selection->generation)
++            return !commit || commit(context);
++        if (selection->serial == UINT64_MAX) return NO;
++        if (!(model = calloc(1, sizeof(*model)))) return NO;
++        model->context_id = contextId;
++        model->generation = generation;
++        model->selection = selection;
++        model->managed = commit != NULL;
++        model->installing = YES;
++        model->next = _remoteHostModels;
++        _remoteHostModels = model;
++        @try
++        {
++            model->host = [WineRemoteLayerHost alloc];
++            model->release_uncertain = model->host != nil;
++            model->host = [model->host initWithGeneration:generation];
++            model->release_uncertain = NO;
++            host = model->host;
++            if (host && [host importContextId:contextId] && (!commit || commit(context)) &&
++                generation >= selection->generation && selection->serial != UINT64_MAX)
++            {
++                /* Reserve with C stores before more Cocoa work can reenter.
++                 * Failed pre-commit allocations never supersede a live model. */
++                selection->generation = generation;
++                model->selection_serial = ++selection->serial;
++                host.geometryFlipped = parent.geometryFlipped;
++                [parent addSublayer:host];
++                [host setSourceFrame:frame clip:clip];
++                if (valid_z) host.zPosition = z;
++                if ((!commit || commit(context)) && selection->generation == generation &&
++                    selection->serial == model->selection_serial)
++                {
++                    BOOL predecessor_ready = YES;
++                    previous = selection->current;
++                    /* Ownership belongs to the predecessor, never inferred
++                     * from this install's callback. An unmanaged predecessor
++                     * has no Native retirement owner to collect it later. */
++                    if (previous && previous != model && !previous->managed)
++                    {
++                        previous->retire_requested = YES;
++                        predecessor_ready = [self removeRemoteHostModel:previous];
++                    }
++                    /* A busy/failed legacy predecessor stays selected and
++                     * requested for retirement. Reject this install instead
++                     * of acknowledging a replacement that orphans it. Removal
++                     * can reenter, so revalidate again before C publication. */
++                    if (predecessor_ready && (!commit || commit(context)) &&
++                        selection->generation == generation && selection->serial == model->selection_serial)
++                    {
++                        selection->current = model; /* no send/allocation here */
++                        [(WineWindow*)self.window windowDidDrawContent];
++                        installed = YES;
++                    }
++                }
++            }
++        }
++        @catch (NSException *exception)
++        {
++            ERR(@"Cocoa remote install exception %@; exact model owner retained\n", [exception name]);
++        }
++        @finally
++        {
++            model->installing = NO;
++            if ((!installed || model->retire_requested) && ![self removeRemoteHostModel:model])
++                ERR(@"Cocoa remote partial import rollback pending\n");
++        }
++        return installed;
++    }
++
++    - (void) releaseRemoteHostUse:(struct remote_host_model *)model
++    {
++        assert(model->users);
++        --model->users;
++        if (!model->users && model->retire_requested && !model->installing)
++            [self removeRemoteHostModel:model];
+     }
+ 
+     - (void) updateCALayerHost:(CAContextID)contextId generation:(uint64_t)generation frame:(CGRect)frame clip:(CGRect)clip z:(double)z validZ:(BOOL)valid_z
+     {
+-        WineRemoteLayerHost *host = [_caLayerHosts objectForKey:@(contextId)];
+-        if (!host || host.generation != generation) return;
+-        [host setSourceFrame:frame clip:clip];
+-        if (valid_z)
+-        {
+-            [CATransaction begin];
+-            [CATransaction setDisableActions:YES];
+-            host.zPosition = z;
+-            [CATransaction commit];
+-        }
++        struct remote_host_selection *selection;
++        struct remote_host_model *model;
++        for (selection = _remoteHostSelections; selection; selection = selection->next)
++            if (selection->context_id == contextId) break;
++        if (!selection || !(model = selection->current) || model->generation != generation ||
++            model->installing || model->busy || model->release_uncertain || model->users == UINT32_MAX) return;
++        ++model->users; /* pins the registry's actual Objective-C reference */
++        @try
++        {
++            [model->host setSourceFrame:frame clip:clip];
++            if (valid_z)
++            {
++                [CATransaction begin];
++                @try
++                {
++                    [CATransaction setDisableActions:YES];
++                    model->host.zPosition = z;
++                }
++                @finally { [CATransaction commit]; }
++            }
++        }
++        @finally { [self releaseRemoteHostUse:model]; }
++    }
++
++    - (BOOL) removeRemoteHostModel:(struct remote_host_model *)model
++    {
++        WineRemoteLayerHost *host;
++        struct remote_host_model **cursor;
++        BOOL disposed = NO;
++        if (model->installing || model->busy || model->users || model->release_uncertain) return NO;
++        model->busy = YES;
++        @try
++        {
++            host = model->host;
++            if (host)
++            {
++                [host removeFromSuperlayer];
++                if ([host superlayer]) return NO;
++                if (model->selection->current == model) model->selection->current = NULL;
++                model->host = nil;
++                model->release_uncertain = YES;
++                [host release];
++                model->release_uncertain = NO;
++            }
++            for (cursor = &_remoteHostModels; *cursor != model; cursor = &(*cursor)->next) assert(*cursor);
++            *cursor = model->next;
++            free(model);
++            disposed = YES;
++        }
++        @catch (NSException *exception)
++        {
++            ERR(@"Cocoa remote exact-model removal exception %@; completion remains pending\n", [exception name]);
++        }
++        @finally { if (!disposed) model->busy = NO; }
++        return disposed;
+     }
+ 
+     - (BOOL) removeCALayerHostView:(CAContextID)contextId generation:(uint64_t)generation
+     {
+-        WineRemoteLayerHost *host = [_caLayerHosts objectForKey:@(contextId)];
+-        if (host && host.generation == generation) [self removeCALayerHostView:contextId];
+-        host = [_caLayerHosts objectForKey:@(contextId)];
+-        return !host || host.generation != generation;
++        for (;;)
++        {
++            struct remote_host_model *model;
++            for (model = _remoteHostModels; model; model = model->next)
++                if (model->context_id == contextId && model->generation == generation) break;
++            if (!model) return YES;
++            if (![self removeRemoteHostModel:model]) return NO;
++        }
+     }
+ 
+     - (void) removeCALayerHostView:(CAContextID)contextId
+     {
+-        NSNumber* key = @(contextId);
+-        [[_caLayerHosts objectForKey:key] removeFromSuperlayer];
+-        [_caLayerHosts removeObjectForKey:key];
++        struct remote_host_selection *selection;
++        for (selection = _remoteHostSelections; selection; selection = selection->next)
++            if (selection->context_id == contextId) break;
++        if (selection && selection->current)
++        {
++            struct remote_host_model *model = selection->current;
++            model->retire_requested = YES;
++            [self removeRemoteHostModel:model];
++        }
+     }
+ 
+     - (void) setLayerRetinaProperties:(BOOL)mode
+@@ -775,8 +943,43 @@
+         [self updateGLContexts];
+         [self setLayerRetinaProperties:mode];
+ 
+-        for (WineRemoteLayerHost* host in [_caLayerHosts allValues])
+-            [host setRetinaMode:mode];
++        /* Snapshot exact ledger uses with C-only pinning before any sends.
++         * Nested replacement cannot release these actual model objects. */
++        {
++            struct remote_host_selection *selection;
++            struct remote_host_model **snapshot;
++            size_t count = 0, index = 0;
++            BOOL pinned = YES;
++            for (selection = _remoteHostSelections; selection; selection = selection->next)
++                if (selection->current) ++count;
++            snapshot = count && count <= SIZE_MAX / sizeof(*snapshot) ? malloc(count * sizeof(*snapshot)) : NULL;
++            if (count && !snapshot) ERR(@"Cocoa remote Retina snapshot allocation failed\n");
++            if (snapshot)
++            {
++                for (selection = _remoteHostSelections; selection; selection = selection->next)
++                {
++                    struct remote_host_model *model = selection->current;
++                    if (!model) continue;
++                    /* A selected installing model already completed import and
++                     * geometry before publication. It may be safely use-pinned
++                     * during reentrant windowDidDrawContent/Retina updates. */
++                    if (model->busy || model->release_uncertain || model->users == UINT32_MAX)
++                    { pinned = NO; break; }
++                    ++model->users;
++                    snapshot[index++] = model;
++                }
++                @try
++                {
++                    if (pinned)
++                        for (size_t i = 0; i < index; ++i) [snapshot[i]->host setRetinaMode:mode];
++                }
++                @finally
++                {
++                    for (size_t i = 0; i < index; ++i) [self releaseRemoteHostUse:snapshot[i]];
++                    free(snapshot);
++                }
++            }
++        }
+ 
+         [super setRetinaMode:mode];
+     }
+@@ -4051,10 +4254,17 @@
+ {
+     __block BOOL installed = NO;
+     OnMainThread(^{
+-        NSView *content = [window contentView];
+-        if (!window.closing && [content isKindOfClass:[WineContentView class]])
+-            installed = [(WineContentView *)content addCALayerHostViewWithContextId:context_id generation:generation
+-                            frame:frame clip:clip z:z validZ:valid_z commit:commit context:context];
++        @try
++        {
++            NSView *content = [window contentView];
++            if (!window.closing && [content isKindOfClass:[WineContentView class]])
++                installed = [(WineContentView *)content addCALayerHostViewWithContextId:context_id generation:generation
++                                frame:frame clip:clip z:z validZ:valid_z commit:commit context:context];
++        }
++        @catch (NSException *exception)
++        {
++            ERR(@"Cocoa remote create exception %@; install not acknowledged\n", [exception name]);
++        }
+     });
+     return installed;
+ }
+@@ -4082,6 +4292,10 @@
+             NSView *content = [window contentView];
+             if (!window.closing && (!validate || validate(context)) && [content isKindOfClass:[WineContentView class]])
+                 [(WineContentView *)content updateCALayerHost:context_id generation:generation frame:frame clip:clip z:z validZ:valid_z];
++        }
++        @catch (NSException *exception)
++        {
++            ERR(@"Cocoa remote update exception %@; model job settled without success ACK\n", [exception name]);
+         }
+         @finally { if (dispose) dispose(context); }
+     });
