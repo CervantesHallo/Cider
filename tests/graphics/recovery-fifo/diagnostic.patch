@@ -1,0 +1,129 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -106 +106 @@
+-static UINT64 next_identity = 1;
++static UINT64 next_identity = (UINT64)1 << 33;
+@@ -776,2 +775,0 @@
+-    /* A concurrent control frame may have blocked status close. Transfer a
+-     * runnable FIFO owner before dropping this popped owner, even without a PE watch. */
+@@ -950,0 +949,4 @@
++static pthread_mutex_t fifo_schedule_lock;
++static void recovery_fifo_after_pop(struct producer_setup *setup);
++static void recovery_fifo_requeue_observed_locked(struct producer_setup *setup);
++static void recovery_fifo_retry_observed(struct producer_setup *setup);
+@@ -954,0 +957 @@
++    pthread_mutex_lock(&fifo_schedule_lock);
+@@ -966 +969,2 @@
+-    if (!setup) return;
++    if (!setup) { pthread_mutex_unlock(&fifo_schedule_lock); return; }
++    recovery_fifo_after_pop(setup);
+@@ -967,0 +972 @@
++    recovery_fifo_retry_observed(setup);
+@@ -972,0 +978 @@
++    recovery_fifo_requeue_observed_locked(setup);
+@@ -974,0 +981 @@
++    pthread_mutex_unlock(&fifo_schedule_lock);
+@@ -1031,0 +1039,10 @@
++    /* PRIVATE FAULT: actual protected temporary thread handle; its ordinary
++     * first NtClose and aborted-setup retries must retain that same owner. */
++    {
++        OBJECT_HANDLE_FLAG_INFORMATION flags;
++        status = NtQueryObject(thread, ObjectHandleFlagInformation, &flags, sizeof(flags), NULL);
++        if (status) goto fail;
++        flags.ProtectFromClose = TRUE;
++        status = NtSetInformationObject(thread, ObjectHandleFlagInformation, &flags, sizeof(flags));
++        if (status) goto fail;
++    }
+@@ -1278,0 +1296,35 @@
++
++/* Diagnostic-only read-only owner counts; not pixels or complete heap accounting. */
++#include "probe.h"
++NTSTATUS macdrv_remote_transport_probe(void *args)
++{
++    struct transport_probe *probe = args;
++    struct remote_root *root;
++    struct remote_host *host;
++    struct remote_producer *producer;
++    if (!probe || probe->size != sizeof(*probe) || probe->version != 2) return STATUS_INVALID_PARAMETER;
++    probe->roots = probe->producers = probe->watch_pins = probe->hosts = 0;
++    probe->target_active = probe->target_watched = 0;
++    pthread_mutex_lock(&remote_lock);
++    for (root = roots; root; root = root->next) ++probe->roots;
++    for (host = hosts; host; host = host->next) ++probe->hosts;
++    for (producer = producers; producer; producer = producer->next)
++    {
++        ++probe->producers;
++        if (producer->id == probe->target_lease && producer->active && producer->watch_started &&
++            producer->root->open && producer->root->revision) probe->target_active = 1;
++    }
++    for (producer = producer_watches; producer; producer = producer->watch_next)
++    {
++        ++probe->watch_pins;
++        if (producer->id == probe->target_lease) probe->target_watched = 1;
++    }
++    for (producer = producer_cleanup; producer; producer = producer->cleanup_next) ++probe->cleanup_pins;
++    pthread_mutex_unlock(&remote_lock);
++    return STATUS_SUCCESS;
++}
++
++
++
++
++#include "native.inc"
+--- a/dlls/winemac.drv/remote_watch_pe.c
++++ b/dlls/winemac.drv/remote_watch_pe.c
+@@ -28,0 +29 @@
++static LONG fixture_live_watches, fixture_live_timers;
+@@ -45,0 +47 @@
++    InterlockedIncrement(&fixture_live_timers);
+@@ -47 +49 @@
+-    { error = GetLastError(); HeapFree(GetProcessHeap(), 0, timer); return error; }
++    { error = GetLastError(); InterlockedDecrement(&fixture_live_timers); HeapFree(GetProcessHeap(), 0, timer); return error; }
+@@ -81,0 +84,2 @@
++    {
++        InterlockedDecrement(&fixture_live_timers);
+@@ -82,0 +87 @@
++    }
+@@ -110,0 +116 @@
++    InterlockedDecrement(&fixture_live_watches);
+@@ -194,0 +201 @@
++    InterlockedIncrement(&fixture_live_watches);
+@@ -339,0 +347,21 @@
++
++#include "probe.h"
++NTSTATUS WINAPI cider_remote_transport_probe(void *args)
++{
++    struct transport_probe *p = args;
++    if (!p || p->size != sizeof(*p) || p->version != 2) return STATUS_INVALID_PARAMETER;
++    p->pe_watches = InterlockedCompareExchange(&fixture_live_watches, 0, 0);
++    p->cleanup_pins = InterlockedCompareExchange(&fixture_live_timers, 0, 0);
++    return MACDRV_CALL(remote_transport_probe, p);
++}
++#include "fixture.h"
++NTSTATUS WINAPI cider_recovery_fifo_fixture(void *args)
++{
++    struct recovery_fifo_fixture *f = args;
++    NTSTATUS status;
++    if (!f || f->size != sizeof(*f) || f->version != 2 || f->reserved[0] || f->reserved[1]) return STATUS_INVALID_PARAMETER;
++    status = MACDRV_CALL(recovery_fifo_fixture, f);
++    f->pe_watches = InterlockedCompareExchange(&fixture_live_watches, 0, 0);
++    f->pe_timers = InterlockedCompareExchange(&fixture_live_timers, 0, 0);
++    return status;
++}
+--- a/dlls/winemac.drv/macdrv_main.c
++++ b/dlls/winemac.drv/macdrv_main.c
+@@ -608,0 +609,3 @@
++extern NTSTATUS macdrv_remote_transport_probe(void *args);
++extern NTSTATUS macdrv_recovery_fifo_fixture(void *args);
++
+@@ -616,0 +620,2 @@
++    macdrv_remote_transport_probe,
++    macdrv_recovery_fifo_fixture,
+@@ -646,0 +652,2 @@
++    macdrv_remote_transport_probe,
++    macdrv_recovery_fifo_fixture,
+--- a/dlls/winemac.drv/unixlib.h
++++ b/dlls/winemac.drv/unixlib.h
+@@ -29,0 +30,2 @@
++    unix_remote_transport_probe,
++    unix_recovery_fifo_fixture,

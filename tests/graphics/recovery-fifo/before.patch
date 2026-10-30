@@ -1,0 +1,12 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -977 +977,8 @@
+-    else queue_setup_cleanup_locked(setup);
++    else
++    {
++        /* NEGATIVE ONLY: failed retry wrongly regains the FIFO head. */
++        setup->cleanup_queued = TRUE;
++        setup->cleanup_next = setup_cleanup;
++        setup_cleanup = setup;
++        if (!setup->cleanup_next) setup_cleanup_tail = &setup->cleanup_next;
++    }
