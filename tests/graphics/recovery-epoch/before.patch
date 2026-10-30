@@ -1,0 +1,12 @@
+--- a/dlls/winemac.drv/remote_watch_pe.c
++++ b/dlls/winemac.drv/remote_watch_pe.c
+@@ -267,8 +267,7 @@
+     recovered = MACDRV_CALL(remote_watch_recover, &recovery);
+     fixture_selected = recovery_epoch_fixture_after_recover(observed_epoch, recovered, recovery.pending);
+     AcquireSRWLockExclusive(&watch_lock);
+-    if (observed_epoch == recovery_epoch)
+-        native_recovery_needed = recovered || recovery.pending;
++    native_recovery_needed = recovered || recovery.pending;
+     recovery_epoch_fixture_decision_locked(fixture_selected);
+     ReleaseSRWLockExclusive(&watch_lock);
+     recovery_epoch_fixture_after_decision(fixture_selected);
