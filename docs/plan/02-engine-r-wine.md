@@ -1,5 +1,8 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+最新[103](../research/103-r-v1-status-cell-20261030.md)：未接入的160B/atomic32完成页与真实NT section owner已编译/限定复审，身份别名P2修后两PE精确旧2/2对新2/0。实际64→32/32→64父各52/0、读各35/0，RO拒写c0000022、真实close失败c0000235重试及HWND销毁后view读回通过；6次raw/session/组件与8清理独立绑定，普通恢复/保护4一致。仍由夹具发布，连续争用/取消序号/inflight及producer资源接入待做，foreign/默认/评级不启用。
+
+
 最新[102](../research/102-r-v1-cocoa-model-retirement-20261026.md)：0022 Cocoa model退役完成owner已实现、链接和限定复审；真实selfprocess/CAContext两PE各20/0，省略保护负例各20/1精准CHECK12，受控false完成重试各20/0；原窗口各1415/56/168通过。raw/组件/清理恢复独立绑定，完成8整树已按差异归档清理。只证明model层，尚非compositor/GPU、跨进程renderer或游戏。下一终端完成发布/取消序号及producer资源仍提案，foreign/默认不启用。
 
 

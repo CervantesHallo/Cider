@@ -1,8 +1,10 @@
 # Cider 项目持久记忆
 
-更新：2026-10-26。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
+更新：2026-10-30。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
 
 ## 最新实际运行接续
+
+最新[103](research/103-r-v1-status-cell-20261030.md)：未接入完成页原语status-cell-v4，40 atomic32/160B，无RO RMW、耗尽不回绕；真实NT section/View owner先unmap后close，失败保留重试。独立审查SC3-01 expected/out别名绕过身份已修，native及两PE编译过；最终限定源审0新P1/P2。实际双向跨PE父52/0读35/0，RW映射拒绝c0000022，实际保护句柄close c0000235/清保护重试0；writer/根HWND销毁后RO view仍可读SAFE_ONLY/values_valid0，读方随后unmap/真实进程退出0。相同alias旧header两PE各2/2精确返回0/5，新各2/0返回3/3。独立绑定6raw/session/EXE/16PE+2native/F27/8完整清理/普通恢复/四摘要。运行由父代理限定接纳时独立复审仍在进行，后报告hash一致，不回写为先审。原缩进Werror失败保留；partial unmap及DestroyWindow owner修正。源码在experiments/render-status-cell、夹具remote-status-cell，未接普通driver/producer发布，连续争用/取消序号/迟到安装/inflight/context资源还待，SAFE_ONLY允许cleanup_pending、不等于全清理；poll不能取消同步调用、外层60s兜底，无3s整体时限。当前原HY/U8/15/Windowsbusy待重启/门禁不变，无Windows/Actions/定时/Goal，AppModel非本批改动保留。
 
 最新[102](research/102-r-v1-cocoa-model-retirement-20261026.md)：0022普通三文件实现真实Cocoa model移除完成owner：retire同锁计全局/producer pending，列表owner交callback或失败FIFO，实际移除后归还，Nativefinalizer等pending0。普通SDK15.4/min14链接过，10旧警告经源行映射一致；限定三文件及fixture集成独立审查0新P1/P2。真实同进程selflease/Win32root+borderchild/CAContext/Metal layer，80B帧两表8入口，修后PE64/32各20/0；仅去掉pending保护负例各20/1精准CHECK12，model仍在时watch0/finalized1。各轮高lease8589934607/ticket8589934608完整，context来自真实API。首个false完成故障各20/0，actualNative快照pending1/watch1/finalized0/total1，FIFO+PEtimer实际重试后model/Native/PE0；不冒称真实NSException或compositor/GPU完成。原D3D11窗口双PE各1415/56交换链/168Present、56snapshot/detach/destroy通过。独立绑定8次raw/session/EXE/16PE+2native/F27/清理恢复四摘要。原NSString日志、NativeMain缺prototype、FARPROC Werror及Cocoa误用Win32原子类型等准备失败保留，修后对象按源/头相同复用，无放宽选项。完成negative/failure2引擎2stage4备份8树归档清理，实际回收约91MiB，保留fixed-r1工作包与必要祖先；当前约61GiB可用，其他增长不归因本批。下一终端可查完成页/取消序号栅栏仍提案，立即RELEASE接纳成功不是终端model回执；根HWND关闭后仍要取得真实完成，再接producer资源/事件/reparent/两三进程像素。无producer失败可能需后续USER，完整ABA/compositor/GPU和多host仍待。foreign/默认/CEF游戏评级/HY/U8/15/Windows忙待重启不改，无Windows/Actions/定时/Goal；所有代理关闭，非本批AppModel改动保留。
 
