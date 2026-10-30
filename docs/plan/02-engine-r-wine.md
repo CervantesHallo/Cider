@@ -1,5 +1,7 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+最新[105](../research/105-r-v1-request-inflight-20261030.md)：0023以真实request_inflight替代busy，最后请求归还后才允许finalize；普通/NDEBUG编译、native链接和精确重建过。夹具RIF-01/02经同锁决定记录及槽位引用转交修复，最终限定源审0新P1/P2；实际两PE修后各20/0，唯一省略guard负例各20/1、只CHECK12，绑定10清理/组件/普通恢复/保护4。不是PE终端ACK或实际Cocoa安装重入；状态发布、取消和producer资源接入继续。完成20旧树及24份prefix EXE副本归档清理，保留fixed-r3工作组，foreign/默认/原HY与U8/15不变。
+
 最新[104](../research/104-r-v1-status-cell-stress-20261030.md)：原160B组件不改，双向各100万publish，全部动态字段与高低word相关检查通过，不一致0。父18/0读10/0/CLI0，独立绑定raw/session/组件/4次清理及普通恢复/保护4。中断首轮无完整CLI回执不接纳，真实恢复后新路径补齐。限定源审0新P1/P2；非性能或coordinator接入。继续请求inflight、取消和producer资源，foreign/默认不启用。
 
 最新[103](../research/103-r-v1-status-cell-20261030.md)：未接入的160B/atomic32完成页与真实NT section owner已编译/限定复审，身份别名P2修后两PE精确旧2/2对新2/0。实际64→32/32→64父各52/0、读各35/0，RO拒写c0000022、真实close失败c0000235重试及HWND销毁后view读回通过；6次raw/session/组件与8清理独立绑定，普通恢复/保护4一致。仍由夹具发布，连续争用/取消序号/inflight及producer资源接入待做，foreign/默认/评级不启用。

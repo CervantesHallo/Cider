@@ -1,5 +1,7 @@
 # Engine R v1 主题迁移
 
+最新[105](../../docs/research/105-r-v1-request-inflight-20261030.md)：0023保留实际请求pin到同步处置返回，finalizer要求请求排空；普通/NDEBUG/native链接与精确重建、限定源审完成。最终真实准入pin/typed RELEASE/STOP对照两PE各20/0，省略保护各20/1精准CHECK12，夹具两项P2已修后重验并独立绑定。103/104完成页原语及连续跨位宽发布已有局部证据，但尚未接入真实producer发布。继续取消/未知安装与资源接入；不切默认、不启用foreign。旧实验包已归档差异并清理，参考105清单恢复。
+
 最新[102](../../docs/research/102-r-v1-cocoa-model-retirement-20261026.md)：0022 Cocoa model退役完成owner已实现、链接和限定复审；真实selfprocess/CAContext两PE各20/0，省略保护负例各20/1精准CHECK12，受控false完成重试各20/0；原窗口各1415/56/168通过。raw/组件/清理恢复独立绑定，完成8整树已按差异归档清理。只证明model层，尚非compositor/GPU、跨进程renderer或游戏。下一终端完成发布/取消序号及producer资源仍提案，foreign/默认不启用。
 
 

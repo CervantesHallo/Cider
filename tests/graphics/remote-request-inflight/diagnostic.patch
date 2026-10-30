@@ -1,0 +1,104 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -93 +93 @@
+-static UINT64 next_identity = 1;
++static UINT64 next_identity = (UINT64)1 << 33;
+@@ -601,0 +602 @@
++static void request_fixture_decision_locked(struct remote_producer *producer, BOOL detached);
+@@ -615,0 +617 @@
++    request_fixture_decision_locked(producer, detached);
+@@ -1049,0 +1052,33 @@
++
++/* Diagnostic-only read-only owner counts; not pixels or complete heap accounting. */
++#include "probe.h"
++NTSTATUS macdrv_remote_transport_probe(void *args)
++{
++    struct transport_probe *probe = args;
++    struct remote_root *root;
++    struct remote_host *host;
++    struct remote_producer *producer;
++    if (!probe || probe->size != sizeof(*probe) || probe->version != 2) return STATUS_INVALID_PARAMETER;
++    probe->roots = probe->producers = probe->watch_pins = probe->hosts = 0;
++    probe->target_active = probe->target_watched = 0;
++    pthread_mutex_lock(&remote_lock);
++    for (root = roots; root; root = root->next) ++probe->roots;
++    for (host = hosts; host; host = host->next) ++probe->hosts;
++    for (producer = producers; producer; producer = producer->next)
++    {
++        ++probe->producers;
++        if (producer->id == probe->target_lease && producer->active && producer->watch_started &&
++            producer->root->open && producer->root->revision) probe->target_active = 1;
++    }
++    for (producer = producer_watches; producer; producer = producer->watch_next)
++    {
++        ++probe->watch_pins;
++        if (producer->id == probe->target_lease) probe->target_watched = 1;
++    }
++    for (producer = producer_cleanup; producer; producer = producer->cleanup_next) ++probe->cleanup_pins;
++    pthread_mutex_unlock(&remote_lock);
++    return STATUS_SUCCESS;
++}
++
++
++#include "native.inc"
+--- a/dlls/winemac.drv/remote_watch_pe.c
++++ b/dlls/winemac.drv/remote_watch_pe.c
+@@ -28,0 +29 @@
++static LONG fixture_live_watches, fixture_live_timers;
+@@ -43,0 +45 @@
++    InterlockedIncrement(&fixture_live_timers);
+@@ -45 +47 @@
+-    { error = GetLastError(); HeapFree(GetProcessHeap(), 0, timer); return error; }
++    { error = GetLastError(); InterlockedDecrement(&fixture_live_timers); HeapFree(GetProcessHeap(), 0, timer); return error; }
+@@ -66,0 +69,2 @@
++    {
++        InterlockedDecrement(&fixture_live_timers);
+@@ -67,0 +72 @@
++    }
+@@ -95,0 +101 @@
++    InterlockedDecrement(&fixture_live_watches);
+@@ -179,0 +186 @@
++    InterlockedIncrement(&fixture_live_watches);
+@@ -315,0 +323,25 @@
++
++#include "probe.h"
++NTSTATUS WINAPI cider_remote_transport_probe(void *args)
++{
++    struct transport_probe *probe = args;
++    if (!probe || probe->size != sizeof(*probe) || probe->version != 2) return STATUS_INVALID_PARAMETER;
++    probe->pe_watches = InterlockedCompareExchange(&fixture_live_watches, 0, 0);
++    probe->cleanup_pins = InterlockedCompareExchange(&fixture_live_timers, 0, 0);
++    return MACDRV_CALL(remote_transport_probe, probe);
++}
++
++#include "fixture.h"
++NTSTATUS WINAPI cider_request_fixture(void *args)
++{
++    struct request_fixture *frame = args;
++    NTSTATUS status;
++    if (!frame || frame->size != sizeof(*frame) || frame->version != 2 || frame->reserved)
++        return STATUS_INVALID_PARAMETER;
++    status = MACDRV_CALL(request_fixture, frame);
++    frame->pe_watches = InterlockedCompareExchange(&fixture_live_watches, 0, 0);
++    frame->pe_timers = InterlockedCompareExchange(&fixture_live_timers, 0, 0);
++    if (!status && frame->operation == 4 && !frame->status && (frame->pe_watches || frame->pe_timers))
++        frame->status = ERROR_IO_PENDING;
++    return status;
++}
+--- a/dlls/winemac.drv/macdrv_main.c
++++ b/dlls/winemac.drv/macdrv_main.c
+@@ -608,0 +609,3 @@
++extern NTSTATUS macdrv_remote_transport_probe(void *args);
++extern NTSTATUS macdrv_request_fixture(void *args);
++
+@@ -616,0 +620,2 @@
++    macdrv_remote_transport_probe,
++    macdrv_request_fixture,
+@@ -646,0 +652,2 @@
++    macdrv_remote_transport_probe,
++    macdrv_request_fixture,
+--- a/dlls/winemac.drv/unixlib.h
++++ b/dlls/winemac.drv/unixlib.h
+@@ -29,0 +30,2 @@
++    unix_remote_transport_probe,
++    unix_request_fixture,

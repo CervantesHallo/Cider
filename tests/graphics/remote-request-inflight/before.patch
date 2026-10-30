@@ -1,0 +1,11 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -606,7 +606,7 @@
+     BOOL detached = FALSE;
+     pthread_mutex_lock(&remote_lock);
+     if (producer->watched && producer->completion_requested && !producer->process &&
+-        !producer->cleanup_process && !producer->cleanup_listed && !producer->cleanup_inflight && !producer->request_inflight && !producer->pending_retirements)
++        !producer->cleanup_process && !producer->cleanup_listed && !producer->cleanup_inflight && !producer->pending_retirements)
+     {
+         for (cursor = &producer_watches; *cursor != producer; cursor = &(*cursor)->watch_next) assert(*cursor);
+         *cursor = producer->watch_next;

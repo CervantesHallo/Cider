@@ -1,0 +1,79 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -63,9 +63,9 @@
+     HANDLE process, cleanup_process;
+     DWORD pid;
+     UINT64 id, birth, generation, last_sequence;
+-    UINT32 cleanup_inflight;
++    UINT32 cleanup_inflight, request_inflight;
+     UINT64 pending_retirements;
+-    BOOL active, listed, watched, watch_started, busy, cleanup_pending, cleanup_listed;
++    BOOL active, listed, watched, watch_started, cleanup_pending, cleanup_listed;
+     BOOL completion_requested, finalized;
+ };
+ static struct remote_producer *producers, *producer_watches, *producer_cleanup;
+@@ -568,7 +568,7 @@
+ {
+     if (!producer || InterlockedDecrement(&producer->refs)) return;
+     assert(!producer->process && !producer->cleanup_process && !producer->listed &&
+-           !producer->watched && !producer->cleanup_listed && !producer->cleanup_inflight && !producer->pending_retirements);
++           !producer->watched && !producer->cleanup_listed && !producer->cleanup_inflight && !producer->request_inflight && !producer->pending_retirements);
+     root_release(producer->root);
+     free(producer);
+ }
+@@ -605,7 +605,7 @@
+     BOOL detached = FALSE;
+     pthread_mutex_lock(&remote_lock);
+     if (producer->watched && producer->completion_requested && !producer->process &&
+-        !producer->cleanup_process && !producer->cleanup_listed && !producer->cleanup_inflight && !producer->pending_retirements)
++        !producer->cleanup_process && !producer->cleanup_listed && !producer->cleanup_inflight && !producer->request_inflight && !producer->pending_retirements)
+     {
+         for (cursor = &producer_watches; *cursor != producer; cursor = &(*cursor)->watch_next) assert(*cursor);
+         *cursor = producer->watch_next;
+@@ -898,10 +898,11 @@
+         producer->pid == packet->producer_pid && producer->generation == packet->producer_generation)
+     {
+         if (!packet->sequence || packet->sequence <= producer->last_sequence) error = ERROR_RETRY;
+-        else if (producer->busy && packet->operation != MACDRV_REMOTE_RELEASE_PRODUCER) error = ERROR_BUSY;
++        else if (producer->request_inflight == ~(UINT32)0 ||
++                 (producer->request_inflight && packet->operation != MACDRV_REMOTE_RELEASE_PRODUCER)) error = ERROR_BUSY;
+         else
+         {
+-            producer->busy = TRUE;
++            ++producer->request_inflight;
+             producer->last_sequence = packet->sequence;
+             InterlockedIncrement(&producer->refs);
+             *result = producer;
+@@ -909,6 +910,19 @@
+         }
+     }
+     pthread_mutex_unlock(&remote_lock);
++    return error;
++}
++/* Consume the admitted request pin only after its synchronous operation and
++ * any failed-install disposal have returned. Nested RELEASE owns a separate pin. */
++static DWORD packet_producer_end(struct remote_producer *producer, UINT operation, DWORD error)
++{
++    pthread_mutex_lock(&remote_lock);
++    assert(producer->request_inflight);
++    --producer->request_inflight;
++    if (!producer->active && operation != MACDRV_REMOTE_RELEASE_PRODUCER) error = ERROR_PROCESS_ABORTED;
++    pthread_mutex_unlock(&remote_lock);
++    finalize_producer_watch(producer);
++    producer_release(producer);
+     return error;
+ }
+ LRESULT macdrv_remote_packet_receive(HWND hwnd, WPARAM size, struct macdrv_remote_packet *packet)
+@@ -990,11 +1004,7 @@
+         error = producer_revoke(producer, TRUE);
+         break;
+     }
+-    pthread_mutex_lock(&remote_lock);
+-    producer->busy = FALSE;
+-    if (!producer->active && packet->operation != MACDRV_REMOTE_RELEASE_PRODUCER) error = ERROR_PROCESS_ABORTED;
+-    pthread_mutex_unlock(&remote_lock);
+-    producer_release(producer);
++    error = packet_producer_end(producer, packet->operation, error);
+ reply:
+     packet->status = error;
+     packet->flags = MACDRV_REMOTE_PACKET_RESPONSE;
