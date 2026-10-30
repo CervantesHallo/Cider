@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新[112](../research/112-r-v1-live-host-status-20261031.md)：真实导出CAContext、RO先映射再known-ticket INSTALL/取消，同进程双PE各25/0。安装后真实父图层/登记/选择各1，取消后实际ROSAFE及0/0/0，原context仍持有，再实际释放；producer页与本地NT清理完成。9依赖闭包114输入/2raw/组件/5清理/原恢复/保护4独立绑定，五文件诊断重建精确。不是像素/GPU/跨进程或全部renderer采用。111关键清理失败/取消并发门槛仍被工具审查拦截，继续保留；下一补该缺口，再做多进程资源、事件reparent、两三进程像素，默认/门禁不变。
+
 最新[111](../research/111-r-v1-host-status-metadata-20261031.md)：0027候选实现真实host NT页及USER96-v2预留/已知ticket安装取消端点，逐调用NT owner与协议幂等两项源码缺陷已修。普通元数据双PE各28/0，实际RO身份/保护/SAFE、旧ticket拒绝和producer完成页通过；错误回复身份缺失首轮失败保留，v5修后重验。5份清理及组件/原字节恢复独立绑定。未发送可用ticket的实际INSTALL；下一真实图层安装取消。并发故障夹具子代理被自动安全审查拦截，4部分文件未构建运行、未换代理重试；该项仍待，不提升完整采用/默认或游戏状态。
 
 最新[110](../research/110-r-v1-partial-host-model-20261031.md)：0026补模型独立登记、安装/更新job退役栅栏及重入代次选择，三项具体审查问题修后接纳，普通source-v8/Native/NDEBUG构建完成。真实挂图层异常及首回滚异常，双PE正例各30/0；仅索引缺失即成功的对照各19/1只CHECK19，frozen removed/attached/ledger=1/1/1，内部cleanup=false保留，外层进程清理另证。4raw/组件/10清理/原字节恢复/保护4独立绑定，补丁精确重建。重入/legacy交接/一般Retina仍待实际验收；per-host页与已知ticket安装/取消接续，未切默认或提升游戏结论。
