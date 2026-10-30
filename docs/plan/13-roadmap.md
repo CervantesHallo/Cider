@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新[111](../research/111-r-v1-host-status-metadata-20261031.md)：0027候选实现真实host NT页及USER96-v2预留/已知ticket安装取消端点，逐调用NT owner与协议幂等两项源码缺陷已修。普通元数据双PE各28/0，实际RO身份/保护/SAFE、旧ticket拒绝和producer完成页通过；错误回复身份缺失首轮失败保留，v5修后重验。5份清理及组件/原字节恢复独立绑定。未发送可用ticket的实际INSTALL；下一真实图层安装取消。并发故障夹具子代理被自动安全审查拦截，4部分文件未构建运行、未换代理重试；该项仍待，不提升完整采用/默认或游戏状态。
+
 最新[110](../research/110-r-v1-partial-host-model-20261031.md)：0026补模型独立登记、安装/更新job退役栅栏及重入代次选择，三项具体审查问题修后接纳，普通source-v8/Native/NDEBUG构建完成。真实挂图层异常及首回滚异常，双PE正例各30/0；仅索引缺失即成功的对照各19/1只CHECK19，frozen removed/attached/ledger=1/1/1，内部cleanup=false保留，外层进程清理另证。4raw/组件/10清理/原字节恢复/保护4独立绑定，补丁精确重建。重入/legacy交接/一般Retina仍待实际验收；per-host页与已知ticket安装/取消接续，未切默认或提升游戏结论。
 
 最新[109](../research/109-r-v1-recovery-epoch-20261031.md)：旧zero/newARM指定竞态实际验收，普通代次判断保留；两PE各29/0/CLI0。仅去判断的反例均先过19项，再CHECK20实际needed0、CHECK23无法自主排空，23/2/CLI1；内部cleanup=false如实保留，外层实际进程清理另证。三份限定独立复审无新增P1/P2，10组有效include闭包/126项目输入，4raw及组件/10清理/普通恢复/保护4独立绑定，四文件补丁精确重建。接续per-host/未知INSTALL取消、真实资源、事件reparent及像素；不提升一般并发/渲染/游戏/默认结论。

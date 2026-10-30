@@ -1,0 +1,685 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -26,7 +26,7 @@
+ static void producer_release(struct remote_producer *producer);
+ static void root_revoke_producers(struct remote_root *root);
+ 
+-enum host_state { HOST_PENDING, HOST_INSTALLED, HOST_RETIRED };
++enum host_state { HOST_PENDING, HOST_INSTALLED, HOST_RETIRED, HOST_RESERVED };
+ struct remote_root
+ {
+     struct remote_root *next;
+@@ -40,6 +40,7 @@
+ struct remote_host
+ {
+     struct remote_host *next, *retire_next, *predecessors;
++    struct remote_host *status_next, *status_retry_next;
+     LONG refs;
+     struct remote_root *root;
+     HWND child;
+@@ -47,7 +48,12 @@
+     UINT64 ticket, update_serial, prepared_revision;
+     enum host_state state;
+     BOOL installed, model_possible, retirement_pending, retirement_queued;
+-    UINT32 model_jobs;
++    UINT32 model_jobs, status_controls;
++    UINT64 status_sequence;
++    struct macdrv_status_cell *status_cell;
++    BOOL status_registered, status_queued, status_busy, status_preparing;
++    BOOL status_ready, status_failed, status_terminal, status_resource_done;
++    DWORD status_error;
+     struct remote_host *retry_next;
+     struct remote_producer *producer;
+ };
+@@ -68,6 +74,8 @@
+     DWORD pid;
+     UINT64 id, birth, generation, last_sequence;
+     UINT32 cleanup_inflight, request_inflight;
++    UINT32 host_resources_pending, host_status_owners, protocol;
++    struct macdrv_status_identity status_identity;
+     UINT64 pending_retirements;
+     BOOL active, listed, watched, watch_started, cleanup_pending, cleanup_listed;
+     BOOL completion_requested, finalized;
+@@ -101,6 +109,11 @@
+ static pthread_mutex_t remote_lock = PTHREAD_MUTEX_INITIALIZER;
+ static struct remote_root *roots;
+ static struct remote_host *hosts;
++static struct remote_host *host_status_registry, *host_status_retries;
++static UINT64 host_status_registered_count;
++static struct remote_host **host_status_retry_tail = &host_status_retries;
++static void queue_host_status_locked(struct remote_host *host);
++static void retry_one_host_status(void);
+ static UINT64 retirement_outstanding;
+ static struct remote_host *retirement_retries;
+ static struct remote_host **retirement_retry_tail = &retirement_retries;
+@@ -124,7 +137,8 @@
+ static void host_release(struct remote_host *host)
+ {
+     if (InterlockedDecrement(&host->refs)) return;
+-    assert(!host->predecessors && !host->retirement_pending && !host->retirement_queued && !host->model_jobs);
++    assert(!host->predecessors && !host->retirement_pending && !host->retirement_queued && !host->model_jobs &&
++           !host->status_registered && !host->status_queued && !host->status_busy && !host->status_controls && !host->status_cell);
+     producer_release(host->producer);
+     root_release(host->root);
+     free(host);
+@@ -152,6 +166,7 @@
+     for (cursor = &hosts; *cursor != host; cursor = &(*cursor)->next) assert(*cursor);
+     *cursor = host->next;
+     host->state = HOST_RETIRED;
++    queue_host_status_locked(host);
+     if (host->model_possible)
+     {
+         host->retirement_pending = TRUE;
+@@ -186,6 +201,7 @@
+             assert(host->producer->pending_retirements);
+             --host->producer->pending_retirements;
+         }
++        queue_host_status_locked(host);
+     }
+     else
+     {
+@@ -226,6 +242,7 @@
+     pthread_mutex_lock(&remote_lock);
+     assert(host->model_jobs);
+     --host->model_jobs;
++    queue_host_status_locked(host);
+     if (!host->model_jobs && host->retirement_queued)
+     {
+         for (cursor = &retirement_retries; *cursor != host; cursor = &(*cursor)->retry_next) assert(*cursor);
+@@ -449,7 +466,7 @@
+     if (lease_id)
+     {
+         host->producer = producer_lookup_locked(lease_id);
+-        if (!host->producer || !host->producer->active || host->producer->root != root ||
++        if (!host->producer || !host->producer->active || host->producer->protocol != MACDRV_REMOTE_PACKET_VERSION || host->producer->root != root ||
+             host->producer->pid != pid || host->producer->generation != generation)
+         {
+             pthread_mutex_unlock(&remote_lock);
+@@ -626,7 +643,7 @@
+ {
+     if (!producer || InterlockedDecrement(&producer->refs)) return;
+     assert(!producer->process && !producer->cleanup_process && !producer->listed &&
+-           !producer->watched && !producer->cleanup_listed && !producer->cleanup_inflight && !producer->request_inflight && !producer->pending_retirements && !producer->status_cell);
++           !producer->watched && !producer->cleanup_listed && !producer->cleanup_inflight && !producer->request_inflight && !producer->pending_retirements && !producer->host_resources_pending && !producer->host_status_owners && !producer->status_cell);
+     root_release(producer->root);
+     free(producer);
+ }
+@@ -662,7 +679,8 @@
+ {
+     return producer->watched && producer->completion_requested && !producer->process &&
+         !producer->cleanup_process && !producer->cleanup_listed && !producer->cleanup_inflight &&
+-        !producer->request_inflight && !producer->pending_retirements;
++        !producer->request_inflight && !producer->pending_retirements &&
++        !producer->host_resources_pending && !producer->host_status_owners;
+ }
+ static BOOL producer_publish_terminal_locked(struct remote_producer *producer)
+ {
+@@ -1043,13 +1061,14 @@
+     if (!status) status = macdrv_status_cell_create(&identity, &initial, &cell);
+     pthread_mutex_lock(&remote_lock);
+     assert(!producer->status_cell);
++    producer->status_identity = identity;
+     producer->status_cell = cell; /* publish local partial/success owner under the registry lock */
+     producer->status_ready = !status;
+     producer->status_cleanup = status && cell;
+     pthread_mutex_unlock(&remote_lock);
+     return status ? RtlNtStatusToDosError(status) : ERROR_SUCCESS;
+ }
+-static UINT64 producer_acquire(HWND hwnd, UINT64 epoch, DWORD pid, DWORD tid, UINT64 generation, DWORD *error)
++static UINT64 producer_acquire_protocol(HWND hwnd, UINT64 epoch, DWORD pid, DWORD tid, UINT64 generation, DWORD *error, UINT32 protocol)
+ {
+     OBJECT_ATTRIBUTES attributes = {sizeof(attributes)};
+     CLIENT_ID client = {ULongToHandle(pid), ULongToHandle(tid)};
+@@ -1062,10 +1081,10 @@
+     struct producer_history *history, *prepared;
+     UINT64 result = 0;
+     NTSTATUS status, cleanup_status;
+-    DWORD start_status;
++    DWORD start_status, rejected_error = ERROR_INVALID_HANDLE;
+     struct producer_setup *setup = NULL;
+     *error = ERROR_INVALID_PARAMETER;
+-    if (!pid || !tid || !generation) return 0;
++    if (!pid || !tid || !generation || (protocol != MACDRV_REMOTE_PACKET_VERSION && protocol != MACDRV_REMOTE_PREPARED_PACKET_VERSION)) return 0;
+     if (!InterlockedCompareExchange64(&watch_callback, 0, 0))
+     { *error = ERROR_PROC_NOT_FOUND; return 0; }
+     start_status = begin_producer_setup(&setup);
+@@ -1094,7 +1113,8 @@
+     if (!producer || !prepared)
+     { free(producer); free(prepared); *error = ERROR_NOT_ENOUGH_MEMORY; end_producer_setup(setup); return 0; }
+     producer->refs = 1; /* local acquisition pin */
+-    producer->pid = pid; producer->generation = generation;
++    producer->pid = pid;
++    producer->protocol = protocol; producer->generation = generation;
+     producer->birth = times.CreateTime.QuadPart;
+     producer->process = process;
+     pthread_mutex_lock(&remote_lock);
+@@ -1103,7 +1123,8 @@
+     for (current = producers; current; current = current->next)
+         if (current->root == root && current->pid == pid && current->birth == producer->birth && current->generation == generation)
+         {
+-            if (current->active && current->watch_started) result = current->id;
++            if (current->protocol != protocol) rejected_error = ERROR_REVISION_MISMATCH;
++            else if (current->active && current->watch_started) result = current->id;
+             goto rejected;
+         }
+     for (history = root->history; history; history = history->next)
+@@ -1146,7 +1167,7 @@
+ rejected:
+     pthread_mutex_unlock(&remote_lock);
+     free(prepared); free(producer);
+-    *error = result ? ERROR_SUCCESS : ERROR_INVALID_HANDLE;
++    *error = result ? ERROR_SUCCESS : rejected_error;
+     cleanup_status = end_producer_setup(setup);
+     if (cleanup_status && result) { *error = RtlNtStatusToDosError(cleanup_status); result = 0; }
+     return result;
+@@ -1156,20 +1177,28 @@
+     return 0;
+ }
+ 
++static UINT64 producer_acquire(HWND hwnd, UINT64 epoch, DWORD pid, DWORD tid, UINT64 generation, DWORD *error)
++{
++    return producer_acquire_protocol(hwnd, epoch, pid, tid, generation, error, MACDRV_REMOTE_PACKET_VERSION);
++}
++
++#include "host_status.inc"
++
+ static DWORD packet_producer_begin(const struct macdrv_remote_packet *packet, struct remote_producer **result)
+ {
+     struct remote_producer *producer;
+     DWORD error = ERROR_INVALID_HANDLE;
+     *result = NULL;
+     pthread_mutex_lock(&remote_lock);
+-    producer = producer_lookup_locked(packet->lease_id);
+-    if (producer && producer->active && producer->root->open && producer->root->revision &&
++    producer = packet->operation == MACDRV_REMOTE_CANCEL_HOST ? host_cancel_producer_locked(packet) : producer_lookup_locked(packet->lease_id);
++    if (producer && producer->protocol == packet->version &&
++        ((packet->operation == MACDRV_REMOTE_CANCEL_HOST) || (producer->active && producer->root->open && producer->root->revision)) &&
+         producer->root->epoch == packet->root_epoch && wine_server_user_handle(producer->root->hwnd) == packet->root &&
+         producer->pid == packet->producer_pid && producer->generation == packet->producer_generation)
+     {
+         if (!packet->sequence || packet->sequence <= producer->last_sequence) error = ERROR_RETRY;
+         else if (producer->request_inflight == ~(UINT32)0 ||
+-                 (producer->request_inflight && packet->operation != MACDRV_REMOTE_RELEASE_PRODUCER)) error = ERROR_BUSY;
++                 (producer->request_inflight && packet->operation != MACDRV_REMOTE_RELEASE_PRODUCER && packet->operation != MACDRV_REMOTE_CANCEL_HOST)) error = ERROR_BUSY;
+         else
+         {
+             ++producer->request_inflight;
+@@ -1189,7 +1218,7 @@
+     pthread_mutex_lock(&remote_lock);
+     assert(producer->request_inflight);
+     --producer->request_inflight;
+-    if (!producer->active && operation != MACDRV_REMOTE_RELEASE_PRODUCER) error = ERROR_PROCESS_ABORTED;
++    if (!producer->active && operation != MACDRV_REMOTE_RELEASE_PRODUCER && operation != MACDRV_REMOTE_CANCEL_HOST) error = ERROR_PROCESS_ABORTED;
+     pthread_mutex_unlock(&remote_lock);
+     finalize_producer_watch(producer);
+     producer_release(producer);
+@@ -1206,11 +1235,14 @@
+     HWND child;
+     if (size || !macdrv_remote_packet_header_valid(packet) || packet->flags ||
+         packet->root != wine_server_user_handle(hwnd)) return 0;
++    retry_one_host_status();
+     retry_producer_cleanup();
+     retry_one_retirement();
+     status = NtQueryInformationProcess(NtCurrentProcess(), ProcessTimes, &times, sizeof(times), NULL);
+     if (status) { error = RtlNtStatusToDosError(status); goto reply; }
+     if (packet->root_pid || packet->root_create_time || !packet->producer_pid || !packet->producer_tid) goto reply;
++    packet->root_pid = GetCurrentProcessId();
++    packet->root_create_time = times.CreateTime.QuadPart;
+     switch (packet->operation)
+     {
+     case MACDRV_REMOTE_QUERY_ROOT:
+@@ -1222,7 +1254,16 @@
+             packet->child || packet->context_id) goto reply;
+         break;
+     case MACDRV_REMOTE_INSTALL_HOST:
++        if (packet->version != MACDRV_REMOTE_PACKET_VERSION)
++        { error = ERROR_NOT_SUPPORTED; goto reply; }
+         if (!packet->context_id || packet->host_ticket) goto reply;
++        break;
++    case MACDRV_REMOTE_PREPARE_HOST:
++        if (!packet->context_id || packet->host_ticket) goto reply;
++        break;
++    case MACDRV_REMOTE_INSTALL_PREPARED_HOST:
++    case MACDRV_REMOTE_CANCEL_HOST:
++        if (!packet->host_ticket || packet->context_id || packet->child) goto reply;
+         break;
+     case MACDRV_REMOTE_REFRESH_HOST:
+     case MACDRV_REMOTE_RELEASE_HOST:
+@@ -1232,8 +1273,6 @@
+         if (packet->host_ticket || packet->context_id || packet->child) goto reply;
+         break;
+     }
+-    packet->root_pid = GetCurrentProcessId();
+-    packet->root_create_time = times.CreateTime.QuadPart;
+     if (packet->operation == MACDRV_REMOTE_QUERY_ROOT)
+     {
+         packet->root_epoch = macdrv_remote_root_epoch(hwnd);
+@@ -1242,13 +1281,26 @@
+     }
+     if (packet->operation == MACDRV_REMOTE_ACQUIRE_PRODUCER)
+     {
+-        packet->lease_id = producer_acquire(hwnd, packet->root_epoch, packet->producer_pid,
+-                                            packet->producer_tid, packet->producer_generation, &error);
++        if (packet->version == MACDRV_REMOTE_PACKET_VERSION)
++            packet->lease_id = producer_acquire(hwnd, packet->root_epoch, packet->producer_pid,
++                packet->producer_tid, packet->producer_generation, &error);
++        else
++            packet->lease_id = producer_acquire_protocol(hwnd, packet->root_epoch, packet->producer_pid,
++                packet->producer_tid, packet->producer_generation, &error, packet->version);
+         goto reply;
+     }
+     if ((error = packet_producer_begin(packet, &producer))) goto reply;
+     switch (packet->operation)
+     {
++    case MACDRV_REMOTE_PREPARE_HOST:
++        packet->host_ticket = prepare_host_status(producer, packet, &error);
++        break;
++    case MACDRV_REMOTE_INSTALL_PREPARED_HOST:
++        error = install_prepared_host(producer, packet);
++        break;
++    case MACDRV_REMOTE_CANCEL_HOST:
++        error = cancel_prepared_host(producer, packet);
++        break;
+     case MACDRV_REMOTE_INSTALL_HOST:
+         child = packet->child ? wine_server_ptr_handle(packet->child) : hwnd;
+         packet->host_ticket = host_install(hwnd, packet->root_epoch, child, packet->context_id,
+@@ -1280,12 +1332,12 @@
+     packet->flags = MACDRV_REMOTE_PACKET_RESPONSE;
+     return 1; /* copied reply delivered; packet.status is the actual operation result */
+ }
+-BOOL macdrv_remote_packet_send(HWND root, struct macdrv_remote_packet *packet)
++static BOOL remote_packet_send_version(HWND root, struct macdrv_remote_packet *packet, UINT32 version)
+ {
+     struct send_message_timeout_params timeout = { .flags = SMTO_ABORTIFHUNG, .timeout = 3000 };
+     LRESULT delivered;
+     packet->size = sizeof(*packet);
+-    packet->version = MACDRV_REMOTE_PACKET_VERSION;
++    packet->version = version;
+     packet->root = wine_server_user_handle(root);
+     packet->producer_pid = GetCurrentProcessId();
+     packet->producer_tid = GetCurrentThreadId();
+@@ -1296,8 +1348,17 @@
+     packet->root_create_time = 0;
+     delivered = NtUserMessageCall(root, WM_MACDRV_REMOTE_HOST_PACKET, 0, (LPARAM)packet,
+                                   &timeout, NtUserSendMessageTimeout, FALSE);
+-    return delivered && timeout.result == 1 && packet->flags == MACDRV_REMOTE_PACKET_RESPONSE &&
++    return delivered && timeout.result == 1 && packet->flags == MACDRV_REMOTE_PACKET_RESPONSE && packet->version == version &&
+            macdrv_remote_packet_header_valid(packet);
++}
++
++BOOL macdrv_remote_packet_send(HWND root, struct macdrv_remote_packet *packet)
++{
++    return remote_packet_send_version(root, packet, MACDRV_REMOTE_PACKET_VERSION);
++}
++BOOL macdrv_remote_prepared_packet_send(HWND root, struct macdrv_remote_packet *packet)
++{
++    return remote_packet_send_version(root, packet, MACDRV_REMOTE_PREPARED_PACKET_VERSION);
+ }
+ 
+ NTSTATUS macdrv_remote_watch_recover(void *args)
+@@ -1309,9 +1370,12 @@
+     if (!recovery || recovery->size != sizeof(*recovery) || recovery->version != MACDRV_REMOTE_WATCH_VERSION || recovery->reserved)
+         return STATUS_INVALID_PARAMETER;
+     retry_one_producer_setup();
++    retry_one_host_status();
+     retry_producer_cleanup();
+     retry_one_retirement();
+     pthread_mutex_lock(&remote_lock);
++    if (host_status_registered_count >= ~(UINT32)0 - count) count = ~(UINT32)0;
++    else count += (UINT32)host_status_registered_count;
+     for (setup = producer_setups; setup; setup = setup->next) if (count != ~(UINT32)0) ++count;
+     for (producer = producer_watches; producer; producer = producer->watch_next) if (count != ~(UINT32)0) ++count;
+     for (producer = producer_cleanup; producer; producer = producer->cleanup_next) if (count != ~(UINT32)0) ++count;
+--- /dev/null
++++ b/dlls/winemac.drv/host_status.inc
+@@ -0,0 +1,283 @@
++/* Wine-thread NT work; registry/queue/decision fields use remote_lock. Cocoa
++ * paths only enqueue an existing registry owner, never create/close a section. */
++static struct remote_host *host_status_lookup_locked(UINT64 ticket)
++{
++    struct remote_host *host;
++    for (host = host_status_registry; host; host = host->status_next)
++        if (host->ticket == ticket) return host;
++    return NULL;
++}
++static void queue_host_status_locked(struct remote_host *host)
++{
++    if (!host->status_registered || host->status_queued) return;
++    host->status_queued = TRUE;
++    host->status_retry_next = NULL;
++    InterlockedIncrement(&host->refs);
++    *host_status_retry_tail = host;
++    host_status_retry_tail = &host->status_retry_next;
++}
++static BOOL host_status_model_ready_locked(const struct remote_host *host)
++{
++    return host->state == HOST_RETIRED && !host->status_controls && !host->status_preparing &&
++        !host->model_jobs && !host->retirement_pending && !host->retirement_queued;
++}
++static BOOL publish_host_status_locked(struct remote_host *host, BOOL terminal)
++{
++    struct macdrv_status_values values = {0};
++    struct macdrv_status_snapshot snapshot;
++    enum macdrv_status_publish_result result;
++    if (host->status_terminal) return TRUE;
++    if (!host->status_ready || !host->status_cell) return FALSE;
++    values.state = terminal ? MACDRV_STATUS_RETIRED :
++        (host->state == HOST_RETIRED ? MACDRV_STATUS_REVOKING : MACDRV_STATUS_ACTIVE);
++    values.error = host->status_error;
++    values.pending_requests = host->status_controls;
++    values.pending_models = host->model_jobs || host->retirement_pending;
++    /* Permission-only bootstrap/SAFE protocol. Dynamic sequences stay zero
++     * until all refresh/control paths have a qualified prefix contract. Never
++     * advertise a high admitted number as if an overlapping operation finished. */
++    values.cleanup_pending = terminal;
++    if (terminal) values.quiescent_sequence = values.applied_sequence;
++    result = macdrv_status_cell_publish(host->status_cell, &values, terminal);
++    if (!terminal) return result == MACDRV_STATUS_PUBLISHED || result == MACDRV_STATUS_PUBLISH_EXHAUSTED;
++    if ((result != MACDRV_STATUS_PUBLISHED && result != MACDRV_STATUS_PUBLISH_EXHAUSTED) ||
++        macdrv_status_cell_read(host->status_cell, &snapshot) != MACDRV_STATUS_READ_SAFE_ONLY)
++        return FALSE;
++    host->status_terminal = TRUE; /* actual publication, never a missing-entry ACK */
++    return TRUE;
++}
++static void retry_one_host_status(void)
++{
++    struct remote_host *host, **cursor;
++    struct remote_producer *producer;
++    struct macdrv_status_cell *cell = NULL;
++    BOOL removed = FALSE, retry = FALSE, owns_cell = FALSE;
++    NTSTATUS closed = STATUS_SUCCESS;
++    pthread_mutex_lock(&remote_lock);
++    host = host_status_retries;
++    if (host)
++    {
++        host_status_retries = host->status_retry_next;
++        if (!host_status_retries) host_status_retry_tail = &host_status_retries;
++        host->status_retry_next = NULL;
++        host->status_queued = FALSE;
++        if (host->status_busy)
++        {
++            queue_host_status_locked(host);
++            pthread_mutex_unlock(&remote_lock);
++            host_release(host);
++            return;
++        }
++        host->status_busy = TRUE;
++    }
++    if (!host) { pthread_mutex_unlock(&remote_lock); return; }
++    producer = host->producer; /* the host's independent producer reference */
++    if (host_status_model_ready_locked(host))
++    {
++        if (!host->status_resource_done)
++        {
++            if ((host->status_failed && !host->model_possible) || publish_host_status_locked(host, TRUE))
++            {
++                assert(producer->host_resources_pending);
++                --producer->host_resources_pending;
++                host->status_resource_done = TRUE;
++            }
++            else retry = TRUE;
++        }
++        if (host->status_resource_done)
++        {
++            cell = host->status_cell;
++            owns_cell = TRUE; /* this invocation owns even a proven-empty cell */
++            host->status_cell = NULL;
++            host->status_ready = FALSE; /* detached NT owner stays counted by registry/busy */
++        }
++    }
++    else if (host->status_ready) publish_host_status_locked(host, FALSE);
++    pthread_mutex_unlock(&remote_lock);
++    if (cell) closed = macdrv_status_cell_close(&cell);
++    pthread_mutex_lock(&remote_lock);
++    if (owns_cell)
++    {
++        assert(!host->status_cell);
++        host->status_cell = cell; /* retain exact partial view/H after any NT failure */
++        if (!cell && !closed && !host->status_queued)
++        {
++            for (cursor = &host_status_registry; *cursor != host; cursor = &(*cursor)->status_next) assert(*cursor);
++            *cursor = host->status_next;
++            host->status_registered = FALSE;
++            assert(producer->host_status_owners && host_status_registered_count);
++            --producer->host_status_owners;
++            --host_status_registered_count;
++            removed = TRUE;
++        }
++        else retry = TRUE;
++    }
++    if (host->state == HOST_RETIRED && !removed) retry = TRUE;
++    host->status_busy = FALSE;
++    if (retry) queue_host_status_locked(host); /* runnable owner before popped ref is dropped */
++    pthread_mutex_unlock(&remote_lock);
++    if (removed)
++    {
++        queue_producer_cleanup(producer);
++        finalize_producer_watch(producer); /* Wine thread, after real host NT cleanup */
++        host_release(host); /* completion registry owner */
++    }
++    host_release(host); /* transferred FIFO owner */
++}
++static struct remote_producer *host_cancel_producer_locked(const struct macdrv_remote_packet *packet)
++{
++    struct remote_host *host = host_status_lookup_locked(packet->host_ticket);
++    if (!host || !host->status_registered || !host->producer ||
++        host->producer->id != packet->lease_id) return NULL;
++    return host->producer; /* caller validates exact root/pid/generation and takes its own request pin */
++}
++static UINT64 prepare_host_status(struct remote_producer *producer, const struct macdrv_remote_packet *packet, DWORD *error)
++{
++    struct remote_host *host, *retired = NULL;
++    struct macdrv_status_identity identity;
++    struct macdrv_status_values initial = {0};
++    struct macdrv_status_cell *cell = NULL;
++    UINT64 ticket = 0;
++    NTSTATUS status;
++    if (!(host = calloc(1, sizeof(*host)))) { *error = ERROR_NOT_ENOUGH_MEMORY; return 0; }
++    pthread_mutex_lock(&remote_lock);
++    if (!producer->active || producer->protocol != MACDRV_REMOTE_PREPARED_PACKET_VERSION ||
++        !producer->root->open || !producer->root->revision || !producer->status_ready ||
++        !macdrv_status_identity_valid(&producer->status_identity))
++        *error = ERROR_INVALID_HANDLE;
++    else if (producer->host_resources_pending == ~(UINT32)0 || producer->host_status_owners == ~(UINT32)0 ||
++             host_status_registered_count == ~(UINT64)0)
++        *error = ERROR_ARITHMETIC_OVERFLOW;
++    else if (!(host->ticket = identity_locked())) *error = ERROR_ARITHMETIC_OVERFLOW;
++    else *error = ERROR_SUCCESS;
++    if (*error) { pthread_mutex_unlock(&remote_lock); free(host); return 0; }
++    host->refs = 3; /* lookup + completion registry + this preparation control */
++    host->root = producer->root;
++    host->producer = producer;
++    InterlockedIncrement(&host->root->refs);
++    InterlockedIncrement(&producer->refs);
++    host->child = packet->child ? wine_server_ptr_handle(packet->child) : NULL;
++    if (host->child == host->root->hwnd) host->child = NULL;
++    host->context_id = packet->context_id;
++    host->state = HOST_RESERVED;
++    host->status_controls = 1;
++    host->status_preparing = TRUE;
++    host->status_sequence = packet->sequence;
++    host->status_registered = TRUE;
++    host->status_next = host_status_registry;
++    host_status_registry = host;
++    ++producer->host_resources_pending;
++    ++producer->host_status_owners;
++    ++host_status_registered_count;
++    host->next = hosts;
++    hosts = host;
++    identity = producer->status_identity;
++    identity.kind = MACDRV_STATUS_HOST;
++    identity.ticket = host->ticket;
++    identity.context_id = host->context_id;
++    pthread_mutex_unlock(&remote_lock);
++    initial.state = MACDRV_STATUS_ACTIVE; /* no import and no installed ACK */
++    status = macdrv_status_cell_create(&identity, &initial, &cell);
++    pthread_mutex_lock(&remote_lock);
++    host->status_cell = cell;
++    host->status_ready = !status;
++    host->status_failed = !!status;
++    host->status_preparing = FALSE;
++    host->status_error = status ? RtlNtStatusToDosError(status) : ERROR_SUCCESS;
++    --host->status_controls;
++    *error = host->status_error;
++    if (!producer->active || !host->root->open || host->state == HOST_RETIRED)
++        *error = ERROR_PROCESS_ABORTED;
++    if (*error && host->state != HOST_RETIRED) retire_locked(host, &retired);
++    if (!*error) ticket = host->ticket;
++    queue_host_status_locked(host);
++    pthread_mutex_unlock(&remote_lock);
++    dispose_retired(retired);
++    retry_one_host_status();
++    host_release(host); /* actual preparation control reference */
++    return ticket;
++}
++static struct remote_host *begin_host_status_control(struct remote_producer *producer,
++    const struct macdrv_remote_packet *packet, BOOL cancel, DWORD *error)
++{
++    struct remote_host *host = host_status_lookup_locked(packet->host_ticket);
++    *error = ERROR_INVALID_HANDLE;
++    if (!host || host->producer != producer || !host->status_registered) return NULL;
++    if (!cancel && (host->state != HOST_RESERVED || !host->status_ready || host->status_failed ||
++        host->status_preparing || host->status_terminal || !producer->active || !host->root->open || !host->root->revision))
++        return NULL;
++    if (host->status_controls == ~(UINT32)0) { *error = ERROR_ARITHMETIC_OVERFLOW; return NULL; }
++    ++host->status_controls;
++    host->status_sequence = packet->sequence;
++    InterlockedIncrement(&host->refs);
++    *error = ERROR_SUCCESS;
++    return host;
++}
++static DWORD install_prepared_host(struct remote_producer *producer, const struct macdrv_remote_packet *packet)
++{
++    struct remote_host *host, *old, *next, *retired = NULL;
++    struct host_geometry geometry;
++    BOOL installed = FALSE;
++    DWORD error;
++    pthread_mutex_lock(&remote_lock);
++    host = begin_host_status_control(producer, packet, FALSE, &error);
++    if (host)
++    {
++        host->state = HOST_PENDING;
++        host->prepared_revision = host->root->revision;
++        host->model_possible = TRUE;
++        host->model_jobs = 1;
++        for (old = hosts; old; old = next)
++        {
++            next = old->next;
++            if (old != host && old->root == host->root && old->state == HOST_PENDING &&
++                (old->child == host->child || old->context_id == host->context_id)) retire_locked(old, &retired);
++        }
++    }
++    pthread_mutex_unlock(&remote_lock);
++    if (!host) return error;
++    dispose_retired(retired);
++    retired = NULL;
++    if (geometry_for_host(host, &geometry))
++        installed = macdrv_window_create_remote_host_checked(host->root->window, host->context_id, host->ticket,
++            geometry.frame, geometry.clip, geometry.z, geometry.valid_z, install_commit, host);
++    pthread_mutex_lock(&remote_lock);
++    retired = host->predecessors;
++    host->predecessors = NULL;
++    error = installed && host->state == HOST_INSTALLED && host->root->open && producer->active ?
++        ERROR_SUCCESS : ERROR_INVALID_HANDLE;
++    if (error && host->state != HOST_RETIRED) retire_locked(host, &retired);
++    pthread_mutex_unlock(&remote_lock);
++    dispose_retired(retired);
++    finish_host_model_job(host);
++    pthread_mutex_lock(&remote_lock);
++    host->status_error = error;
++    --host->status_controls;
++    queue_host_status_locked(host);
++    pthread_mutex_unlock(&remote_lock);
++    retry_one_host_status();
++    host_release(host);
++    return error;
++}
++static DWORD cancel_prepared_host(struct remote_producer *producer, const struct macdrv_remote_packet *packet)
++{
++    struct remote_host *host, *retired = NULL;
++    DWORD error;
++    BOOL terminal;
++    pthread_mutex_lock(&remote_lock);
++    host = begin_host_status_control(producer, packet, TRUE, &error);
++    if (host && host->state != HOST_RETIRED) retire_locked(host, &retired);
++    pthread_mutex_unlock(&remote_lock);
++    if (!host) return error;
++    dispose_retired(retired);
++    pthread_mutex_lock(&remote_lock);
++    --host->status_controls;
++    queue_host_status_locked(host);
++    pthread_mutex_unlock(&remote_lock);
++    retry_one_host_status();
++    pthread_mutex_lock(&remote_lock);
++    terminal = host->status_terminal;
++    pthread_mutex_unlock(&remote_lock);
++    host_release(host);
++    return terminal ? ERROR_SUCCESS : ERROR_IO_PENDING;
++}
+--- a/dlls/winemac.drv/status_cell.c
++++ b/dlls/winemac.drv/status_cell.c
+@@ -1,7 +1,9 @@
+ #if 0
+ #pragma makedep unix
+ #endif
++#ifndef _WIN32
+ #include "config.h"
++#endif
+ #include "status_cell.h"
+ #include <stdlib.h>
+ #include <stdio.h>
+--- a/dlls/winemac.drv/macdrv.h
++++ b/dlls/winemac.drv/macdrv.h
+@@ -216,6 +216,7 @@
+ extern NTSTATUS macdrv_remote_watch_recover(void *args);
+ extern LRESULT macdrv_remote_packet_receive(HWND hwnd, WPARAM size, struct macdrv_remote_packet *packet);
+ extern BOOL macdrv_remote_packet_send(HWND root, struct macdrv_remote_packet *packet);
++extern BOOL macdrv_remote_prepared_packet_send(HWND root, struct macdrv_remote_packet *packet);
+ 
+ struct macdrv_client_surface
+ {
+--- a/include/wine/macdrv_remote.h
++++ b/include/wine/macdrv_remote.h
+@@ -5,6 +5,7 @@
+ #include <stdint.h>
+ #define WM_MACDRV_REMOTE_HOST_PACKET 0x80001800u
+ #define MACDRV_REMOTE_PACKET_VERSION 1u
++#define MACDRV_REMOTE_PREPARED_PACKET_VERSION 2u
+ #define MACDRV_REMOTE_PACKET_RESPONSE 1u
+ enum macdrv_remote_operation
+ {
+@@ -13,7 +14,10 @@
+     MACDRV_REMOTE_INSTALL_HOST,
+     MACDRV_REMOTE_REFRESH_HOST,
+     MACDRV_REMOTE_RELEASE_HOST,
+-    MACDRV_REMOTE_RELEASE_PRODUCER
++    MACDRV_REMOTE_RELEASE_PRODUCER,
++    MACDRV_REMOTE_PREPARE_HOST,
++    MACDRV_REMOTE_INSTALL_PREPARED_HOST,
++    MACDRV_REMOTE_CANCEL_HOST
+ };
+ struct macdrv_remote_packet
+ {
+@@ -28,8 +32,10 @@
+ _Static_assert(offsetof(struct macdrv_remote_packet, root_create_time) == 88, "remote root offset");
+ static inline int macdrv_remote_packet_header_valid(const struct macdrv_remote_packet *packet)
+ {
+-    return packet && packet->size == sizeof(*packet) && packet->version == MACDRV_REMOTE_PACKET_VERSION &&
+-           packet->operation >= MACDRV_REMOTE_QUERY_ROOT && packet->operation <= MACDRV_REMOTE_RELEASE_PRODUCER &&
++    return packet && packet->size == sizeof(*packet) && ((packet->version == MACDRV_REMOTE_PACKET_VERSION &&
++             packet->operation >= MACDRV_REMOTE_QUERY_ROOT && packet->operation <= MACDRV_REMOTE_RELEASE_PRODUCER) ||
++            (packet->version == MACDRV_REMOTE_PREPARED_PACKET_VERSION &&
++             packet->operation >= MACDRV_REMOTE_QUERY_ROOT && packet->operation <= MACDRV_REMOTE_CANCEL_HOST)) &&
+            !packet->reserved;
+ }
+ #endif
+--- a/dlls/win32u/message.c
++++ b/dlls/win32u/message.c
+@@ -435,6 +435,7 @@
+ {
+     return macdrv_remote_packet_valid( request, 0 ) &&
+            macdrv_remote_packet_valid( reply, MACDRV_REMOTE_PACKET_RESPONSE ) &&
++           reply->version == request->version &&
+            reply->operation == request->operation && reply->root == request->root &&
+            reply->producer_generation == request->producer_generation &&
+            reply->sequence == request->sequence &&
