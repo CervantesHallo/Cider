@@ -1,0 +1,5 @@
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -620 +620 @@
+-        !producer->request_inflight && !producer->pending_retirements;
++        !producer->pending_retirements;
