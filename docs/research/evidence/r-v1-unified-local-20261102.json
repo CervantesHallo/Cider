@@ -101,5 +101,15 @@
   "publicSHA256": {
     "engine/porting/wine-11.18/0029-winemac-unify-opt-in-exported-renderer-ownership.patch": "582a967486ad57ee770a0b6b0a9ff17da04aa371f49fbf89a5a523b0a9ee8f88"
   },
-  "proposalSnapshotTiming": "Recorded before local trial; historical proposal evidence is not current runtime status"
+  "proposalSnapshotTiming": "Recorded before local trial; historical proposal evidence is not current runtime status",
+  "storageCompaction": {
+    "inventory": "out/storage-cleanup-20261025/renderer-owner-batch-cleanup-v1.json",
+    "sha256": "302b8e398123c75835c41853c5bb87bacb743a54462160b394c0dc0a6f441303",
+    "removedTrees": 12,
+    "removedOwnedExecutableCopies": 16,
+    "netFreeBytes": 228958208,
+    "protectedFourUnchanged": true,
+    "retainedQualifiedBaseRechecked": true,
+    "scope": "Obsolete renderer-client-r1 engine/stage and completed prefix backups only; source/raw/images and working/qualified references retained"
+  }
 }

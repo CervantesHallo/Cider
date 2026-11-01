@@ -1,0 +1,797 @@
+{
+  "schema": "cider.engine-r-owner-transition/v1",
+  "scope": "Actual renderer-owned initial local windows to a peer-owned root and back; unchanged device/context/two swapchains, real images and cooperative local teardown",
+  "sourceAccepted": true,
+  "localForeignLocalAccepted": true,
+  "windowImagesAccepted": true,
+  "bootstrapOwnershipVerified": true,
+  "cooperativeTwoContextRetirementAccepted": true,
+  "allHistorical56ContextsRetiredAccepted": false,
+  "resizeImagesAccepted": false,
+  "cefAccepted": false,
+  "performanceAccepted": false,
+  "physicalDisplayAccepted": false,
+  "fullCocoaCallbackTailAccepted": false,
+  "globalGPUIdleAccepted": false,
+  "defaultAdopted": false,
+  "gameVerdictsChanged": false,
+  "sourceInputCount": 259,
+  "artifacts": {
+    "renderer-owner-transition-source-review-v1.json": "b81c5523b27c98817bc339dd01f1f15220095997e06378aeb131ca3c010cafcf",
+    "renderer-owner-transition-source-review-v2.json": "a83bd11022fe113b257d5a4912dd750325135e0758871d39cd4bc07ffd821121",
+    "renderer-owner-transition-build-v2/build-v1.json": "e959ad778e95099cf8e04e81a7368e6728ff231783fb15afa669a2e5ee177861",
+    "renderer-owner-transition-coupled-v1/build-v1.json": "2cfe98d6973ea228440d80defcc23d26b29896fe6525dbe13338f49abc630e6e",
+    "staging-renderer-owner-transition-v1.json": "acc919b0854c2ab278ba8e3faf84efc83e60960f50f3a7b54f747250ac415840",
+    "renderer-owner-transition-runtime-parent-admission-v2.json": "2abd10c2c8768d65cd93fa51c8085d2fd7dcf059d94906d74641371eaafe07eb",
+    "renderer-owner-transition-runtime-v1.json": "3ff5d3dee021692e008f11896ae51f4cd050a5a325f7ca2a19f59885a47543dc",
+    "renderer-owner-transition-runtime-v2.json": "0bd70e74a1d9e5e6fee803dbe52ce46f5d7c6ccdfe7145c691325919d9539e23",
+    "renderer-owner-transition-runtime-v3.json": "94286126b7391d304c977b2c15dad23a220a76bcc71354b09609d10f9c757bc8",
+    "renderer-owner-transition-parent-binding-v1.json": "e75cf7e0b79b507cb3c8a115806ed11d4802bf3619b2fa70c677f6089baac3ec",
+    "run-renderer-owner-transition-v2.py": "d34f0d6f9d0f7a21c794e7427f56e90f4c0a408404113e92fd199c398ed03af7",
+    "run-renderer-owner-transition-v3.py": "94bd530488147018648ef653dfeeb4ea2a55bf588e9a45de01578e93beb96c26"
+  },
+  "directions": [
+    {
+      "runtimeVersion": 2,
+      "runtimeSHA256": "0bd70e74a1d9e5e6fee803dbe52ce46f5d7c6ccdfe7145c691325919d9539e23",
+      "raw": {
+        "host": {
+          "type": "renderer-consumer",
+          "role": "host",
+          "pid": 32,
+          "bits": 64,
+          "nonce": "2ad5f0f11edd4d27814e58e88a7dec22",
+          "event": "summary",
+          "check": 493,
+          "label": "final",
+          "ok": true,
+          "hr": 0,
+          "hr_hex": "00000000",
+          "raw": [
+            0,
+            492,
+            6996,
+            0
+          ],
+          "elapsed_ms": 6996,
+          "phase": 4,
+          "root": 65644,
+          "root1": 65644,
+          "root2": 65624,
+          "child_a": 65664,
+          "child_b": 65666,
+          "host_pid": 32,
+          "renderer_pid": 308,
+          "self_birth": 134380290237468490,
+          "peer_birth": 134380290255353930,
+          "checks": 493,
+          "failures": 0,
+          "phases": 4,
+          "swapchains": 0,
+          "frames": 0,
+          "readbacks": 0,
+          "presents": 0,
+          "occluded_presents": 0,
+          "pipe_sends": 5,
+          "pipe_receives": 5,
+          "com_release_calls": 0,
+          "local_com_released": false,
+          "gpu_drained": false,
+          "peer_frame_reports": 3,
+          "peer_frames_reported": 6,
+          "peer_readbacks_reported": 6,
+          "peer_presents_reported": 6,
+          "peer_local_release_reported": true,
+          "kernel_signaled": true,
+          "joined_zero": true,
+          "exit_code": 0,
+          "force_attempted": false,
+          "force_succeeded": false,
+          "io_error": false,
+          "clock_error": false,
+          "timeout": false
+        },
+        "renderer": {
+          "type": "renderer-consumer",
+          "role": "renderer",
+          "pid": 308,
+          "bits": 32,
+          "nonce": "2ad5f0f11edd4d27814e58e88a7dec22",
+          "event": "summary",
+          "check": 735,
+          "label": "final",
+          "ok": true,
+          "hr": 0,
+          "hr_hex": "00000000",
+          "raw": [
+            0,
+            734,
+            5215,
+            0
+          ],
+          "elapsed_ms": 5215,
+          "phase": 4,
+          "root": 65644,
+          "root1": 65644,
+          "root2": 65624,
+          "child_a": 65664,
+          "child_b": 65666,
+          "host_pid": 32,
+          "renderer_pid": 308,
+          "self_birth": 134380290255353930,
+          "peer_birth": 134380290237468490,
+          "checks": 735,
+          "failures": 0,
+          "phases": 4,
+          "swapchains": 2,
+          "frames": 6,
+          "readbacks": 6,
+          "presents": 6,
+          "occluded_presents": 0,
+          "pipe_sends": 5,
+          "pipe_receives": 5,
+          "com_release_calls": 14,
+          "local_com_released": true,
+          "gpu_drained": true,
+          "peer_frame_reports": 0,
+          "peer_frames_reported": 0,
+          "peer_readbacks_reported": 0,
+          "peer_presents_reported": 0,
+          "peer_local_release_reported": false,
+          "kernel_signaled": false,
+          "joined_zero": false,
+          "exit_code": 259,
+          "force_attempted": false,
+          "force_succeeded": false,
+          "io_error": false,
+          "clock_error": false,
+          "timeout": false
+        }
+      },
+      "rootSequence": [
+        65644,
+        65624,
+        65644,
+        65644
+      ],
+      "nativeRoutes": [
+        [
+          65664,
+          355432762,
+          65644,
+          22,
+          23,
+          1
+        ],
+        [
+          65666,
+          3968391737,
+          65644,
+          25,
+          26,
+          2
+        ],
+        [
+          65664,
+          355432762,
+          65624,
+          16,
+          17,
+          3
+        ],
+        [
+          65666,
+          3968391737,
+          65624,
+          19,
+          20,
+          4
+        ],
+        [
+          65664,
+          355432762,
+          65644,
+          50,
+          51,
+          5
+        ],
+        [
+          65666,
+          3968391737,
+          65644,
+          53,
+          54,
+          6
+        ]
+      ],
+      "nativeRetired": [
+        [
+          65664,
+          355432762,
+          65644,
+          22,
+          23,
+          1,
+          1
+        ],
+        [
+          65666,
+          3968391737,
+          65644,
+          25,
+          26,
+          1,
+          1
+        ],
+        [
+          65666,
+          3968391737,
+          65624,
+          19,
+          20,
+          1,
+          1
+        ],
+        [
+          65664,
+          355432762,
+          65624,
+          16,
+          17,
+          1,
+          1
+        ],
+        [
+          65664,
+          355432762,
+          65644,
+          50,
+          51,
+          1,
+          1
+        ],
+        [
+          65666,
+          3968391737,
+          65644,
+          53,
+          54,
+          1,
+          1
+        ]
+      ],
+      "nativeLocalFreed": [
+        65664,
+        65666
+      ],
+      "windowSequence": [
+        8411,
+        8414,
+        8411
+      ],
+      "actualNativeOwnerPIDSequence": [
+        25394,
+        25366,
+        25394
+      ],
+      "logSHA256": "b5823f3204f6dd7477c49a82716fb10d19a055f54b4a31e762cdfd991d15fd1c",
+      "sessionSHA256": "afa069785148090e061b0bf6106cbd1bca788979d086d652225d8b5479ba0a32",
+      "images": [
+        {
+          "phase": 1,
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/consumer-screen-2ad5f0f11edd4d27814e58e88a7dec22-1.png",
+          "assessment": {
+            "passed": true,
+            "phase": 1,
+            "width": 880,
+            "height": 536,
+            "pngSHA256": "01c31c9b64430441320d58f03f9a6c65387734e403605105ff2ed0e551cda21c",
+            "redPixels": 69776,
+            "bluePixels": 69776,
+            "orderedRegions": [
+              {
+                "color": "red",
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "color": "blue",
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "opaqueWhiteGapWidth": 40,
+            "scope": "actual consumer window red/blue left-right correspondence, no physical scanout or performance claim"
+          },
+          "readySHA256": "273650ede30811a2517e561f46191e62a912bf28c39309490a2a0d011207838e",
+          "gateSHA256": "273650ede30811a2517e561f46191e62a912bf28c39309490a2a0d011207838e"
+        },
+        {
+          "phase": 2,
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/consumer-screen-2ad5f0f11edd4d27814e58e88a7dec22-2.png",
+          "assessment": {
+            "passed": true,
+            "phase": 2,
+            "width": 884,
+            "height": 536,
+            "pngSHA256": "09e05d8781f839aaaeac4be86d85e8b44a6c7d7a88e7c8135ba08f96bdd735a1",
+            "redPixels": 69776,
+            "bluePixels": 69776,
+            "orderedRegions": [
+              {
+                "color": "blue",
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "color": "red",
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "opaqueWhiteGapWidth": 44,
+            "scope": "actual consumer window red/blue left-right correspondence, no physical scanout or performance claim"
+          },
+          "readySHA256": "a73648d86a5114fd5dac787d7c311b5feb833736532d7ad178fe733cae98479b",
+          "gateSHA256": "a73648d86a5114fd5dac787d7c311b5feb833736532d7ad178fe733cae98479b"
+        },
+        {
+          "phase": 3,
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/consumer-screen-2ad5f0f11edd4d27814e58e88a7dec22-3.png",
+          "assessment": {
+            "passed": true,
+            "phase": 3,
+            "width": 884,
+            "height": 536,
+            "pngSHA256": "c15b65bb8d12cbc392364411bf9a03523764c02c99b4c868969dfa6ee4ce615e",
+            "redPixels": 139552,
+            "bluePixels": 0,
+            "dominantBounds": [
+              22,
+              78,
+              777,
+              273
+            ],
+            "regions": [
+              {
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "expectedComponents": 2,
+            "fullRectangleOccupancy": true,
+            "opaqueWhiteGapWidth": 40,
+            "connectivity": "all matching runs, eight-neighbor",
+            "scope": "actual return-root new red/red pattern, distinct from both preceding phases; no physical scanout or performance claim"
+          },
+          "readySHA256": "c16e6e00620e86348424cfbf308bffa31bc91a983be916765ae2454472c4a2c9",
+          "gateSHA256": "c16e6e00620e86348424cfbf308bffa31bc91a983be916765ae2454472c4a2c9"
+        }
+      ],
+      "cleanupReceipts": 3,
+      "ordinaryCandidateRestored": true
+    },
+    {
+      "runtimeVersion": 3,
+      "runtimeSHA256": "94286126b7391d304c977b2c15dad23a220a76bcc71354b09609d10f9c757bc8",
+      "raw": {
+        "host": {
+          "type": "renderer-consumer",
+          "role": "host",
+          "pid": 236,
+          "bits": 32,
+          "nonce": "a855719caeaf48bfa197e6b700f67575",
+          "event": "summary",
+          "check": 493,
+          "label": "final",
+          "ok": true,
+          "hr": 0,
+          "hr_hex": "00000000",
+          "raw": [
+            0,
+            492,
+            7561,
+            0
+          ],
+          "elapsed_ms": 7561,
+          "phase": 4,
+          "root": 65644,
+          "root1": 65644,
+          "root2": 65624,
+          "child_a": 65664,
+          "child_b": 65666,
+          "host_pid": 236,
+          "renderer_pid": 320,
+          "self_birth": 134380291093066780,
+          "peer_birth": 134380291111687900,
+          "checks": 493,
+          "failures": 0,
+          "phases": 4,
+          "swapchains": 0,
+          "frames": 0,
+          "readbacks": 0,
+          "presents": 0,
+          "occluded_presents": 0,
+          "pipe_sends": 5,
+          "pipe_receives": 5,
+          "com_release_calls": 0,
+          "local_com_released": false,
+          "gpu_drained": false,
+          "peer_frame_reports": 3,
+          "peer_frames_reported": 6,
+          "peer_readbacks_reported": 6,
+          "peer_presents_reported": 6,
+          "peer_local_release_reported": true,
+          "kernel_signaled": true,
+          "joined_zero": true,
+          "exit_code": 0,
+          "force_attempted": false,
+          "force_succeeded": false,
+          "io_error": false,
+          "clock_error": false,
+          "timeout": false
+        },
+        "renderer": {
+          "type": "renderer-consumer",
+          "role": "renderer",
+          "pid": 320,
+          "bits": 64,
+          "nonce": "a855719caeaf48bfa197e6b700f67575",
+          "event": "summary",
+          "check": 736,
+          "label": "final",
+          "ok": true,
+          "hr": 0,
+          "hr_hex": "00000000",
+          "raw": [
+            0,
+            735,
+            5796,
+            0
+          ],
+          "elapsed_ms": 5796,
+          "phase": 4,
+          "root": 65644,
+          "root1": 65644,
+          "root2": 65624,
+          "child_a": 65664,
+          "child_b": 65666,
+          "host_pid": 236,
+          "renderer_pid": 320,
+          "self_birth": 134380291111687900,
+          "peer_birth": 134380291093066780,
+          "checks": 736,
+          "failures": 0,
+          "phases": 4,
+          "swapchains": 2,
+          "frames": 6,
+          "readbacks": 6,
+          "presents": 6,
+          "occluded_presents": 0,
+          "pipe_sends": 5,
+          "pipe_receives": 5,
+          "com_release_calls": 14,
+          "local_com_released": true,
+          "gpu_drained": true,
+          "peer_frame_reports": 0,
+          "peer_frames_reported": 0,
+          "peer_readbacks_reported": 0,
+          "peer_presents_reported": 0,
+          "peer_local_release_reported": false,
+          "kernel_signaled": false,
+          "joined_zero": false,
+          "exit_code": 259,
+          "force_attempted": false,
+          "force_succeeded": false,
+          "io_error": false,
+          "clock_error": false,
+          "timeout": false
+        }
+      },
+      "rootSequence": [
+        65644,
+        65624,
+        65644,
+        65644
+      ],
+      "nativeRoutes": [
+        [
+          65664,
+          1094414427,
+          65644,
+          22,
+          23,
+          1
+        ],
+        [
+          65666,
+          1751227220,
+          65644,
+          25,
+          26,
+          2
+        ],
+        [
+          65664,
+          1094414427,
+          65624,
+          16,
+          17,
+          3
+        ],
+        [
+          65666,
+          1751227220,
+          65624,
+          19,
+          20,
+          4
+        ],
+        [
+          65664,
+          1094414427,
+          65644,
+          50,
+          53,
+          5
+        ],
+        [
+          65666,
+          1751227220,
+          65644,
+          52,
+          54,
+          6
+        ]
+      ],
+      "nativeRetired": [
+        [
+          65664,
+          1094414427,
+          65644,
+          22,
+          23,
+          1,
+          1
+        ],
+        [
+          65666,
+          1751227220,
+          65644,
+          25,
+          26,
+          1,
+          1
+        ],
+        [
+          65664,
+          1094414427,
+          65624,
+          16,
+          17,
+          1,
+          1
+        ],
+        [
+          65666,
+          1751227220,
+          65624,
+          19,
+          20,
+          1,
+          1
+        ],
+        [
+          65664,
+          1094414427,
+          65644,
+          50,
+          53,
+          1,
+          1
+        ],
+        [
+          65666,
+          1751227220,
+          65644,
+          52,
+          54,
+          1,
+          1
+        ]
+      ],
+      "nativeLocalFreed": [
+        65664,
+        65666
+      ],
+      "windowSequence": [
+        8422,
+        8425,
+        8422
+      ],
+      "actualNativeOwnerPIDSequence": [
+        25526,
+        25519,
+        25526
+      ],
+      "logSHA256": "f784a4fdb606321e79bcbffe324f488b729bfca4cd64b6aff2b5481ebd7ae3f0",
+      "sessionSHA256": "d97a49d066a912c2be0146fda42f92243cda29d275d7c3c10797d8df667a0e15",
+      "images": [
+        {
+          "phase": 1,
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/consumer-screen-a855719caeaf48bfa197e6b700f67575-1.png",
+          "assessment": {
+            "passed": true,
+            "phase": 1,
+            "width": 880,
+            "height": 536,
+            "pngSHA256": "1de57350780a0a4f6428fb1b3de6616176ad2ee9e4046d1be61c0899935c9f45",
+            "redPixels": 69776,
+            "bluePixels": 69776,
+            "orderedRegions": [
+              {
+                "color": "red",
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "color": "blue",
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "opaqueWhiteGapWidth": 40,
+            "scope": "actual consumer window red/blue left-right correspondence, no physical scanout or performance claim"
+          },
+          "readySHA256": "7296032d9d6dcbf007adadfeef8cf7c73641656ceea8feb7d0d51a27b69c3c09",
+          "gateSHA256": "7296032d9d6dcbf007adadfeef8cf7c73641656ceea8feb7d0d51a27b69c3c09"
+        },
+        {
+          "phase": 2,
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/consumer-screen-a855719caeaf48bfa197e6b700f67575-2.png",
+          "assessment": {
+            "passed": true,
+            "phase": 2,
+            "width": 884,
+            "height": 536,
+            "pngSHA256": "5b5ba9fce067ca56e5fb09f865ba350391252bb93341932cde77b42a963a4c91",
+            "redPixels": 69776,
+            "bluePixels": 69776,
+            "orderedRegions": [
+              {
+                "color": "blue",
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "color": "red",
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "opaqueWhiteGapWidth": 44,
+            "scope": "actual consumer window red/blue left-right correspondence, no physical scanout or performance claim"
+          },
+          "readySHA256": "cda2759f11a3142d919fa76b045846229e4c8ba272836e1e62d239ecce13ee76",
+          "gateSHA256": "cda2759f11a3142d919fa76b045846229e4c8ba272836e1e62d239ecce13ee76"
+        },
+        {
+          "phase": 3,
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/consumer-screen-a855719caeaf48bfa197e6b700f67575-3.png",
+          "assessment": {
+            "passed": true,
+            "phase": 3,
+            "width": 884,
+            "height": 536,
+            "pngSHA256": "9946f36edb4f30a935b9e9b1d9315bc73fa96b68e6aa3911d033111076baf104",
+            "redPixels": 139552,
+            "bluePixels": 0,
+            "dominantBounds": [
+              22,
+              78,
+              777,
+              273
+            ],
+            "regions": [
+              {
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "expectedComponents": 2,
+            "fullRectangleOccupancy": true,
+            "opaqueWhiteGapWidth": 40,
+            "connectivity": "all matching runs, eight-neighbor",
+            "scope": "actual return-root new red/red pattern, distinct from both preceding phases; no physical scanout or performance claim"
+          },
+          "readySHA256": "42ce6cd8c78d61eeefe12200755683991d0df62ef05542876457b6fc0b052220",
+          "gateSHA256": "42ce6cd8c78d61eeefe12200755683991d0df62ef05542876457b6fc0b052220"
+        }
+      ],
+      "cleanupReceipts": 3,
+      "ordinaryCandidateRestored": true
+    }
+  ],
+  "publicSHA256": {
+    "tests/graphics/renderer-owner-transition/capture.swift": "3ee4582905abc1ae7324661e5c4350aefd6a01bff6ad649d6a412ed07beeca73",
+    "tests/graphics/renderer-owner-transition/i386-phase2.png": "5b5ba9fce067ca56e5fb09f865ba350391252bb93341932cde77b42a963a4c91",
+    "tests/graphics/renderer-owner-transition/i386-phase3.png": "9946f36edb4f30a935b9e9b1d9315bc73fa96b68e6aa3911d033111076baf104",
+    "tests/graphics/renderer-owner-transition/i386-phase1.png": "1de57350780a0a4f6428fb1b3de6616176ad2ee9e4046d1be61c0899935c9f45",
+    "tests/graphics/renderer-owner-transition/diagnostic.patch": "944af880bd18751c0d787f0f3fbb9e95b3fa5b6be0f468370b5f42f7bfa64543",
+    "tests/graphics/renderer-owner-transition/x86_64-phase2.png": "09e05d8781f839aaaeac4be86d85e8b44a6c7d7a88e7c8135ba08f96bdd735a1",
+    "tests/graphics/renderer-owner-transition/client.c": "ff73a4f1c8481d377069a4c7db4f9b950953280ccc291fdf759815f8b1f2be26",
+    "tests/graphics/renderer-owner-transition/x86_64-phase3.png": "c15b65bb8d12cbc392364411bf9a03523764c02c99b4c868969dfa6ee4ce615e",
+    "tests/graphics/renderer-owner-transition/x86_64-phase1.png": "01c31c9b64430441320d58f03f9a6c65387734e403605105ff2ed0e551cda21c",
+    "tests/graphics/renderer-owner-transition/oracle.py": "7a9b73ce4f867c27a667c05e80e00464e14e35f1ede4bf0d023138262e4306cc",
+    "tests/graphics/renderer-owner-transition/analyze.py": "d6d8509368ccb1e06b7cc06bd275266b797300b38da3ae6cee084d8804b656a1",
+    "tests/graphics/renderer-owner-transition/README.md": "3ceb24ff99bb067cd1ad6a775b5204c1e9d271b555bcf0e8f3dde0633e28354c"
+  }
+}

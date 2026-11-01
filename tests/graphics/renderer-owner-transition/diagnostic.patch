@@ -1,0 +1,34 @@
+Read-only route transition observations for the actual standard consumer.
+Only TRACE statements and a local alias for the previous route are added.
+A retired marker precedes free(route); a freed marker precedes free(client).
+Neither claims completion of asynchronous Cocoa tails or global GPU work.
+
+--- a/dlls/winemac.drv/remote_client.c
++++ b/dlls/winemac.drv/remote_client.c
+@@ -330,7 +330,15 @@
+             {
+                 struct renderer_route *fresh=NULL;
+                 DWORD error=open_route(client,root,&fresh);
+-                if(!error){client->current->stopping=TRUE;client->current=fresh;}
++                if(!error)
++                {
++                    struct renderer_route *previous=client->current;
++                    previous->stopping=TRUE;client->current=fresh;
++                    TRACE("renderer client migrated hwnd %p context %u previous-root %p root %p lease %#llx ticket %#llx generation %#llx\n",
++                        client->hwnd,client->context_id,previous->root,fresh->root,
++                        (unsigned long long)fresh->producer_id.lease,(unsigned long long)fresh->ticket,
++                        (unsigned long long)fresh->producer_id.generation);
++                }
+                 else
+                 {
+                     for(route=client->routes;route;route=route->next)if(route!=client->current)route->stopping=TRUE;
+@@ -348,6 +356,9 @@
+         {
+             if(retire_route(route))
+             {
++                TRACE("renderer client route retired hwnd %p context %u root %p lease %#llx ticket %#llx host-safe %u producer-safe %u\n",
++                    client->hwnd,client->context_id,route->root,(unsigned long long)route->producer_id.lease,
++                    (unsigned long long)route->ticket,route->host_safe,route->producer_safe);
+                 *cursor=route->next;if(client->current==route)client->current=NULL;free(route);continue;
+             }
+             pending=TRUE;

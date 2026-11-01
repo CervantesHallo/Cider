@@ -1,5 +1,8 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+最新[134](../research/134-r-v1-owner-transition-20261102.md)：renderer真实拥有初始Root/child、host仅拥有目标Root，严格bootstrap后同device/swapchains local→foreign→local，双向493/0＋735/0或736/0；三图/实际Native owner PID A→B→A、6精确route退役/2本地free后ACK，再各owner自毁窗口/真实join。259源码输入/raw/组件/gate/图像/清理回退绑定；测试白背景窄修及原失败保留，默认/门禁不变。下一原图形阶段更新/ResizeBuffers与实际画面，再CEF/启动器/可回退包；原HY/Windows条件保持。
+
+
 最新[133](../research/133-r-v1-unified-local-ownership-20261102.md)：实验开关开启时，本地初始也沿既有导出owner/known-ticket/RO许可路径；单文件0029严格重建、源码复审与配套链接通过，双PE原本地生命周期各1415/0，56实际self-root context但仅55本地freed，完整合作回收不计过。代价和回退已记录，性能/截图/local↔foreign/resize/CEF未验收，不默认采用。下一由renderer真正拥有初始Root/child的往返与存活回收门禁，保持原图形阶段及HY/Windows条件。
 
 
