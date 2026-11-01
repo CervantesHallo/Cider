@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新[130](../research/130-r-v1-three-images-20261101.md)：真实三进程双方向host144/0＋两个producer各35/0，实际WindowServer两矩形139552红→蓝，逐块69776px／40列白间隔，A先完整退出B仍ACTIVE再退出。判定器4P2已修／复审／11合成控制单列；9闭包252输入/源二进制图像gate/4清理恢复保护另行绑定。历史评审记忆按准确Git快照固定，代码实际字节检查不降。指定两三进程图像集合完成，接实际renderer foreign前端/CEF；不同颜色逐producer对应在采用路径验证，物理/输入/性能不冒称，默认/门禁不变。
+
 最新[129](../research/129-r-v1-window-images-20261101.md)：实际双方向WindowServer红蓝窗口PNG通过，host66/0、producer35/0，704×468相同矩形69776红→蓝像素，4清理/原恢复保护完整。截图工具路径/晚完成P2修复；onScreen过约束按Apple独立Space契约纠正，AppKit初始化缺口修后真实取图，旧failed保留。不是引擎隐藏/锁屏问题；物理显示/输入/性能不冒称通过。继续原三进程图像→foreign前端/CEF，默认/门禁保持。
 
 最新[128](../research/128-r-v1-three-pixel-20261101.md)：实际同Root两个producer并发，双方向host142/0及两个producer各35/0；先A全退出/归还observer，再fresh B仍model1/context持有，之后B完整退出。两槽诊断源审/NDEBUG/9闭包236输入/1430独立检查/7清理恢复保护通过。首轮stdout完整JSON拼行误拒，仅严格重判原raw；反向另验。仍非屏幕/foreign HWND/输入/游戏。原生截图准确ID/PID/title但onScreen=false，未采图/ACK；Mac未锁屏，继续查真实窗口可见性后再原前端，默认/门禁保持。

@@ -1,0 +1,596 @@
+{
+  "scope": "Actual three-process common-root composited WindowServer images, two same-color producer tiles, GPU and independent retirement separately bound",
+  "windowImagesAccepted": true,
+  "perProducerDistinctColorMappingAccepted": false,
+  "physicalDisplayAccepted": false,
+  "foreignFrontendAccepted": false,
+  "defaultAdopted": false,
+  "artifacts": {
+    "three-pixel-client-review-v2.json": "102ff311aa421216c4d82c6db5a43321847c665f3c78187e25a15965d25f5301",
+    "three-image-tools-review-v1.json": "232c32cf56075b2eca76679f699fc85e636dea9cee93089e94b31e7ec5835a92",
+    "three-image-tools-review-v2.json": "50ee5d18d9cdc36fae11405b23c92f99a6933919fd722377ff90ae01fb5591b2",
+    "classifier-counterexamples-v1.json": "148822368b41954b8ee964d808102a4621875e84905cb960fd0373d5a475820c",
+    "check-image-classifier-counterexamples-v1.py": "97f93f3d3346800a3f023bfc2ca50890a29ec2c54ea02f1e4403abf494f929d6",
+    "three-pixel-client-build-v2/build-v1.json": "22880defd875418aea80c08a9124b778acf7fede972bc3226d0268f71682ce9a",
+    "three-images-runtime-parent-admission-v1.json": "c7e039c6dad2238fc4648ce5e022fd3ad027788d963172b22ea8cfbe545ca917",
+    "three-images-runtime-v1.json": "6a8bf571a461d3fe07ab4ecb7be77bbf367b1e6bec8fabd1fb58905a9501d099",
+    "three-images-independent-binding-v1.json": "90f01856f88875176ebf1d21210a7aef44f4f1c4852011594d521e93adde3ec8",
+    "three-images-public-reconstruction-v1.json": "decccca351237fe0a78bdce800ce905402c1cef52e4d64741508528b3780248b",
+    "run-three-images-v1.py": "1427ae3265e3b30a318a84dc8cbf202bcb1519dcee0f2f2a2825f37d815f76e5",
+    "three_image_oracle_v1.py": "432f517e785c5f02e54c7a80936bf1cb69e52dd5e5ca698fd204fd33e6cab44b",
+    "verify-three-images-v1.py": "4e7327f34fffc322cf5cb327541736fb8d52505b3316142e4cf41161baae8b61"
+  },
+  "dependencies": 9,
+  "projectInputs": 252,
+  "historicalReviewContext": [
+    {
+      "review": "three-pixel-native-review-v1.json",
+      "path": "/Users/cervantes/Cider/docs/PROJECT_MEMORY.md",
+      "gitRevision": "df52ade",
+      "snapshot": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/review-context-538b369676c7b533b885b258d003ab6a15ea339c5138dda4e85b18b641207fa3.md",
+      "sha256": "538b369676c7b533b885b258d003ab6a15ea339c5138dda4e85b18b641207fa3"
+    }
+  ],
+  "independentChecks": 1446,
+  "cleanupReceipts": 4,
+  "directions": [
+    {
+      "key": "x86_64-host-i386-producer",
+      "host": {
+        "type": "cross-pixel",
+        "role": "triple-host",
+        "event": "three-summary",
+        "bits": 64,
+        "pid": 32,
+        "sequence": 0,
+        "nonce": [
+          11218522435059009725,
+          10785354689900987510
+        ],
+        "screen_required": true,
+        "complete": true,
+        "cleanup": true,
+        "checks": 144,
+        "failures": 0,
+        "native_calls": 12,
+        "host_pid": 32,
+        "host_birth": 134380066256545790,
+        "root": 65624,
+        "coexistence": true,
+        "independence": true,
+        "native_slots_released": true,
+        "lanes": [
+          {
+            "lane": "A",
+            "pid": 308,
+            "birth": 134380066283920170,
+            "child": 65644,
+            "epoch": 1,
+            "cid": 1073426952,
+            "lease": 24,
+            "ticket": 25,
+            "complete": true,
+            "cleanup_reported": true,
+            "kernel_joined": true,
+            "exit_known": true,
+            "exit": 0,
+            "exit_zero": true,
+            "forced": false,
+            "setup_attempted": true,
+            "setup_ack": true,
+            "created": true,
+            "native_finished": true,
+            "local_cleanup": true
+          },
+          {
+            "lane": "B",
+            "pid": 320,
+            "birth": 134380066284289180,
+            "child": 65646,
+            "epoch": 1,
+            "cid": 3349671692,
+            "lease": 22,
+            "ticket": 26,
+            "complete": true,
+            "cleanup_reported": true,
+            "kernel_joined": true,
+            "exit_known": true,
+            "exit": 0,
+            "exit_zero": true,
+            "forced": false,
+            "setup_attempted": true,
+            "setup_ack": true,
+            "created": true,
+            "native_finished": true,
+            "local_cleanup": true
+          }
+        ],
+        "io_error": false,
+        "pipe_error": false,
+        "clock_error": false,
+        "timeout": false,
+        "quit_seen": false,
+        "elapsed_ms": 6184,
+        "screenAccepted": false,
+        "gpu_only": false,
+        "capture_images": true,
+        "capture_error": false,
+        "pixel_calls": 2,
+        "capture_acks": 2,
+        "ready_handle_owned": false,
+        "gate_handle_owned": false,
+        "note": "TEST ONLY work160 total180 Native4 external210; Native synchronous calls checked before/after, not preempted; four actual probes per slot; producers remain GPU-only; optional host image gates use fresh60 and A reply64 budgets, WindowServer single-window images independent of Space, no physical display or current Space proof; host pixel operations only HOST_WINDOW(3), no host GPU drawing; process exit is not resource SAFE; unknown observers/windows/module, capture handles and unjoined process handles retained"
+      },
+      "producers": [
+        {
+          "type": "cross-pixel",
+          "role": "producer",
+          "event": "summary",
+          "bits": 32,
+          "pid": 308,
+          "sequence": 4,
+          "nonce": [
+            11218522435059009725,
+            10785354689900987510
+          ],
+          "screen_required": false,
+          "complete": true,
+          "checks": 35,
+          "failures": 0,
+          "attempts": 127,
+          "gpu_result_counts": [
+            3,
+            0,
+            0,
+            0,
+            0
+          ],
+          "red_results": 1,
+          "blue_results": 1,
+          "pixel_cleanup": true,
+          "capture_acks": 0,
+          "host_safe_observed": true,
+          "producer_safe_observed": true,
+          "native_cleanup": true,
+          "cleanup": true,
+          "retained_for_unknown_safety": false,
+          "io_error": false,
+          "pipe_error": false,
+          "clock_error": false,
+          "timeout": false,
+          "elapsed_ms": 2847,
+          "note": "TEST ONLY work 160s total 180s; Native calls 4s checked before/after, not preempted; parent external watchdog 210s; GPU readback/present request is not screen proof; capture acknowledgements are host replies; process exit is not resource SAFE"
+        },
+        {
+          "type": "cross-pixel",
+          "role": "producer",
+          "event": "summary",
+          "bits": 32,
+          "pid": 320,
+          "sequence": 4,
+          "nonce": [
+            11218522435059009725,
+            10785354689900987510
+          ],
+          "screen_required": false,
+          "complete": true,
+          "checks": 35,
+          "failures": 0,
+          "attempts": 127,
+          "gpu_result_counts": [
+            3,
+            0,
+            0,
+            0,
+            0
+          ],
+          "red_results": 1,
+          "blue_results": 1,
+          "pixel_cleanup": true,
+          "capture_acks": 0,
+          "host_safe_observed": true,
+          "producer_safe_observed": true,
+          "native_cleanup": true,
+          "cleanup": true,
+          "retained_for_unknown_safety": false,
+          "io_error": false,
+          "pipe_error": false,
+          "clock_error": false,
+          "timeout": false,
+          "elapsed_ms": 3091,
+          "note": "TEST ONLY work 160s total 180s; Native calls 4s checked before/after, not preempted; parent external watchdog 210s; GPU readback/present request is not screen proof; capture acknowledgements are host replies; process exit is not resource SAFE"
+        }
+      ],
+      "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T113659-three-pixel-x86_64-images-v1-2B392620-3048-4731-83C7-0737D430878F/wine.log",
+      "rawSHA256": "5c67af5b176e670a11615c81c2d1bc0fd422a478069657ce366a075330265973",
+      "sessionSHA256": "9e0cc2ec73dd5f8fad28813ec02bb3f8ddcdb48dfa32ceefb3d66941758d5f80",
+      "hostExeSHA256": "d9148e5b1a6021df52becab9e50143982022cd132043b125b978bfc959d2e08b",
+      "producerExeSHA256": "b036b86e4cd93692a96c69dfa2205076a17975b9fa7fc4dd2607f86d062c005a",
+      "images": [
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-screen-9bb032b7667148bd95ad46f27c244476-1.png",
+          "sha256": "89e77ffa67cde06785eddf13fb70129c5e1abb6016bebf5dffebfd968f6df08d",
+          "assessment": {
+            "passed": true,
+            "phase": 1,
+            "width": 864,
+            "height": 468,
+            "pngSHA256": "89e77ffa67cde06785eddf13fb70129c5e1abb6016bebf5dffebfd968f6df08d",
+            "redPixels": 139552,
+            "bluePixels": 0,
+            "dominantBounds": [
+              22,
+              78,
+              777,
+              273
+            ],
+            "regions": [
+              {
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "expectedComponents": 2,
+            "fullRectangleOccupancy": true,
+            "opaqueWhiteGapWidth": 40,
+            "connectivity": "all matching runs, eight-neighbor",
+            "scope": "actual captured WindowServer PNG rectangles; no physical scanout/color-management/exact source texture identity claim"
+          },
+          "onScreenBefore": false,
+          "onScreenAfter": false
+        },
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-screen-9bb032b7667148bd95ad46f27c244476-2.png",
+          "sha256": "c499ff68e3b23d1f9e54444ccde08f53ef01022cbce67589c7208e5d2e4a4bda",
+          "assessment": {
+            "passed": true,
+            "phase": 2,
+            "width": 864,
+            "height": 468,
+            "pngSHA256": "c499ff68e3b23d1f9e54444ccde08f53ef01022cbce67589c7208e5d2e4a4bda",
+            "redPixels": 0,
+            "bluePixels": 139552,
+            "dominantBounds": [
+              22,
+              78,
+              777,
+              273
+            ],
+            "regions": [
+              {
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "expectedComponents": 2,
+            "fullRectangleOccupancy": true,
+            "opaqueWhiteGapWidth": 40,
+            "connectivity": "all matching runs, eight-neighbor",
+            "scope": "actual captured WindowServer PNG rectangles; no physical scanout/color-management/exact source texture identity claim"
+          },
+          "onScreenBefore": false,
+          "onScreenAfter": false
+        }
+      ],
+      "windowImagesAccepted": true,
+      "screenAccepted": false
+    },
+    {
+      "key": "i386-host-x86_64-producer",
+      "host": {
+        "type": "cross-pixel",
+        "role": "triple-host",
+        "event": "three-summary",
+        "bits": 32,
+        "pid": 236,
+        "sequence": 0,
+        "nonce": [
+          6185383353065292857,
+          9897751911652308843
+        ],
+        "screen_required": true,
+        "complete": true,
+        "cleanup": true,
+        "checks": 144,
+        "failures": 0,
+        "native_calls": 12,
+        "host_pid": 236,
+        "host_birth": 134380066404428910,
+        "root": 65624,
+        "coexistence": true,
+        "independence": true,
+        "native_slots_released": true,
+        "lanes": [
+          {
+            "lane": "A",
+            "pid": 320,
+            "birth": 134380066427337070,
+            "child": 65644,
+            "epoch": 1,
+            "cid": 3829866549,
+            "lease": 22,
+            "ticket": 25,
+            "complete": true,
+            "cleanup_reported": true,
+            "kernel_joined": true,
+            "exit_known": true,
+            "exit": 0,
+            "exit_zero": true,
+            "forced": false,
+            "setup_attempted": true,
+            "setup_ack": true,
+            "created": true,
+            "native_finished": true,
+            "local_cleanup": true
+          },
+          {
+            "lane": "B",
+            "pid": 332,
+            "birth": 134380066427595110,
+            "child": 65646,
+            "epoch": 1,
+            "cid": 2509610109,
+            "lease": 24,
+            "ticket": 26,
+            "complete": true,
+            "cleanup_reported": true,
+            "kernel_joined": true,
+            "exit_known": true,
+            "exit": 0,
+            "exit_zero": true,
+            "forced": false,
+            "setup_attempted": true,
+            "setup_ack": true,
+            "created": true,
+            "native_finished": true,
+            "local_cleanup": true
+          }
+        ],
+        "io_error": false,
+        "pipe_error": false,
+        "clock_error": false,
+        "timeout": false,
+        "quit_seen": false,
+        "elapsed_ms": 4974,
+        "screenAccepted": false,
+        "gpu_only": false,
+        "capture_images": true,
+        "capture_error": false,
+        "pixel_calls": 2,
+        "capture_acks": 2,
+        "ready_handle_owned": false,
+        "gate_handle_owned": false,
+        "note": "TEST ONLY work160 total180 Native4 external210; Native synchronous calls checked before/after, not preempted; four actual probes per slot; producers remain GPU-only; optional host image gates use fresh60 and A reply64 budgets, WindowServer single-window images independent of Space, no physical display or current Space proof; host pixel operations only HOST_WINDOW(3), no host GPU drawing; process exit is not resource SAFE; unknown observers/windows/module, capture handles and unjoined process handles retained"
+      },
+      "producers": [
+        {
+          "type": "cross-pixel",
+          "role": "producer",
+          "event": "summary",
+          "bits": 64,
+          "pid": 320,
+          "sequence": 4,
+          "nonce": [
+            6185383353065292857,
+            9897751911652308843
+          ],
+          "screen_required": false,
+          "complete": true,
+          "checks": 35,
+          "failures": 0,
+          "attempts": 127,
+          "gpu_result_counts": [
+            3,
+            0,
+            0,
+            0,
+            0
+          ],
+          "red_results": 1,
+          "blue_results": 1,
+          "pixel_cleanup": true,
+          "capture_acks": 0,
+          "host_safe_observed": true,
+          "producer_safe_observed": true,
+          "native_cleanup": true,
+          "cleanup": true,
+          "retained_for_unknown_safety": false,
+          "io_error": false,
+          "pipe_error": false,
+          "clock_error": false,
+          "timeout": false,
+          "elapsed_ms": 2337,
+          "note": "TEST ONLY work 160s total 180s; Native calls 4s checked before/after, not preempted; parent external watchdog 210s; GPU readback/present request is not screen proof; capture acknowledgements are host replies; process exit is not resource SAFE"
+        },
+        {
+          "type": "cross-pixel",
+          "role": "producer",
+          "event": "summary",
+          "bits": 64,
+          "pid": 332,
+          "sequence": 4,
+          "nonce": [
+            6185383353065292857,
+            9897751911652308843
+          ],
+          "screen_required": false,
+          "complete": true,
+          "checks": 35,
+          "failures": 0,
+          "attempts": 127,
+          "gpu_result_counts": [
+            3,
+            0,
+            0,
+            0,
+            0
+          ],
+          "red_results": 1,
+          "blue_results": 1,
+          "pixel_cleanup": true,
+          "capture_acks": 0,
+          "host_safe_observed": true,
+          "producer_safe_observed": true,
+          "native_cleanup": true,
+          "cleanup": true,
+          "retained_for_unknown_safety": false,
+          "io_error": false,
+          "pipe_error": false,
+          "clock_error": false,
+          "timeout": false,
+          "elapsed_ms": 2591,
+          "note": "TEST ONLY work 160s total 180s; Native calls 4s checked before/after, not preempted; parent external watchdog 210s; GPU readback/present request is not screen proof; capture acknowledgements are host replies; process exit is not resource SAFE"
+        }
+      ],
+      "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T113718-three-pixel-i386-images-v1-B8C77D6C-1F54-4F87-93C3-3F419D274B4A/wine.log",
+      "rawSHA256": "02ecb58b0d94098bd90851dc396baebb735dbf2e7194932526354ce1e6ea350c",
+      "sessionSHA256": "6108046d2fe4d696fad94dbf704c4dc225cb72464129c50fa8a8e5e16ac313e5",
+      "hostExeSHA256": "b036b86e4cd93692a96c69dfa2205076a17975b9fa7fc4dd2607f86d062c005a",
+      "producerExeSHA256": "d9148e5b1a6021df52becab9e50143982022cd132043b125b978bfc959d2e08b",
+      "images": [
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-screen-55d6e56357124439895be0ec50fab76b-1.png",
+          "sha256": "89e77ffa67cde06785eddf13fb70129c5e1abb6016bebf5dffebfd968f6df08d",
+          "assessment": {
+            "passed": true,
+            "phase": 1,
+            "width": 864,
+            "height": 468,
+            "pngSHA256": "89e77ffa67cde06785eddf13fb70129c5e1abb6016bebf5dffebfd968f6df08d",
+            "redPixels": 139552,
+            "bluePixels": 0,
+            "dominantBounds": [
+              22,
+              78,
+              777,
+              273
+            ],
+            "regions": [
+              {
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "expectedComponents": 2,
+            "fullRectangleOccupancy": true,
+            "opaqueWhiteGapWidth": 40,
+            "connectivity": "all matching runs, eight-neighbor",
+            "scope": "actual captured WindowServer PNG rectangles; no physical scanout/color-management/exact source texture identity claim"
+          },
+          "onScreenBefore": false,
+          "onScreenAfter": false
+        },
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-screen-55d6e56357124439895be0ec50fab76b-2.png",
+          "sha256": "c499ff68e3b23d1f9e54444ccde08f53ef01022cbce67589c7208e5d2e4a4bda",
+          "assessment": {
+            "passed": true,
+            "phase": 2,
+            "width": 864,
+            "height": 468,
+            "pngSHA256": "c499ff68e3b23d1f9e54444ccde08f53ef01022cbce67589c7208e5d2e4a4bda",
+            "redPixels": 0,
+            "bluePixels": 139552,
+            "dominantBounds": [
+              22,
+              78,
+              777,
+              273
+            ],
+            "regions": [
+              {
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "expectedComponents": 2,
+            "fullRectangleOccupancy": true,
+            "opaqueWhiteGapWidth": 40,
+            "connectivity": "all matching runs, eight-neighbor",
+            "scope": "actual captured WindowServer PNG rectangles; no physical scanout/color-management/exact source texture identity claim"
+          },
+          "onScreenBefore": false,
+          "onScreenAfter": false
+        }
+      ],
+      "windowImagesAccepted": true,
+      "screenAccepted": false
+    }
+  ],
+  "publicSource": {
+    "tests/graphics/three-images/pixel-pe.inc": "1b105efb85d127f0f5b48f6a109d3b05fd0e72c4eafc4f403e74e0e80f06761b",
+    "tests/graphics/three-images/protocol.h": "0f7d40238fa848fc15db39e0c77c8c3b68e7ff54a2f33479eba8dd56cd22c03f",
+    "tests/graphics/three-images/pixel.h": "3c78f586188cf5309207d5e99f773a4e0fb3ea4d3cb7a7fe3e46cefb33bda6cf",
+    "tests/graphics/three-images/capture.swift": "83d24fffb0b70c9d46039186cdf3d5ba7c7e86d8161026a6c73fa382264b1ecb",
+    "tests/graphics/three-images/native.inc": "f69ce116dde916ea33c6cca9333b5be97d37bfe9041bb2ccd5e98db72d434db7",
+    "tests/graphics/three-images/three-main.c": "a941907c5804b4640e6e487cb3ddd335823347ceacb20237ab2ffdb6dc33815b",
+    "tests/graphics/three-images/cocoa.inc": "5fc195976a1bfb969e398ca5b6b2325225c2b3305544f67ae8e335dbc0441b81",
+    "tests/graphics/three-images/diagnostic.patch": "452643c7e53fb4d7572fe27dff02efaeffd69112deef229df4cf0a48dce92915",
+    "tests/graphics/three-images/fixture.h": "2084392ee7133afd8b59a4a25b75084829ff2b3174b47ce4c9e9924055c5dd45",
+    "tests/graphics/three-images/pixel-native.inc": "75a5d1f9d1f958670cdb64e043ff0755354c99a7d0d9e6c054af86f9c08c1a6c",
+    "tests/graphics/three-images/probe.h": "6c251cdfc9e4ba34a73231ca34c9497e40e0575248322c7f3fb54eacbf281b02",
+    "tests/graphics/three-images/two-blue.png": "c499ff68e3b23d1f9e54444ccde08f53ef01022cbce67589c7208e5d2e4a4bda",
+    "tests/graphics/three-images/client.c": "0ada3045999f5fe6f6bdec382bfeea4a2783e725654f507d91739f0dbc601ce8",
+    "tests/graphics/three-images/winemac-fixture.spec": "c7c959d0f7cdce1c4710c0a1987dfeef13489f57ed1c297313b10c2ee12de2ac",
+    "tests/graphics/three-images/pixel-cocoa.inc": "493eb184ab407d65e68341ef70a962b739b3accc70e146ca4c41f16ed06f23a4",
+    "tests/graphics/three-images/pe.inc": "4aa3262b8a9897efbc017c216ae4a5f2f4d1a4ee2f322d6ef2b2ac969e293b6f",
+    "tests/graphics/three-images/analyze.py": "fb1d4bdfe0329f7f5ed1cacd6b306c0b469398e51f4939739280d5e51506c139",
+    "tests/graphics/three-images/two-red.png": "89e77ffa67cde06785eddf13fb70129c5e1abb6016bebf5dffebfd968f6df08d"
+  }
+}
