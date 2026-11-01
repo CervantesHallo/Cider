@@ -1,0 +1,2395 @@
+{
+  "schema": "cider.r-v1.host-status-cleanup-evidence/v1",
+  "date": "2026-11-01",
+  "scope": "own NT section real close failure, held concurrent CANCEL and ordinary retry, fixed NDEBUG candidate only",
+  "passed": true,
+  "productFix": "0027 ordinary source-v5, per-invocation owns_cell; no product delta this batch",
+  "reviews": [
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-status-cleanup-review-v1.json",
+      "sha256": "357355db6775f9c9d2b2192a3266c858f3b060111bd7ef7ff1adc093ed25af06",
+      "report": {
+        "review": "host-status-cleanup-review-v1",
+        "review_type": "bounded independent own-resource lifetime fixture source review",
+        "current_target": "host-status-cleanup-fixture-v3 client and identical v2/v3 includes; host-status-cleanup-diagnostic-source-v1 integration versus ordinary source-v5",
+        "source_admission": false,
+        "finding_counts": {
+          "P1": 0,
+          "P2": 2
+        },
+        "sourceSHA256": [
+          {
+            "path": "host-status-cleanup-fixture-v2/fixture.h",
+            "sha256": "33ad1878dff43b8ba44b8f6acf752c12f271604a8202022db87adcbf47b726b4",
+            "bytes": 2715,
+            "lines": 46
+          },
+          {
+            "path": "host-status-cleanup-fixture-v2/native.inc",
+            "sha256": "48e7d70e939825361fad1ba93f574263bdb84c709f545b5864ffa2ef6b56baeb",
+            "bytes": 16911,
+            "lines": 288
+          },
+          {
+            "path": "host-status-cleanup-fixture-v2/pe.inc",
+            "sha256": "a965d5bafdd48cd3a4dca520adc2a58b9f761600d16acc7b5710005c704deaa4",
+            "bytes": 723,
+            "lines": 14
+          },
+          {
+            "path": "host-status-cleanup-fixture-v2/client.c",
+            "sha256": "e7d2961643c315368a59589e191529c8d2894173c07b2cee98ee3211ed9008ba",
+            "bytes": 18856,
+            "lines": 288
+          },
+          {
+            "path": "host-status-cleanup-diagnostic-source-v1/dlls/winemac.drv/host_status.inc",
+            "sha256": "7608d9c833d5448efa8a4659ae628188778b0e2c051eb74053a02e03c4b3e2a2",
+            "bytes": 12963,
+            "lines": 290
+          },
+          {
+            "path": "host-status-cleanup-diagnostic-source-v1/dlls/winemac.drv/remote_coordinator.c",
+            "sha256": "f41b0217dbc99ecd6b8cc909ac488df4a1bb02e9c871c56a4853669495e5bba2",
+            "bytes": 59425,
+            "lines": 1428
+          },
+          {
+            "path": "host-status-source-v5/dlls/winemac.drv/host_status.inc",
+            "sha256": "c1051a4289ddbd339bd659174c2f3b2beb5d931d30832773b7c625b38d1148ba",
+            "bytes": 12696,
+            "lines": 283
+          },
+          {
+            "path": "host-status-source-v5/dlls/winemac.drv/remote_coordinator.c",
+            "sha256": "eb72d129959248798d279675072079379b3dac67303d11dd1b6a33841e177cd2",
+            "bytes": 57702,
+            "lines": 1387
+          },
+          {
+            "path": "host-status-cleanup-fixture-v3/fixture.h",
+            "sha256": "33ad1878dff43b8ba44b8f6acf752c12f271604a8202022db87adcbf47b726b4",
+            "bytes": 2715,
+            "lines": 46,
+            "relation": "byte-identical to reviewed v2"
+          },
+          {
+            "path": "host-status-cleanup-fixture-v3/native.inc",
+            "sha256": "48e7d70e939825361fad1ba93f574263bdb84c709f545b5864ffa2ef6b56baeb",
+            "bytes": 16911,
+            "lines": 288,
+            "relation": "byte-identical to reviewed v2"
+          },
+          {
+            "path": "host-status-cleanup-fixture-v3/pe.inc",
+            "sha256": "a965d5bafdd48cd3a4dca520adc2a58b9f761600d16acc7b5710005c704deaa4",
+            "bytes": 723,
+            "lines": 14,
+            "relation": "byte-identical to reviewed v2"
+          },
+          {
+            "path": "host-status-cleanup-fixture-v3/client.c",
+            "sha256": "440402baaf27012fba6def8c7e218059889e1213d81d2006e62dd57369747b03",
+            "bytes": 18866,
+            "lines": 288,
+            "relation": "only v2 printf flags cast to unsigned"
+          }
+        ],
+        "findings": [
+          {
+            "id": "HSC-P2-01",
+            "priority": "P2",
+            "title": "One-shot ARM rejects a legal in-progress protected-close retry",
+            "locations": [
+              {
+                "path": "host-status-cleanup-fixture-v3/native.inc",
+                "lines": "210-224"
+              },
+              {
+                "path": "host-status-cleanup-fixture-v3/client.c",
+                "lines": "224-229"
+              },
+              {
+                "path": "host-status-cleanup-diagnostic-source-v1/dlls/winemac.drv/host_status.inc",
+                "lines": "87-107"
+              }
+            ],
+            "problem": "ARM requires attached host->status_cell. An ordinary timer retry temporarily detaches that exact cell for actual NT close outside remote_lock. The client invokes ARM once and treats any nonzero result as fatal. The prior FAILED_CLOSE snapshot does not reserve the observed !busy/attached state across HostSAFE reads, output, and event creation.",
+            "schedule": [
+              "FAILED_CLOSE samples the protected partial cell reattached with busy=false.",
+              "Before ARM, the next ordinary timer retry sets busy, transfers status_cell to its local owner, and unlocks for actual close.",
+              "ARM acquires the lock while host->status_cell is NULL and returns ERROR_INVALID_STATE; CHECK21 fails.",
+              "The real NtClose fails under protection and ordinary code reattaches the same cell. The server remains correct, but the acceptance setup has failed spuriously."
+            ],
+            "minimal_fix": "Return a transient pending result for the expected busy/detached setup window without committing ARM, and retry ARM under one bounded client deadline until it can latch ready state under remote_lock. Likewise handle BIND existing ERROR_IO_PENDING as bounded setup retry. Do not change ordinary retry ownership or run cleanup from SNAPSHOT.",
+            "validation": "Qualify setup during an actual in-progress protected close; after reattachment the same real held-control/decision/close checks must run."
+          },
+          {
+            "id": "HSC-P2-02",
+            "priority": "P2",
+            "title": "Armed-but-unstarted worker prevents observation-pin cleanup",
+            "locations": [
+              {
+                "path": "host-status-cleanup-fixture-v3/native.inc",
+                "lines": "210-224, 253-273"
+              },
+              {
+                "path": "host-status-cleanup-fixture-v3/client.c",
+                "lines": "229-231, 263-281"
+              }
+            ],
+            "problem": "Only the entered control hook clears armed, while FINISH rejects any armed state. There is no failure disarm path. Successful ARM followed by CreateThread failure, or elapsed rejection after ARM commits but before worker creation, leaves an auxiliary latch that cannot clear in that invocation.",
+            "schedule": [
+              "ARM commits armed=true and stores the event; no worker is created.",
+              "done signals the event, clears the real section protection, and releases the producer. No thread consumes armed.",
+              "Actual NT cleanup and Native resource drain can complete.",
+              "FINISH still returns ERROR_BUSY because armed remains true. Host/producer observation pins remain retained; done then closes the event/module references without clearing the stale armed event scalar."
+            ],
+            "minimal_fix": "Provide private auxiliary disarm/abort cleanup after the worker is proved absent or joined. Under remote_lock reject a live held/control invocation, then clear unused arm/event state. Follow with existing actual release/drain/FINISH and only then close the event. This must not detach, close, unregister, or repair the ordinary cell.",
+            "validation": "Cover armed/no-worker and a late ARM response whose side effect was committed. After actual NT drain, observation pins and event must be releasable without process termination."
+          }
+        ],
+        "exact_hooks": [
+          {
+            "location": "host_status.inc:54, 97-101",
+            "result": "Only attempted bookkeeping plus an observer after the actual close call returns, outside remote_lock. Actual returned status and remaining cell are recorded; the cell is not rescued/dereferenced by the observer."
+          },
+          {
+            "location": "host_status.inc:104-123",
+            "result": "The ordinary owns_cell guard remains unchanged. The observer executes after actual reattach/unregister and before busy clear/requeue under the same lock, recording real local owns/attempted/closed/removed and exact cell/owner/registry state."
+          },
+          {
+            "location": "host_status.inc:274-282",
+            "result": "The event hold runs after real begin_host_status_control admission and lock release, with actual owned control pin still held, before disposal/decrement. Real NT wait and clocks occur outside remote_lock."
+          },
+          {
+            "location": "remote_coordinator.c:1185-1188, 1392-1428",
+            "result": "Comparison confirms only high identity seed, hook prototypes, appended diagnostic probe/native include. Ordinary packet admission/end implementations are retained. No NT status replacement or ordinary guard weakening is added."
+          }
+        ],
+        "positive_assessments": [
+          "BIND captures exact own-process producer/root epoch/generation/ticket/context and actual writer HANDLE32 while taking independent host/producer observation references. Those pins do not guard or repair the section owner.",
+          "Real failed-close witness requires STATUS_HANDLE_NOT_CLOSABLE and the same remaining cell token after actual close. Client additionally requires attached exact cell, registry/owner counts and !busy. Resource SAFE is not treated as NT-owner completion.",
+          "The held decision is selected only with actual status_controls>0, prior actual failure, resource_done, owns_cell=false and attempted=false. CHECK24 requires controls1/busy1 and preservation of the same cell and owner/registry counts. Initialized local closed=0 is explicitly not an actual NT success.",
+          "Native fixture state is locked. Worker response fields are read after kernel-thread join. Event lifetime extends through worker exit; the success path joins before close, and failure paths retain event/module when the worker is unjoined.",
+          "Protection-clear success is latched before output; no borrowed writer-handle operation occurs after clear, when the timer can close it immediately. SNAPSHOT is observation only. Real post-clear successful close with no partial owner is required; FINISH refuses zero counters alone without recorded actual close success.",
+          "Fixed336-byte scalar frame and asserted identity32/count112/decision224 offsets are self-consistent. PE wrapper allows concurrent RUN_CANCEL/SNAPSHOT and reads actual atomic PE counters. Fixture refcount mutations are outside assert; no NDEBUG-only ownership shortcut is introduced."
+        ],
+        "v3_delta": "Exact bytes verify only the printf flags argument cast to unsigned; all three includes match v2 exactly.",
+        "limits": [
+          "Source-only review: no builds, tests, candidate execution, network, source edits, Windows/default changes, or runtime control. Only the requested JSON report was written.",
+          "No actual protected close, held schedule, fixed pass, paired binary identity, NDEBUG build result, runtime count, restoration or cleanup receipt is claimed. Parent build reports were not verification.",
+          "ALL_DRAINED checks Native state but omits appended pe_watches/pe_timers zero predicates. These counters are logged; parent must separately enforce their actual zero values before claiming full PE watch/timer quiescence.",
+          "Unix enum/table/export, probe header/callers, PE watch implementation, and effective binary bindings were not supplied in this bounded scope. Header declares private slot7/count8; actual binding remains parent verification.",
+          "Four-second elapsed checks and actual event wait do not preempt blocked foreign calls/output. Cleanup worker join uses a separate five-second wait. An external watchdog remains necessary.",
+          "Failure cleanup summaries are not whole-process restoration receipts, especially for unknown acquisition/setup or uncleared protection. No rendering/GPU/pixel or complete protocol adoption claim.",
+          "Only newly authorized v2/v3 fixture files and the named diagnostic/basis sources were read. Earlier partial deliveries and parked cross-process preparation were not accessed."
+        ],
+        "admission_reason": "The real close and concurrent skipped-detach ownership witness is structurally sound, but the setup race and deterministic armed failure-cleanup leak require correction before reliable source admission.",
+        "writes": [
+          "host-status-cleanup-review-v1.json"
+        ]
+      }
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-status-cleanup-review-v2.json",
+      "sha256": "1794a037d154e0a41f566d2b88c6f5bf9de6b67f32478afe24b572c096784a92",
+      "report": {
+        "review": "host-status-cleanup-review-v2",
+        "review_type": "bounded independent delta re-review",
+        "current_target": {
+          "client": "host-status-cleanup-fixture-v5/client.c",
+          "includes": "host-status-cleanup-fixture-v4/{fixture.h,native.inc,pe.inc}; v5 copies verified byte-identical"
+        },
+        "baseline": "host-status-cleanup-fixture-v3, previously reviewed in host-status-cleanup-review-v1.json",
+        "source_admission": true,
+        "findings": [],
+        "finding_counts": {
+          "P1": 0,
+          "P2": 0
+        },
+        "sourceSHA256": [
+          {
+            "path": "host-status-cleanup-fixture-v3/fixture.h",
+            "sha256": "33ad1878dff43b8ba44b8f6acf752c12f271604a8202022db87adcbf47b726b4",
+            "bytes": 2715,
+            "lines": 46
+          },
+          {
+            "path": "host-status-cleanup-fixture-v3/native.inc",
+            "sha256": "48e7d70e939825361fad1ba93f574263bdb84c709f545b5864ffa2ef6b56baeb",
+            "bytes": 16911,
+            "lines": 288
+          },
+          {
+            "path": "host-status-cleanup-fixture-v3/pe.inc",
+            "sha256": "a965d5bafdd48cd3a4dca520adc2a58b9f761600d16acc7b5710005c704deaa4",
+            "bytes": 723,
+            "lines": 14
+          },
+          {
+            "path": "host-status-cleanup-fixture-v3/client.c",
+            "sha256": "440402baaf27012fba6def8c7e218059889e1213d81d2006e62dd57369747b03",
+            "bytes": 18866,
+            "lines": 288
+          },
+          {
+            "path": "host-status-cleanup-fixture-v4/fixture.h",
+            "sha256": "22f0303d017a2615b0549560f98ef00e3960ffd6789f92c3ed4bc9e943443bec",
+            "bytes": 2736,
+            "lines": 46
+          },
+          {
+            "path": "host-status-cleanup-fixture-v4/native.inc",
+            "sha256": "fd411fe4645f0cd16216a78196a231304b1f81abe0ead908abd38edcc8bf45ee",
+            "bytes": 17712,
+            "lines": 304
+          },
+          {
+            "path": "host-status-cleanup-fixture-v4/pe.inc",
+            "sha256": "861af175ae806eca22d4e9a1438097322a678f73adc9bdb07817565f3c065430",
+            "bytes": 723,
+            "lines": 14
+          },
+          {
+            "path": "host-status-cleanup-fixture-v4/client.c",
+            "sha256": "6600b445a219903c3fdc19f54bddbb449af88d852687ae9ed85072bd1d46857d",
+            "bytes": 19741,
+            "lines": 303
+          },
+          {
+            "path": "host-status-cleanup-fixture-v5/client.c",
+            "sha256": "236ff1d02194f5b0f37d010a5275eb01280b017671c21e2ccc612c887510df82",
+            "bytes": 19823,
+            "lines": 303
+          },
+          {
+            "path": "host-status-cleanup-fixture-v5/fixture.h",
+            "sha256": "22f0303d017a2615b0549560f98ef00e3960ffd6789f92c3ed4bc9e943443bec",
+            "bytes": 2736,
+            "lines": 46,
+            "relation": "byte-identical to reviewed v4"
+          },
+          {
+            "path": "host-status-cleanup-fixture-v5/native.inc",
+            "sha256": "fd411fe4645f0cd16216a78196a231304b1f81abe0ead908abd38edcc8bf45ee",
+            "bytes": 17712,
+            "lines": 304,
+            "relation": "byte-identical to reviewed v4"
+          },
+          {
+            "path": "host-status-cleanup-fixture-v5/pe.inc",
+            "sha256": "861af175ae806eca22d4e9a1438097322a678f73adc9bdb07817565f3c065430",
+            "bytes": 723,
+            "lines": 14,
+            "relation": "byte-identical to reviewed v4"
+          }
+        ],
+        "resolved_findings": [
+          {
+            "id": "HSC-P2-01",
+            "status": "resolved in v4 and retained in v5",
+            "locations": [
+              "native.inc:210-229",
+              "client.c:143-153, 228, 240, 242"
+            ],
+            "assessment": "ARM now classifies ordinary status_busy as nonacting ERROR_IO_PENDING before testing the attached exact cell token. No event/sequence/arm mutation occurs in that transient branch. When not busy it requires the captured token and commits under remote_lock. Client setup_fixture retries only pending, using one unchanged start time and four-second budget across calls and pacing. BIND uses the same bounded pending handling. An actual successful late commit is not retried: call_fixture records ownership flags before elapsed rejection, then the client enters cleanup."
+          },
+          {
+            "id": "HSC-P2-02",
+            "status": "resolved in v4 and retained in v5",
+            "locations": [
+              "fixture.h:9-13",
+              "native.inc:231-240, 290-304",
+              "pe.inc:8-10",
+              "client.c:240-242, 256, 277-281"
+            ],
+            "assessment": "DISARM is included consistently as operation6 in header, Native dispatch and PE range checks. It rejects held or started-but-unreturned control work under remote_lock and clears only auxiliary armed/event scalars. Failure cleanup calls it only when no worker exists or the real worker has joined, before event closure and ordinary resource drain/FINISH. Thus an armed-but-unstarted worker no longer strands the observation pins after real cleanup. The normal path exercises unused ARM/DISARM/re-ARM and post-join DISARM without changing ordinary cell ownership."
+          }
+        ],
+        "v5_followup": {
+          "location": "client.c:241",
+          "exact_delta": "Only the unused-DISARM check changes from attached cell_present/cell_matches to host_registered, host_owners==1 and actual GetHandleInformation(writer) proving protection still set. No other v5 client bytes differ from v4; all three v5 includes match v4.",
+          "assessment": "This removes the v4 self-check race with ordinary temporary NT-cell detachment. The protected writer cannot be successfully closed by the intended ordinary retry before the client clears protection, so its real handle remains valid even while the cell is held by the retry invocation. Registered/NT-owner counts remain counted through that work. The following bounded re-ARM still requires the exact cell token under the lock, and the later held-decision check retains the exact-cell assertion. The auxiliary test therefore neither requires a continuously attached cell nor weakens the real ownership witness."
+        },
+        "other_assessments": [
+          "Native DISARM performs no close, detach, registry/counter mutation, ordinary queue operation, control-pin adjustment, signal or wait. Event handle ownership stays with the PE client; no kernel event is closed by Native DISARM.",
+          "The existing thread-join requirement protects the raw event borrow, and all changed Native shared fields remain under remote_lock. No new worker/main shared-memory race is introduced by these deltas.",
+          "The fixed336-byte frame body and asserted offsets remain unchanged; only the operation enum is extended. Both Native and PE validators accept the same new maximum.",
+          "The client has42 normal main-path check calls, including the three new auxiliary checks. Summary and final count predicate both require42. Existing true close/SAFE/held-decision/producer finalization and cleanup checks are retained.",
+          "Protection-clear side-effect latches, exact actual failed/successful close observation, read-only snapshots, and the ordinary owns_cell guard/integration are not modified by the reviewed fixture deltas."
+        ],
+        "prior_integration_binding": {
+          "status": "Previously reviewed integration; not reopened or re-audited in this narrow delta review. Parent states it is unchanged.",
+          "host_status.inc_sha256": "7608d9c833d5448efa8a4659ae628188778b0e2c051eb74053a02e03c4b3e2a2",
+          "remote_coordinator.c_sha256": "f41b0217dbc99ecd6b8cc909ac488df4a1bb02e9c871c56a4853669495e5bba2",
+          "reference": "host-status-cleanup-review-v1.json"
+        },
+        "required_fixes": [],
+        "admission_scope": "Admit the current v5 client plus byte-identical v4/v5 Native/header/PE includes as source fixes for the two prior fixture findings and the transient-detach self-check. This preserves the actual own-section NT close and owned-event control witness; it is not runtime acceptance.",
+        "limits": [
+          "Source diffing, inspection and hashing only. No candidate execution, builds, tests, network, source edits, Windows/default changes, or runtime control. Only this requested JSON report was written; previous reports/sources were preserved.",
+          "No actual42/0, protected NtClose status, held-control timing, paired binary identity, strict build result, NDEBUG runtime behavior, actual cleanup receipt, or restoration result is claimed. Parent build reports were not independent verification.",
+          "Previously reviewed integration, ordinary lifecycle code, tables/exports, effective include closures and artifacts were not re-audited or independently rebound. Parent must bind the new operation6 header/validators and matched Native/PE inputs.",
+          "Inherited elapsed guards reject late returns but cannot preempt blocked foreign calls, Get/SetHandleInformation, output or cleanup. An outer watchdog remains necessary. Unknown dispatch failure can still require external cleanup evidence; no fake SAFE or successful close is supplied by DISARM.",
+          "The unchanged ALL_DRAINED predicate still omits PE watch/timer zero conditions. Parent must separately qualify the actual logged pe_watches/pe_timers zeros before claiming full PE quiescence.",
+          "No broken variant or runtime counterfactual qualification was reviewed or executed. No rendering/GPU/pixel, cross-process or complete protocol adoption acceptance follows. Earlier partial deliveries and unrelated parked preparation were not accessed."
+        ],
+        "writes": [
+          "host-status-cleanup-review-v2.json"
+        ]
+      }
+    }
+  ],
+  "sourceBuildAdmission": {
+    "path": "out/engine-dxmt-bridge-20261025/host-status-cleanup-runtime-parent-admission-v2.json",
+    "sha256": "43a2baa6d481944f36afcbc4e67a7073a0c7dc369b605b1af2f89d3b5d41255e",
+    "projectInputs": 104,
+    "dependencyClosures": 8,
+    "artifacts": [
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cleanup-build-v3/winemac.so",
+        "sha256": "4354848be2f2200deb86ab7861c788418d5d992d8db504d47448acf29f54704b"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-build-v5/win32u.so",
+        "sha256": "08af46cc74497412110d4058d2945f064f3874a38740c4ff7aa83f1625802b26"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cleanup-build-v3/i386/winemac.drv",
+        "sha256": "09a91deb2681a4ad08a0007dd48873ccf9f630e47ef4ab571a805b23763fade1"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cleanup-build-v3/x86_64/winemac.drv",
+        "sha256": "3519046eef3ae048137940988ca78e73448ede2969f86ed8b3a17d40459ea580"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cleanup-client-build-v3/i386-host-cleanup-race.exe",
+        "sha256": "a91181b86188ac65e6a23133225e33379627d85014de709722cd34d88b6ec0bd"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cleanup-client-build-v3/x86_64-host-cleanup-race.exe",
+        "sha256": "601aa9c2f55a92e62693257343e771a0b7f3afb028f69ff16d1f1b8a186ae4e1"
+      }
+    ]
+  },
+  "failedBuildsPreserved": [
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-status-cleanup-build-v1/build-v1.json",
+      "sha256": "b0190dc527af0dc6cded2135f4449e08e758326fb04489039f4b66c45dfab5ae"
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-status-cleanup-build-v2/build-v1.json",
+      "sha256": "55a44b300851679544bd381f6ca3f2c65a99f11ef515b0a30415169e8b2cc604"
+    }
+  ],
+  "finalBuilds": [
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-status-cleanup-build-v3/build-v1.json",
+      "sha256": "f95d11dc6326399340a5ec2525ff78609629151061600d2795742a910949923b"
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-status-cleanup-client-build-v3/build-v1.json",
+      "sha256": "07fd471e6b8ad5a86f2327a2ffa63ea1a57f52f496c114000a524ebb1ad7a814"
+    }
+  ],
+  "runtime": {
+    "path": "out/engine-dxmt-bridge-20261025/host-status-cleanup-runtime-v2.json",
+    "sha256": "71bae12323a794dc49d12da905703d2f5e89fb945084803a9c2baa366d6211ba",
+    "executions": [
+      {
+        "arch": "x86_64",
+        "checks": 42,
+        "witness": {
+          "op": 2,
+          "status": 0,
+          "epoch": 8589934592,
+          "lease": 8589934604,
+          "ticket": 8589934605,
+          "generation": 8589934592,
+          "serial": 1,
+          "request": 1,
+          "owners": 1,
+          "registered": 1,
+          "cell": 1,
+          "matches": 1,
+          "controls": 1,
+          "resource_done": 1,
+          "close_seen": 1,
+          "close_status": 3221226037,
+          "close_partial": 1,
+          "held": 1,
+          "done": 0,
+          "wait": 4294967295,
+          "decision": 1,
+          "dc": 1,
+          "dr": 1,
+          "busy": 1,
+          "owns": 0,
+          "attempted": 0,
+          "local_closed": 0,
+          "removed": 0,
+          "dcell": 1,
+          "dmatch": 1,
+          "dreg": 1,
+          "downers": 1,
+          "dcount": 1,
+          "watches": 1,
+          "timers": 1,
+          "cleanup": 0,
+          "setups": 0,
+          "observer": 1,
+          "event": 168,
+          "returned": 0,
+          "error": 4294967295,
+          "native_watches": 1,
+          "close_successes": 0,
+          "last_status": 3221226037,
+          "last_partial": 1,
+          "timely": 4294967295
+        },
+        "worker": {
+          "op": 4,
+          "status": 0,
+          "epoch": 8589934592,
+          "lease": 8589934604,
+          "ticket": 8589934605,
+          "generation": 8589934592,
+          "serial": 1,
+          "request": 0,
+          "owners": 1,
+          "registered": 1,
+          "cell": 1,
+          "matches": 1,
+          "controls": 0,
+          "resource_done": 1,
+          "close_seen": 1,
+          "close_status": 3221226037,
+          "close_partial": 1,
+          "held": 0,
+          "done": 1,
+          "wait": 0,
+          "decision": 1,
+          "dc": 1,
+          "dr": 1,
+          "busy": 1,
+          "owns": 0,
+          "attempted": 0,
+          "local_closed": 0,
+          "removed": 0,
+          "dcell": 1,
+          "dmatch": 1,
+          "dreg": 1,
+          "downers": 1,
+          "dcount": 1,
+          "watches": 1,
+          "timers": 1,
+          "cleanup": 0,
+          "setups": 0,
+          "observer": 1,
+          "event": 168,
+          "returned": 1,
+          "error": 0,
+          "native_watches": 1,
+          "close_successes": 0,
+          "last_status": 3221226037,
+          "last_partial": 1,
+          "timely": 1
+        },
+        "drained": {
+          "op": 2,
+          "status": 0,
+          "epoch": 8589934592,
+          "lease": 8589934604,
+          "ticket": 8589934605,
+          "generation": 8589934592,
+          "serial": 1,
+          "request": 0,
+          "owners": 0,
+          "registered": 0,
+          "cell": 0,
+          "matches": 0,
+          "controls": 0,
+          "resource_done": 1,
+          "close_seen": 1,
+          "close_status": 3221226037,
+          "close_partial": 1,
+          "held": 0,
+          "done": 1,
+          "wait": 0,
+          "decision": 1,
+          "dc": 1,
+          "dr": 1,
+          "busy": 1,
+          "owns": 0,
+          "attempted": 0,
+          "local_closed": 0,
+          "removed": 0,
+          "dcell": 1,
+          "dmatch": 1,
+          "dreg": 1,
+          "downers": 1,
+          "dcount": 1,
+          "watches": 1,
+          "timers": 1,
+          "cleanup": 0,
+          "setups": 0,
+          "observer": 1,
+          "event": 0,
+          "returned": 1,
+          "error": 0,
+          "native_watches": 1,
+          "close_successes": 1,
+          "last_status": 0,
+          "last_partial": 0,
+          "timely": 1
+        },
+        "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T025524-host-cleanup-race-cross-x86_64-v2-52AAD8FF-46F6-4EC9-8F7F-3FA80DB7D3E7/wine.log",
+        "rawSHA256": "935337d4b1bf8d7511eddbda1e341bdca1dbc9b409f6d10534e9803f8fa1af2a",
+        "sessionSHA256": "c23eb594b965ba62c361263d8a22f0fe82d9f0bc41801f56dd49435ea358eccc",
+        "exeSHA256": "601aa9c2f55a92e62693257343e771a0b7f3afb028f69ff16d1f1b8a186ae4e1"
+      },
+      {
+        "arch": "i386",
+        "checks": 42,
+        "witness": {
+          "op": 2,
+          "status": 0,
+          "epoch": 8589934592,
+          "lease": 8589934604,
+          "ticket": 8589934605,
+          "generation": 8589934592,
+          "serial": 1,
+          "request": 1,
+          "owners": 1,
+          "registered": 1,
+          "cell": 1,
+          "matches": 1,
+          "controls": 1,
+          "resource_done": 1,
+          "close_seen": 1,
+          "close_status": 3221226037,
+          "close_partial": 1,
+          "held": 1,
+          "done": 0,
+          "wait": 4294967295,
+          "decision": 1,
+          "dc": 1,
+          "dr": 1,
+          "busy": 1,
+          "owns": 0,
+          "attempted": 0,
+          "local_closed": 0,
+          "removed": 0,
+          "dcell": 1,
+          "dmatch": 1,
+          "dreg": 1,
+          "downers": 1,
+          "dcount": 1,
+          "watches": 1,
+          "timers": 1,
+          "cleanup": 0,
+          "setups": 0,
+          "observer": 1,
+          "event": 176,
+          "returned": 0,
+          "error": 4294967295,
+          "native_watches": 1,
+          "close_successes": 0,
+          "last_status": 3221226037,
+          "last_partial": 1,
+          "timely": 4294967295
+        },
+        "worker": {
+          "op": 4,
+          "status": 0,
+          "epoch": 8589934592,
+          "lease": 8589934604,
+          "ticket": 8589934605,
+          "generation": 8589934592,
+          "serial": 1,
+          "request": 0,
+          "owners": 1,
+          "registered": 1,
+          "cell": 1,
+          "matches": 1,
+          "controls": 0,
+          "resource_done": 1,
+          "close_seen": 1,
+          "close_status": 3221226037,
+          "close_partial": 1,
+          "held": 0,
+          "done": 1,
+          "wait": 0,
+          "decision": 1,
+          "dc": 1,
+          "dr": 1,
+          "busy": 1,
+          "owns": 0,
+          "attempted": 0,
+          "local_closed": 0,
+          "removed": 0,
+          "dcell": 1,
+          "dmatch": 1,
+          "dreg": 1,
+          "downers": 1,
+          "dcount": 1,
+          "watches": 1,
+          "timers": 1,
+          "cleanup": 0,
+          "setups": 0,
+          "observer": 1,
+          "event": 176,
+          "returned": 1,
+          "error": 0,
+          "native_watches": 1,
+          "close_successes": 0,
+          "last_status": 3221226037,
+          "last_partial": 1,
+          "timely": 1
+        },
+        "drained": {
+          "op": 2,
+          "status": 0,
+          "epoch": 8589934592,
+          "lease": 8589934604,
+          "ticket": 8589934605,
+          "generation": 8589934592,
+          "serial": 1,
+          "request": 0,
+          "owners": 0,
+          "registered": 0,
+          "cell": 0,
+          "matches": 0,
+          "controls": 0,
+          "resource_done": 1,
+          "close_seen": 1,
+          "close_status": 3221226037,
+          "close_partial": 1,
+          "held": 0,
+          "done": 1,
+          "wait": 0,
+          "decision": 1,
+          "dc": 1,
+          "dr": 1,
+          "busy": 1,
+          "owns": 0,
+          "attempted": 0,
+          "local_closed": 0,
+          "removed": 0,
+          "dcell": 1,
+          "dmatch": 1,
+          "dreg": 1,
+          "downers": 1,
+          "dcount": 1,
+          "watches": 1,
+          "timers": 1,
+          "cleanup": 0,
+          "setups": 0,
+          "observer": 1,
+          "event": 0,
+          "returned": 1,
+          "error": 0,
+          "native_watches": 1,
+          "close_successes": 1,
+          "last_status": 0,
+          "last_partial": 0,
+          "timely": 1
+        },
+        "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T025549-host-cleanup-race-cross-i386-v2-0AF115A0-B443-4047-A6FA-79E3FA0764C7/wine.log",
+        "rawSHA256": "b95e7f02471a135bb9d7ffd3c6816a33af80f0a66d9e8a605a36d95a17d9a292",
+        "sessionSHA256": "04bdbe19e21db82454f89b408a24d57ac7666129b5ee03dc62adb513502f6332",
+        "exeSHA256": "a91181b86188ac65e6a23133225e33379627d85014de709722cd34d88b6ec0bd"
+      }
+    ],
+    "cleanupReceipts": 5,
+    "ordinaryCandidateRestored": true,
+    "protectedUnchanged": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": true,
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": true,
+      "/Users/cervantes/Library/Application Support/Cider/Bottles/steam-hb-2574/cider-bottle.json": true,
+      "/Users/cervantes/Library/Application Support/Cider/Bottles/bottle-ca8f/cider-bottle.json": true
+    }
+  },
+  "independentBinding": {
+    "path": "out/engine-dxmt-bridge-20261025/host-status-cleanup-independent-binding-v2.json",
+    "sha256": "6c817399057d1f6ecae521518161d5428af737c40ed3eafdddca6126fa790f1b",
+    "checks": [
+      {
+        "label": "source/build admitted",
+        "passed": true
+      },
+      {
+        "label": "effective include/source identity",
+        "passed": true
+      },
+      {
+        "label": "exact linked artifacts and clients",
+        "passed": true
+      },
+      {
+        "label": "bound independent reviews",
+        "passed": true
+      },
+      {
+        "label": "actual controller complete",
+        "passed": true
+      },
+      {
+        "label": "actual controller/admission identity",
+        "passed": true
+      },
+      {
+        "label": "matching fixed ABI and release-assertions build",
+        "passed": true
+      },
+      {
+        "label": "frozen F27 core bytes",
+        "passed": true
+      },
+      {
+        "label": "unchanged native winemetal",
+        "passed": true
+      },
+      {
+        "label": "sixteen installed PE modules",
+        "passed": true
+      },
+      {
+        "label": "two installed native modules",
+        "passed": true
+      },
+      {
+        "label": "complete actual GUI/kernel cleanup receipt",
+        "passed": true
+      },
+      {
+        "label": "complete actual GUI/kernel cleanup receipt",
+        "passed": true
+      },
+      {
+        "label": "complete actual GUI/kernel cleanup receipt",
+        "passed": true
+      },
+      {
+        "label": "complete actual GUI/kernel cleanup receipt",
+        "passed": true
+      },
+      {
+        "label": "complete actual GUI/kernel cleanup receipt",
+        "passed": true
+      },
+      {
+        "label": "all five cleanup receipts",
+        "passed": true
+      },
+      {
+        "label": "both PE widths",
+        "passed": true
+      },
+      {
+        "label": "raw/session identity",
+        "passed": true
+      },
+      {
+        "label": "actual engine and executable",
+        "passed": true
+      },
+      {
+        "label": "exact executed client bytes",
+        "passed": true
+      },
+      {
+        "label": "independent raw event parse",
+        "passed": true
+      },
+      {
+        "label": "42 ordered actual checks, zero failures",
+        "passed": true
+      },
+      {
+        "label": "actual summary, join, internal cleanup, exit",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "real held CANCEL and timer retry intersect",
+        "passed": true
+      },
+      {
+        "label": "same-lock skipped-detach keeps exact resource owner",
+        "passed": true
+      },
+      {
+        "label": "real preceding STATUS_HANDLE_NOT_CLOSABLE with partial NT owner",
+        "passed": true
+      },
+      {
+        "label": "high 64-bit identities survive both widths",
+        "passed": true
+      },
+      {
+        "label": "immutable observed reservation",
+        "passed": true
+      },
+      {
+        "label": "bounded actual event release and control return",
+        "passed": true
+      },
+      {
+        "label": "one actual protection clear after actual control return",
+        "passed": true
+      },
+      {
+        "label": "ordinary recovery closes actual NT owner after clear",
+        "passed": true
+      },
+      {
+        "label": "resource SAFE distinct from pending NT owner",
+        "passed": true
+      },
+      {
+        "label": "producer SAFE follows actual host NT close",
+        "passed": true
+      },
+      {
+        "label": "observation pins released only after ordinary owners drain",
+        "passed": true
+      },
+      {
+        "label": "raw/session identity",
+        "passed": true
+      },
+      {
+        "label": "actual engine and executable",
+        "passed": true
+      },
+      {
+        "label": "exact executed client bytes",
+        "passed": true
+      },
+      {
+        "label": "independent raw event parse",
+        "passed": true
+      },
+      {
+        "label": "42 ordered actual checks, zero failures",
+        "passed": true
+      },
+      {
+        "label": "actual summary, join, internal cleanup, exit",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "336-byte raw frame",
+        "passed": true
+      },
+      {
+        "label": "fixed diagnostic ABI",
+        "passed": true
+      },
+      {
+        "label": "real held CANCEL and timer retry intersect",
+        "passed": true
+      },
+      {
+        "label": "same-lock skipped-detach keeps exact resource owner",
+        "passed": true
+      },
+      {
+        "label": "real preceding STATUS_HANDLE_NOT_CLOSABLE with partial NT owner",
+        "passed": true
+      },
+      {
+        "label": "high 64-bit identities survive both widths",
+        "passed": true
+      },
+      {
+        "label": "immutable observed reservation",
+        "passed": true
+      },
+      {
+        "label": "bounded actual event release and control return",
+        "passed": true
+      },
+      {
+        "label": "one actual protection clear after actual control return",
+        "passed": true
+      },
+      {
+        "label": "ordinary recovery closes actual NT owner after clear",
+        "passed": true
+      },
+      {
+        "label": "resource SAFE distinct from pending NT owner",
+        "passed": true
+      },
+      {
+        "label": "producer SAFE follows actual host NT close",
+        "passed": true
+      },
+      {
+        "label": "observation pins released only after ordinary owners drain",
+        "passed": true
+      },
+      {
+        "label": "ordinary bottle config restored byte-for-byte",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "original DLL bytes/absence restored",
+        "passed": true
+      },
+      {
+        "label": "four protected actual bytes",
+        "passed": true
+      }
+    ]
+  },
+  "abi": {
+    "engineID": "cider-lab-wine11.18-host-status-cleanup-r2-x86_64",
+    "cleanupFixtureBytes": 336,
+    "coordinatorNDEBUG": true,
+    "nativeUnixEntries": 8,
+    "wow64UnixEntries": 8,
+    "userPacketBytes": 96,
+    "userPreparedVersion": 2,
+    "recoveryVersion": 2,
+    "hostStatusPermissionOnly": true,
+    "defaultAdopted": false,
+    "foreignChildEnabled": false
+  },
+  "metadataCorrection": "staging Native module rows inherit diagnosticOnly=false; this test winemac.so has observation/scheduling hooks and is diagnostic-only. Raw runtime is preserved. No default adoption.",
+  "reconstruction": {
+    "path": "out/engine-dxmt-bridge-20261025/host-status-cleanup-public-reconstruction-v1.json",
+    "sha256": "5ca60c251ca061655fba1c792b059d16c5e8c81f827c8d05505ee2a4affb1975",
+    "report": {
+      "passed": true,
+      "stdout": "patching file 'dlls/winemac.drv/remote_coordinator.c'\npatching file 'dlls/winemac.drv/host_status.inc'\npatching file 'dlls/winemac.drv/remote_watch_pe.c'\npatching file 'dlls/winemac.drv/macdrv_main.c'\npatching file 'dlls/winemac.drv/unixlib.h'\n",
+      "stderr": "",
+      "files": {
+        "dlls/winemac.drv/remote_coordinator.c": "f41b0217dbc99ecd6b8cc909ac488df4a1bb02e9c871c56a4853669495e5bba2",
+        "dlls/winemac.drv/host_status.inc": "7608d9c833d5448efa8a4659ae628188778b0e2c051eb74053a02e03c4b3e2a2",
+        "dlls/winemac.drv/remote_watch_pe.c": "a100d9593baec507ceafa78c38eb9fbc83925615e7f81139753e917f69df103e",
+        "dlls/winemac.drv/macdrv_main.c": "63086b927046d9c1fbc2c796b3bf3df329cf51385b52912cdecfc22ee3f3ea86",
+        "dlls/winemac.drv/unixlib.h": "24ce5e40115c93050bb55d6217689b9eb108701d2c8051d2593701efe2fe6581"
+      },
+      "publicSHA256": {
+        "tests/graphics/host-status-cleanup/native.inc": "fd411fe4645f0cd16216a78196a231304b1f81abe0ead908abd38edcc8bf45ee",
+        "tests/graphics/host-status-cleanup/diagnostic.patch": "e0d6226f78aac49a46d2b50b9cf2254f7f498de606288fd35dcf2ba6206c2eac",
+        "tests/graphics/host-status-cleanup/fixture.h": "22f0303d017a2615b0549560f98ef00e3960ffd6789f92c3ed4bc9e943443bec",
+        "tests/graphics/host-status-cleanup/probe.h": "6c251cdfc9e4ba34a73231ca34c9497e40e0575248322c7f3fb54eacbf281b02",
+        "tests/graphics/host-status-cleanup/client.c": "236ff1d02194f5b0f37d010a5275eb01280b017671c21e2ccc612c887510df82",
+        "tests/graphics/host-status-cleanup/winemac-fixture.spec": "a96dcc5d17a47cb98df59daa40222d60136297439212a905cbaaa20db5457569",
+        "tests/graphics/host-status-cleanup/pe.inc": "861af175ae806eca22d4e9a1438097322a678f73adc9bdb07817565f3c065430"
+      }
+    }
+  },
+  "compaction": {
+    "path": "out/storage-cleanup-20261025/host-status-cleanup-batch-cleanup-v1.json",
+    "sha256": "67846ed7b406ed671b5acbb83023b97258108ba3144e35cd5c3f5e78f6977ca8",
+    "state": "complete",
+    "deletedCount": 4,
+    "removedOwnedExecutableCopies": [
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/host-cleanup-race-cross-x86_64-v2.exe",
+        "sha256": "601aa9c2f55a92e62693257343e771a0b7f3afb028f69ff16d1f1b8a186ae4e1",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cleanup-client-build-v3/x86_64-host-cleanup-race.exe"
+      },
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/host-cleanup-race-cross-i386-v2.exe",
+        "sha256": "a91181b86188ac65e6a23133225e33379627d85014de709722cd34d88b6ec0bd",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cleanup-client-build-v3/i386-host-cleanup-race.exe"
+      }
+    ],
+    "retainedBaseRechecked": true,
+    "protectedFourUnchanged": true
+  },
+  "limits": [
+    "metadata host only, no actual CAContext import or pixels",
+    "no real INSTALL timeout or INSTALL/CANCEL overlap acceptance",
+    "no before-fix runtime negative case in this batch",
+    "fixed selected interleaving does not establish all concurrent schedules",
+    "no Windows, default engine, game gates or compatibility-rating change",
+    "historical child tool error retained; current parent source/build/runtime succeeded"
+  ]
+}

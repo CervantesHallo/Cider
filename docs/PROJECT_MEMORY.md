@@ -4,6 +4,8 @@
 
 ## 最新实际运行接续
 
+最新[116](research/116-r-v1-host-status-cleanup-20261101.md)：父代理完成本进程 NT cell 真实失败／并发 CANCEL 验收，0027 普通 owns_cell 修复保持。真实 protected writer NtClose=c0000235，CANCEL 实际 control 在途时普通计时器重试，同锁冻结 owns/attempted/removed=0 且原 cell 身份／登记／producer owner=1；释放事件并真实 join 后仅清保护一次，普通路径实际关闭归零、producerSAFE，再释放观察引用。最终双PE各42/0/CLI0，Native coordinator NDEBUG；独立审查两P2（瞬态ARM、未使用ARM撤销）修后接纳，8依赖闭包104输入、raw/session/EXE/组件/F27/5清理/原恢复/保护4另行绑定，五文件诊断精确重建。两个构建失败保留，stage诊断注释误标在证据明确纠正，不作默认组件。4树2EXE精确差异归档清理。旧子代理工具错误保留为历史，本次实际源审／构建／运行成功，这项指定故障门槛已验收，不能沿用旧“未运行”状态。不是全部INSTALL并发、未知transport、CAContext／像素／跨进程／游戏证明；仍按原per-host剩余安装在途／取消等→多进程资源→事件reparent→像素顺序，原实现／门禁保留，Windows/Actions/定时/Goal零操作，非本批AppModel保留。
+
 最新[115](research/115-r-v1-reply-independent-consumer-20261101.md)：用户已交Dot反馈客服、处理中，不再重复询问通知入口／Mac权限。父代理当前per-host策略检查仅新reply-independent-client-v1，旧112 Native／PE字节不改；本地适配器实际调用LIVE_INSTALL一次，完整真实NT/操作结果仅记录给独立观察者，不把响应字段交给消费者分支，随后新snapshot实际模型1/1/1、context/knownTicket/RO仍持有，再CANCEL到模型0/ROSAFE后释放。双PE各25/0，限定源审接纳、严格编译，独立raw/session/EXE/组件/F27/5完整清理/原恢复/保护4绑定。明确不是实际消息丢失或USERtimeout，不修改NT返回、不重放IMPORT；完整未知transport和关键NT失败并发仍未通过。3树2EXE压缩清理，来源/raw/清单/普通基底保留；不重跑旧正常用例。跨进程草稿继续parked未编译运行，后续阶段/默认/游戏门禁不放行；Windows/Actions/定时/Goal零操作，代理关闭，实验scope清理确认，非本批AppModel保留。
 
 2026-11-01用户确认已由Dot把复核材料反馈客服，客服仍在处理，要求继续。平台恢复／复核属于待外部处理项，不重复追问同一通知入口或Mac权限。工程仍按当前per-host顺序推进可独立验证的契约；关键故障并发门槛保留，不重试被拦截的具体任务，不把别的正常结果冒称为该项通过。
