@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新[127](../research/127-r-v1-cross-pixel-20261101.md)：真实双进程相反位宽红蓝各16000像素读回，host62/0、producer35/0，四握手/SAFE/GPU drain/kerneljoin/exit0无强制；Native autoreleasepool修后两份限定复审、14闭包202输入/424独立检查/6清理及原恢复保护通过。首屏幕模式CUA超时failed保留，明确GPU-only无截图ACK；首方向控制器计数误拒仅重判原raw，不重跑。屏幕/foreign HWND/三进程/输入/性能仍待；继续原三进程准备，默认/门禁不变。
+
 最新[126](../research/126-r-v1-cross-reparent-20261101.md)：实际SetParent宿主自有childslot Root1→Root2→Root1，驱动自动退休旧Root1模型/发布HostSAFE，移回不复活，无CANCEL/手动refresh/RootChanged注入/重INSTALL。双方向各host64/0、producer30/0，CLI0/kerneljoin/exit0无强制；严格源审/9闭包136输入/2raw双EXE组件/5清理/恢复/保护4及重建，3树2EXE归档。非producerHWND前端/物理输入/任意竞态；下一真实两三进程像素/呈现，更广输入/故障如实留待，默认/门禁保持。
 
 最新[125](../research/125-r-v1-cross-resource-20261101.md)：指定per-host集合补至124后，按原顺序进入双进程真实资源；64host→32producer及反向各host55/0、producer28/0，CLI0/kerneljoin/exit0无强制。实际ctx/RO/host模型1→0与SAFE后释放绑定三握手真实身份/nonce/seq。setup部分清理P2修后审查接纳，首方向preparse nonce误拒保留failed，只重判原raw未重跑。NDEBUG/160v2/200v1/Unix8/watch2，9闭包131输入/2raw双EXE组件/7清理/恢复/保护4及精确重建，4树4EXE归档。旧parked未改，新副本host自有childslot，非producer HWND路由/像素；下一事件/reparent→两三进程像素，默认/门禁保持。下方“当前per-host/parked”的早期状态为历史检查点，按本条接续。
