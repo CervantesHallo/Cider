@@ -1,0 +1,493 @@
+{
+  "schema": "cider.engine-r-renderer-consumer/v1",
+  "scope": "Actual standard Win32/D3D11 legacy frontend foreign HWND creation, mixed-color WindowServer correspondence, cooperative local ownership retirement; not complete Engine R adoption",
+  "sourceAccepted": true,
+  "compiledAndLinked": true,
+  "standardForeignConsumerAccepted": true,
+  "windowImageAccepted": true,
+  "physicalDisplayAccepted": false,
+  "fullCocoaCallbackTailAccepted": false,
+  "globalGPUIdleAccepted": false,
+  "virtualQueryMetadataAccepted": false,
+  "cefAccepted": false,
+  "reparentAccepted": false,
+  "performanceAccepted": false,
+  "defaultAdopted": false,
+  "gameVerdictsChanged": false,
+  "artifacts": {
+    "renderer-client-pe-review-v2.json": "1f288fc90a509092cd0daba45cb48950c156f4dcbd5357efd6838c7fc60e8352",
+    "renderer-client-source-v1/renderer-client-native-review-v2.json": "b1728c032ab5194943757def4b9e04cb1cbc299b7b5e5e2e41fc8991ded5e091",
+    "renderer-client-provider-review-v2.json": "1fd1cb0a67cab64baa352fcede1438724d3d88b5f87890ccd52259f41fdd483e",
+    "renderer-consumer-review-v2.json": "b26d65d6bb8f31524f37b88c70acb40ba379b9dd1ead67865b4e97b20ce9e061",
+    "renderer-consumer-tools-review-v2.json": "837787f8e0862f44fcf0344cfaaf0fd8ba49d21cf08d1631374c9611cf2481a4",
+    "renderer-client-env-review-v1.json": "2061ddc9b3f20de53d2590d5430236283ab63798f5fde08eb29378aabda2a0bd",
+    "renderer-consumer-map-review-v1.json": "0dd3be0888b8a90b38fcac3d4679971602f446306d5498189a61c5309ea78331",
+    "renderer-client-coupled-v7/build-v1.json": "53bc1e5da7e89c76deeec932afc0068d5abb03c25de97e313c72ed1be05ea8d4",
+    "renderer-consumer-build-v4/build-v1.json": "2271e9971526a9e584ac126ee2ea293d072f5af41e28f629f8e9928314d9f7c8",
+    "staging-renderer-client-v2.json": "ebf474eea8de44fbf059796d3dec771aca28873ce3f68df040c06ef9c54eef3b",
+    "renderer-frontend-runtime-parent-admission-v3.json": "427de897ee0b46cb78b1e892ab722143222c84eb4e11508242d9dad92edc1e2c",
+    "renderer-consumer-runtime-v2.json": "ea5a16bb58cea13cf4ca7d576cf514646458a095487aec94cae3f85064ca16d7",
+    "renderer-consumer-runtime-v3.json": "af93fbf3fedddbc2e6ecf63aa7cfeffc69bb472eaafc5473292caf7af2a3980c",
+    "renderer-consumer-runtime-v4.json": "0f8f1999dd78834c29183680778c8c5096e795578d569903f1a45bf5b5d64952",
+    "renderer-consumer-runtime-v5.json": "ae1c0a9c4bf6c14beb1f8968d39f8848b8ffc045598fb970eaadf959a1224c89",
+    "renderer-consumer-runtime-v6.json": "8f2fc4190f2b9479b8cb23c0b5431fea1b65fc01db43f223a62021b306324b2c",
+    "renderer-consumer-independent-review-v1.json": "32aea64369dbe0311b89ffebd474d37fe7ed14092fbb8adf424dd9fa3659c767",
+    "verify-renderer-consumer-independent-v1.py": "4f3c2357c9da0d0f7cccb710cc586990105d8c0f0766b356af06434a6259cc67",
+    "renderer-consumer-parent-binding-v1.json": "62f36fe2b0c054e376f1057ee6a47b62e5460ea9a18dac98ccf5aace31b97332",
+    "renderer-frontend-public-base-v2.json": "dece064473f0be1e93fb5ae4b0caae19f9e053cd6454a3ed58725fb2c7e44c13",
+    "renderer-frontend-public-reconstruction-v1.json": "905adecb383def1d563a9a8cd1e70874132473cb56913b6458d495ca567d62b6"
+  },
+  "independentReview": {
+    "findingCounts": {
+      "P1": 0,
+      "P2": 0
+    },
+    "checkedInputs": 420,
+    "parentCurrentExactInputs": 419,
+    "historicalContextInputs": [
+      {
+        "path": "/Users/cervantes/Cider/docs/PROJECT_MEMORY.md",
+        "historicalReviewSHA256": "45bd7b44800e5aee19e06a2ad4b610a0c5137aaaf0d437b1d2a198ce0710a00b",
+        "currentSHA256": "e7c82638beacac35e324fbb08e19870f69fb80b02942e656fea8bf14b361ff10",
+        "scope": "mutable read-only project context; not source/build/runtime input",
+        "exactHistoricalBytesRetained": false
+      }
+    ]
+  },
+  "directions": [
+    {
+      "key": "x86_64-host-i386-renderer",
+      "nonce": "afab355d0b264dee8e439966d2f831ae",
+      "host": {
+        "type": "renderer-consumer",
+        "role": "host",
+        "pid": 32,
+        "bits": 64,
+        "nonce": "afab355d0b264dee8e439966d2f831ae",
+        "event": "summary",
+        "check": 244,
+        "label": "final",
+        "ok": true,
+        "hr": 0,
+        "hr_hex": "00000000",
+        "raw": [
+          0,
+          243,
+          7777,
+          0
+        ],
+        "elapsed_ms": 7777,
+        "phase": 3,
+        "root": 65624,
+        "child_a": 65644,
+        "child_b": 65646,
+        "host_pid": 32,
+        "renderer_pid": 308,
+        "self_birth": 134380244401554580,
+        "peer_birth": 134380244429932060,
+        "checks": 244,
+        "failures": 0,
+        "phases": 3,
+        "swapchains": 0,
+        "frames": 0,
+        "readbacks": 0,
+        "presents": 0,
+        "occluded_presents": 0,
+        "pipe_sends": 3,
+        "pipe_receives": 3,
+        "com_release_calls": 0,
+        "local_com_released": false,
+        "gpu_drained": false,
+        "peer_phase12_reports": 2,
+        "peer_frames_reported": 4,
+        "peer_readbacks_reported": 4,
+        "peer_presents_reported": 4,
+        "peer_local_release_reported": true,
+        "kernel_signaled": true,
+        "joined_zero": true,
+        "exit_code": 0,
+        "force_attempted": false,
+        "force_succeeded": false,
+        "io_error": false,
+        "clock_error": false,
+        "timeout": false
+      },
+      "renderer": {
+        "type": "renderer-consumer",
+        "role": "renderer",
+        "pid": 308,
+        "bits": 32,
+        "nonce": "afab355d0b264dee8e439966d2f831ae",
+        "event": "summary",
+        "check": 301,
+        "label": "final",
+        "ok": true,
+        "hr": 0,
+        "hr_hex": "00000000",
+        "raw": [
+          0,
+          300,
+          4655,
+          0
+        ],
+        "elapsed_ms": 4655,
+        "phase": 3,
+        "root": 65624,
+        "child_a": 65644,
+        "child_b": 65646,
+        "host_pid": 32,
+        "renderer_pid": 308,
+        "self_birth": 134380244429932060,
+        "peer_birth": 134380244401554580,
+        "checks": 301,
+        "failures": 0,
+        "phases": 3,
+        "swapchains": 2,
+        "frames": 4,
+        "readbacks": 4,
+        "presents": 4,
+        "occluded_presents": 0,
+        "pipe_sends": 3,
+        "pipe_receives": 3,
+        "com_release_calls": 14,
+        "local_com_released": true,
+        "gpu_drained": true,
+        "peer_phase12_reports": 0,
+        "peer_frames_reported": 0,
+        "peer_readbacks_reported": 0,
+        "peer_presents_reported": 0,
+        "peer_local_release_reported": false,
+        "kernel_signaled": false,
+        "joined_zero": false,
+        "exit_code": 259,
+        "force_attempted": false,
+        "force_succeeded": false,
+        "io_error": false,
+        "clock_error": false,
+        "timeout": false
+      },
+      "logSHA256": "d7bee5c02ce7b3cfdabadc2e10a6bee438899dc231e68af0d23e60851f0df5c2",
+      "sessionSHA256": "91769d4c77f688ff09df44966f4a0ed7c9e12d330dd7164345e5af8f8cc3cfe0",
+      "cliExit": 0,
+      "nativeActive": [
+        [
+          65644,
+          2423747415
+        ],
+        [
+          65646,
+          460804943
+        ]
+      ],
+      "nativeLocalFreed": [
+        65646,
+        65644
+      ],
+      "captures": [
+        {
+          "phase": 1,
+          "readySHA256": "466d0e74125d78e8d29aad7b6badbb7ec75d113015c3678e8e9c5bb8361bc07b",
+          "imageAssessment": {
+            "passed": true,
+            "phase": 1,
+            "width": 864,
+            "height": 468,
+            "pngSHA256": "d6c1c87d125f57af1fd9053ddf8482aab575dc1af738255d68f82547e924e596",
+            "redPixels": 69776,
+            "bluePixels": 69776,
+            "orderedRegions": [
+              {
+                "color": "red",
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "color": "blue",
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "opaqueWhiteGapWidth": 40,
+            "scope": "actual consumer window red/blue left-right correspondence, no physical scanout or performance claim"
+          },
+          "gateSHA256": "466d0e74125d78e8d29aad7b6badbb7ec75d113015c3678e8e9c5bb8361bc07b"
+        },
+        {
+          "phase": 2,
+          "readySHA256": "24a0dd490735d9a695a4cb8a2cfe89c946fa0fd1d8ef29e95b6392372adb6fcc",
+          "imageAssessment": {
+            "passed": true,
+            "phase": 2,
+            "width": 864,
+            "height": 468,
+            "pngSHA256": "1bfc501f90503340ffdc624accb242e011ca3cb80d68a515ca6b1efa748c0cc3",
+            "redPixels": 69776,
+            "bluePixels": 69776,
+            "orderedRegions": [
+              {
+                "color": "blue",
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "color": "red",
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "opaqueWhiteGapWidth": 40,
+            "scope": "actual consumer window red/blue left-right correspondence, no physical scanout or performance claim"
+          },
+          "gateSHA256": "24a0dd490735d9a695a4cb8a2cfe89c946fa0fd1d8ef29e95b6392372adb6fcc"
+        }
+      ],
+      "nativeDrain": true,
+      "cleanupReceipts": 3,
+      "restoreAccepted": true,
+      "protectedFourAccepted": true
+    },
+    {
+      "key": "i386-host-x86_64-renderer",
+      "nonce": "dbe42e82dc12465383c07729e69a93a4",
+      "host": {
+        "type": "renderer-consumer",
+        "role": "host",
+        "pid": 236,
+        "bits": 32,
+        "nonce": "dbe42e82dc12465383c07729e69a93a4",
+        "event": "summary",
+        "check": 244,
+        "label": "final",
+        "ok": true,
+        "hr": 0,
+        "hr_hex": "00000000",
+        "raw": [
+          0,
+          243,
+          6450,
+          0
+        ],
+        "elapsed_ms": 6450,
+        "phase": 3,
+        "root": 65624,
+        "child_a": 65644,
+        "child_b": 65646,
+        "host_pid": 236,
+        "renderer_pid": 320,
+        "self_birth": 134380245075823500,
+        "peer_birth": 134380245097942520,
+        "checks": 244,
+        "failures": 0,
+        "phases": 3,
+        "swapchains": 0,
+        "frames": 0,
+        "readbacks": 0,
+        "presents": 0,
+        "occluded_presents": 0,
+        "pipe_sends": 3,
+        "pipe_receives": 3,
+        "com_release_calls": 0,
+        "local_com_released": false,
+        "gpu_drained": false,
+        "peer_phase12_reports": 2,
+        "peer_frames_reported": 4,
+        "peer_readbacks_reported": 4,
+        "peer_presents_reported": 4,
+        "peer_local_release_reported": true,
+        "kernel_signaled": true,
+        "joined_zero": true,
+        "exit_code": 0,
+        "force_attempted": false,
+        "force_succeeded": false,
+        "io_error": false,
+        "clock_error": false,
+        "timeout": false
+      },
+      "renderer": {
+        "type": "renderer-consumer",
+        "role": "renderer",
+        "pid": 320,
+        "bits": 64,
+        "nonce": "dbe42e82dc12465383c07729e69a93a4",
+        "event": "summary",
+        "check": 301,
+        "label": "final",
+        "ok": true,
+        "hr": 0,
+        "hr_hex": "00000000",
+        "raw": [
+          0,
+          300,
+          4238,
+          0
+        ],
+        "elapsed_ms": 4238,
+        "phase": 3,
+        "root": 65624,
+        "child_a": 65644,
+        "child_b": 65646,
+        "host_pid": 236,
+        "renderer_pid": 320,
+        "self_birth": 134380245097942520,
+        "peer_birth": 134380245075823500,
+        "checks": 301,
+        "failures": 0,
+        "phases": 3,
+        "swapchains": 2,
+        "frames": 4,
+        "readbacks": 4,
+        "presents": 4,
+        "occluded_presents": 0,
+        "pipe_sends": 3,
+        "pipe_receives": 3,
+        "com_release_calls": 14,
+        "local_com_released": true,
+        "gpu_drained": true,
+        "peer_phase12_reports": 0,
+        "peer_frames_reported": 0,
+        "peer_readbacks_reported": 0,
+        "peer_presents_reported": 0,
+        "peer_local_release_reported": false,
+        "kernel_signaled": false,
+        "joined_zero": false,
+        "exit_code": 259,
+        "force_attempted": false,
+        "force_succeeded": false,
+        "io_error": false,
+        "clock_error": false,
+        "timeout": false
+      },
+      "logSHA256": "45168f63a9ca9e0072b7abaf8b08df55d4becc71e86b5e1b123567d725d03524",
+      "sessionSHA256": "789e32eca17d7af1b5ed2d5f22109394515a1e76a54722e0815e86ab53df4abf",
+      "cliExit": 0,
+      "nativeActive": [
+        [
+          65644,
+          3046796695
+        ],
+        [
+          65646,
+          2938040055
+        ]
+      ],
+      "nativeLocalFreed": [
+        65646,
+        65644
+      ],
+      "captures": [
+        {
+          "phase": 1,
+          "readySHA256": "8bc804e29b1b3542b537f04dca9ac3945ca4ce7b3573596b374212f4448862bb",
+          "imageAssessment": {
+            "passed": true,
+            "phase": 1,
+            "width": 864,
+            "height": 468,
+            "pngSHA256": "cb76e0b767335bc94f92d055d9bfd5c3e51bbbc17f337bb3d57fdc47a9d42ecb",
+            "redPixels": 69776,
+            "bluePixels": 69776,
+            "orderedRegions": [
+              {
+                "color": "red",
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "color": "blue",
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "opaqueWhiteGapWidth": 40,
+            "scope": "actual consumer window red/blue left-right correspondence, no physical scanout or performance claim"
+          },
+          "gateSHA256": "8bc804e29b1b3542b537f04dca9ac3945ca4ce7b3573596b374212f4448862bb"
+        },
+        {
+          "phase": 2,
+          "readySHA256": "5fedcc083e0f1a74196e7fff8cffa4a80064c439024fbbd7f48d588484a42424",
+          "imageAssessment": {
+            "passed": true,
+            "phase": 2,
+            "width": 864,
+            "height": 468,
+            "pngSHA256": "613ee975b93e55453baf6f7f415d04c81a75a6ed933f595e0e42df2657a30b80",
+            "redPixels": 69776,
+            "bluePixels": 69776,
+            "orderedRegions": [
+              {
+                "color": "blue",
+                "bounds": [
+                  22,
+                  78,
+                  377,
+                  273
+                ],
+                "pixels": 69776
+              },
+              {
+                "color": "red",
+                "bounds": [
+                  422,
+                  78,
+                  777,
+                  273
+                ],
+                "pixels": 69776
+              }
+            ],
+            "opaqueWhiteGapWidth": 40,
+            "scope": "actual consumer window red/blue left-right correspondence, no physical scanout or performance claim"
+          },
+          "gateSHA256": "5fedcc083e0f1a74196e7fff8cffa4a80064c439024fbbd7f48d588484a42424"
+        }
+      ],
+      "nativeDrain": true,
+      "cleanupReceipts": 3,
+      "restoreAccepted": true,
+      "protectedFourAccepted": true
+    }
+  ],
+  "publicSHA256": {
+    "tests/graphics/renderer-consumer/capture.swift": "fca13736c5e8241ae394eaa8106ff59c0ce4f5bb394bca4b5668a0072d85fb33",
+    "tests/graphics/renderer-consumer/i386-phase2.png": "613ee975b93e55453baf6f7f415d04c81a75a6ed933f595e0e42df2657a30b80",
+    "tests/graphics/renderer-consumer/i386-phase1.png": "cb76e0b767335bc94f92d055d9bfd5c3e51bbbc17f337bb3d57fdc47a9d42ecb",
+    "tests/graphics/renderer-consumer/x86_64-phase2.png": "1bfc501f90503340ffdc624accb242e011ca3cb80d68a515ca6b1efa748c0cc3",
+    "tests/graphics/renderer-consumer/README.md": "292f6bddb02ae21ca7bddf1d4ee2cc90fe2fd3ff73e8212b84a78e8b437a0843",
+    "tests/graphics/renderer-consumer/client.c": "537def73a6ce418f0730f395587b5a808059daae3a82133431e84ae42512cd24",
+    "tests/graphics/renderer-consumer/x86_64-phase1.png": "d6c1c87d125f57af1fd9053ddf8482aab575dc1af738255d68f82547e924e596",
+    "tests/graphics/renderer-consumer/oracle.py": "d34d0ceb400493a85d559dd3a0ddee7744258d0e7de5513e0c00e899c663d2e8",
+    "tests/graphics/renderer-consumer/analyze.py": "1399b873463c9e753495b4ab40b938d30a2ffac41d64ba4b12913eba81602a91",
+    "engine/porting/wine-11.18/0028-winemac-remote-legacy-renderer-frontend.patch": "bd55106caa5bc6eb78c1ee1762574bd287e971ee3ed66678261fdc0399a4cb50"
+  }
+}

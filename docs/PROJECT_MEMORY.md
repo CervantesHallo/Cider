@@ -1,5 +1,15 @@
 # Cider 项目持久记忆
 
+当前接续[131](research/131-r-v1-renderer-consumer-20261102.md)：实际普通 D3D11 foreign HWND 消费者已双向运行，host244/0、renderer301/0，2交换链/4帧全部16000像素读回，实际WindowServer红蓝→蓝红、位置与40列白间隔正确；真实2active/2freed后最后gate，renderer零退出/kerneljoin，无强制。最终raw为renderer-consumer-runtime-v5/v6.json，Native候选source-v4/coupled-v7/stage-renderer-client-v2；独立证据审查已通过，父代理再核419个当前输入；1项可变记忆仅历史阅读上下文，源码/运行无不匹配。0028公开补丁已从固定完整upstream+13既有图形patch零fuzz/offset重建，24文件逐字匹配，其中15变更；tests/graphics/renderer-consumer保留实际源码/判定器/四PNG。默认仍不采用，游戏门禁不变。
+
+首轮runtime-v2实际未启用新路径：CIDER_EXPERIMENTAL_REMOTE_RENDERER被GUI既有CIDER_*保留命名过滤；source-v4只把它改WINEMAC_EXPERIMENTAL_REMOTE_RENDERER，未放宽环境过滤，实际session.env复核。runtime-v3第一方向通过；v4反向2swapchain/2active已成功，但Metal Map地址的VirtualQuery元数据为MEM_FREE，夹具额外检查先失败。旧failed保持，VQ差异独立未修。最终fixture-v4保留成功MapREAD、指针/pitch/溢出界限、真实逐像素读和Unmap；只移除不属D3D11读取前置的VQ要求，不冒称查询已兼容。新的v5/v6同一fixture双向通过。
+
+沿原legacy entry/Win32u缓存，普通Unix表原6→8(client_init/event)，不是历史诊断8/9布局。source-v4保持64位真实win_data incarnation、prepared96-v2新增身份查询/通知注册，status160/legacy192/快照120不改。Cocoa末次释放只排handoff，Wine timer做NT/缓存清理；每进程最多一阻塞消息线程，250ms独立检查窗口身份/root。PE-v2/native-v2/provider-v2源码复审均已闭合；局部变量命名/Map夹具增量父审有记录，正式性能仍待。Native本地freed不等于全Cocoa尾部或GPU全局排空。
+
+下一同一device/2swapchain真实Root1→Root2→Root1：Bernoulli只写out/.../renderer-reparent-fixture-v1，未构建/运行；父代理负责整合，不用私有入口或sleep代替真实图像/gate/cleanup。初始local→foreign无重建、CEF/输入/性能/真实游戏仍待，不因普通fixture提升游戏评级。用户已明确授权SCK仅本项目测试窗口，无需再问；spawnaudit PID对PE32可能不同于实际窗口宿主，取图核exactnonce标题和私有engine内实际proc_pidpath。普通GUI/XPC生成Wine，不直接shell运行。
+
+存储已按pixel-images-batch-cleanup-v1逐字/CAS归档17树及24prefix EXE，净259.57MiB；当前普通基底producer-cell-fixed-r3与three-pixel-r1工作组/source/raw/真实PNG保留，旧verifier用退休路径须按清单恢复。当前实验引擎renderer-client-r1/r2及stage暂保留，待本批结束再压缩，不能运行中删除。AppModel+Bottles既有修改非本批，不动。未操作Windows/Actions/自动化/Goal；Windowsbusy待重启与预算保持。
+
 最新[130](research/130-r-v1-three-images-20261101.md)：真实三进程双方向host144/0＋两个producer各35/0，实际WindowServer两矩形139552红→蓝，逐块69776px／40列白间隔，A先完整退出B仍ACTIVE再退出。判定器4P2已修／复审／11合成控制单列；9闭包252输入/源二进制图像gate/4清理恢复保护另行绑定。历史评审记忆按准确Git快照固定，代码实际字节检查不降。指定两三进程图像集合完成，接实际renderer foreign前端/CEF；不同颜色逐producer对应在采用路径验证，物理/输入/性能不冒称，默认/门禁不变。
 
 私有three-pixel-fixture-v2/three-main.c optional--capture-images，两次gate分别在A/B1回复前红红及A2回复前蓝蓝，producer client.c与128v5逐字不改、仍强制GPU-only；Native/stage复用three-pixel-r1，pixel HOST_WINDOW按精确root/CID/lease/ticket选A得到共享Root，无hostGPU代画。capture candidate-v6仅标题白名单加三进程测试名，源审接纳。analyzer-v2四P2未接纳，v3完整8邻接RLE/面积矩形/贯穿白间隔/严格阈值/有限PNG，review-v2接纳；classifier-counterexamples-v1的11图明确synthetic，仅检查判定器，不作renderer图像。实际three-images-runtime-v1两方向passed，independent-binding-v1通过，源/编译/图像/gate/4清理恢复保护独立核对，公开three-images保留exact源及真实两图。Native旧评审读过PROJECT_MEMORY df52ade哈希，当前不匹配属记账上下文而非代码；新admission将该Git准确字节存review-context-538b...md并单列historicalContextInputs，代码/-M实际输入仍严格；不修改旧报告或回滚记忆。所有代理已关闭，接下来优先原实际renderer/foreign-HWND frontend/CEF，不扩更多元数据测试。三进程同色帧不单独证明各producer的不同图案与左右对应，纳入真实消费者验收。先压缩已不用的两套pixel/visible引擎stage与冗余prefix备份，保留当前three-pixel lab、普通producer-cell-r3/source/raw/真实PNG/组件；然后继续legacy_surface.c实际消费接入。原HY/Windowsbusy待重启/游戏门禁/U8-15不变，无Windows/Actions/定时/Goal，非本批AppModel保持。

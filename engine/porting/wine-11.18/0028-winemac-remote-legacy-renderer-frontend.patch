@@ -1,0 +1,1810 @@
+Wine 11.18 experimental remote legacy-renderer frontend.
+
+Preserve the existing legacy ABI and managed used/unused surface cache. Attach
+resource ownership to that cache; prepare a known host ticket and read-only
+status view before installing an actual exported CAContext. Retain uncertain
+owners until real retirement permission and checked local cleanup.
+
+Opt-in only: WINEMAC_EXPERIMENTAL_REMOTE_RENDERER=1. Do not use CIDER_* here:
+the GUI intentionally filters caller overrides in its reserved namespace.
+The ordinary Unix table gains client_init/client_event (6 -> 8); Native and
+both PE drivers must be deployed together by exact component identity.
+
+The normal local path remains available. Runtime acceptance currently covers
+standard D3D11 foreign HWND creation, two distinct swapchains, actual image
+correspondence and cooperative local resource retirement. General reparent,
+local-to-foreign conversion, CEF, input and performance remain pending.
+No default engine adoption or game verdict change.
+
+--- a/dlls/win32u/window.c
++++ b/dlls/win32u/window.c
+@@ -427,6 +427,39 @@
+ {
+     ULONG ref = InterlockedIncrement( &surface->ref );
+     TRACE( "%s increasing refcount to %u\n", debugstr_client_surface( surface ), ref );
++}
++
++BOOL client_surface_try_add_ref( struct client_surface *surface )
++{
++    LONG refs;
++    if (!surface) return FALSE;
++    refs = InterlockedCompareExchange( &surface->ref, 0, 0 );
++    while (refs > 0 && refs < 0x7fffffff)
++    {
++        LONG observed = InterlockedCompareExchange( &surface->ref, refs + 1, refs );
++        if (observed == refs) return TRUE;
++        refs = observed;
++    }
++    return FALSE;
++}
++
++BOOL client_surface_forget_unused( struct client_surface *surface )
++{
++    struct client_surface *entry;
++    BOOL removed = FALSE;
++    if (!surface) return FALSE;
++    pthread_mutex_lock( &surfaces_lock );
++    LIST_FOR_EACH_ENTRY( entry, &unused_surfaces, struct client_surface, entry )
++        if (entry == surface)
++        {
++            client_surface_detach_locked( surface );
++            client_surface_release_locked( surface ); /* exact cached owner, caller still pins */
++            removed = TRUE;
++            break;
++        }
++    if (!surface->hwnd) removed = TRUE; /* already detached, not a GPU/owner-completion assertion */
++    pthread_mutex_unlock( &surfaces_lock );
++    return removed;
+ }
+ 
+ void client_surface_release( struct client_surface *surface )
+--- a/dlls/winemac.drv/Makefile.in
++++ b/dlls/winemac.drv/Makefile.in
+@@ -42,6 +42,8 @@
+ 	opengl.c \
+ 	remote_geometry.c \
+ 	remote_coordinator.c \
++	remote_client.c \
++	remote_client_pe.c \
+ 	status_cell.c \
+ 	remote_watch_pe.c \
+ 	surface.c \
+--- a/dlls/winemac.drv/dllmain.c
++++ b/dlls/winemac.drv/dllmain.c
+@@ -28,6 +28,7 @@
+ #include "unixlib.h"
+ #include "legacy_registry.h"
+ #include "remote_watch.h"
++#include "remote_client.h"
+ #include "wine/debug.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
+@@ -417,6 +418,11 @@
+     watch.version = MACDRV_REMOTE_WATCH_VERSION;
+     watch.callback = (UINT_PTR)macdrv_remote_watch_callback;
+     if (MACDRV_CALL(remote_watch_init, &watch)) return FALSE;
++    {
++        struct macdrv_remote_client_init client = {MACDRV_REMOTE_CLIENT_MAGIC,
++            MACDRV_REMOTE_CLIENT_VERSION, (UINT_PTR)macdrv_remote_client_callback};
++        if (MACDRV_CALL(remote_client_init, &client)) return FALSE;
++    }
+ 
+     return TRUE;
+ }
+--- a/dlls/winemac.drv/legacy_surface.c
++++ b/dlls/winemac.drv/legacy_surface.c
+@@ -8,6 +8,7 @@
+ #include <stdlib.h>
+ #include "macdrv.h"
+ #include "legacy_abi.h"
++#include "remote_renderer.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
+ 
+@@ -18,10 +19,13 @@
+ struct legacy_surface
+ {
+     struct list entry;
+-    unsigned int refs, renderers;
++    unsigned int refs, renderers, public_refs, layer_users;
+     BOOL creating;
+     struct macdrv_client_surface *surface;
+     macdrv_view retained_view;
++    struct macdrv_remote_renderer *remote;
++    BOOL remote_owner, surface_owner, surface_ref_owned;
++    BOOL remote_ready, remote_init_waiting, handoff, handoff_pending, need_forget, poll_busy;
+ };
+ 
+ static pthread_mutex_t legacy_lock = PTHREAD_MUTEX_INITIALIZER;
+@@ -30,15 +34,17 @@
+ /* Only pointer equality is used until membership and a live reference are
+  * established. The token is the actual retained Cocoa view, preserving the
+  * legacy snapshot while renderer operations remain routed through this owner. */
+-static struct legacy_surface *legacy_surface_lookup(const void *token)
++static struct legacy_surface *legacy_surface_lookup(const void *token, BOOL constructor)
+ {
+     struct legacy_surface *entry, *found = NULL;
+ 
+     pthread_mutex_lock(&legacy_lock);
+     LIST_FOR_EACH_ENTRY(entry, &legacy_surfaces, struct legacy_surface, entry)
+     {
+-        if (entry->retained_view != token) continue;
++        if (entry->retained_view != token || !entry->public_refs || entry->refs == ~0u) continue;
++        if (constructor && (entry->creating || entry->poll_busy)) break;
+         ++entry->refs;
++        if (constructor) entry->creating = TRUE; /* atomic admission and actual surface owner */
+         found = entry;
+         break;
+     }
+@@ -46,23 +52,226 @@
+     return found;
+ }
+ 
+-static void legacy_surface_release(struct legacy_surface *entry)
+-{
+-    BOOL destroy;
+-
+-    pthread_mutex_lock(&legacy_lock);
+-    destroy = !--entry->refs;
+-    if (destroy) list_remove(&entry->entry);
+-    pthread_mutex_unlock(&legacy_lock);
++static void legacy_surface_release(struct legacy_surface *entry, BOOL public);
++
++/* The outer entry and its surface-owned ref keep this address valid while the
++ * destroy callback waits for legacy_lock. CAS refuses a refcount already0. */
++static BOOL forget_retired_cache(struct legacy_surface *entry)
++{
++    struct client_surface *surface = NULL;
++    BOOL done = FALSE;
++    if (pthread_main_np()) return FALSE; /* no surface-lock waits on Cocoa */
++    pthread_mutex_lock(&legacy_lock);
++    if (!entry->need_forget) done = TRUE;
++    else if (!entry->surface) {entry->need_forget = FALSE; done = TRUE;}
++    else if (!entry->handoff && !entry->remote_owner &&
++             client_surface_try_add_ref(&entry->surface->client)) surface = &entry->surface->client;
++    pthread_mutex_unlock(&legacy_lock);
++    if (surface)
++    {
++        done = client_surface_forget_unused(surface);
++        pthread_mutex_lock(&legacy_lock);
++        if (done) entry->need_forget = FALSE;
++        pthread_mutex_unlock(&legacy_lock);
++        client_surface_release(surface);
++    }
++    return done;
++}
++
++static BOOL perform_handoff(struct legacy_surface *entry)
++{
++    struct client_surface *surface = NULL;
++    if (pthread_main_np()) return FALSE;
++    pthread_mutex_lock(&legacy_lock);
++    if (entry->handoff_pending && !entry->creating && !entry->layer_users && !entry->handoff &&
++        !entry->public_refs && entry->surface_owner && entry->surface_ref_owned && entry->surface)
++    {
++        entry->handoff_pending = FALSE; entry->handoff = TRUE; entry->surface_ref_owned = FALSE;
++        surface = &entry->surface->client; ++entry->refs;
++    }
++    pthread_mutex_unlock(&legacy_lock);
++    if (!surface) return FALSE;
++    client_surface_end_external_use(surface);
++    client_surface_release(surface);
++    pthread_mutex_lock(&legacy_lock); entry->handoff = FALSE; pthread_mutex_unlock(&legacy_lock);
++    forget_retired_cache(entry);
++    legacy_surface_release(entry, FALSE); /* actual handoff pin */
++    return TRUE;
++}
++
++static void legacy_surface_release(struct legacy_surface *entry, BOOL public)
++{
++    BOOL destroy = FALSE, handoff = FALSE;
++    pthread_mutex_lock(&legacy_lock);
++    if (!entry->refs || (public && !entry->public_refs))
++    {pthread_mutex_unlock(&legacy_lock); ERR("legacy renderer reference underflow rejected\n"); return;}
++    if (public) --entry->public_refs;
++    --entry->refs;
++    if (!entry->public_refs && entry->surface_owner && entry->surface_ref_owned)
++    {
++        entry->handoff_pending = TRUE;
++        if (!entry->remote_owner) entry->need_forget = TRUE;
++        if (!pthread_main_np() && !entry->creating && !entry->layer_users && !entry->handoff)
++        {++entry->refs; handoff = TRUE;} /* caller pin through deferred work */
++    }
++    if (!entry->refs) {list_remove(&entry->entry); destroy = TRUE;}
++    pthread_mutex_unlock(&legacy_lock);
++    if (handoff)
++    {
++        perform_handoff(entry);
++        legacy_surface_release(entry, FALSE);
++        return;
++    }
+     if (destroy)
+     {
+         void *view = entry->retained_view;
+-        /* Retirement uses win32u's existing cache, not a second HWND table. */
+-        client_surface_end_external_use(&entry->surface->client);
+-        client_surface_release(&entry->surface->client);
+-        macdrv_legacy_release_object(view);
++        /* Only the original local path can reach this with an owned surface;
++         * remote Cocoa release keeps explicit pending refs for Wine recovery. */
++        if (entry->surface_ref_owned && entry->surface)
++        {
++            client_surface_end_external_use(&entry->surface->client);
++            client_surface_release(&entry->surface->client);
++        }
++        if (view) macdrv_legacy_release_object(view);
+         free(entry);
+     }
++}
++
++void macdrv_legacy_remote_surface_destroying(struct macdrv_client_surface *surface)
++{
++    struct legacy_surface *entry = surface->legacy_remote_owner;
++    BOOL drop = FALSE;
++    if (!entry) return;
++    pthread_mutex_lock(&legacy_lock);
++    if (entry->surface == surface && entry->surface_owner)
++    {
++        entry->surface = NULL; entry->surface_owner = FALSE;
++        entry->surface_ref_owned = FALSE; entry->need_forget = FALSE; entry->handoff_pending = FALSE;
++        surface->legacy_remote_owner = NULL; drop = TRUE;
++    }
++    pthread_mutex_unlock(&legacy_lock);
++    /* Called under win32u's surface lock: no NT, USER, Cocoa synchronization,
++     * or recursive surface release. Remote ownership survives independently. */
++    if (drop) legacy_surface_release(entry, FALSE);
++}
++
++static BOOL remote_renderer_enabled(void)
++{
++    const char *value = getenv("WINEMAC_EXPERIMENTAL_REMOTE_RENDERER");
++    return value && !strcmp(value, "1");
++}
++static BOOL remote_window(HWND hwnd)
++{
++    DWORD pid = 0, root_pid = 0;
++    HWND root = NtUserGetAncestor(hwnd, GA_ROOT);
++    if (!NtUserGetWindowThread(hwnd, &pid) || !NtUserGetWindowThread(root, &root_pid)) return FALSE;
++    return pid != GetCurrentProcessId() || root_pid != GetCurrentProcessId();
++}
++/* Before a foreign snapshot is returned, reserve native owners and establish
++ * its Wine recovery timer. An ARM failure has acquired no remote resources
++ * and is cleaned synchronously by this still-Wine-thread snapshot call. */
++static BOOL prepare_remote_owner(struct legacy_surface *entry)
++{
++    struct macdrv_remote_renderer *client;
++    DWORD error;
++    if (pthread_main_np() || !(client = macdrv_remote_renderer_alloc(entry->surface->client.hwnd))) return FALSE;
++    pthread_mutex_lock(&legacy_lock);
++    entry->creating = TRUE; entry->remote = client; entry->remote_owner = TRUE;
++    entry->remote_init_waiting = TRUE; ++entry->refs;
++    entry->surface_owner = TRUE; ++entry->refs; entry->surface->legacy_remote_owner = entry;
++    pthread_mutex_unlock(&legacy_lock);
++    error = macdrv_remote_arm_client_recovery();
++    pthread_mutex_lock(&legacy_lock);
++    entry->creating = FALSE;
++    if (error)
++    {
++        entry->remote = NULL; entry->remote_owner = FALSE; entry->remote_init_waiting = FALSE;
++        entry->surface_owner = FALSE; entry->surface->legacy_remote_owner = NULL;
++    }
++    pthread_mutex_unlock(&legacy_lock);
++    if (error)
++    {
++        macdrv_remote_renderer_free(client); /* no route/context was started */
++        legacy_surface_release(entry, FALSE); legacy_surface_release(entry, FALSE);
++    }
++    return !error;
++}
++static BOOL create_remote_renderer(struct legacy_surface *entry, id_MTLDevice device)
++{
++    struct macdrv_remote_renderer *client;
++    BOOL waiting, ready, done = FALSE;
++    DWORD error;
++    pthread_mutex_lock(&legacy_lock);
++    client = entry->remote; waiting = entry->remote_init_waiting; ready = entry->remote_ready;
++    if (waiting) entry->remote_init_waiting = FALSE;
++    pthread_mutex_unlock(&legacy_lock);
++    if (!client) return FALSE;
++    if (!waiting) return ready && macdrv_remote_renderer_device_matches(client, device);
++    error = macdrv_remote_renderer_start(client, device);
++    if (error) done = macdrv_remote_renderer_progress(client, MACDRV_RENDERER_STOP, FALSE);
++    pthread_mutex_lock(&legacy_lock);
++    entry->remote_ready = !error;
++    if (done) {entry->remote = NULL; entry->remote_owner = FALSE;}
++    pthread_mutex_unlock(&legacy_lock);
++    if (done) {macdrv_remote_renderer_free(client); legacy_surface_release(entry, FALSE);}
++    if (error) WARN("remote renderer creation failed %u; actual partial owner %s\n",
++                    (unsigned)error, done ? "settled locally" : "retained");
++    return !error;
++}
++
++BOOL macdrv_legacy_remote_recover(UINT64 generation)
++{
++    struct legacy_surface **snapshot, *entry;
++    SIZE_T count = 0, index = 0;
++    BOOL pending = FALSE;
++    pthread_mutex_lock(&legacy_lock);
++    LIST_FOR_EACH_ENTRY(entry, &legacy_surfaces, struct legacy_surface, entry)
++        if (entry->remote_owner || entry->need_forget || entry->handoff || entry->handoff_pending || (entry->surface_owner && entry->surface_ref_owned)) ++count;
++    snapshot = count && count <= ~(SIZE_T)0 / sizeof(*snapshot) ? malloc(count * sizeof(*snapshot)) : NULL;
++    if (snapshot)
++        LIST_FOR_EACH_ENTRY(entry, &legacy_surfaces, struct legacy_surface, entry)
++            if ((entry->remote_owner || entry->need_forget || entry->handoff || entry->handoff_pending || (entry->surface_owner && entry->surface_ref_owned)) && entry->refs != ~0u)
++            {++entry->refs; snapshot[index++] = entry;}
++    pthread_mutex_unlock(&legacy_lock);
++    if (count && !snapshot) return TRUE; /* no false all-clear on allocation failure */
++    count = index;
++    for (index = 0; index < count; ++index)
++    {
++        struct macdrv_remote_renderer *client = NULL;
++        enum macdrv_remote_renderer_mode mode = MACDRV_RENDERER_STOP;
++        BOOL done = FALSE;
++        entry = snapshot[index];
++        perform_handoff(entry);
++        pthread_mutex_lock(&legacy_lock);
++        if (entry->remote_owner && (!entry->remote_init_waiting || !entry->public_refs) && !entry->creating && !entry->poll_busy && !entry->layer_users)
++        {
++            entry->poll_busy = TRUE; client = entry->remote;
++            mode = !entry->surface || !entry->remote_ready ? MACDRV_RENDERER_STOP :
++                   entry->public_refs ? MACDRV_RENDERER_ACTIVE : MACDRV_RENDERER_CACHED;
++        }
++        pthread_mutex_unlock(&legacy_lock);
++        if (client) done = macdrv_remote_renderer_progress(client, mode, generation != 0);
++        pthread_mutex_lock(&legacy_lock);
++        if (client)
++        {
++            entry->poll_busy = FALSE;
++            if (done)
++            {
++                entry->remote = NULL; entry->remote_owner = FALSE; entry->remote_ready = FALSE;
++                if (!entry->public_refs && entry->surface_owner) entry->need_forget = TRUE;
++            }
++        }
++        pthread_mutex_unlock(&legacy_lock);
++        if (done) {macdrv_remote_renderer_free(client); legacy_surface_release(entry, FALSE);}
++        forget_retired_cache(entry);
++        legacy_surface_release(entry, FALSE); /* snapshot pin */
++    }
++    free(snapshot);
++    pthread_mutex_lock(&legacy_lock);
++    LIST_FOR_EACH_ENTRY(entry, &legacy_surfaces, struct legacy_surface, entry)
++        if (entry->remote_owner || entry->need_forget || entry->handoff || entry->handoff_pending || (entry->surface_owner && entry->surface_ref_owned)) {pending = TRUE; break;}
++    pthread_mutex_unlock(&legacy_lock);
++    return pending;
+ }
+ 
+ struct macdrv_legacy_win_data *macdrv_legacy_get_win_data(HWND hwnd)
+@@ -90,7 +299,8 @@
+         goto failed;
+     }
+ 
+-    entry->refs = 1; /* snapshot lease; creation adds a separate renderer lease */
++    entry->refs = entry->public_refs = 1; /* snapshot and later renderer public leases */
++    entry->surface_ref_owned = TRUE;
+     pthread_mutex_lock(&legacy_lock);
+     list_add_tail(&legacy_surfaces, &entry->entry);
+     pthread_mutex_unlock(&legacy_lock);
+@@ -144,6 +354,16 @@
+         }
+         snapshot->on_screen = !!(NtUserGetWindowLongW(hwnd, GWL_STYLE) & WS_VISIBLE);
+     }
++    if (remote_renderer_enabled() && remote_window(hwnd) && !prepare_remote_owner(entry))
++    {
++        /* Still Wine-thread construction, before exposing the snapshot. Keep
++         * an extra surface ref while normal release returns it to the cache. */
++        client_surface_add_ref(client);
++        macdrv_legacy_release_win_data(snapshot);
++        client_surface_forget_unused(client);
++        client_surface_release(client);
++        return NULL;
++    }
+     return snapshot;
+ 
+ failed:
+@@ -159,59 +379,63 @@
+     if (!snapshot) return;
+     window = snapshot->cocoa_window;
+     if (snapshot->drag_event) NtClose(snapshot->drag_event);
+-    legacy_surface_release(snapshot->padding[0]);
++    legacy_surface_release(snapshot->padding[0], TRUE);
+     if (window) macdrv_legacy_release_object(window);
+     free(snapshot);
+ }
+ 
+ macdrv_metal_view macdrv_legacy_create_metal_view(macdrv_view token, macdrv_metal_device device)
+ {
+-    struct legacy_surface *entry = legacy_surface_lookup(token);
+-    BOOL acquired = FALSE, creating;
+-
++    struct legacy_surface *entry = legacy_surface_lookup(token, TRUE);
++    BOOL acquired = FALSE;
+     if (!entry) return NULL;
+-    pthread_mutex_lock(&legacy_lock);
+-    creating = entry->creating;
+-    if (!creating) entry->creating = TRUE;
+-    pthread_mutex_unlock(&legacy_lock);
+-    /* Never wait with a native registry lock held across a main-thread call.
+-     * Concurrent creation of the same opaque view reports unavailable. */
+-    if (!creating)
+-    {
++    if (entry->remote) acquired = create_remote_renderer(entry, (id_MTLDevice)device);
++    else
++    {
++        /* Initial local->foreign conversion without a new renderer is a
++         * separately pending adoption contract; do not forge an exported view. */
+         acquired = macdrv_client_surface_acquire_metal_swapchain_with_device(entry->surface, (id_MTLDevice)device);
+         if (acquired && !macdrv_swapchain_get_layer(entry->surface->metal_swapchain)) acquired = FALSE;
+-        pthread_mutex_lock(&legacy_lock);
+-        if (acquired)
+-        {
+-            ++entry->renderers;
+-            ++entry->refs;
+-        }
+-        entry->creating = FALSE;
+-        pthread_mutex_unlock(&legacy_lock);
+-        if (acquired) client_surface_present(&entry->surface->client);
+-    }
+-    legacy_surface_release(entry);
++    }
++    pthread_mutex_lock(&legacy_lock);
++    if (acquired && entry->refs != ~0u && entry->public_refs != ~0u && entry->renderers != ~0u)
++    {++entry->renderers; ++entry->refs; ++entry->public_refs;}
++    else
++    {
++        acquired = FALSE;
++        if (entry->remote && !entry->renderers) entry->remote_ready = FALSE;
++    }
++    entry->creating = FALSE;
++    pthread_mutex_unlock(&legacy_lock);
++    if (acquired) client_surface_present(&entry->surface->client);
++    legacy_surface_release(entry, FALSE);
+     return acquired ? (macdrv_metal_view)token : NULL;
+ }
+ 
+ macdrv_metal_layer macdrv_legacy_get_metal_layer(macdrv_metal_view token)
+ {
+-    struct legacy_surface *entry = legacy_surface_lookup(token);
++    struct legacy_surface *entry = legacy_surface_lookup(token, FALSE);
+     macdrv_metal_layer layer = NULL;
+     BOOL ready;
+ 
+     if (!entry) return NULL;
+     pthread_mutex_lock(&legacy_lock);
+-    ready = !!entry->renderers;
+-    pthread_mutex_unlock(&legacy_lock);
+-    if (ready) layer = (macdrv_metal_layer)macdrv_swapchain_get_layer(entry->surface->metal_swapchain);
+-    legacy_surface_release(entry);
++    ready = entry->renderers && entry->layer_users != ~0u;
++    if (ready) ++entry->layer_users;
++    pthread_mutex_unlock(&legacy_lock);
++    if (ready)
++    {
++        layer = entry->remote ? (macdrv_metal_layer)macdrv_remote_renderer_layer(entry->remote) :
++                               (macdrv_metal_layer)macdrv_swapchain_get_layer(entry->surface->metal_swapchain);
++        pthread_mutex_lock(&legacy_lock); --entry->layer_users; pthread_mutex_unlock(&legacy_lock);
++    }
++    legacy_surface_release(entry, FALSE);
+     return layer;
+ }
+ 
+ void macdrv_legacy_release_metal_view(macdrv_metal_view token)
+ {
+-    struct legacy_surface *entry = legacy_surface_lookup(token);
++    struct legacy_surface *entry = legacy_surface_lookup(token, FALSE);
+     BOOL renderer;
+ 
+     if (!entry) return;
+@@ -219,6 +443,6 @@
+     renderer = !!entry->renderers;
+     if (renderer) --entry->renderers;
+     pthread_mutex_unlock(&legacy_lock);
+-    if (renderer) legacy_surface_release(entry);
+-    legacy_surface_release(entry);
+-}
++    if (renderer) legacy_surface_release(entry, TRUE);
++    legacy_surface_release(entry, FALSE);
++}
+--- a/dlls/winemac.drv/macdrv.h
++++ b/dlls/winemac.drv/macdrv.h
+@@ -191,6 +191,7 @@
+     unsigned int        per_pixel_alpha : 1;    /* is window using per-pixel alpha? */
+     unsigned int        minimized : 1;          /* is window minimized? */
+     unsigned int        fullscreen : 1;         /* is the window visible rect fullscreen? (unrelated to native AppKit/Cocoa fullscreen) */
++    UINT64              client_identity; /* process-incarnation scoped, never reused */
+ };
+ 
+ /* Foreign-host geometry in root-visible raw pixels. Source and clip are distinct. */
+@@ -210,7 +211,12 @@
+ extern void macdrv_remote_host_release(UINT64 ticket);
+ extern BOOL macdrv_remote_host_refresh(UINT64 ticket);
+ extern void macdrv_remote_root_changed(HWND hwnd);
++extern void macdrv_remote_parent_changed(HWND old_root, HWND new_root);
+ extern void macdrv_remote_child_destroyed(HWND hwnd);
++extern DWORD macdrv_query_window_identity(HWND hwnd, UINT64 *identity);
++extern DWORD macdrv_remote_arm_client_recovery(void);
++extern NTSTATUS macdrv_remote_client_init(void *args);
++extern NTSTATUS macdrv_remote_client_event(void *args);
+ extern NTSTATUS macdrv_remote_watch_init(void *args);
+ extern NTSTATUS macdrv_remote_watch_complete(void *args);
+ extern NTSTATUS macdrv_remote_watch_recover(void *args);
+@@ -224,6 +230,7 @@
+     WineContentView        *cocoa_view;
+     id_WineMetalSwapChain   metal_swapchain;
+     BOOL                   deferred_destroy;
++    void                  *legacy_remote_owner; /* one metadata ref from this managed surface */
+ };
+ 
+ extern struct macdrv_client_surface *impl_from_client_surface(struct client_surface *client);
+--- a/dlls/winemac.drv/macdrv_main.c
++++ b/dlls/winemac.drv/macdrv_main.c
+@@ -614,6 +614,8 @@
+     macdrv_remote_watch_init,
+     macdrv_remote_watch_complete,
+     macdrv_remote_watch_recover,
++    macdrv_remote_client_init,
++    macdrv_remote_client_event,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_funcs) == unix_funcs_count );
+@@ -644,6 +646,8 @@
+     macdrv_remote_watch_init,
+     macdrv_remote_watch_complete,
+     macdrv_remote_watch_recover,
++    macdrv_remote_client_init,
++    macdrv_remote_client_event,
+ };
+ 
+ C_ASSERT( ARRAYSIZE(__wine_unix_call_wow64_funcs) == unix_funcs_count );
+--- /dev/null
++++ b/dlls/winemac.drv/remote_client.c
+@@ -0,0 +1,386 @@
++/* Candidate renderer resources, attached to the existing managed-surface owner.
++ * A wake is advisory; only the actual read-only pages grant safe release. */
++#if 0
++#pragma makedep unix
++#endif
++#include "config.h"
++#include <pthread.h>
++#include <stdlib.h>
++#include <string.h>
++#include "macdrv.h"
++#include "remote_client.h"
++#include "remote_renderer.h"
++#include "status_cell.h"
++#include "wine/server.h"
++WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
++
++struct renderer_route
++{
++    struct renderer_route *next;
++    HWND root;
++    struct macdrv_status_identity producer_id,host_id;
++    struct macdrv_status_cell *producer_reader,*host_reader;
++    UINT64 sequence,ticket;
++    BOOL acquire_unknown,prepare_sent,install_sent,cancel_sent,release_sent;
++    BOOL stopping,host_safe,producer_safe,ready,safety_probed,producer_reader_failed;
++    DWORD last_error;
++};
++struct macdrv_remote_renderer
++{
++    HWND hwnd;
++    UINT32 owner_pid,session,dispatcher_window,dispatcher_thread;
++    UINT64 owner_birth,window_identity,birth;
++    id_WineMetalSwapChain context;
++    UINT context_id;
++    struct renderer_route *routes,*current;
++    BOOL started,dead,stopping;
++    DWORD last_error;
++};
++static LONG64 client_callback;
++static pthread_mutex_t client_service_lock=PTHREAD_MUTEX_INITIALIZER;
++static UINT64 next_generation=1;
++static UINT32 client_window,client_thread;
++
++NTSTATUS macdrv_remote_client_init(void *args)
++{
++    const struct macdrv_remote_client_init *p=args;
++    LONG64 old;
++    if(!p||p->magic!=MACDRV_REMOTE_CLIENT_MAGIC||p->version!=MACDRV_REMOTE_CLIENT_VERSION||!p->callback)
++        return STATUS_INVALID_PARAMETER;
++    old=InterlockedCompareExchange64(&client_callback,p->callback,0);
++    return !old||(UINT64)old==p->callback?STATUS_SUCCESS:STATUS_INVALID_PARAMETER;
++}
++NTSTATUS macdrv_remote_client_event(void *args)
++{
++    const struct macdrv_remote_client_event *p=args;
++    BOOL valid;
++    if(!p||p->size!=sizeof(*p)||p->version!=MACDRV_REMOTE_CLIENT_VERSION||
++       p->operation!=MACDRV_CLIENT_EVENT_WAKE||p->reserved)return STATUS_INVALID_PARAMETER;
++    pthread_mutex_lock(&client_service_lock);
++    valid=client_window&&client_thread&&p->window==client_window&&p->thread==client_thread;
++    pthread_mutex_unlock(&client_service_lock);
++    if(!valid||GetCurrentThreadId()!=p->thread)return STATUS_INVALID_HANDLE;
++    macdrv_legacy_remote_recover(p->generation); /* no permission is supplied by the message */
++    return STATUS_SUCCESS;
++}
++static DWORD ensure_dispatcher(UINT32 *window,UINT32 *thread)
++{
++    struct macdrv_remote_client_request request={0};
++    struct macdrv_remote_client_reply reply;
++    void *returned=NULL;
++    ULONG bytes=0;
++    NTSTATUS status;
++    request.dispatch.callback=(UINT64)InterlockedCompareExchange64(&client_callback,0,0);
++    if(!request.dispatch.callback)return ERROR_PROC_NOT_FOUND;
++    request.magic=MACDRV_REMOTE_CLIENT_MAGIC;request.version=MACDRV_REMOTE_CLIENT_VERSION;
++    request.operation=MACDRV_CLIENT_START;request.generation=1;
++    status=KeUserDispatchCallback(&request.dispatch,sizeof(request),&returned,&bytes);
++    if(status)return RtlNtStatusToDosError(status);
++    if(!returned||bytes!=sizeof(reply))return ERROR_INVALID_DATA;
++    memcpy(&reply,returned,sizeof(reply));
++    if(reply.magic!=request.magic||reply.version!=request.version||reply.operation!=request.operation||
++       reply.generation!=request.generation||reply.reserved)return ERROR_INVALID_DATA;
++    if(reply.status)return reply.status;
++    if(!(reply.flags&MACDRV_CLIENT_LIVE)||!reply.window||!reply.thread)return ERROR_INVALID_DATA;
++    pthread_mutex_lock(&client_service_lock);
++    if(client_window&&(client_window!=reply.window||client_thread!=reply.thread))
++    {pthread_mutex_unlock(&client_service_lock);return ERROR_INVALID_DATA;}
++    client_window=*window=reply.window;client_thread=*thread=reply.thread;
++    pthread_mutex_unlock(&client_service_lock);
++    return ERROR_SUCCESS;
++}
++static DWORD generation(uint64_t *value)
++{
++    DWORD error=ERROR_SUCCESS;
++    pthread_mutex_lock(&client_service_lock);
++    if(!next_generation)error=ERROR_ARITHMETIC_OVERFLOW;
++    else *value=next_generation++;
++    pthread_mutex_unlock(&client_service_lock);
++    return error;
++}
++static DWORD query_window(HWND hwnd,UINT32 *pid,UINT64 *birth,UINT64 *identity)
++{
++    struct macdrv_remote_packet packet={0};
++    packet.operation=MACDRV_REMOTE_QUERY_WINDOW_IDENTITY;
++    if(!macdrv_remote_prepared_packet_send(hwnd,&packet))return ERROR_IO_PENDING;
++    if(packet.status)return packet.status;
++    if(!packet.root_pid||!packet.root_create_time||!packet.root_epoch)return ERROR_INVALID_DATA;
++    *pid=packet.root_pid;*birth=packet.root_create_time;*identity=packet.root_epoch;
++    return ERROR_SUCCESS;
++}
++static BOOL same_window(struct macdrv_remote_renderer *client)
++{
++    UINT32 pid=0;
++    UINT64 birth=0,identity=0;
++    DWORD error=query_window(client->hwnd,&pid,&birth,&identity);
++    if(error)
++    {
++        client->last_error=error;
++        if(error==ERROR_INVALID_WINDOW_HANDLE||error==ERROR_INVALID_HANDLE)client->dead=TRUE;
++        return FALSE;
++    }
++    if(pid!=client->owner_pid||birth!=client->owner_birth||identity!=client->window_identity)
++    {client->dead=TRUE;client->last_error=ERROR_INVALID_WINDOW_HANDLE;return FALSE;}
++    return TRUE;
++}
++static DWORD route_send(struct renderer_route *route,UINT operation,UINT context,UINT32 child,
++                        struct macdrv_remote_packet *packet)
++{
++    memset(packet,0,sizeof(*packet));
++    if(route->sequence==~(UINT64)0)return ERROR_ARITHMETIC_OVERFLOW;
++    packet->operation=operation;packet->producer_generation=route->producer_id.generation;
++    packet->root_epoch=route->producer_id.root_epoch;packet->lease_id=route->producer_id.lease;
++    packet->sequence=++route->sequence;
++    packet->context_id=context;packet->child=child;
++    if(operation==MACDRV_REMOTE_INSTALL_PREPARED_HOST||operation==MACDRV_REMOTE_CANCEL_HOST)
++        packet->host_ticket=route->ticket;
++    if(!macdrv_remote_prepared_packet_send(route->root,packet))return ERROR_IO_PENDING;
++    if(packet->root_pid!=route->producer_id.root_pid||packet->root_create_time!=route->producer_id.root_birth)
++        return ERROR_INVALID_DATA;
++    return packet->status;
++}
++static void read_permissions(struct renderer_route *route)
++{
++    struct macdrv_status_snapshot snapshot;
++    if(route->host_reader&&macdrv_status_cell_read(route->host_reader,&snapshot)==MACDRV_STATUS_READ_SAFE_ONLY&&
++       !snapshot.values_valid)route->host_safe=TRUE;
++    if(route->producer_reader&&macdrv_status_cell_read(route->producer_reader,&snapshot)==MACDRV_STATUS_READ_SAFE_ONLY&&
++       !snapshot.values_valid)route->producer_safe=TRUE;
++}
++static BOOL retire_route(struct renderer_route *route)
++{
++    struct macdrv_remote_packet packet;
++    DWORD error;
++    NTSTATUS status;
++    route->stopping=TRUE;
++    if(route->acquire_unknown)return FALSE; /* no known lease; no invented peer cleanup */
++    if(route->producer_id.lease)
++    {
++        if(route->producer_reader_failed && !route->prepare_sent && !route->install_sent && !route->ticket)
++        {
++            status=macdrv_status_cell_close(&route->producer_reader);
++            if(status){route->last_error=RtlNtStatusToDosError(status);return FALSE;}
++            if(!route->release_sent)
++            {
++                if(route->sequence==~(UINT64)0)return FALSE;
++                route->release_sent=TRUE;
++                error=route_send(route,MACDRV_REMOTE_RELEASE_PRODUCER,0,0,&packet);
++                route->last_error=error;
++            }
++            WARN("renderer reader setup failed before PREPARE: local no-import owner settled; peer revoke result %u is not SAFE\n",(unsigned)route->last_error);
++            return TRUE;
++        }
++        if(route->ticket&&route->install_sent&&!route->cancel_sent)
++        {
++            if(route->sequence==~(UINT64)0)return FALSE;
++            route->cancel_sent=TRUE; /* before the possible irreversible effect */
++            error=route_send(route,MACDRV_REMOTE_CANCEL_HOST,0,0,&packet);
++            if(error&&error!=ERROR_IO_PENDING)route->last_error=error;
++        }
++        if(!route->release_sent)
++        {
++            if(route->sequence==~(UINT64)0)return FALSE;
++            route->release_sent=TRUE;
++            error=route_send(route,MACDRV_REMOTE_RELEASE_PRODUCER,0,0,&packet);
++            if(error&&error!=ERROR_IO_PENDING)route->last_error=error;
++        }
++        read_permissions(route);
++        if(route->install_sent&&!route->host_safe&&!route->producer_safe)return FALSE;
++        if(!route->producer_safe)return FALSE;
++    }
++    status=macdrv_status_cell_close(&route->host_reader);
++    if(status){route->last_error=RtlNtStatusToDosError(status);return FALSE;}
++    status=macdrv_status_cell_close(&route->producer_reader);
++    if(status){route->last_error=RtlNtStatusToDosError(status);return FALSE;}
++    return TRUE;
++}
++static DWORD open_route(struct macdrv_remote_renderer *client,HWND root,struct renderer_route **out)
++{
++    struct renderer_route *route;
++    struct macdrv_remote_packet packet={0};
++    struct macdrv_status_snapshot snapshot;
++    NTSTATUS status;
++    DWORD error;
++    unsigned attempt;
++    *out=NULL;
++    if(!(route=calloc(1,sizeof(*route))))return ERROR_NOT_ENOUGH_MEMORY;
++    route->root=root;route->next=client->routes;client->routes=route; /* own every partial setup */
++    packet.operation=MACDRV_REMOTE_QUERY_ROOT;
++    if(!macdrv_remote_prepared_packet_send(root,&packet))return ERROR_IO_PENDING;
++    if(packet.status)return packet.status;
++    if(!packet.root_pid||!packet.root_create_time||!packet.root_epoch)return ERROR_INVALID_DATA;
++    route->producer_id=(struct macdrv_status_identity){.session_id=client->session,.root_pid=packet.root_pid,
++        .producer_pid=GetCurrentProcessId(),.kind=MACDRV_STATUS_PRODUCER,.root_birth=packet.root_create_time,
++        .root_epoch=packet.root_epoch,.producer_birth=client->birth};
++    /* Independent surfaces use independent leases. Only a definite no-lease
++     * acquisition rejection may consume a fresh generation; never retry an
++     * unknown transport result or an INSTALL. No context has been imported. */
++    for(attempt=0;attempt<8;++attempt)
++    {
++        if((error=generation(&route->producer_id.generation)))return error;
++        memset(&packet,0,sizeof(packet));packet.operation=MACDRV_REMOTE_ACQUIRE_PRODUCER;
++        packet.producer_generation=route->producer_id.generation;packet.root_epoch=route->producer_id.root_epoch;
++        if(!macdrv_remote_prepared_packet_send(root,&packet))
++        {route->acquire_unknown=TRUE;return ERROR_IO_PENDING;}
++        route->producer_id.lease=packet.lease_id; /* actual effect, before later checks */
++        if(packet.root_pid!=route->producer_id.root_pid||packet.root_create_time!=route->producer_id.root_birth)
++            return ERROR_INVALID_DATA;
++        if(!packet.status&&packet.lease_id)break;
++        if(packet.lease_id||packet.status!=ERROR_INVALID_HANDLE)return packet.status?packet.status:ERROR_INVALID_DATA;
++        if(!same_window(client)||NtUserGetAncestor(client->hwnd,GA_ROOT)!=root)return ERROR_INVALID_WINDOW_HANDLE;
++    }
++    if(!route->producer_id.lease)return ERROR_RETRY;
++    status=macdrv_status_cell_open(&route->producer_id,&route->producer_reader);
++    if(status){route->producer_reader_failed=TRUE;return RtlNtStatusToDosError(status);}
++    error=route_send(route,MACDRV_REMOTE_REGISTER_PRODUCER_NOTIFY,client->dispatcher_thread,client->dispatcher_window,&packet);
++    if(error)return error;
++    route->prepare_sent=TRUE;
++    error=route_send(route,MACDRV_REMOTE_PREPARE_HOST,client->context_id,wine_server_user_handle(client->hwnd),&packet);
++    route->ticket=packet.host_ticket;
++    if(error)return error;
++    if(!route->ticket)return ERROR_INVALID_DATA;
++    route->host_id=route->producer_id;route->host_id.kind=MACDRV_STATUS_HOST;
++    route->host_id.ticket=route->ticket;route->host_id.context_id=client->context_id;
++    status=macdrv_status_cell_open(&route->host_id,&route->host_reader);
++    if(status)return RtlNtStatusToDosError(status);
++    if(macdrv_status_cell_read(route->host_reader,&snapshot)!=MACDRV_STATUS_READ_SNAPSHOT||!snapshot.values_valid)
++        return ERROR_INVALID_DATA;
++    if(!same_window(client)||NtUserGetAncestor(client->hwnd,GA_ROOT)!=root)return ERROR_INVALID_WINDOW_HANDLE;
++    if(route->sequence==~(UINT64)0)return ERROR_ARITHMETIC_OVERFLOW;
++    route->install_sent=TRUE;
++    error=route_send(route,MACDRV_REMOTE_INSTALL_PREPARED_HOST,0,0,&packet);
++    if(error)return error;
++    if(macdrv_status_cell_read(route->host_reader,&snapshot)!=MACDRV_STATUS_READ_SNAPSHOT||!snapshot.values_valid)
++        return ERROR_PROCESS_ABORTED;
++    route->ready=TRUE;*out=route;
++    return ERROR_SUCCESS;
++}
++struct macdrv_remote_renderer *macdrv_remote_renderer_alloc(HWND hwnd)
++{
++    struct macdrv_remote_renderer *client=calloc(1,sizeof(*client));
++    if(client)client->hwnd=hwnd;
++    return client;
++}
++DWORD macdrv_remote_renderer_start(struct macdrv_remote_renderer *client,id_MTLDevice device)
++{
++    KERNEL_USER_TIMES times;
++    RECT rect;
++    NTSTATUS status;
++    DWORD error;
++    struct renderer_route *route;
++    if(!client||client->started||client->context||client->routes||pthread_main_np())return ERROR_INVALID_STATE;
++    if((error=ensure_dispatcher(&client->dispatcher_window,&client->dispatcher_thread)))return error;
++    error=query_window(client->hwnd,&client->owner_pid,&client->owner_birth,&client->window_identity);
++    if(error)return error;
++    status=NtQueryInformationProcess(NtCurrentProcess(),ProcessTimes,&times,sizeof(times),NULL);
++    if(!status)status=NtQueryInformationProcess(NtCurrentProcess(),ProcessSessionInformation,&client->session,sizeof(client->session),NULL);
++    if(status)return RtlNtStatusToDosError(status);
++    client->birth=times.CreateTime.QuadPart;
++    if(!NtUserGetClientRect(client->hwnd,&rect,NtUserGetWinMonitorDpi(client->hwnd,MDT_RAW_DPI)))return ERROR_INVALID_WINDOW_HANDLE;
++    client->context=macdrv_create_exported_metal_context(cgrect_from_rect(rect),device);
++    if(!client->context||!(client->context_id=macdrv_exported_metal_context_id(client->context)))return ERROR_NOT_ENOUGH_MEMORY;
++    error=open_route(client,NtUserGetAncestor(client->hwnd,GA_ROOT),&route);
++    if(error)
++    {
++        struct renderer_route *r;
++        for(r=client->routes;r;r=r->next)r->stopping=TRUE;
++        client->last_error=error;return error;
++    }
++    client->current=route;client->started=TRUE;
++    TRACE("renderer client active hwnd %p context %u root %p lease %#llx ticket %#llx generation %#llx\n",
++        client->hwnd, client->context_id, route->root, (unsigned long long)route->producer_id.lease,
++        (unsigned long long)route->ticket, (unsigned long long)route->producer_id.generation);
++    return ERROR_SUCCESS;
++}
++BOOL macdrv_remote_renderer_progress(struct macdrv_remote_renderer *client,enum macdrv_remote_renderer_mode mode,BOOL event_probe)
++{
++    struct renderer_route **cursor,*route;
++    BOOL pending=FALSE,need_update=FALSE,window_valid=FALSE;
++    HWND root;
++    (void)event_probe; /* wakes accelerate the same independent periodic identity check */
++    if(!client||pthread_main_np())return FALSE;
++    if(mode==MACDRV_RENDERER_STOP)client->stopping=TRUE;
++    if(client->started&&!client->stopping&&!client->dead)
++        window_valid=same_window(client); /* bounded Wine-thread check even while RO is ACTIVE */
++    if(client->current)
++    {
++        read_permissions(client->current);
++        need_update=client->current->host_safe||client->current->producer_safe;
++        if(mode==MACDRV_RENDERER_CACHED&&need_update)client->stopping=TRUE; /* replacement must not resurrect cached pixels */
++    }
++    if(client->started&&!client->stopping&&!client->dead&&window_valid&&
++       (mode==MACDRV_RENDERER_ACTIVE||mode==MACDRV_RENDERER_CACHED))
++    {
++        root=NtUserGetAncestor(client->hwnd,GA_ROOT);
++        if(root&&client->current)
++        {
++            struct macdrv_remote_packet query={0};
++            BOOL failed_route=FALSE,changed,delivered;
++            query.operation=MACDRV_REMOTE_QUERY_ROOT;
++            delivered=macdrv_remote_prepared_packet_send(root,&query);
++            changed=delivered&&!query.status&&query.root_epoch&&
++                (root!=client->current->root||query.root_epoch!=client->current->producer_id.root_epoch||
++                 query.root_pid!=client->current->producer_id.root_pid||query.root_create_time!=client->current->producer_id.root_birth);
++            if(delivered&&!query.status&&query.root_epoch&&query.root_pid&&query.root_create_time)client->current->safety_probed=TRUE;
++            for(route=client->routes;route;route=route->next)if(route!=client->current)failed_route=TRUE;
++            /* A new swapchain on the SAME root may have superseded this one.
++             * SAFE alone must not reimport and overwrite the newer image. */
++            if(changed&&mode==MACDRV_RENDERER_CACHED) client->stopping=TRUE;
++            if(changed&&mode==MACDRV_RENDERER_ACTIVE&&!failed_route)
++            {
++                struct renderer_route *fresh=NULL;
++                DWORD error=open_route(client,root,&fresh);
++                if(!error){client->current->stopping=TRUE;client->current=fresh;}
++                else
++                {
++                    for(route=client->routes;route;route=route->next)if(route!=client->current)route->stopping=TRUE;
++                    client->last_error=error;
++                }
++            }
++        }
++        else if(!root)client->dead=TRUE;
++        if(client->dead)for(route=client->routes;route;route=route->next)route->stopping=TRUE;
++    }
++    for(cursor=&client->routes;(route=*cursor);)
++    {
++        if(client->stopping||client->dead)route->stopping=TRUE;
++        if(route->stopping)
++        {
++            if(retire_route(route))
++            {
++                *cursor=route->next;if(client->current==route)client->current=NULL;free(route);continue;
++            }
++            pending=TRUE;
++        }
++        cursor=&route->next;
++    }
++    if(client->routes||pending)return FALSE;
++    /* Active renderer leases keep a borrowed CAMetalLayer valid even after
++     * its HWND disappears; there is no free based on a message or process exit. */
++    if(mode==MACDRV_RENDERER_ACTIVE&&!client->stopping)return FALSE;
++    if(client->context){macdrv_destroy_swapchain(client->context);client->context=NULL;}
++    return TRUE;
++}
++void *macdrv_remote_renderer_layer(struct macdrv_remote_renderer *client)
++{
++    return client&&client->context?macdrv_swapchain_get_layer(client->context):NULL;
++}
++BOOL macdrv_remote_renderer_device_matches(struct macdrv_remote_renderer *client,id_MTLDevice device)
++{
++    return client&&client->context&&(!device||macdrv_swapchain_get_device(client->context)==device);
++}
++BOOL macdrv_remote_renderer_has_generation(const struct macdrv_remote_renderer *client,UINT64 value)
++{
++    const struct renderer_route *route;
++    if(!client)return FALSE;
++    for(route=client->routes;route;route=route->next)if(route->producer_id.generation==value)return TRUE;
++    return FALSE;
++}
++void macdrv_remote_renderer_free(struct macdrv_remote_renderer *client)
++{
++    if(!client)return;
++    if(client->routes||client->context)
++    {ERR("renderer resource free rejected while context/routes still owned\n");return;}
++    TRACE("renderer client freed hwnd %p context0 routes0\n",client->hwnd);
++    free(client);
++}
+--- /dev/null
++++ b/dlls/winemac.drv/remote_client.h
+@@ -0,0 +1,42 @@
++/* Candidate renderer client control ABI. No private HWND layouts or status
++ * success substitution. All payload fields have fixed widths across WoW64. */
++#ifndef __WINE_MACDRV_REMOTE_CLIENT_H
++#define __WINE_MACDRV_REMOTE_CLIENT_H
++#include "ntuser.h"
++#define MACDRV_REMOTE_CLIENT_MAGIC 0x3143524dU
++#define MACDRV_REMOTE_CLIENT_VERSION 1U
++#define MACDRV_REMOTE_CLIENT_CLASS_NAMEW u"CiderRemoteClientEventsV1"
++#define WM_MACDRV_REMOTE_CLIENT_WAKE (WM_APP + 0x3c1)
++enum macdrv_remote_client_control { MACDRV_CLIENT_START=1, MACDRV_CLIENT_QUERY, MACDRV_CLIENT_STOP };
++enum macdrv_remote_client_event_op { MACDRV_CLIENT_EVENT_WAKE=1 };
++enum macdrv_remote_client_flags
++{
++    MACDRV_CLIENT_LIVE=1, MACDRV_CLIENT_THREAD_JOINED=2,
++    MACDRV_CLIENT_WINDOW_DESTROYED=4, MACDRV_CLIENT_HANDLES_CLOSED=8,
++    MACDRV_CLIENT_CLASS_UNREGISTERED=16
++};
++struct macdrv_remote_client_init { UINT32 magic,version; UINT64 callback; };
++struct macdrv_remote_client_request
++{
++    struct dispatch_callback_params dispatch;
++    UINT32 magic,version,operation,reserved;
++    UINT64 generation; /* process-local service incarnation; initial value1 */
++};
++struct macdrv_remote_client_reply
++{
++    UINT32 magic,version,operation,status;
++    UINT64 generation;
++    UINT32 window,thread,flags,reserved;
++};
++struct macdrv_remote_client_event
++{
++    UINT32 size,version,operation,window;
++    UINT64 generation; /* advisory remote producer generation; 0 = poll all */
++    UINT32 thread,reserved;
++};
++C_ASSERT(sizeof(struct macdrv_remote_client_init)==16);
++C_ASSERT(sizeof(struct macdrv_remote_client_request)==32);
++C_ASSERT(sizeof(struct macdrv_remote_client_reply)==40);
++C_ASSERT(sizeof(struct macdrv_remote_client_event)==32);
++extern NTSTATUS WINAPI macdrv_remote_client_callback(void *,ULONG);
++#endif
+--- /dev/null
++++ b/dlls/winemac.drv/remote_client_pe.c
+@@ -0,0 +1,507 @@
++/* One process-lifetime PE dispatcher, not a surface or foreign-HWND registry.
++ * The registry and its failed/stopped incarnation intentionally remain allocated.
++ * NT handle ownership is separate: only diagnostic STOP may close it, after a
++ * real kernel-thread join and the worker's checked window destruction. */
++#include <stdarg.h>
++#include <string.h>
++#include "ntstatus.h"
++#define WIN32_NO_STATUS
++#include "windef.h"
++#include "winbase.h"
++#include "winuser.h"
++#include "winternl.h"
++#include "unixlib.h"
++#include "remote_client.h"
++#include "wine/debug.h"
++WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
++
++struct remote_client
++{
++    ULONG api_pins;
++    BOOL initializing, cleanup_active, stopping;
++    BOOL ready_published, ready_signaled, worker_finishing;
++    BOOL thread_created, joined, window_created, window_destroyed;
++    BOOL class_owned, class_unregistered;
++    DWORD startup_error, worker_error, destroy_error, stop_error, cleanup_error;
++    HANDLE ready, stop, thread;
++    HMODULE module;
++    HWND window;
++    DWORD thread_id;
++};
++static SRWLOCK client_lock = SRWLOCK_INIT;
++static struct remote_client *client;
++static DWORD allocation_error;
++static const WCHAR module_anchor;
++
++static DWORD client_last_error(void)
++{
++    DWORD error = GetLastError();
++    return error ? error : ERROR_GEN_FAILURE;
++}
++
++static LRESULT CALLBACK client_window_proc(HWND window, UINT message, WPARAM wparam, LPARAM lparam)
++{
++    struct remote_client *owner;
++    struct macdrv_remote_client_event event = {0};
++    NTSTATUS status;
++    BOOL enabled;
++
++    if (message == WM_NCCREATE)
++    {
++        CREATESTRUCTW *create = (CREATESTRUCTW *)lparam;
++        DWORD error;
++        owner = create->lpCreateParams;
++        if (!owner) return FALSE;
++        AcquireSRWLockExclusive(&client_lock);
++        owner->window = window;
++        owner->window_created = TRUE; /* actual USER object, startup not yet acknowledged */
++        ReleaseSRWLockExclusive(&client_lock);
++        SetLastError(ERROR_SUCCESS);
++        if (!SetWindowLongPtrW(window, GWLP_USERDATA, (LONG_PTR)owner) && (error = GetLastError()))
++        {
++            AcquireSRWLockExclusive(&client_lock); owner->startup_error = error; ReleaseSRWLockExclusive(&client_lock);
++            return FALSE;
++        }
++    }
++    owner = (struct remote_client *)GetWindowLongPtrW(window, GWLP_USERDATA);
++    if (!owner && message == WM_NCDESTROY)
++    {
++        AcquireSRWLockShared(&client_lock);
++        if (client && client->window == window) owner = client; /* failed userdata setup, stable registry */
++        ReleaseSRWLockShared(&client_lock);
++    }
++    if (message == WM_NCDESTROY && owner)
++    {
++        HANDLE stop = NULL;
++        AcquireSRWLockExclusive(&client_lock);
++        if (owner->window == window)
++        {
++            owner->window = NULL; owner->window_destroyed = TRUE;
++            owner->worker_finishing = TRUE; owner->stopping = TRUE; stop = owner->stop;
++        }
++        ReleaseSRWLockExclusive(&client_lock);
++        if (stop && !SetEvent(stop))
++        {
++            DWORD error = client_last_error();
++            AcquireSRWLockExclusive(&client_lock); owner->stop_error = error; ReleaseSRWLockExclusive(&client_lock);
++        }
++        PostQuitMessage(0); /* orderly completion even when the stop signal failed */
++        return DefWindowProcW(window, message, wparam, lparam);
++    }
++    if (message != WM_MACDRV_REMOTE_CLIENT_WAKE)
++        return DefWindowProcW(window, message, wparam, lparam);
++    if (!owner) return 0;
++    AcquireSRWLockShared(&client_lock);
++    enabled = owner->window == window && owner->ready_signaled &&
++              !owner->startup_error && !owner->stopping && !owner->worker_finishing;
++    ReleaseSRWLockShared(&client_lock);
++    if (!enabled) return 0;
++
++    event.size = sizeof(event);
++    event.version = MACDRV_REMOTE_CLIENT_VERSION;
++    event.operation = MACDRV_CLIENT_EVENT_WAKE;
++    event.window = HandleToULong(window);
++    event.generation = (UINT64)(UINT32)wparam | ((UINT64)(UINT32)lparam << 32);
++    event.thread = GetCurrentThreadId();
++    /* Neither message word is a pointer, ticket, or destruction authority.
++     * Generation zero requests an advisory poll of all producer generations.
++     * Native consumers must independently validate their RO state/identities. */
++    status = MACDRV_CALL(remote_client_event, &event);
++    if (status) WARN("remote client wake failed %#x\n", (unsigned int)status);
++    return 0;
++}
++
++static DWORD publish_startup(struct remote_client *owner, DWORD error)
++{
++    AcquireSRWLockExclusive(&client_lock);
++    if (!owner->startup_error) owner->startup_error = error;
++    owner->ready_published = TRUE;
++    /* Publish the outcome and the actual signaling result together. A failed
++     * SetEvent is sticky even when class/window creation succeeded. */
++    if (SetEvent(owner->ready)) owner->ready_signaled = TRUE;
++    else if (!owner->startup_error) owner->startup_error = client_last_error();
++    error = owner->startup_error;
++    ReleaseSRWLockExclusive(&client_lock);
++    return error;
++}
++
++static DWORD WINAPI client_worker(void *context)
++{
++    struct remote_client *owner = context;
++    WNDCLASSW class = {0};
++    HWND window = NULL;
++    HANDLE stop;
++    MSG message;
++    DWORD result, error = ERROR_SUCCESS, destroy_error = ERROR_SUCCESS;
++    BOOL destroyed;
++
++    AcquireSRWLockExclusive(&client_lock);
++    owner->thread_id = GetCurrentThreadId();
++    stop = owner->stop;
++    class.hInstance = owner->module;
++    ReleaseSRWLockExclusive(&client_lock);
++    result = WaitForSingleObject(stop, 0);
++    if (result != WAIT_TIMEOUT)
++        error = result == WAIT_OBJECT_0 ? ERROR_OPERATION_ABORTED :
++                result == WAIT_FAILED ? client_last_error() : ERROR_INVALID_DATA;
++    if (!error)
++    {
++        class.lpfnWndProc = client_window_proc;
++        class.lpszClassName = MACDRV_REMOTE_CLIENT_CLASS_NAMEW;
++        if (!RegisterClassW(&class)) error = client_last_error();
++        else
++        {
++            AcquireSRWLockExclusive(&client_lock);
++            owner->class_owned = TRUE;
++            ReleaseSRWLockExclusive(&client_lock);
++            window = CreateWindowExW(0, MACDRV_REMOTE_CLIENT_CLASS_NAMEW, NULL, 0,
++                                     0, 0, 0, 0, HWND_MESSAGE, NULL, class.hInstance, owner);
++            if (!window) error = client_last_error();
++            else
++            {
++                AcquireSRWLockShared(&client_lock);
++                if (owner->window != window || owner->window_destroyed) error = ERROR_OPERATION_ABORTED;
++                ReleaseSRWLockShared(&client_lock);
++            }
++        }
++    }
++    /* STOP may have arrived during the lock-free USER initialization. */
++    if (!error)
++    {
++        result = WaitForSingleObject(stop, 0);
++        if (result != WAIT_TIMEOUT)
++            error = result == WAIT_OBJECT_0 ? ERROR_OPERATION_ABORTED :
++                    result == WAIT_FAILED ? client_last_error() : ERROR_INVALID_DATA;
++    }
++    error = publish_startup(owner, error);
++    while (!error)
++    {
++        result = MsgWaitForMultipleObjectsEx(1, &stop, INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
++        if (result == WAIT_OBJECT_0) break;
++        if (result != WAIT_OBJECT_0 + 1)
++        {
++            error = result == WAIT_FAILED ? client_last_error() : ERROR_INVALID_DATA;
++            break;
++        }
++        while (PeekMessageW(&message, NULL, 0, 0, PM_REMOVE))
++        {
++            if (message.message == WM_QUIT)
++            {
++                error = ERROR_OPERATION_ABORTED;
++                goto finished;
++            }
++            TranslateMessage(&message);
++            DispatchMessageW(&message);
++            /* A busy producer cannot starve diagnostic STOP. No idle polling. */
++            result = WaitForSingleObject(stop, 0);
++            if (result == WAIT_OBJECT_0) goto finished;
++            if (result != WAIT_TIMEOUT)
++            {
++                error = result == WAIT_FAILED ? client_last_error() : ERROR_INVALID_DATA;
++                goto finished;
++            }
++        }
++    }
++finished:
++    AcquireSRWLockExclusive(&client_lock);
++    owner->worker_finishing = TRUE;
++    owner->worker_error = error;
++    ReleaseSRWLockExclusive(&client_lock);
++    if (window)
++    {
++        AcquireSRWLockShared(&client_lock); destroyed = owner->window_destroyed; ReleaseSRWLockShared(&client_lock);
++        if (!destroyed)
++        {
++            destroyed = DestroyWindow(window);
++            if (!destroyed) destroy_error = client_last_error();
++            AcquireSRWLockExclusive(&client_lock);
++            owner->destroy_error = destroy_error;
++            if (destroyed) {owner->window_destroyed = TRUE; owner->window = NULL;}
++            /* WM_NCDESTROY's real observation is not undone by a late failure. */
++            ReleaseSRWLockExclusive(&client_lock);
++        }
++    }
++    /* Returning is not a join, nor evidence that DestroyWindow succeeded.
++     * State/GWLP_USERDATA remain valid even on the failure path. */
++    return error ? error : destroy_error;
++}
++
++static void initialize_client(struct remote_client *owner)
++{
++    HMODULE module = NULL;
++    DWORD error = ERROR_SUCCESS, thread_id = 0;
++
++    /* Parent initialization already pins this callback module. Verify/pin the
++     * worker and WNDPROC's containing module here, outside DllMain and our lock. */
++    if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_PIN,
++                            &module_anchor, &module)) error = client_last_error();
++    AcquireSRWLockExclusive(&client_lock);
++    owner->module = module;
++    if (!error && owner->stopping) error = ERROR_OPERATION_ABORTED;
++    /* These kernel calls do not pump USER messages or wait. Each returned
++     * handle is immediately owned by the permanent registry, including every
++     * partial-construction failure. The worker publishes under this same lock. */
++    if (!error && !(owner->ready = CreateEventW(NULL, TRUE, FALSE, NULL))) error = client_last_error();
++    if (!error && !(owner->stop = CreateEventW(NULL, TRUE, FALSE, NULL))) error = client_last_error();
++    if (!error)
++    {
++        owner->thread = CreateThread(NULL, 0, client_worker, owner, 0, &thread_id);
++        if (owner->thread)
++        {
++            owner->thread_created = TRUE;
++            owner->thread_id = thread_id;
++        }
++        else error = client_last_error();
++    }
++    if (error)
++    {
++        owner->startup_error = error;
++        owner->ready_published = TRUE;
++    }
++    owner->initializing = FALSE;
++    ReleaseSRWLockExclusive(&client_lock);
++}
++
++/* All helpers with a _locked suffix require client_lock. */
++static BOOL cleanup_complete_locked(const struct remote_client *owner)
++{
++    return !owner->initializing && (!owner->thread_created || owner->joined) &&
++           (!owner->window_created || owner->window_destroyed) && !owner->class_owned &&
++           !owner->thread && !owner->ready && !owner->stop;
++}
++
++static void reply_state_locked(const struct remote_client *owner, struct macdrv_remote_client_reply *reply)
++{
++    reply->window = HandleToULong(owner->window);
++    reply->thread = owner->thread_id;
++    reply->flags = 0;
++    if (owner->joined) reply->flags |= MACDRV_CLIENT_THREAD_JOINED;
++    if (owner->window_destroyed) reply->flags |= MACDRV_CLIENT_WINDOW_DESTROYED;
++    if (!owner->initializing && !owner->thread && !owner->ready && !owner->stop)
++        reply->flags |= MACDRV_CLIENT_HANDLES_CLOSED;
++    if (owner->class_unregistered) reply->flags |= MACDRV_CLIENT_CLASS_UNREGISTERED;
++}
++
++static DWORD start_client(struct remote_client *owner)
++{
++    HANDLE ready;
++    DWORD error, result, timeout;
++    AcquireSRWLockShared(&client_lock);
++    error = owner->startup_error;
++    if (!error && (owner->stopping || owner->initializing)) error = ERROR_IO_PENDING;
++    if (!error && !owner->ready_published && owner->thread_id == GetCurrentThreadId())
++        error = ERROR_IO_PENDING; /* Reentrant START cannot wait for its own startup. */
++    ready = owner->ready;
++    timeout = owner->ready_published ? 0 : 2000;
++    ReleaseSRWLockShared(&client_lock);
++    if (error) return error;
++    if (!ready) return ERROR_IO_PENDING;
++    /* The callback's API pin excludes handle closing. Never wait with the
++     * registry lock held: the worker needs it to publish startup. */
++    result = WaitForSingleObject(ready, timeout);
++    if (result == WAIT_OBJECT_0) return ERROR_SUCCESS;
++    return result == WAIT_TIMEOUT ? ERROR_IO_PENDING :
++           result == WAIT_FAILED ? client_last_error() : ERROR_INVALID_DATA;
++}
++
++/* cleanup_active excludes all other API handle users, and the worker has been
++ * joined (or no thread was ever created). Failed closes keep their exact owner. */
++static DWORD close_client_handle(HANDLE *slot)
++{
++    HANDLE handle;
++    DWORD error = ERROR_SUCCESS;
++    AcquireSRWLockShared(&client_lock);
++    handle = *slot;
++    ReleaseSRWLockShared(&client_lock);
++    if (handle)
++    {
++        if (!CloseHandle(handle)) error = client_last_error();
++        else
++        {
++            AcquireSRWLockExclusive(&client_lock);
++            *slot = NULL;
++            ReleaseSRWLockExclusive(&client_lock);
++        }
++    }
++    return error;
++}
++
++static DWORD stop_client(struct remote_client *owner)
++{
++    HANDLE stop, thread;
++    DWORD thread_id, result, error = ERROR_SUCCESS, next_error;
++    BOOL class_owned;
++    HMODULE module;
++
++    AcquireSRWLockExclusive(&client_lock);
++    owner->stopping = TRUE;
++    stop = owner->stop;
++    thread = owner->thread;
++    thread_id = owner->thread_id;
++    ReleaseSRWLockExclusive(&client_lock);
++    /* Signal the actual event before attempting any join/cleanup. Every STOP
++     * remains nonblocking; neither a timeout nor our own thread is a join. */
++    if (stop && !SetEvent(stop)) error = client_last_error();
++    AcquireSRWLockExclusive(&client_lock);
++    owner->stop_error = error;
++    ReleaseSRWLockExclusive(&client_lock);
++    if (error) return error;
++    if (thread)
++    {
++        if (thread_id == GetCurrentThreadId()) return ERROR_IO_PENDING;
++        result = WaitForSingleObject(thread, 0);
++        if (result != WAIT_OBJECT_0)
++            return result == WAIT_TIMEOUT ? ERROR_IO_PENDING :
++                   result == WAIT_FAILED ? client_last_error() : ERROR_INVALID_DATA;
++        AcquireSRWLockExclusive(&client_lock);
++        owner->joined = TRUE;
++        ReleaseSRWLockExclusive(&client_lock);
++    }
++    AcquireSRWLockExclusive(&client_lock);
++    if (owner->initializing || (owner->thread_created && !owner->joined) || owner->api_pins != 1)
++        error = ERROR_IO_PENDING;
++    else if (owner->window_created && !owner->window_destroyed)
++        error = owner->destroy_error ? owner->destroy_error : ERROR_IO_PENDING;
++    if (error)
++    {
++        ReleaseSRWLockExclusive(&client_lock);
++        return error;
++    }
++    owner->cleanup_active = TRUE;
++    class_owned = owner->class_owned;
++    module = owner->module;
++    ReleaseSRWLockExclusive(&client_lock);
++
++    error = close_client_handle(&owner->thread);
++    next_error = close_client_handle(&owner->ready);
++    if (!error) error = next_error;
++    next_error = close_client_handle(&owner->stop);
++    if (!error) error = next_error;
++    if (class_owned)
++    {
++        if (!UnregisterClassW(MACDRV_REMOTE_CLIENT_CLASS_NAMEW, module))
++        {
++            next_error = client_last_error();
++            if (!error) error = next_error;
++        }
++        else
++        {
++            AcquireSRWLockExclusive(&client_lock);
++            owner->class_owned = FALSE;
++            owner->class_unregistered = TRUE;
++            ReleaseSRWLockExclusive(&client_lock);
++        }
++    }
++    AcquireSRWLockExclusive(&client_lock);
++    owner->cleanup_error = error;
++    owner->cleanup_active = FALSE;
++    ReleaseSRWLockExclusive(&client_lock);
++    return error;
++}
++
++static void snapshot_client(struct remote_client *owner, struct macdrv_remote_client_reply *reply,
++                            DWORD operation_error)
++{
++    HANDLE thread;
++    HWND window;
++    DWORD thread_id, process_id = 0, result = WAIT_TIMEOUT, error = ERROR_SUCCESS;
++    BOOL live = FALSE;
++
++    AcquireSRWLockShared(&client_lock);
++    thread = owner->thread;
++    window = owner->window;
++    thread_id = owner->thread_id;
++    ReleaseSRWLockShared(&client_lock);
++    if (thread)
++    {
++        result = WaitForSingleObject(thread, 0);
++        if (result == WAIT_FAILED) error = client_last_error();
++        else if (result != WAIT_TIMEOUT && result != WAIT_OBJECT_0) error = ERROR_INVALID_DATA;
++        if (result == WAIT_TIMEOUT && window && thread_id)
++        {
++            live = GetWindowThreadProcessId(window, &process_id) == thread_id &&
++                   process_id == GetCurrentProcessId();
++            if (!live) error = ERROR_INVALID_WINDOW_HANDLE;
++        }
++    }
++    AcquireSRWLockExclusive(&client_lock);
++    if (thread && result == WAIT_OBJECT_0) owner->joined = TRUE;
++    reply_state_locked(owner, reply);
++    live = live && owner->window == window && owner->thread_id == thread_id &&
++           owner->ready_published && owner->ready_signaled && !owner->startup_error &&
++           !owner->stopping && !owner->worker_finishing && !owner->joined;
++    if (live) reply->flags |= MACDRV_CLIENT_LIVE;
++    if (operation_error && operation_error != ERROR_IO_PENDING) reply->status = operation_error;
++    else if (owner->startup_error) reply->status = owner->startup_error;
++    else if (owner->worker_error) reply->status = owner->worker_error;
++    else if (owner->destroy_error) reply->status = owner->destroy_error;
++    else if (owner->stop_error) reply->status = owner->stop_error;
++    else if (owner->cleanup_error) reply->status = owner->cleanup_error;
++    else if (error) reply->status = error;
++    else if (operation_error) reply->status = operation_error;
++    else if (owner->stopping)
++        reply->status = cleanup_complete_locked(owner) ? ERROR_SUCCESS : ERROR_IO_PENDING;
++    else if (owner->joined) reply->status = ERROR_OPERATION_ABORTED;
++    else reply->status = live ? ERROR_SUCCESS : ERROR_IO_PENDING;
++    ReleaseSRWLockExclusive(&client_lock);
++}
++
++NTSTATUS WINAPI macdrv_remote_client_callback(void *args, ULONG size)
++{
++    struct macdrv_remote_client_request request;
++    struct macdrv_remote_client_reply reply = {0};
++    struct remote_client *owner;
++    BOOL initialize = FALSE;
++    DWORD error = ERROR_SUCCESS;
++
++    if (!args || size != sizeof(request)) return STATUS_INVALID_PARAMETER;
++    memcpy(&request, args, sizeof(request));
++    if (request.magic != MACDRV_REMOTE_CLIENT_MAGIC || request.version != MACDRV_REMOTE_CLIENT_VERSION ||
++        request.reserved || !request.generation ||
++        (request.operation != MACDRV_CLIENT_START && request.operation != MACDRV_CLIENT_QUERY &&
++         request.operation != MACDRV_CLIENT_STOP)) return STATUS_INVALID_PARAMETER;
++    reply.magic = request.magic;
++    reply.version = request.version;
++    reply.operation = request.operation;
++    reply.generation = request.generation;
++    reply.reserved = request.reserved;
++    /* Only incarnation one exists. A different nonzero generation is a valid
++     * frame with an operation error, never permission to replace the registry. */
++    if (request.generation != 1)
++    {
++        reply.status = ERROR_INVALID_PARAMETER;
++        return NtCallbackReturn(&reply, sizeof(reply), STATUS_SUCCESS);
++    }
++    AcquireSRWLockExclusive(&client_lock);
++    if (!client && !allocation_error && request.operation == MACDRV_CLIENT_START)
++    {
++        client = HeapAlloc(GetProcessHeap(), HEAP_ZERO_MEMORY, sizeof(*client));
++        if (!client) allocation_error = ERROR_NOT_ENOUGH_MEMORY;
++        else
++        {
++            client->initializing = TRUE;
++            initialize = TRUE;
++        }
++    }
++    owner = client;
++    if (!owner) reply.status = allocation_error ? allocation_error : ERROR_NOT_FOUND;
++    else if (owner->cleanup_active || owner->api_pins == ~(ULONG)0)
++    {
++        reply_state_locked(owner, &reply);
++        reply.status = owner->cleanup_active ? ERROR_IO_PENDING : ERROR_ARITHMETIC_OVERFLOW;
++        owner = NULL;
++    }
++    else ++owner->api_pins;
++    ReleaseSRWLockExclusive(&client_lock);
++    if (owner)
++    {
++        if (initialize) initialize_client(owner);
++        if (request.operation == MACDRV_CLIENT_START) error = start_client(owner);
++        else if (request.operation == MACDRV_CLIENT_STOP) error = stop_client(owner);
++        snapshot_client(owner, &reply, error);
++        AcquireSRWLockExclusive(&client_lock);
++        --owner->api_pins;
++        ReleaseSRWLockExclusive(&client_lock);
++    }
++    return NtCallbackReturn(&reply, sizeof(reply), STATUS_SUCCESS);
++}
+--- a/dlls/winemac.drv/remote_coordinator.c
++++ b/dlls/winemac.drv/remote_coordinator.c
+@@ -11,6 +11,7 @@
+ #include "macdrv.h"
+ #include "winternl.h"
+ #include "remote_watch.h"
++#include "remote_client.h"
+ #include "status_cell.h"
+ #include "wine/macdrv_remote.h"
+ #include "wine/server.h"
+@@ -79,6 +80,8 @@
+     UINT64 pending_retirements;
+     BOOL active, listed, watched, watch_started, cleanup_pending, cleanup_listed;
+     BOOL completion_requested, finalized;
++    HWND notify_window;
++    DWORD notify_thread;
+ };
+ struct producer_setup
+ {
+@@ -281,6 +284,43 @@
+     }
+ }
+ 
++/* Wine-thread notification only. The message is a wake hint, never a SAFE
++ * permission. Copy scalar endpoints under the registry lock; no USER call or
++ * borrowed NT handle is used while holding that lock. */
++static BOOL client_notify_window_valid(HWND window, DWORD pid, DWORD tid)
++{
++    static const WCHAR expected[] = MACDRV_REMOTE_CLIENT_CLASS_NAMEW;
++    WCHAR buffer[64];
++    UNICODE_STRING name = {0, sizeof(buffer), buffer};
++    DWORD actual_pid = 0;
++    UINT actual_tid = NtUserGetWindowThread(window, &actual_pid);
++    INT length;
++    if (!window || !tid || actual_tid != tid || actual_pid != pid) return FALSE;
++    length = NtUserGetClassName(window, FALSE, &name);
++    return length == ARRAY_SIZE(expected) - 1 && !memcmp(buffer, expected, length * sizeof(WCHAR));
++}
++static void notify_remote_clients(HWND root_hwnd)
++{
++    struct client_notice { HWND window; DWORD pid, tid; UINT64 generation; } *snapshot;
++    struct remote_producer *producer;
++    SIZE_T count = 0, index = 0;
++    pthread_mutex_lock(&remote_lock);
++    for (producer = producers; producer; producer = producer->next)
++        if (producer->root->hwnd == root_hwnd && producer->notify_window) ++count;
++    snapshot = count && count <= ~(SIZE_T)0 / sizeof(*snapshot) ? malloc(count * sizeof(*snapshot)) : NULL;
++    if (snapshot)
++        for (producer = producers; producer; producer = producer->next)
++            if (producer->root->hwnd == root_hwnd && producer->notify_window)
++                snapshot[index++] = (struct client_notice){producer->notify_window, producer->pid,
++                    producer->notify_thread, producer->generation};
++    pthread_mutex_unlock(&remote_lock);
++    for (index = 0; snapshot && index < count; ++index)
++        if (client_notify_window_valid(snapshot[index].window, snapshot[index].pid, snapshot[index].tid))
++            NtUserPostMessage(snapshot[index].window, WM_MACDRV_REMOTE_CLIENT_WAKE,
++                (UINT32)snapshot[index].generation, (UINT32)(snapshot[index].generation >> 32));
++    free(snapshot); /* dropped wake is covered by the existing PE recovery timer */
++}
++
+ UINT64 macdrv_remote_root_open(HWND hwnd, WineWindow *window)
+ {
+     struct remote_root *root, *current;
+@@ -339,6 +379,7 @@
+     dispose_retired(retired);
+     if (root)
+     {
++        notify_remote_clients(hwnd);
+         root_revoke_producers(root);
+         root_release(root);
+     }
+@@ -578,11 +619,17 @@
+                 geometry.frame, geometry.clip, geometry.z, geometry.valid_z, update_validate, update_dispose, job);
+     return TRUE; /* queued, not a claim that Cocoa has already applied it */
+ }
++void macdrv_remote_parent_changed(HWND old_root, HWND new_root)
++{
++    notify_remote_clients(old_root);
++    if (new_root != old_root) notify_remote_clients(new_root);
++}
+ void macdrv_remote_root_changed(HWND hwnd)
+ {
+     struct remote_root *root;
+     struct remote_host *host, *next, *retired = NULL;
+     UINT64 *tickets, revision;
++    BOOL revoked = FALSE;
+     SIZE_T count = 0, index = 0;
+     pthread_mutex_lock(&remote_lock);
+     root = root_lookup_locked(hwnd);
+@@ -613,8 +660,10 @@
+         for (host = hosts; host; host = host->next)
+             if (host->root == root && host->state == HOST_INSTALLED) tickets[index++] = host->ticket;
+     pthread_mutex_unlock(&remote_lock);
+-    for (index = 0; tickets && index < count; ++index) macdrv_remote_host_refresh(tickets[index]);
++    for (index = 0; tickets && index < count; ++index)
++        if (!macdrv_remote_host_refresh(tickets[index])) revoked = TRUE;
+     free(tickets);
++    if (revoked) notify_remote_clients(hwnd);
+ }
+ void macdrv_remote_child_destroyed(HWND child)
+ {
+@@ -672,6 +721,12 @@
+     if (acknowledged) *acknowledged = TRUE;
+     return reply.status;
+ }
++DWORD macdrv_remote_arm_client_recovery(void)
++{
++    return watch_control(MACDRV_REMOTE_RECOVERY_ARM, NULL, 1, NULL);
++}
++extern BOOL macdrv_legacy_remote_recover(UINT64 generation);
++
+ static void queue_producer_cleanup(struct remote_producer *producer);
+ /* These fields are protected by remote_lock. Publication contains no NT calls;
+  * section lifetime changes require the Wine-thread completion/control path. */
+@@ -1233,6 +1288,7 @@
+     DWORD error = ERROR_INVALID_PARAMETER;
+     NTSTATUS status;
+     HWND child;
++    UINT64 window_identity;
+     if (size || !macdrv_remote_packet_header_valid(packet) || packet->flags ||
+         packet->root != wine_server_user_handle(hwnd)) return 0;
+     retry_one_host_status();
+@@ -1249,6 +1305,13 @@
+         if (packet->child || packet->producer_generation || packet->root_epoch || packet->lease_id ||
+             packet->host_ticket || packet->context_id) goto reply;
+         break;
++    case MACDRV_REMOTE_QUERY_WINDOW_IDENTITY:
++        if (packet->child || packet->producer_generation || packet->root_epoch || packet->lease_id ||
++            packet->host_ticket || packet->context_id || packet->sequence) goto reply;
++        break;
++    case MACDRV_REMOTE_REGISTER_PRODUCER_NOTIFY:
++        if (!packet->child || !packet->context_id || packet->host_ticket) goto reply;
++        break;
+     case MACDRV_REMOTE_ACQUIRE_PRODUCER:
+         if (!packet->producer_generation || !packet->root_epoch || packet->lease_id || packet->host_ticket ||
+             packet->child || packet->context_id) goto reply;
+@@ -1272,6 +1335,12 @@
+     case MACDRV_REMOTE_RELEASE_PRODUCER:
+         if (packet->host_ticket || packet->context_id || packet->child) goto reply;
+         break;
++    }
++    if (packet->operation == MACDRV_REMOTE_QUERY_WINDOW_IDENTITY)
++    {
++        error = macdrv_query_window_identity(hwnd, &window_identity);
++        packet->root_epoch = window_identity;
++        goto reply;
+     }
+     if (packet->operation == MACDRV_REMOTE_QUERY_ROOT)
+     {
+@@ -1292,6 +1361,23 @@
+     if ((error = packet_producer_begin(packet, &producer))) goto reply;
+     switch (packet->operation)
+     {
++    case MACDRV_REMOTE_REGISTER_PRODUCER_NOTIFY:
++        child = wine_server_ptr_handle(packet->child);
++        if (!client_notify_window_valid(child, producer->pid, packet->context_id)) error = ERROR_INVALID_WINDOW_HANDLE;
++        else
++        {
++            pthread_mutex_lock(&remote_lock);
++            if (!producer->active) error = ERROR_PROCESS_ABORTED;
++            else if (producer->notify_window && (producer->notify_window != child || producer->notify_thread != packet->context_id))
++                error = ERROR_ALREADY_EXISTS;
++            else
++            {
++                producer->notify_window = child; producer->notify_thread = packet->context_id;
++                error = ERROR_SUCCESS;
++            }
++            pthread_mutex_unlock(&remote_lock);
++        }
++        break;
+     case MACDRV_REMOTE_PREPARE_HOST:
+         packet->host_ticket = prepare_host_status(producer, packet, &error);
+         break;
+@@ -1382,6 +1468,7 @@
+     if (retirement_outstanding >= ~(UINT32)0 - count) count = ~(UINT32)0;
+     else count += (UINT32)retirement_outstanding;
+     pthread_mutex_unlock(&remote_lock);
++    if (macdrv_legacy_remote_recover(0) && count != ~(UINT32)0) ++count;
+     recovery->pending = count;
+     return STATUS_SUCCESS;
+ }
+--- /dev/null
++++ b/dlls/winemac.drv/remote_renderer.h
+@@ -0,0 +1,17 @@
++/* Candidate native resource owner; owned by the existing legacy-surface entry,
++ * never a second HWND/surface cache. Progress and final NT closes run only on
++ * Wine threads. A cached renderer image is not canceled merely by public refs0. */
++#ifndef __WINE_MACDRV_REMOTE_RENDERER_H
++#define __WINE_MACDRV_REMOTE_RENDERER_H
++struct macdrv_remote_renderer;
++enum macdrv_remote_renderer_mode { MACDRV_RENDERER_ACTIVE, MACDRV_RENDERER_CACHED, MACDRV_RENDERER_STOP };
++struct macdrv_remote_renderer *macdrv_remote_renderer_alloc(HWND hwnd);
++DWORD macdrv_remote_renderer_start(struct macdrv_remote_renderer *, id_MTLDevice);
++BOOL macdrv_remote_renderer_progress(struct macdrv_remote_renderer *, enum macdrv_remote_renderer_mode, BOOL event_probe);
++void *macdrv_remote_renderer_layer(struct macdrv_remote_renderer *);
++BOOL macdrv_remote_renderer_device_matches(struct macdrv_remote_renderer *, id_MTLDevice);
++BOOL macdrv_remote_renderer_has_generation(const struct macdrv_remote_renderer *, UINT64);
++void macdrv_remote_renderer_free(struct macdrv_remote_renderer *); /* only after progress returned done */
++BOOL macdrv_legacy_remote_recover(UINT64 generation);
++void macdrv_legacy_remote_surface_destroying(struct macdrv_client_surface *surface);
++#endif
+--- a/dlls/winemac.drv/unixlib.h
++++ b/dlls/winemac.drv/unixlib.h
+@@ -27,6 +27,8 @@
+     unix_remote_watch_init,
+     unix_remote_watch_complete,
+     unix_remote_watch_recover,
++    unix_remote_client_init,
++    unix_remote_client_event,
+     unix_funcs_count
+ };
+ 
+--- a/dlls/winemac.drv/window.c
++++ b/dlls/winemac.drv/window.c
+@@ -35,6 +35,7 @@
+ #undef LoadResource
+ 
+ #include "macdrv.h"
++#include "remote_renderer.h"
+ #include "wine/server.h"
+ 
+ WINE_DEFAULT_DEBUG_CHANNEL(macdrv);
+@@ -42,6 +43,7 @@
+ 
+ static pthread_mutex_t win_data_mutex;
+ static CFMutableDictionaryRef win_datas;
++static UINT64 next_client_identity = 1; /* win_data_mutex, zero permanently latches exhaustion */
+ 
+ static unsigned int activate_on_focus_time;
+ 
+@@ -178,6 +180,7 @@
+     {
+         data->hwnd = hwnd;
+         pthread_mutex_lock(&win_data_mutex);
++        if (next_client_identity) data->client_identity = next_client_identity++;
+         if (!win_datas)
+             win_datas = CFDictionaryCreateMutable(NULL, 0, NULL, NULL);
+         CFDictionarySetValue(win_datas, hwnd, data);
+@@ -213,6 +216,18 @@
+ {
+     if (data) pthread_mutex_unlock(&win_data_mutex);
+ }
++
++DWORD macdrv_query_window_identity(HWND hwnd, UINT64 *identity)
++{
++    struct macdrv_win_data *data;
++    if (!identity) return ERROR_INVALID_PARAMETER;
++    *identity = 0;
++    if (!(data = get_win_data(hwnd))) return ERROR_INVALID_WINDOW_HANDLE;
++    *identity = data->client_identity;
++    release_win_data(data);
++    return *identity ? ERROR_SUCCESS : ERROR_ARITHMETIC_OVERFLOW;
++}
++
+ 
+ 
+ /***********************************************************************
+@@ -1079,6 +1094,7 @@
+ 
+     TRACE("%s\n", debugstr_client_surface(client));
+ 
++    if (surface->legacy_remote_owner) macdrv_legacy_remote_surface_destroying(surface);
+     if (surface->metal_swapchain)
+     {
+         if (surface->deferred_destroy) macdrv_destroy_swapchain_deferred(surface->metal_swapchain);
+@@ -1381,6 +1397,7 @@
+     release_win_data(data);
+     macdrv_remote_root_changed(old_root);
+     macdrv_remote_root_changed(NtUserGetAncestor(hwnd, GA_ROOT));
++    macdrv_remote_parent_changed(old_root, NtUserGetAncestor(hwnd, GA_ROOT));
+ }
+ 
+ 
+--- a/include/wine/gdi_driver.h
++++ b/include/wine/gdi_driver.h
+@@ -276,6 +276,10 @@
+ 
+ W32KAPI void *client_surface_create( const struct client_surface_funcs *funcs, HWND hwnd, int format, BOOL raw );
+ W32KAPI void client_surface_add_ref( struct client_surface *surface );
++/* Stable outer owner required; never resurrect a zero reference count. */
++W32KAPI BOOL client_surface_try_add_ref( struct client_surface *surface );
++/* Caller holds a reference; remove only this exact unused-cache owner. */
++W32KAPI BOOL client_surface_forget_unused( struct client_surface *surface );
+ W32KAPI void client_surface_release( struct client_surface *surface );
+ W32KAPI void client_surface_present( struct client_surface *surface );
+ /* The caller retains its own reference from begin through end. Only a fresh,
+--- a/include/wine/macdrv_remote.h
++++ b/include/wine/macdrv_remote.h
+@@ -17,7 +17,9 @@
+     MACDRV_REMOTE_RELEASE_PRODUCER,
+     MACDRV_REMOTE_PREPARE_HOST,
+     MACDRV_REMOTE_INSTALL_PREPARED_HOST,
+-    MACDRV_REMOTE_CANCEL_HOST
++    MACDRV_REMOTE_CANCEL_HOST,
++    MACDRV_REMOTE_QUERY_WINDOW_IDENTITY, /* reply root_epoch is the exact window incarnation */
++    MACDRV_REMOTE_REGISTER_PRODUCER_NOTIFY /* child=message-only HWND, context_id=its actual TID */
+ };
+ struct macdrv_remote_packet
+ {
+@@ -35,7 +37,7 @@
+     return packet && packet->size == sizeof(*packet) && ((packet->version == MACDRV_REMOTE_PACKET_VERSION &&
+              packet->operation >= MACDRV_REMOTE_QUERY_ROOT && packet->operation <= MACDRV_REMOTE_RELEASE_PRODUCER) ||
+             (packet->version == MACDRV_REMOTE_PREPARED_PACKET_VERSION &&
+-             packet->operation >= MACDRV_REMOTE_QUERY_ROOT && packet->operation <= MACDRV_REMOTE_CANCEL_HOST)) &&
++             packet->operation >= MACDRV_REMOTE_QUERY_ROOT && packet->operation <= MACDRV_REMOTE_REGISTER_PRODUCER_NOTIFY)) &&
+            !packet->reserved;
+ }
+ #endif

@@ -1,5 +1,8 @@
 # 13 路线图与待办（执行顺序）
 
+最新[131](../research/131-r-v1-renderer-consumer-20261102.md)：普通Win32/D3D11实际foreign HWND前端双向host244/0、renderer301/0，2交换链/4帧真实读回与红蓝/蓝红WindowServer空间对应、真实本地资源释放后ACK/kerneljoin通过。0028普通候选保持原缓存/ABI，6→8Unix表成组构建，零fuzz/offset重建24文件。CIDER实验变量过滤已改Wine命名空间；Metal映射VirtualQuery元数据缺口单列未修，不以它冒充D3D读取失败或成功。独立raw/组件/恢复证据复核已通过，419当前输入与1历史记忆上下文分列，下一实际reparent/更新→CEF/启动器→可回退包；初始local→foreign/输入/性能/游戏与默认仍未验收。
+
+
 最新[130](../research/130-r-v1-three-images-20261101.md)：真实三进程双方向host144/0＋两个producer各35/0，实际WindowServer两矩形139552红→蓝，逐块69776px／40列白间隔，A先完整退出B仍ACTIVE再退出。判定器4P2已修／复审／11合成控制单列；9闭包252输入/源二进制图像gate/4清理恢复保护另行绑定。历史评审记忆按准确Git快照固定，代码实际字节检查不降。指定两三进程图像集合完成，接实际renderer foreign前端/CEF；不同颜色逐producer对应在采用路径验证，物理/输入/性能不冒称，默认/门禁不变。
 
 最新[129](../research/129-r-v1-window-images-20261101.md)：实际双方向WindowServer红蓝窗口PNG通过，host66/0、producer35/0，704×468相同矩形69776红→蓝像素，4清理/原恢复保护完整。截图工具路径/晚完成P2修复；onScreen过约束按Apple独立Space契约纠正，AppKit初始化缺口修后真实取图，旧failed保留。不是引擎隐藏/锁屏问题；物理显示/输入/性能不冒称通过。继续原三进程图像→foreign前端/CEF，默认/门禁保持。

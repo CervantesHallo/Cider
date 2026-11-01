@@ -1,0 +1,1428 @@
+/* Standard Windows renderer consumer, v1. Console entry point; link d3d11,
+ * dxgi and uuid. No private Wine/Native exports, shaders, helper DLLs or hooks.
+ *
+ * Host:     client.exe --host C:\CiderTests\opposite.exe <32 hex nonce>
+ * Renderer: peer.exe --renderer <8 hex root> <8 hex A> <8 hex B>
+ *           <32 lowercase hex nonce> <8 hex read handle> <8 hex write handle>
+ * Wire integers use Windows little endian. Nonce halves are parsed as two
+ * consecutive 16-digit hexadecimal integers. pattern 1 = A red / B blue;
+ * pattern 2 = A blue / B red; pattern 0 = local COM release phase.
+ *
+ * The external parent owns PNG/Native-marker acceptance and a 210 s watchdog.
+ * In-process clocks bound polling, not an uninterruptible driver/COM call.
+ * All such calls have before/after budget observations. Work is <=150 s,
+ * total <=180 s, with a separate <=10 s failure cleanup allowance. Neither
+ * COM Release nor process exit proves Native ownership zero or display proof.
+ * No success path uses TerminateProcess. A failure may attempt it once, only
+ * against the PROCESS_INFORMATION returned by this host's CreateProcessW.
+ */
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT 0x0601
+#endif
+#define WIN32_LEAN_AND_MEAN
+#define COBJMACROS
+#ifndef __USE_MINGW_ANSI_STDIO
+#define __USE_MINGW_ANSI_STDIO 1
+#endif
+#include <windows.h>
+#include <d3d11.h>
+#include <dxgi.h>
+#include <stdint.h>
+#include <stddef.h>
+#include <inttypes.h>
+#include <stdio.h>
+#include <string.h>
+#include <wchar.h>
+
+enum {
+    TOKEN_MAGIC = 0x43465231, TOKEN_VERSION = 1,
+    IMAGE_WIDTH = 160, IMAGE_HEIGHT = 100,
+    READ_A = 1, READ_B = 2, PRESENT_A = 4, PRESENT_B = 8,
+    LOCAL_COM_RELEASED = 16, FRAME_FLAGS = 15,
+    WORK_MS = 150000, TOTAL_MS = 180000, CLEANUP_MS = 10000,
+    GATE_MS = 45000, GPU_MS = 5000, GRACE_MS = 5000
+};
+
+typedef struct capture_token64 {
+    uint32_t magic, size, version, phase;
+    uint32_t root, host_pid, renderer_pid, pattern;
+    uint64_t nonce[2];
+    uint32_t child_a, child_b, width, height;
+} capture_token64;
+
+typedef struct pipe_message80 {
+    capture_token64 token;
+    int32_t hresult;
+    uint32_t flags;
+    uint64_t sequence;
+} pipe_message80;
+
+_Static_assert(sizeof(capture_token64) == 64, "capture token size");
+_Static_assert(offsetof(capture_token64, nonce) == 32, "nonce offset");
+_Static_assert(offsetof(capture_token64, child_a) == 48, "children offset");
+_Static_assert(offsetof(capture_token64, width) == 56, "dimensions offset");
+_Static_assert(sizeof(pipe_message80) == 80, "pipe message size");
+_Static_assert(offsetof(pipe_message80, hresult) == 64, "HRESULT offset");
+_Static_assert(offsetof(pipe_message80, sequence) == 72, "sequence offset");
+_Static_assert(sizeof(HRESULT) == 4, "Windows HRESULT size");
+
+typedef struct target {
+    IDXGISwapChain *swap;
+    ID3D11Texture2D *back, *staging;
+    ID3D11RenderTargetView *rtv;
+    D3D11_MAPPED_SUBRESOURCE mapping;
+    BOOL mapped;
+} target;
+
+typedef struct gpu_state {
+    ID3D11Device *device;
+    ID3D11DeviceContext *context;
+    IDXGIDevice *dxgi;
+    IDXGIAdapter *adapter;
+    IDXGIFactory *factory;
+    ID3D11Query *query;
+    target targets[2];
+} gpu_state;
+
+static const char *role = "host";
+static char nonce_text[33];
+static wchar_t title[80];
+static uint64_t nonce_words[2];
+static DWORD self_pid, host_pid, renderer_pid;
+static HWND root, children[2];
+static uint32_t root_id, child_ids[2];
+static HANDLE output, input_pipe, output_pipe, peer_process, phase_file;
+static uint64_t self_birth, peer_birth;
+static LARGE_INTEGER frequency, first_qpc, last_qpc;
+static ULONGLONG first_tick, last_tick;
+static uint64_t elapsed_ms, cleanup_start;
+static BOOL clock_ready, clock_bad, timeout_bad, io_bad, cleaning;
+static unsigned int checks, failures, phase_now, phases_done;
+static unsigned int swaps_done, frames_done, readbacks_done, presents_done;
+static unsigned int occluded_done, pipe_sends, pipe_receives, releases_done;
+static unsigned int peer_frames_reported, peer_readbacks_reported;
+static unsigned int peer_presents_reported, peer_phase12_reports;
+static BOOL local_released, gpu_drained, peer_release_reported;
+static BOOL kernel_signaled, joined_zero, force_attempted, force_succeeded;
+static DWORD joined_exit = STILL_ACTIVE;
+
+/* Every emitted record is exactly one WriteFile including its newline. raw[]
+ * values are documented at their call sites; HRESULT always preserves the
+ * actual signed 32-bit value, including positive DXGI status codes. A partial
+ * stdout write is sticky and is never repaired by splitting the record. */
+static BOOL record(const char *event, const char *label, BOOL ok, HRESULT hr,
+                   uint64_t a, uint64_t b, uint64_t c, uint64_t d)
+{
+    char line[2048];
+    DWORD written = 0;
+    BOOL wrote;
+    int n;
+    ++checks;
+    if (!ok) ++failures;
+    n = snprintf(line, sizeof(line),
+        "{\"type\":\"renderer-consumer\",\"role\":\"%s\",\"pid\":%lu,"
+        "\"bits\":%u,\"nonce\":\"%s\",\"event\":\"%s\",\"check\":%u,"
+        "\"label\":\"%s\",\"ok\":%s,\"hr\":%" PRId32 ",\"hr_hex\":\"%08" PRIx32 "\","
+        "\"raw\":[%" PRIu64 ",%" PRIu64 ",%" PRIu64 ",%" PRIu64 "],"
+        "\"elapsed_ms\":%" PRIu64 ",\"phase\":%u,\"root\":%" PRIu32 ","
+        "\"child_a\":%" PRIu32 ",\"child_b\":%" PRIu32 ","
+        "\"host_pid\":%lu,\"renderer_pid\":%lu,\"self_birth\":%" PRIu64 ","
+        "\"peer_birth\":%" PRIu64 ",\"checks\":%u,\"failures\":%u,"
+        "\"phases\":%u,\"swapchains\":%u,\"frames\":%u,\"readbacks\":%u,"
+        "\"presents\":%u,\"occluded_presents\":%u,\"pipe_sends\":%u,"
+        "\"pipe_receives\":%u,\"com_release_calls\":%u,"
+        "\"local_com_released\":%s,\"gpu_drained\":%s,"
+        "\"peer_phase12_reports\":%u,\"peer_frames_reported\":%u,"
+        "\"peer_readbacks_reported\":%u,\"peer_presents_reported\":%u,"
+        "\"peer_local_release_reported\":%s,\"kernel_signaled\":%s,"
+        "\"joined_zero\":%s,\"exit_code\":%lu,\"force_attempted\":%s,"
+        "\"force_succeeded\":%s,\"io_error\":%s,\"clock_error\":%s,\"timeout\":%s}\n",
+        role, (unsigned long)self_pid, (unsigned int)(8 * sizeof(void *)),
+        nonce_text, event, checks, label, ok ? "true" : "false",
+        (int32_t)hr, (uint32_t)hr, a, b, c, d, elapsed_ms, phase_now,
+        root_id, child_ids[0], child_ids[1], (unsigned long)host_pid,
+        (unsigned long)renderer_pid, self_birth, peer_birth, checks, failures,
+        phases_done, swaps_done, frames_done, readbacks_done, presents_done,
+        occluded_done, pipe_sends, pipe_receives, releases_done,
+        local_released ? "true" : "false", gpu_drained ? "true" : "false",
+        peer_phase12_reports, peer_frames_reported, peer_readbacks_reported,
+        peer_presents_reported, peer_release_reported ? "true" : "false",
+        kernel_signaled ? "true" : "false", joined_zero ? "true" : "false",
+        (unsigned long)joined_exit, force_attempted ? "true" : "false",
+        force_succeeded ? "true" : "false", io_bad ? "true" : "false",
+        clock_bad ? "true" : "false", timeout_bad ? "true" : "false");
+    if (n < 0 || (size_t)n >= sizeof(line)) {
+        if (!io_bad) ++failures;
+        io_bad = TRUE;
+        return FALSE;
+    }
+    wrote = WriteFile(output, line, (DWORD)n, &written, NULL);
+    if (!wrote || written != (DWORD)n) {
+        if (!io_bad) ++failures;
+        io_bad = TRUE;
+    }
+    return ok && !io_bad;
+}
+
+static HRESULT winhr(DWORD error)
+{
+    return error ? HRESULT_FROM_WIN32(error) : E_FAIL;
+}
+
+static BOOL budget(void)
+{
+    LARGE_INTEGER qpc = {0};
+    ULONGLONG tick;
+    uint64_t qms, tms;
+    BOOL got = QueryPerformanceCounter(&qpc);
+    DWORD error = got ? 0 : GetLastError();
+    tick = GetTickCount64();
+    if (!clock_ready || !got || qpc.QuadPart < last_qpc.QuadPart ||
+        tick < last_tick || qpc.QuadPart < first_qpc.QuadPart ||
+        (uint64_t)(qpc.QuadPart - first_qpc.QuadPart) > UINT64_MAX / 1000) {
+        if (!clock_bad) {
+            clock_bad = TRUE;
+            record("clock", "monotonic-clock", FALSE, winhr(error),
+                   (uint64_t)qpc.QuadPart, (uint64_t)last_qpc.QuadPart,
+                   tick, last_tick);
+        }
+        return FALSE;
+    }
+    last_qpc = qpc;
+    last_tick = tick;
+    qms = (uint64_t)(qpc.QuadPart - first_qpc.QuadPart) * 1000 /
+          (uint64_t)frequency.QuadPart;
+    tms = tick - first_tick;
+    elapsed_ms = qms > tms ? qms : tms;
+    if (elapsed_ms >= TOTAL_MS ||
+        (!cleaning && elapsed_ms >= WORK_MS) ||
+        (cleaning && elapsed_ms - cleanup_start >= CLEANUP_MS)) {
+        if (!timeout_bad) {
+            timeout_bad = TRUE;
+            record("timeout", "process-budget", FALSE, HRESULT_FROM_WIN32(ERROR_TIMEOUT),
+                   elapsed_ms, WORK_MS, TOTAL_MS, cleanup_start);
+        }
+        return FALSE;
+    }
+    return !clock_bad;
+}
+
+static BOOL note(const char *event, const char *label, BOOL ok, HRESULT hr,
+                 uint64_t a, uint64_t b, uint64_t c, uint64_t d)
+{
+    BOOL timely = budget();
+    return record(event, label, ok && timely, hr, a, b, c, d);
+}
+
+static BOOL healthy(void)
+{
+    return budget() && !failures && !io_bad;
+}
+
+static void start_cleanup(void)
+{
+    (void)budget();
+    if (!cleaning) { cleaning = TRUE; cleanup_start = elapsed_ms; }
+}
+
+static BOOL close_owned(HANDLE *handle, const char *label)
+{
+    HANDLE old = *handle;
+    BOOL closed;
+    DWORD error;
+    if (!old) return TRUE;
+    (void)budget();
+    closed = CloseHandle(old);
+    error = closed ? 0 : GetLastError();
+    if (closed) *handle = NULL; /* ownership changes BEFORE post-clock/log */
+    else io_bad = TRUE;
+    return note("close", label, closed, closed ? S_OK : winhr(error),
+                (uint64_t)(uintptr_t)old, error, closed, 0);
+}
+
+static BOOL pump(void)
+{
+    MSG msg;
+    unsigned int i;
+    for (i = 0; i < 64; ++i) {
+        BOOL found;
+        if (!budget() && !cleaning) return FALSE;
+        found = PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE);
+        if (!budget() && !cleaning) return FALSE;
+        if (!found) break;
+        if (msg.message == WM_QUIT)
+            return record("window", "unexpected-WM_QUIT", FALSE, E_ABORT, 0, 0, 0, 0);
+        TranslateMessage(&msg);
+        if (!budget() && !cleaning) return FALSE;
+        DispatchMessageW(&msg);
+        if (!budget() && !cleaning) return FALSE;
+    }
+    return budget();
+}
+
+static BOOL pause_pumping(DWORD milliseconds)
+{
+    DWORD wait, error;
+    if (!pump() || !budget()) return FALSE;
+    wait = MsgWaitForMultipleObjectsEx(0, NULL, milliseconds, QS_ALLINPUT,
+                                       MWMO_INPUTAVAILABLE);
+    error = wait == WAIT_FAILED ? GetLastError() : 0;
+    if (!budget()) return FALSE;
+    if (wait != WAIT_TIMEOUT && wait != WAIT_OBJECT_0)
+        return record("wait", "message-wait", FALSE, winhr(error), wait, error, 0, 0);
+    return pump();
+}
+
+static int hex_digit(char c)
+{
+    if (c >= '0' && c <= '9') return c - '0';
+    if (c >= 'a' && c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' && c <= 'F') return c - 'A' + 10;
+    return -1;
+}
+
+static BOOL parse_hex(const char *text, size_t count, uint64_t *value)
+{
+    size_t i;
+    uint64_t n = 0;
+    if (strlen(text) != count || count > 16) return FALSE;
+    for (i = 0; i < count; ++i) {
+        int digit = hex_digit(text[i]);
+        if (digit < 0) return FALSE;
+        n = (n << 4) | (unsigned int)digit;
+    }
+    *value = n;
+    return TRUE;
+}
+
+static BOOL parse_nonce(const char *text)
+{
+    char half[17];
+    size_t i;
+    if (strlen(text) != 32) return FALSE;
+    for (i = 0; i < 32; ++i) {
+        int digit = hex_digit(text[i]);
+        if (digit < 0) return FALSE;
+        nonce_text[i] = "0123456789abcdef"[digit];
+    }
+    nonce_text[32] = 0;
+    memcpy(half, nonce_text, 16); half[16] = 0;
+    if (!parse_hex(half, 16, &nonce_words[0])) return FALSE;
+    memcpy(half, nonce_text + 16, 16);
+    if (!parse_hex(half, 16, &nonce_words[1])) return FALSE;
+    wcscpy(title, L"Cider renderer consumer ");
+    for (i = 0; i < 32; ++i) title[24 + i] = (wchar_t)nonce_text[i];
+    title[56] = 0;
+    return TRUE;
+}
+
+/* HWNDs are USER handles with a fixed 32-bit wire value. Accept only the
+ * documented zero/sign extensions, never an arbitrary truncated pointer. */
+static BOOL window_id(HWND window, uint32_t *id)
+{
+    uintptr_t raw = (uintptr_t)window;
+    uint32_t low = (uint32_t)raw;
+    if (!low || (raw != (uintptr_t)low &&
+                 raw != (uintptr_t)(intptr_t)(int32_t)low)) return FALSE;
+    *id = low;
+    return TRUE;
+}
+
+static HWND window_from_id(uint32_t id)
+{
+    return (HWND)(intptr_t)(int32_t)id;
+}
+
+static BOOL parse_id(const char *text, uint32_t *id)
+{
+    uint64_t n;
+    if (!parse_hex(text, 8, &n) || !n || n == UINT32_MAX) return FALSE;
+    *id = (uint32_t)n;
+    return TRUE;
+}
+
+static BOOL kernel_wire_id(HANDLE handle, uint32_t *id)
+{
+    uint64_t raw = (uint64_t)(uintptr_t)handle;
+    uint32_t low = (uint32_t)raw;
+    if (!low || low == UINT32_MAX || (uint64_t)low != raw) return FALSE;
+    *id = low;
+    return TRUE;
+}
+
+static uint64_t filetime_value(FILETIME time)
+{
+    return ((uint64_t)time.dwHighDateTime << 32) | time.dwLowDateTime;
+}
+
+static BOOL process_birth(HANDLE process, uint64_t *birth, const char *label)
+{
+    FILETIME created, exited, kernel, user;
+    BOOL got;
+    DWORD error;
+    if (!budget()) return FALSE;
+    got = GetProcessTimes(process, &created, &exited, &kernel, &user);
+    error = got ? 0 : GetLastError();
+    if (got) *birth = filetime_value(created);
+    return note("identity", label, got && *birth != 0, got ? S_OK : winhr(error),
+                got ? *birth : 0, error, 0, 0);
+}
+
+static BOOL opposite_process(HANDLE peer)
+{
+    BOOL own_wow = FALSE, other_wow = FALSE, got;
+    DWORD error;
+    if (!budget()) return FALSE;
+    got = IsWow64Process(GetCurrentProcess(), &own_wow);
+    error = got ? 0 : GetLastError();
+    if (!note("identity", "self-WoW64", got, got ? S_OK : winhr(error),
+              own_wow, sizeof(void *) * 8, error, 0)) return FALSE;
+    if (!budget()) return FALSE;
+    got = IsWow64Process(peer, &other_wow);
+    error = got ? 0 : GetLastError();
+    return note("identity", "actual-opposite-bitness", got && own_wow != other_wow &&
+                own_wow == (sizeof(void *) == 4), got ? S_OK : winhr(error),
+                own_wow, other_wow, error, 0);
+}
+
+static BOOL peer_alive(void)
+{
+    DWORD wait, error;
+    if (!budget()) return FALSE;
+    wait = WaitForSingleObject(peer_process, 0);
+    error = wait == WAIT_FAILED ? GetLastError() : 0;
+    return note("identity", "peer-still-alive", wait == WAIT_TIMEOUT,
+                wait == WAIT_FAILED ? winhr(error) : S_OK, wait, error, 0, 0);
+}
+
+/* Gate polling must service USER messages without flooding/draining stdout
+ * with successful identity records on every 5 ms iteration. Full birth/PID
+ * validation still occurs at every phase boundary, in both processes. */
+static BOOL probe_peer_alive(void)
+{
+    DWORD wait, error;
+    if (!budget()) return FALSE;
+    wait = WaitForSingleObject(peer_process, 0);
+    error = wait == WAIT_FAILED ? GetLastError() : 0;
+    if (!budget()) return FALSE;
+    if (wait == WAIT_TIMEOUT) return TRUE;
+    return record("identity", "gate-peer-not-alive", FALSE,
+                  wait == WAIT_FAILED ? winhr(error) : E_FAIL, wait, error, 0, 0);
+}
+
+static BOOL verify_births(void)
+{
+    uint64_t own = 0, other = 0;
+    DWORD pid, expected = !strcmp(role, "host") ? renderer_pid : host_pid;
+    if (!peer_alive() || !process_birth(GetCurrentProcess(), &own, "self-birth-probe") ||
+        !process_birth(peer_process, &other, "peer-birth-probe")) return FALSE;
+    if (!budget()) return FALSE;
+    pid = GetProcessId(peer_process);
+    return note("identity", "unchanged-process-identities", pid == expected &&
+                expected != self_pid && own == self_birth && other == peer_birth,
+                pid ? S_OK : winhr(GetLastError()), own, other, pid, expected);
+}
+
+static BOOL verify_windows(BOOL children_exist)
+{
+    wchar_t actual_title[80];
+    DWORD pid = 0, tid;
+    LONG_PTR style;
+    int length;
+    unsigned int i;
+    BOOL valid;
+    HWND related;
+    if (!budget()) return FALSE;
+    valid = IsWindow(root);
+    if (!note("window", "actual-root-IsWindow", valid, S_OK, root_id, 0, 0, 0)) return FALSE;
+    if (!budget()) return FALSE;
+    related = GetAncestor(root, GA_ROOT);
+    if (!note("window", "actual-root-ancestor", related == root, S_OK,
+              (uint64_t)(uintptr_t)related, root_id, 0, 0)) return FALSE;
+    if (!budget()) return FALSE;
+    related = GetParent(root);
+    if (!note("window", "actual-root-parent", related == NULL, S_OK,
+              (uint64_t)(uintptr_t)related, root_id, 0, 0)) return FALSE;
+    if (!budget()) return FALSE;
+    valid = IsWindowVisible(root);
+    if (!note("window", "actual-root-visible", valid, S_OK, root_id, 0, 0, 0)) return FALSE;
+    if (!budget()) return FALSE;
+    SetLastError(0);
+    style = GetWindowLongPtrW(root, GWL_STYLE);
+    {
+        DWORD error = GetLastError();
+        LONG_PTR required = WS_OVERLAPPEDWINDOW | WS_VISIBLE;
+        if (!note("window", "actual-root-overlapped-style", (style != 0 || !error) &&
+                  (style & required) == required && !(style & WS_CHILD), error ? winhr(error) : S_OK,
+                  (uint64_t)(uintptr_t)style, root_id, error, 0)) return FALSE;
+    }
+    if (!budget()) return FALSE;
+    tid = GetWindowThreadProcessId(root, &pid);
+    if (!note("window", "root-owner", tid != 0 && pid == host_pid,
+              tid ? S_OK : winhr(GetLastError()), pid, host_pid, tid, 0)) return FALSE;
+    if (!budget()) return FALSE;
+    length = GetWindowTextW(root, actual_title, (int)(sizeof(actual_title) / sizeof(actual_title[0])));
+    if (!note("window", "exact-nonce-title", length == 56 && !wcscmp(actual_title, title),
+              length ? S_OK : winhr(GetLastError()), (uint64_t)(unsigned int)length, 56, 0, 0)) return FALSE;
+    for (i = 0; i < 2; ++i) {
+        if (!budget()) return FALSE;
+        valid = IsWindow(children[i]);
+        if (!children_exist) {
+            if (!note("window", "child-actually-absent", !valid, S_OK, child_ids[i], i, 0, 0)) return FALSE;
+            continue;
+        }
+        if (!note("window", "actual-child-IsWindow", valid, S_OK, child_ids[i], root_id, i, 0)) return FALSE;
+        if (!budget()) return FALSE;
+        related = GetParent(children[i]);
+        if (!note("window", "actual-child-parent", related == root, S_OK,
+                  (uint64_t)(uintptr_t)related, root_id, i, 0)) return FALSE;
+        if (!budget()) return FALSE;
+        related = GetAncestor(children[i], GA_ROOT);
+        if (!note("window", "actual-child-root-ancestor", related == root, S_OK,
+                  (uint64_t)(uintptr_t)related, root_id, i, 0)) return FALSE;
+        if (!budget()) return FALSE;
+        valid = IsWindowVisible(children[i]);
+        if (!note("window", "actual-child-visible", valid, S_OK, child_ids[i], root_id, i, 0)) return FALSE;
+        if (!budget()) return FALSE;
+        pid = 0; tid = GetWindowThreadProcessId(children[i], &pid);
+        if (!note("window", "child-owner-is-host", tid != 0 && pid == host_pid,
+                  tid ? S_OK : winhr(GetLastError()), pid, host_pid, tid, i)) return FALSE;
+        if (!budget()) return FALSE;
+        SetLastError(0);
+        style = GetWindowLongPtrW(children[i], GWL_STYLE);
+        {
+            DWORD error = GetLastError();
+            LONG_PTR required = WS_CHILD | WS_VISIBLE | WS_BORDER;
+            if (!note("window", "child-style", (style != 0 || !error) &&
+                      (style & required) == required, error ? winhr(error) : S_OK,
+                      (uint64_t)(uintptr_t)style, i, error, 0)) return FALSE;
+        }
+    }
+    return TRUE;
+}
+
+static capture_token64 make_token(unsigned int phase)
+{
+    capture_token64 token;
+    memset(&token, 0, sizeof(token));
+    token.magic = TOKEN_MAGIC; token.size = sizeof(token); token.version = TOKEN_VERSION;
+    token.phase = phase; token.root = root_id; token.host_pid = host_pid;
+    token.renderer_pid = renderer_pid; token.pattern = phase == 3 ? 0 : phase;
+    token.nonce[0] = nonce_words[0]; token.nonce[1] = nonce_words[1];
+    token.child_a = child_ids[0]; token.child_b = child_ids[1];
+    token.width = IMAGE_WIDTH; token.height = IMAGE_HEIGHT;
+    return token;
+}
+
+static BOOL send_message(const pipe_message80 *message)
+{
+    DWORD wrote = 0, error;
+    BOOL sent;
+    if (!healthy() || !pump()) return FALSE;
+    /* Each fresh 4096-byte pipe carries only 3*80 bytes in total. A single
+     * synchronous 80-byte write cannot fill it, even if its reader stalls. */
+    sent = WriteFile(output_pipe, message, sizeof(*message), &wrote, NULL);
+    error = sent ? 0 : GetLastError();
+    if (sent && wrote == sizeof(*message)) ++pipe_sends;
+    if (!sent || wrote != sizeof(*message)) io_bad = TRUE;
+    if (!note("pipe", "write-one-message", sent && wrote == sizeof(*message),
+              sent ? S_OK : winhr(error), wrote, message->sequence, message->flags, error)) return FALSE;
+    return pump();
+}
+
+static BOOL receive_message(pipe_message80 *message, unsigned int phase)
+{
+    size_t offset = 0;
+    capture_token64 expected = make_token(phase);
+    memset(message, 0, sizeof(*message));
+    while (offset < sizeof(*message)) {
+        DWORD available = 0, got = 0, error, request;
+        BOOL peeked, read;
+        if (!healthy() || !pump()) return FALSE;
+        peeked = PeekNamedPipe(input_pipe, NULL, 0, NULL, &available, NULL);
+        error = peeked ? 0 : GetLastError();
+        if (!peeked) {
+            io_bad = TRUE;
+            return note("pipe", "peek-before-read", FALSE, winhr(error), offset, error, 0, 0);
+        }
+        if (!budget()) return FALSE;
+        if (!available) { if (!pause_pumping(5)) return FALSE; continue; }
+        request = (DWORD)(sizeof(*message) - offset);
+        if (request > available) request = available;
+        if (!budget()) return FALSE;
+        read = ReadFile(input_pipe, (BYTE *)message + offset, request, &got, NULL);
+        error = read ? 0 : GetLastError();
+        if (read && got <= request) offset += got; /* ledger before clock */
+        if (!read || !got || got > request) {
+            io_bad = TRUE;
+            return note("pipe", "bounded-partial-read", FALSE, read ? E_FAIL : winhr(error),
+                          got, request, offset, error);
+        }
+        if (!budget()) return FALSE;
+    }
+    ++pipe_receives;
+    return note("pipe", "validate-complete-message", pipe_receives == phase &&
+                message->sequence == phase && !memcmp(&message->token, &expected, sizeof(expected)) &&
+                message->flags == (phase == 3 ? LOCAL_COM_RELEASED : FRAME_FLAGS) &&
+                SUCCEEDED((HRESULT)message->hresult), (HRESULT)message->hresult,
+                message->sequence, message->flags, offset, pipe_receives);
+}
+
+static BOOL pipe_empty(unsigned int sent_count)
+{
+    DWORD available = 0, error;
+    BOOL peeked;
+    if (!healthy() || !pump()) return FALSE;
+    peeked = PeekNamedPipe(input_pipe, NULL, 0, NULL, &available, NULL);
+    error = peeked ? 0 : GetLastError();
+    if (!peeked) io_bad = TRUE;
+    return note("pipe", "exactly-three-messages", peeked && !available &&
+                pipe_sends == sent_count && pipe_receives == 3, peeked ? S_OK : winhr(error),
+                available, pipe_sends, pipe_receives, error);
+}
+
+static BOOL gate_deadline(uint64_t start)
+{
+    if (!budget()) return FALSE;
+    if (elapsed_ms - start < GATE_MS) return TRUE;
+    timeout_bad = TRUE;
+    return record("timeout", "ready-plus-gate-45s", FALSE, HRESULT_FROM_WIN32(ERROR_TIMEOUT),
+                  elapsed_ms - start, GATE_MS, phase_now, 0);
+}
+
+static BOOL gate_path(wchar_t *path, size_t count, const wchar_t *kind, unsigned int phase)
+{
+    wchar_t wide_nonce[33];
+    size_t i;
+    int n;
+    for (i = 0; i < 33; ++i) wide_nonce[i] = (wchar_t)nonce_text[i];
+    n = swprintf(path, count, L"C:\\CiderTests\\consumer-%ls-%ls-%u.bin", kind, wide_nonce, phase);
+    return record("file", "bounded-phase-path", n > 0 && (size_t)n < count,
+                  S_OK, phase, n > 0 ? (uint64_t)n : 0, 0, 0);
+}
+
+static BOOL ready_and_gate(unsigned int phase)
+{
+    wchar_t path[160];
+    capture_token64 token = make_token(phase), actual;
+    uint64_t start;
+    BOOL ok = FALSE, result;
+    DWORD wrote = 0, error;
+    if (!healthy() || !pump()) return FALSE;
+    start = elapsed_ms; /* includes gate preflight and ready CREATE/Write/Flush/Close */
+    if (!gate_path(path, sizeof(path) / sizeof(path[0]), L"gate", phase)) return FALSE;
+    {
+        DWORD attributes = GetFileAttributesW(path);
+        DWORD missing_error = attributes == INVALID_FILE_ATTRIBUTES ? GetLastError() : ERROR_FILE_EXISTS;
+        if (!note("file", "gate-absent-before-ready", attributes == INVALID_FILE_ATTRIBUTES &&
+                  missing_error == ERROR_FILE_NOT_FOUND, HRESULT_FROM_WIN32(missing_error),
+                  attributes, missing_error, phase, 0)) return FALSE;
+    }
+    if (!gate_path(path, sizeof(path) / sizeof(path[0]), L"ready", phase) ||
+        !gate_deadline(start)) return FALSE;
+    phase_file = CreateFileW(path, GENERIC_WRITE, 0, NULL, CREATE_NEW,
+                       FILE_ATTRIBUTE_NORMAL | FILE_FLAG_OPEN_REPARSE_POINT, NULL);
+    error = phase_file == INVALID_HANDLE_VALUE ? GetLastError() : 0;
+    if (phase_file == INVALID_HANDLE_VALUE) phase_file = NULL;
+    if (!note("file", "ready-CREATE_NEW", phase_file != NULL, phase_file ? S_OK : winhr(error),
+              (uint64_t)(uintptr_t)phase_file, error, sizeof(token), phase)) goto done;
+    if (!gate_deadline(start)) goto done;
+    result = WriteFile(phase_file, &token, sizeof(token), &wrote, NULL);
+    error = result ? 0 : GetLastError();
+    ok = result && wrote == sizeof(token);
+    if (!ok) io_bad = TRUE;
+    if (!note("file", "ready-write-token64", ok, result ? S_OK : winhr(error),
+              wrote, sizeof(token), error, phase)) ok = FALSE;
+    (void)budget();
+    result = FlushFileBuffers(phase_file);
+    error = result ? 0 : GetLastError();
+    if (!result) io_bad = TRUE;
+    if (!note("file", "ready-flush", result, result ? S_OK : winhr(error),
+              result, error, phase, 0)) ok = FALSE;
+    if (!close_owned(&phase_file, "ready-close")) ok = FALSE;
+    if (!ok || !gate_deadline(start)) goto done;
+    if (!gate_path(path, sizeof(path) / sizeof(path[0]), L"gate", phase)) goto done;
+    for (;;) {
+        BY_HANDLE_FILE_INFORMATION info;
+        LARGE_INTEGER size;
+        DWORD got = 0, eof_bytes = 0;
+        BYTE extra = 0;
+        if (!healthy() || !pump() || !gate_deadline(start) || !probe_peer_alive()) goto done;
+        if (!gate_deadline(start)) goto done;
+        phase_file = CreateFileW(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                           FILE_FLAG_OPEN_REPARSE_POINT, NULL);
+        error = phase_file == INVALID_HANDLE_VALUE ? GetLastError() : 0;
+        if (phase_file == INVALID_HANDLE_VALUE) phase_file = NULL;
+        if (!budget() || !gate_deadline(start)) goto done;
+        if (!phase_file) {
+            if (error != ERROR_FILE_NOT_FOUND) {
+                io_bad = TRUE;
+                record("file", "gate-open", FALSE, winhr(error), error, phase, 0, 0);
+                goto done;
+            }
+            if (!pause_pumping(5)) goto done;
+            continue;
+        }
+        result = GetFileInformationByHandle(phase_file, &info);
+        error = result ? 0 : GetLastError();
+        if (!result) io_bad = TRUE;
+        if (!note("file", "gate-not-reparse-or-directory", result &&
+                  !(info.dwFileAttributes & (FILE_ATTRIBUTE_REPARSE_POINT | FILE_ATTRIBUTE_DIRECTORY)),
+                  result ? S_OK : winhr(error), result ? info.dwFileAttributes : 0, error, phase, 0)) goto done;
+        if (!gate_deadline(start)) goto done;
+        result = GetFileSizeEx(phase_file, &size);
+        error = result ? 0 : GetLastError();
+        if (!result) io_bad = TRUE;
+        if (!note("file", "gate-exact-size64", result && size.QuadPart == (LONGLONG)sizeof(token),
+                  result ? S_OK : winhr(error), result ? (uint64_t)size.QuadPart : 0,
+                  sizeof(token), error, phase)) goto done;
+        if (!gate_deadline(start)) goto done;
+        result = ReadFile(phase_file, &actual, sizeof(actual), &got, NULL);
+        error = result ? 0 : GetLastError();
+        if (!result || got != sizeof(actual)) io_bad = TRUE;
+        if (!note("file", "gate-read-exact-token", result && got == sizeof(actual) &&
+                  !memcmp(&actual, &token, sizeof(token)), result ? S_OK : winhr(error),
+                  got, sizeof(actual), error, phase)) goto done;
+        if (!gate_deadline(start)) goto done;
+        result = ReadFile(phase_file, &extra, 1, &eof_bytes, NULL);
+        error = result ? 0 : GetLastError();
+        if (!result) io_bad = TRUE;
+        if (!note("file", "gate-actual-EOF", result && eof_bytes == 0,
+                  result ? S_OK : winhr(error), eof_bytes, error, phase, 0)) goto done;
+        ok = close_owned(&phase_file, "gate-close");
+        if (!ok || !gate_deadline(start)) goto done;
+        return record("gate", "parent-token-accepted", TRUE, S_OK, phase, token.pattern,
+                      elapsed_ms - start, sizeof(token));
+    }
+done:
+    if (phase_file) (void)close_owned(&phase_file, "phase-file-failure-close");
+    return FALSE;
+}
+
+static BOOL gpu_complete(gpu_state *gpu, HRESULT *actual_hr)
+{
+    uint64_t start;
+    unsigned int polls = 0;
+    HRESULT hr = E_PENDING;
+    BOOL complete = FALSE;
+    if (!budget()) return FALSE;
+    start = elapsed_ms;
+    ID3D11DeviceContext_End(gpu->context, (ID3D11Asynchronous *)gpu->query);
+    if (!note("gpu", "event-End", TRUE, S_OK, start, 0, 0, 0)) return FALSE;
+    if (elapsed_ms - start >= GPU_MS) {
+        timeout_bad = TRUE;
+        return record("gpu", "event-End-late", FALSE, hr, elapsed_ms - start, GPU_MS, 0, 0);
+    }
+    if (!budget()) return FALSE;
+    ID3D11DeviceContext_Flush(gpu->context);
+    if (!note("gpu", "event-Flush", TRUE, S_OK, start, 0, 0, 0)) return FALSE;
+    for (;;) {
+        if (!pump() || !budget()) return FALSE;
+        if (elapsed_ms - start >= GPU_MS) {
+            timeout_bad = TRUE;
+            return record("gpu", "event-five-second-limit", FALSE, hr,
+                          polls, complete, elapsed_ms - start, GPU_MS);
+        }
+        hr = ID3D11DeviceContext_GetData(gpu->context, (ID3D11Asynchronous *)gpu->query,
+                                        &complete, sizeof(complete), D3D11_ASYNC_GETDATA_DONOTFLUSH);
+        ++polls;
+        *actual_hr = hr;
+        if (!budget())
+            return record("gpu", "GetData-post-budget", FALSE, hr, polls, complete, elapsed_ms - start, GPU_MS);
+        if (elapsed_ms - start >= GPU_MS) {
+            timeout_bad = TRUE;
+            return record("gpu", "event-late-return", FALSE, hr, polls, complete,
+                          elapsed_ms - start, GPU_MS);
+        }
+        if (hr == S_OK)
+            return record("gpu", "actual-event-completion", complete, hr, polls, complete,
+                          elapsed_ms - start, 0);
+        if (hr != S_FALSE)
+            return record("gpu", "event-GetData-error", FALSE, hr, polls, complete, 0, 0);
+        if (!pause_pumping(1)) return FALSE;
+    }
+}
+
+static BOOL gpu_create(gpu_state *gpu)
+{
+    D3D_FEATURE_LEVEL requested = D3D_FEATURE_LEVEL_11_0, obtained = (D3D_FEATURE_LEVEL)0;
+    D3D11_QUERY_DESC query_desc;
+    HRESULT hr;
+    unsigned int i;
+    if (!healthy() || !pump()) return FALSE;
+    hr = D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, D3D11_CREATE_DEVICE_BGRA_SUPPORT,
+                           &requested, 1, D3D11_SDK_VERSION, &gpu->device, &obtained, &gpu->context);
+    if (!note("gpu", "D3D11CreateDevice-hardware-one-device", SUCCEEDED(hr) && gpu->device &&
+              gpu->context && obtained == requested, hr, obtained, requested,
+              (uint64_t)(uintptr_t)gpu->device, (uint64_t)(uintptr_t)gpu->context)) return FALSE;
+    if (!budget()) return FALSE;
+    hr = ID3D11Device_QueryInterface(gpu->device, &IID_IDXGIDevice, (void **)&gpu->dxgi);
+    if (!note("gpu", "device-QI-IDXGIDevice", SUCCEEDED(hr) && gpu->dxgi, hr, 0, 0, 0, 0)) return FALSE;
+    if (!budget()) return FALSE;
+    hr = IDXGIDevice_GetAdapter(gpu->dxgi, &gpu->adapter);
+    if (!note("gpu", "device-adapter", SUCCEEDED(hr) && gpu->adapter, hr, 0, 0, 0, 0)) return FALSE;
+    if (!budget()) return FALSE;
+    hr = IDXGIAdapter_GetParent(gpu->adapter, &IID_IDXGIFactory, (void **)&gpu->factory);
+    if (!note("gpu", "adapter-factory", SUCCEEDED(hr) && gpu->factory, hr, 0, 0, 0, 0)) return FALSE;
+    memset(&query_desc, 0, sizeof(query_desc)); query_desc.Query = D3D11_QUERY_EVENT;
+    if (!budget()) return FALSE;
+    hr = ID3D11Device_CreateQuery(gpu->device, &query_desc, &gpu->query);
+    if (!note("gpu", "completion-query", SUCCEEDED(hr) && gpu->query, hr, 0, 0, 0, 0)) return FALSE;
+    for (i = 0; i < 2; ++i) {
+        DXGI_SWAP_CHAIN_DESC desc, actual;
+        D3D11_TEXTURE2D_DESC texture;
+        target *t = &gpu->targets[i];
+        memset(&desc, 0, sizeof(desc));
+        desc.BufferDesc.Width = IMAGE_WIDTH; desc.BufferDesc.Height = IMAGE_HEIGHT;
+        desc.BufferDesc.Format = DXGI_FORMAT_B8G8R8A8_UNORM;
+        desc.BufferCount = 2; desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        desc.OutputWindow = children[i]; desc.SampleDesc.Count = 1;
+        desc.Windowed = TRUE; desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        if (!healthy() || !verify_windows(TRUE) || !verify_births() || !budget()) return FALSE;
+        hr = IDXGIFactory_CreateSwapChain(gpu->factory, (IUnknown *)gpu->device, &desc, &t->swap);
+        if (SUCCEEDED(hr) && t->swap) ++swaps_done;
+        if (!note("gpu", "CreateSwapChain-foreign-child", SUCCEEDED(hr) && t->swap, hr,
+                  i, child_ids[i], host_pid, self_pid)) return FALSE;
+        if (!budget()) return FALSE;
+        hr = IDXGISwapChain_GetDesc(t->swap, &actual);
+        if (!note("gpu", "actual-swap-description", SUCCEEDED(hr) && actual.OutputWindow == children[i] &&
+                  actual.BufferCount == 2 && actual.BufferDesc.Width == IMAGE_WIDTH &&
+                  actual.BufferDesc.Height == IMAGE_HEIGHT && actual.BufferDesc.Format == DXGI_FORMAT_B8G8R8A8_UNORM &&
+                  actual.SwapEffect == DXGI_SWAP_EFFECT_FLIP_DISCARD && actual.Windowed &&
+                  actual.SampleDesc.Count == 1 && actual.SampleDesc.Quality == 0,
+                  hr, i, SUCCEEDED(hr) ? actual.BufferCount : 0,
+                  SUCCEEDED(hr) ? actual.BufferDesc.Format : 0, child_ids[i])) return FALSE;
+        if (!budget()) return FALSE;
+        hr = IDXGISwapChain_GetBuffer(t->swap, 0, &IID_ID3D11Texture2D, (void **)&t->back);
+        if (!note("gpu", "actual-backbuffer-zero", SUCCEEDED(hr) && t->back, hr, i, 0, 0, 0)) return FALSE;
+        if (!budget()) return FALSE;
+        ID3D11Texture2D_GetDesc(t->back, &texture);
+        if (!note("gpu", "actual-BGRA-backbuffer-layout", texture.Width == IMAGE_WIDTH &&
+                  texture.Height == IMAGE_HEIGHT && texture.Format == DXGI_FORMAT_B8G8R8A8_UNORM &&
+                  texture.MipLevels == 1 && texture.ArraySize == 1 && texture.SampleDesc.Count == 1 &&
+                  texture.SampleDesc.Quality == 0 && texture.Usage == D3D11_USAGE_DEFAULT &&
+                  (texture.BindFlags & D3D11_BIND_RENDER_TARGET) != 0,
+                  S_OK, texture.Width, texture.Height, texture.Format, i)) return FALSE;
+        if (!budget()) return FALSE;
+        hr = ID3D11Device_CreateRenderTargetView(gpu->device, (ID3D11Resource *)t->back, NULL, &t->rtv);
+        if (!note("gpu", "actual-RTV", SUCCEEDED(hr) && t->rtv, hr, i, 0, 0, 0)) return FALSE;
+        texture.Usage = D3D11_USAGE_STAGING; texture.BindFlags = 0;
+        texture.CPUAccessFlags = D3D11_CPU_ACCESS_READ; texture.MiscFlags = 0;
+        if (!budget()) return FALSE;
+        hr = ID3D11Device_CreateTexture2D(gpu->device, &texture, NULL, &t->staging);
+        if (!note("gpu", "actual-CPU-read-staging", SUCCEEDED(hr) && t->staging, hr, i, 0, 0, 0)) return FALSE;
+        if (!budget()) return FALSE;
+        ID3D11Texture2D_GetDesc(t->staging, &texture);
+        if (!note("gpu", "staging-layout", texture.Width == IMAGE_WIDTH && texture.Height == IMAGE_HEIGHT &&
+                  texture.Format == DXGI_FORMAT_B8G8R8A8_UNORM && texture.MipLevels == 1 &&
+                  texture.ArraySize == 1 && texture.SampleDesc.Count == 1 && texture.SampleDesc.Quality == 0 &&
+                  texture.Usage == D3D11_USAGE_STAGING && texture.CPUAccessFlags == D3D11_CPU_ACCESS_READ &&
+                  !texture.BindFlags && !texture.MiscFlags, S_OK, i, texture.Usage,
+                  texture.CPUAccessFlags, texture.Format)) return FALSE;
+    }
+    return TRUE;
+}
+
+static BOOL readable_mapping(const D3D11_MAPPED_SUBRESOURCE *mapping)
+{
+    uintptr_t at, end;
+    size_t span;
+    if (!mapping->pData || mapping->RowPitch < IMAGE_WIDTH * 4 || mapping->RowPitch > 1024 * 1024)
+        return record("gpu", "map-pointer-and-rowpitch", FALSE, E_FAIL,
+                      (uint64_t)(uintptr_t)mapping->pData, mapping->RowPitch, 0, 0);
+    span = (size_t)(IMAGE_HEIGHT - 1) * mapping->RowPitch + IMAGE_WIDTH * 4;
+    at = (uintptr_t)mapping->pData;
+    if (at > UINTPTR_MAX - span)
+        return record("gpu", "map-range-overflow", FALSE, E_FAIL, at, span, 0, 0);
+    end = at + span;
+    /* Map(READ) owns a CPU-accessible resource until Unmap. Host Metal memory
+     * may not be represented in Wine's VirtualQuery view registry. That separate
+     * metadata limitation is not a precondition of the D3D11 data contract; the
+     * actual bounded pixel loads below remain the readback proof. */
+    return record("gpu", "map-bounded-CPU-range", end > at, S_OK,
+                  span, mapping->RowPitch, at, end);
+}
+
+static BOOL render_frame(gpu_state *gpu, unsigned int index, unsigned int phase, HRESULT *present_hr)
+{
+    target *t = &gpu->targets[index];
+    BOOL red = (phase == 1) == (index == 0), pixels_ok;
+    const float red_color[4] = {1, 0, 0, 1}, blue_color[4] = {0, 0, 1, 1};
+    uint32_t expected = red ? UINT32_C(0xffff0000) : UINT32_C(0xff0000ff);
+    unsigned int x, y, tested = 0, mismatches = 0;
+    HRESULT hr, completion_hr = E_PENDING;
+    if (!healthy() || !pump() || !budget()) return FALSE;
+    ID3D11DeviceContext_ClearRenderTargetView(gpu->context, t->rtv, red ? red_color : blue_color);
+    ++frames_done;
+    if (!note("gpu", "actual-clear-RTV", TRUE, S_OK, index, expected, phase, frames_done)) return FALSE;
+    if (!budget()) return FALSE;
+    ID3D11DeviceContext_CopyResource(gpu->context, (ID3D11Resource *)t->staging, (ID3D11Resource *)t->back);
+    if (!note("gpu", "actual-copy-backbuffer-to-staging", TRUE, S_OK, index, phase, 0, 0)) return FALSE;
+    if (!gpu_complete(gpu, &completion_hr) || !budget()) return FALSE;
+    memset(&t->mapping, 0, sizeof(t->mapping));
+    hr = ID3D11DeviceContext_Map(gpu->context, (ID3D11Resource *)t->staging, 0,
+                                D3D11_MAP_READ, D3D11_MAP_FLAG_DO_NOT_WAIT, &t->mapping);
+    if (SUCCEEDED(hr)) t->mapped = TRUE; /* MUST precede post-clock */
+    if (!note("gpu", "actual-Map-READ", SUCCEEDED(hr), hr, index, t->mapping.RowPitch,
+              (uint64_t)(uintptr_t)t->mapping.pData, t->mapped)) return FALSE;
+    if (!readable_mapping(&t->mapping)) return FALSE; /* cleanup owns Unmap */
+    for (y = 0; y < IMAGE_HEIGHT; ++y) {
+        const BYTE *row = (const BYTE *)t->mapping.pData + (size_t)y * t->mapping.RowPitch;
+        for (x = 0; x < IMAGE_WIDTH; ++x) {
+            uint32_t actual;
+            memcpy(&actual, row + 4 * x, sizeof(actual));
+            if (actual != expected) ++mismatches;
+            ++tested;
+        }
+    }
+    pixels_ok = tested == IMAGE_WIDTH * IMAGE_HEIGHT && !mismatches;
+    if (pixels_ok) ++readbacks_done;
+    /* Always unmap this successful Map, even after a failed/late observation. */
+    (void)budget();
+    ID3D11DeviceContext_Unmap(gpu->context, (ID3D11Resource *)t->staging, 0);
+    t->mapped = FALSE;
+    if (!note("gpu", index ? "readback-B-all-16000-and-Unmap" : "readback-A-all-16000-and-Unmap",
+              pixels_ok, hr, expected, tested, mismatches, t->mapping.RowPitch)) return FALSE;
+    if (!healthy() || !budget()) return FALSE;
+    hr = IDXGISwapChain_Present(t->swap, 0, 0);
+    *present_hr = hr;
+    if (SUCCEEDED(hr)) ++presents_done;
+    if (hr == DXGI_STATUS_OCCLUDED) ++occluded_done;
+    if (!note("gpu", "actual-Present-HRESULT", SUCCEEDED(hr), hr, index, phase,
+              hr == DXGI_STATUS_OCCLUDED, presents_done)) return FALSE;
+    return pump();
+}
+
+#define DROP_COM(pointer, interface_name, label) do { \
+    if ((pointer) != NULL) { \
+        ULONG remaining; \
+        (void)budget(); \
+        remaining = interface_name##_Release(pointer); \
+        (pointer) = NULL; \
+        ++releases_done; \
+        (void)note("com-release", label, TRUE, S_OK, remaining, releases_done, 0, 0); \
+    } \
+} while (0)
+
+static BOOL release_gpu(gpu_state *gpu, HRESULT *drain_hr)
+{
+    unsigned int i;
+    BOOL drained = FALSE;
+    if (gpu->context) {
+        for (i = 0; i < 2; ++i) {
+            target *t = &gpu->targets[i];
+            if (t->mapped) {
+                (void)budget();
+                ID3D11DeviceContext_Unmap(gpu->context, (ID3D11Resource *)t->staging, 0);
+                t->mapped = FALSE;
+                (void)note("gpu", "cleanup-owned-Unmap", TRUE, S_OK, i, 0, 0, 0);
+            }
+        }
+        (void)budget();
+        ID3D11DeviceContext_ClearState(gpu->context);
+        (void)note("gpu", "release-ClearState", TRUE, S_OK, 0, 0, 0, 0);
+        (void)budget();
+        ID3D11DeviceContext_Flush(gpu->context);
+        (void)note("gpu", "release-Flush", TRUE, S_OK, 0, 0, 0, 0);
+        if (gpu->query) drained = gpu_complete(gpu, drain_hr);
+        if (drained) gpu_drained = TRUE;
+    }
+    for (i = 0; i < 2; ++i) {
+        target *t = &gpu->targets[i];
+        DROP_COM(t->rtv, ID3D11RenderTargetView, "RTV-Release");
+        DROP_COM(t->back, ID3D11Texture2D, "backbuffer-Release");
+        DROP_COM(t->staging, ID3D11Texture2D, "staging-Release");
+        DROP_COM(t->swap, IDXGISwapChain, "swapchain-Release");
+    }
+    if (gpu->context) {
+        (void)budget();
+        ID3D11DeviceContext_Flush(gpu->context);
+        (void)note("gpu", "post-resource-release-Flush", TRUE, S_OK, 0, 0, 0, 0);
+    }
+    DROP_COM(gpu->query, ID3D11Query, "event-query-Release");
+    DROP_COM(gpu->factory, IDXGIFactory, "factory-Release");
+    DROP_COM(gpu->adapter, IDXGIAdapter, "adapter-Release");
+    DROP_COM(gpu->dxgi, IDXGIDevice, "DXGI-device-Release");
+    DROP_COM(gpu->context, ID3D11DeviceContext, "context-Release");
+    DROP_COM(gpu->device, ID3D11Device, "device-Release");
+    local_released = !gpu->device && !gpu->context && !gpu->dxgi && !gpu->adapter &&
+        !gpu->factory && !gpu->query;
+    for (i = 0; i < 2; ++i) {
+        target *t = &gpu->targets[i];
+        if (t->swap || t->back || t->staging || t->rtv || t->mapped) local_released = FALSE;
+    }
+    (void)note("com-release", "all-local-pointers-released-only", local_released, *drain_hr,
+               releases_done, drained, local_released, 0);
+    return drained && local_released && !failures && !io_bad;
+}
+
+static BOOL renderer_main(char **argv)
+{
+    gpu_state gpu;
+    uint32_t read_id = 0, write_id = 0;
+    unsigned int phase;
+    BOOL complete = FALSE;
+    DWORD error, tid, pid = 0;
+    HRESULT hr = E_PENDING;
+    memset(&gpu, 0, sizeof(gpu));
+    renderer_pid = self_pid;
+    {
+        BOOL parsed = parse_id(argv[2], &root_id) && parse_id(argv[3], &child_ids[0]) &&
+            parse_id(argv[4], &child_ids[1]) && parse_id(argv[6], &read_id) && parse_id(argv[7], &write_id);
+        if (!record("arguments", "renderer-canonical-handles", parsed &&
+                    root_id != child_ids[0] && root_id != child_ids[1] && child_ids[0] != child_ids[1] &&
+                    read_id != write_id, S_OK, root_id, child_ids[0], child_ids[1], 0)) goto done;
+    }
+    root = window_from_id(root_id);
+    children[0] = window_from_id(child_ids[0]); children[1] = window_from_id(child_ids[1]);
+    input_pipe = (HANDLE)(uintptr_t)read_id; output_pipe = (HANDLE)(uintptr_t)write_id;
+    if (!budget()) goto done;
+    {
+        DWORD kind = GetFileType(input_pipe);
+        if (!note("pipe", "renderer-inherited-read-is-pipe", kind == FILE_TYPE_PIPE,
+                  kind == FILE_TYPE_UNKNOWN ? winhr(GetLastError()) : S_OK, kind, read_id, 0, 0)) goto done;
+        if (!budget()) goto done;
+        kind = GetFileType(output_pipe);
+        if (!note("pipe", "renderer-inherited-write-is-pipe", kind == FILE_TYPE_PIPE,
+                  kind == FILE_TYPE_UNKNOWN ? winhr(GetLastError()) : S_OK, kind, write_id, 0, 0)) goto done;
+    }
+    if (!budget()) goto done;
+    tid = GetWindowThreadProcessId(root, &pid);
+    host_pid = pid;
+    if (!note("identity", "renderer-discovered-actual-host", tid && host_pid && host_pid != self_pid,
+              tid ? S_OK : winhr(GetLastError()), host_pid, self_pid, tid, 0)) goto done;
+    if (!budget()) goto done;
+    peer_process = OpenProcess(SYNCHRONIZE | PROCESS_QUERY_LIMITED_INFORMATION, FALSE, host_pid);
+    error = peer_process ? 0 : GetLastError();
+    if (!note("identity", "OpenProcess-actual-host", peer_process != NULL,
+              peer_process ? S_OK : winhr(error), host_pid, error, 0, 0)) goto done;
+    if (!process_birth(GetCurrentProcess(), &self_birth, "renderer-birth") ||
+        !process_birth(peer_process, &peer_birth, "host-birth") ||
+        !record("identity", "renderer-born-after-host", self_birth >= peer_birth, S_OK,
+                self_birth, peer_birth, 0, 0) || !opposite_process(peer_process) ||
+        !verify_windows(TRUE) || !verify_births() || !gpu_create(&gpu)) goto done;
+    for (phase = 1; phase <= 2; ++phase) {
+        pipe_message80 message, reply;
+        phase_now = phase;
+        if (!verify_windows(TRUE) || !verify_births() ||
+            !render_frame(&gpu, 0, phase, &hr) || !render_frame(&gpu, 1, phase, &hr)) goto done;
+        memset(&message, 0, sizeof(message));
+        message.token = make_token(phase); message.hresult = (int32_t)hr;
+        message.flags = FRAME_FLAGS; message.sequence = phase;
+        if (!send_message(&message) || !receive_message(&reply, phase) ||
+            !record("pipe", "reply-exactly-echoes-actual-report", !memcmp(&reply, &message, sizeof(reply)),
+                    (HRESULT)reply.hresult, phase, reply.flags, 0, 0) ||
+            !verify_windows(TRUE) || !verify_births()) goto done;
+        ++phases_done; /* COM resources stayed owned throughout the gate */
+    }
+    phase_now = 3;
+    if (!release_gpu(&gpu, &hr) || !verify_windows(TRUE) || !verify_births()) goto done;
+    {
+        pipe_message80 message, reply;
+        memset(&message, 0, sizeof(message));
+        message.token = make_token(3); message.hresult = (int32_t)hr;
+        message.flags = LOCAL_COM_RELEASED; message.sequence = 3;
+        if (!send_message(&message) || !receive_message(&reply, 3) ||
+            !record("pipe", "release-reply-exact-echo", !memcmp(&reply, &message, sizeof(reply)),
+                    (HRESULT)reply.hresult, reply.sequence, reply.flags, 0, 0) ||
+            !verify_windows(FALSE) || !verify_births() || !pipe_empty(3)) goto done;
+        ++phases_done;
+    }
+    complete = record("acceptance", "renderer-three-phase-local-contract", phases_done == 3 &&
+                      swaps_done == 2 && frames_done == 4 && readbacks_done == 4 && presents_done == 4 &&
+                      local_released && gpu_drained, hr, phases_done, swaps_done, readbacks_done, presents_done);
+done:
+    start_cleanup();
+    /* Even partially successful setup/Map calls retain their exact ownership. */
+    if (!local_released) (void)release_gpu(&gpu, &hr);
+    (void)close_owned(&input_pipe, "renderer-read-pipe");
+    (void)close_owned(&output_pipe, "renderer-write-pipe");
+    (void)close_owned(&peer_process, "renderer-host-process-observer");
+    return complete && !failures && !io_bad;
+}
+
+static LRESULT CALLBACK window_proc(HWND window, UINT message, WPARAM wp, LPARAM lp)
+{
+    return DefWindowProcW(window, message, wp, lp);
+}
+
+static BOOL destroy_owned(HWND *window, const char *label)
+{
+    HWND old = *window;
+    BOOL destroyed;
+    DWORD error;
+    if (!old) return TRUE;
+    (void)budget();
+    destroyed = DestroyWindow(old);
+    error = destroyed ? 0 : GetLastError();
+    if (destroyed) *window = NULL;
+    return note("window", label, destroyed, destroyed ? S_OK : winhr(error),
+                (uint64_t)(uintptr_t)old, destroyed, error, 0);
+}
+
+static BOOL duplicate_standard(DWORD which, HANDLE *copy, const char *label)
+{
+    HANDLE original;
+    BOOL copied;
+    DWORD error;
+    if (!budget()) return FALSE;
+    original = GetStdHandle(which);
+    error = original == INVALID_HANDLE_VALUE ? GetLastError() : 0;
+    if (!note("inheritance", "actual-standard-handle", original && original != INVALID_HANDLE_VALUE,
+              error ? winhr(error) : S_OK, which, (uint64_t)(uintptr_t)original, error, 0)) return FALSE;
+    if (!budget()) return FALSE;
+    copied = DuplicateHandle(GetCurrentProcess(), original, GetCurrentProcess(), copy,
+                              0, TRUE, DUPLICATE_SAME_ACCESS);
+    error = copied ? 0 : GetLastError();
+    return note("inheritance", label, copied && *copy, copied ? S_OK : winhr(error),
+                (uint64_t)(uintptr_t)*copy, error, 0, 0);
+}
+
+static BOOL peer_path(const char *ascii, wchar_t *wide, size_t count)
+{
+    size_t n = strlen(ascii), i;
+    DWORD binary_type = 0, error;
+    BOOL got, valid = n >= 7 && n <= 200 && n < count &&
+        ((ascii[0] >= 'A' && ascii[0] <= 'Z') || (ascii[0] >= 'a' && ascii[0] <= 'z')) &&
+        ascii[1] == ':' && ascii[2] == '\\';
+    if (!record("arguments", "bounded-absolute-ASCII-peer-exe", valid, S_OK, n, 200, 0, 0)) return FALSE;
+    for (i = 0; i < n; ++i) {
+        unsigned char ch = (unsigned char)ascii[i];
+        if (ch < 32 || ch > 126 || ch == '"' || ch == '/' || (ch == ':' && i != 1))
+            return record("arguments", "peer-path-character", FALSE, E_INVALIDARG, i, ch, 0, 0);
+        wide[i] = ch;
+    }
+    wide[n] = 0;
+    if (!record("arguments", "peer-exe-suffix", n >= 4 && !_stricmp(ascii + n - 4, ".exe"),
+                S_OK, n, 0, 0, 0) || !budget()) return FALSE;
+    got = GetBinaryTypeW(wide, &binary_type);
+    error = got ? 0 : GetLastError();
+    return note("identity", "opposite-PE-binary-type", got && binary_type ==
+                (sizeof(void *) == 8 ? SCS_32BIT_BINARY : SCS_64BIT_BINARY),
+                got ? S_OK : winhr(error), binary_type, sizeof(void *) * 8, error, 0);
+}
+
+static BOOL make_pipe(HANDLE *read_end, HANDLE *write_end, HANDLE *parent_end, const char *label)
+{
+    SECURITY_ATTRIBUTES security;
+    BOOL made, changed;
+    DWORD error;
+    memset(&security, 0, sizeof(security));
+    security.nLength = sizeof(security); security.bInheritHandle = TRUE;
+    if (!budget()) return FALSE;
+    made = CreatePipe(read_end, write_end, &security, 4096);
+    error = made ? 0 : GetLastError();
+    if (!note("pipe", label, made && *read_end && *write_end, made ? S_OK : winhr(error),
+              (uint64_t)(uintptr_t)*read_end, (uint64_t)(uintptr_t)*write_end, 4096, error)) return FALSE;
+    if (!budget()) return FALSE;
+    changed = SetHandleInformation(*parent_end, HANDLE_FLAG_INHERIT, 0);
+    error = changed ? 0 : GetLastError();
+    return note("inheritance", "parent-end-not-inherited", changed,
+                changed ? S_OK : winhr(error), (uint64_t)(uintptr_t)*parent_end, error, 0, 0);
+}
+
+/* joined_zero can only be set from this actual owned PI wait + exit query.
+ * Failure cleanup still records a signaled nonzero child without claiming it
+ * satisfied the successful kernel-join contract. */
+static BOOL join_owned(PROCESS_INFORMATION *pi, uint64_t limit, BOOL require_zero)
+{
+    ULONGLONG raw_start = GetTickCount64();
+    uint64_t allowance = limit > elapsed_ms ? limit - elapsed_ms : 0;
+    unsigned int cleanup_polls = 0;
+    if (allowance > GRACE_MS) allowance = GRACE_MS;
+    if (elapsed_ms >= TOTAL_MS) allowance = 0;
+    else if (allowance > TOTAL_MS - elapsed_ms) allowance = TOTAL_MS - elapsed_ms;
+    for (;;) {
+        DWORD wait, error, code = STILL_ACTIVE;
+        BOOL got;
+        if (!cleaning) {
+            if (!pump() || !budget()) return FALSE;
+        } else {
+            /* Even with a sticky failed clock, perform an actual nonblocking
+             * PI wait after force. Never infer a join from TerminateProcess. */
+            (void)pump();
+            (void)budget();
+        }
+        wait = WaitForSingleObject(pi->hProcess, 0);
+        error = wait == WAIT_FAILED ? GetLastError() : 0;
+        if (wait == WAIT_OBJECT_0) kernel_signaled = TRUE;
+        if (wait == WAIT_OBJECT_0) {
+            (void)budget();
+            got = GetExitCodeProcess(pi->hProcess, &code);
+            error = got ? 0 : GetLastError();
+            if (got) joined_exit = code;
+            if (got && code == 0) joined_zero = TRUE;
+            return note("join", "actual-PI-wait-and-exit", got && (!require_zero || code == 0),
+                        got ? S_OK : winhr(error), wait, code, pi->dwProcessId, error);
+        }
+        if (wait != WAIT_TIMEOUT)
+            return record("join", "actual-PI-wait-failed", FALSE, winhr(error), wait, error, 0, 0);
+        if (cleaning) {
+            ULONGLONG raw_now;
+            (void)budget();
+            raw_now = GetTickCount64();
+            if (elapsed_ms >= limit || elapsed_ms >= TOTAL_MS || raw_now < raw_start ||
+                raw_now - raw_start >= allowance || ++cleanup_polls >= 1000) return FALSE;
+            /* Independent finite count/tick bound permits a real post-force
+             * join even after a QPC failure. The failed clock stays sticky.
+             * Still service driver RPCs on every iteration; never Sleep/wait
+             * for the whole grace interval without dispatching messages. */
+            (void)budget();
+            wait = MsgWaitForMultipleObjectsEx(0, NULL, 5, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+            error = wait == WAIT_FAILED ? GetLastError() : 0;
+            (void)budget();
+            if (wait != WAIT_TIMEOUT && wait != WAIT_OBJECT_0)
+                return record("join", "cleanup-message-wait", FALSE, winhr(error), wait, error, 0, 0);
+            (void)pump();
+            continue;
+        }
+        if (!budget()) return FALSE;
+        if (elapsed_ms >= limit) return FALSE;
+        if (!pause_pumping(5)) return FALSE;
+    }
+}
+
+static BOOL host_main(char **argv)
+{
+    static const wchar_t class_name[] = L"CiderRendererConsumerV1";
+    wchar_t executable[201], command[512];
+    char command_ascii[512];
+    WNDCLASSEXW wc;
+    PROCESS_INFORMATION pi;
+    STARTUPINFOEXW startup;
+    HANDLE child_read = NULL, child_write = NULL, stdout_copy = NULL, stderr_copy = NULL;
+    HANDLE inherited[4];
+    LPPROC_THREAD_ATTRIBUTE_LIST attributes = NULL;
+    SIZE_T attribute_bytes = 0;
+    HANDLE heap = NULL;
+    BOOL attributes_ready = FALSE, registered = FALSE, launched = FALSE, complete = FALSE;
+    BOOL result;
+    HINSTANCE instance = NULL; /* borrowed GetModuleHandleW result: never FreeLibrary */
+    DWORD error, actual_pid;
+    unsigned int i, phase;
+    int n;
+    memset(&pi, 0, sizeof(pi)); memset(&startup, 0, sizeof(startup)); memset(&wc, 0, sizeof(wc));
+    host_pid = self_pid;
+    if (!peer_path(argv[2], executable, sizeof(executable) / sizeof(executable[0]))) goto done;
+    if (!process_birth(GetCurrentProcess(), &self_birth, "host-birth")) goto done;
+    if (!budget()) goto done;
+    instance = GetModuleHandleW(NULL);
+    error = instance ? 0 : GetLastError();
+    if (!note("window", "borrowed-executable-module", instance != NULL,
+              instance ? S_OK : winhr(error), (uint64_t)(uintptr_t)instance, error, 0, 0)) goto done;
+    wc.cbSize = sizeof(wc); wc.lpfnWndProc = window_proc; wc.hInstance = instance;
+    wc.lpszClassName = class_name;
+    if (!budget()) goto done;
+    registered = RegisterClassExW(&wc) != 0;
+    error = registered ? 0 : GetLastError();
+    if (!note("window", "register-owned-class", registered, registered ? S_OK : winhr(error), error, 0, 0, 0)) goto done;
+    if (!budget()) goto done;
+    root = CreateWindowExW(0, class_name, title, WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+                            20, 20, 440, 240, NULL, NULL, instance, NULL);
+    error = root ? 0 : GetLastError();
+    result = root && window_id(root, &root_id);
+    if (!note("window", "create-host-owned-root", result,
+              root ? S_OK : winhr(error), root_id, error, 440, 240)) goto done;
+    for (i = 0; i < 2; ++i) {
+        if (!budget()) goto done;
+        children[i] = CreateWindowExW(0, class_name, L"", WS_CHILD | WS_VISIBLE | WS_BORDER,
+                                       i ? 210 : 10, 10, 180, 100, root, NULL, instance, NULL);
+        error = children[i] ? 0 : GetLastError();
+        result = children[i] && window_id(children[i], &child_ids[i]);
+        if (!note("window", "create-host-owned-child", result,
+                  children[i] ? S_OK : winhr(error), child_ids[i], i, host_pid, error)) goto done;
+    }
+    if (!pump() || !verify_windows(TRUE) ||
+        !record("window", "distinct-canonical-USER-handles", root_id != child_ids[0] &&
+                root_id != child_ids[1] && child_ids[0] != child_ids[1], S_OK,
+                root_id, child_ids[0], child_ids[1], 0)) goto done;
+    if (!make_pipe(&child_read, &output_pipe, &output_pipe, "fresh-host-to-renderer-4096") ||
+        !make_pipe(&input_pipe, &child_write, &input_pipe, "fresh-renderer-to-host-4096") ||
+        !duplicate_standard(STD_OUTPUT_HANDLE, &stdout_copy, "stdout-intended-copy") ||
+        !duplicate_standard(STD_ERROR_HANDLE, &stderr_copy, "stderr-intended-copy")) goto done;
+    {
+        uint32_t read_wire = 0, write_wire = 0;
+        result = kernel_wire_id(child_read, &read_wire) && kernel_wire_id(child_write, &write_wire);
+        if (!record("inheritance", "pipe-handles-fit-both-bitnesses", result && child_read != child_write,
+                    S_OK, read_wire, write_wire, 0, 0)) goto done;
+    }
+    if (!budget()) goto done;
+    result = InitializeProcThreadAttributeList(NULL, 1, 0, &attribute_bytes);
+    error = GetLastError();
+    if (!note("inheritance", "attribute-list-size-probe", !result && error == ERROR_INSUFFICIENT_BUFFER &&
+              attribute_bytes != 0 && attribute_bytes <= 1024 * 1024, S_OK,
+              result, error, attribute_bytes, 0)) goto done;
+    if (!budget()) goto done;
+    heap = GetProcessHeap();
+    if (!note("inheritance", "borrowed-process-heap", heap != NULL, heap ? S_OK : winhr(GetLastError()),
+              (uint64_t)(uintptr_t)heap, 0, 0, 0) || !budget()) goto done;
+    attributes = (LPPROC_THREAD_ATTRIBUTE_LIST)HeapAlloc(heap, 0, attribute_bytes);
+    if (!note("inheritance", "allocate-attribute-list", attributes != NULL,
+              attributes ? S_OK : E_OUTOFMEMORY, attribute_bytes, 0, 0, 0) || !budget()) goto done;
+    result = InitializeProcThreadAttributeList(attributes, 1, 0, &attribute_bytes);
+    error = result ? 0 : GetLastError();
+    if (result) attributes_ready = TRUE;
+    if (!note("inheritance", "initialize-attribute-list", result, result ? S_OK : winhr(error),
+              attribute_bytes, error, 0, 0)) goto done;
+    inherited[0] = child_read; inherited[1] = child_write;
+    inherited[2] = stdout_copy; inherited[3] = stderr_copy;
+    if (!budget()) goto done;
+    result = UpdateProcThreadAttribute(attributes, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+                                       inherited, sizeof(inherited), NULL, NULL);
+    error = result ? 0 : GetLastError();
+    if (!note("inheritance", "explicit-four-handle-list", result, result ? S_OK : winhr(error),
+              4, (uint64_t)(uintptr_t)child_read, (uint64_t)(uintptr_t)child_write, error)) goto done;
+    n = snprintf(command_ascii, sizeof(command_ascii),
+                 "\"%s\" --renderer %08" PRIx32 " %08" PRIx32 " %08" PRIx32 " %s %08" PRIx32 " %08" PRIx32,
+                 argv[2], root_id, child_ids[0], child_ids[1], nonce_text,
+                 (uint32_t)(uintptr_t)child_read, (uint32_t)(uintptr_t)child_write);
+    if (!record("arguments", "bounded-quoted-ASCII-command", n > 0 && (size_t)n < sizeof(command_ascii) &&
+                (size_t)n < sizeof(command) / sizeof(command[0]), S_OK, n > 0 ? (uint64_t)n : 0, 0, 0, 0)) goto done;
+    for (i = 0; i <= (unsigned int)n; ++i) command[i] = (wchar_t)(unsigned char)command_ascii[i];
+    startup.StartupInfo.cb = sizeof(startup); startup.StartupInfo.dwFlags = STARTF_USESTDHANDLES;
+    startup.StartupInfo.hStdInput = child_read; startup.StartupInfo.hStdOutput = stdout_copy;
+    startup.StartupInfo.hStdError = stderr_copy; startup.lpAttributeList = attributes;
+    if (!healthy() || !pump() || !budget()) goto done;
+    result = CreateProcessW(executable, command, NULL, NULL, TRUE, EXTENDED_STARTUPINFO_PRESENT,
+                            NULL, L"C:\\CiderTests", &startup.StartupInfo, &pi);
+    error = result ? 0 : GetLastError();
+    if (result) {
+        launched = TRUE; renderer_pid = pi.dwProcessId; peer_process = pi.hProcess; /* borrowed alias */
+    }
+    if (!note("process", "ordinary-CreateProcessW-owned-peer", result && pi.hProcess && pi.hThread &&
+              pi.dwProcessId && pi.dwThreadId && pi.dwProcessId != self_pid,
+              result ? S_OK : winhr(error), pi.dwProcessId, pi.dwThreadId,
+              (uint64_t)(uintptr_t)pi.hProcess, error)) goto done;
+    if (!close_owned(&child_read, "host-child-read-copy") ||
+        !close_owned(&child_write, "host-child-write-copy") ||
+        !close_owned(&stdout_copy, "host-child-stdout-copy") ||
+        !close_owned(&stderr_copy, "host-child-stderr-copy")) goto done;
+    if (!budget()) goto done;
+    actual_pid = GetProcessId(pi.hProcess);
+    if (!note("identity", "PI-handle-actual-renderer-PID", actual_pid == renderer_pid,
+              actual_pid ? S_OK : winhr(GetLastError()), actual_pid, renderer_pid, 0, 0) ||
+        !process_birth(pi.hProcess, &peer_birth, "renderer-birth") ||
+        !record("identity", "owned-renderer-birth-order", peer_birth >= self_birth, S_OK,
+                self_birth, peer_birth, 0, 0) || !opposite_process(pi.hProcess) || !verify_births()) goto done;
+    for (phase = 1; phase <= 3; ++phase) {
+        pipe_message80 message;
+        phase_now = phase;
+        if (!receive_message(&message, phase) || !verify_windows(TRUE) || !verify_births()) goto done;
+        if (phase < 3) {
+            ++peer_phase12_reports; peer_frames_reported += 2;
+            peer_readbacks_reported += 2; peer_presents_reported += 2;
+        } else {
+            peer_release_reported = TRUE; /* an authenticated local report, not Native proof */
+            if (!destroy_owned(&children[0], "destroy-child-A-while-renderer-alive") ||
+                !peer_alive() || !destroy_owned(&children[1], "destroy-child-B-while-renderer-alive") ||
+                !peer_alive() || !pump()) goto done;
+            /* Wire child IDs stay in make_token; destroyed ownership stays NULL. */
+        }
+        if (!ready_and_gate(phase) || !verify_births()) goto done;
+        if (phase < 3 && !verify_windows(TRUE)) goto done;
+        if (phase == 3 && !pipe_empty(2)) goto done;
+        if (!send_message(&message)) goto done; /* exact actual report echo, after real gate */
+        ++phases_done;
+    }
+    /* Renderer may exit immediately after consuming reply 3; no liveness
+     * assertion or pipe peek is allowed here to turn that valid exit into error. */
+    if (!join_owned(&pi, WORK_MS, TRUE)) {
+        if (!failures) record("join", "renderer-join-deadline", FALSE,
+                              HRESULT_FROM_WIN32(ERROR_TIMEOUT), elapsed_ms, 0, 0, 0);
+        goto done;
+    }
+    complete = record("acceptance", "host-three-phase-and-real-zero-exit", phases_done == 3 &&
+                      peer_phase12_reports == 2 && peer_frames_reported == 4 && peer_readbacks_reported == 4 &&
+                      peer_presents_reported == 4 && peer_release_reported && pipe_sends == 3 &&
+                      pipe_receives == 3 && joined_zero && !force_attempted,
+                      S_OK, phases_done, peer_phase12_reports, joined_exit, kernel_signaled);
+done:
+    start_cleanup();
+    /* Close every host copy of a child endpoint before cooperative failure wait. */
+    (void)close_owned(&child_read, "cleanup-child-read-copy");
+    (void)close_owned(&child_write, "cleanup-child-write-copy");
+    (void)close_owned(&stdout_copy, "cleanup-stdout-copy");
+    (void)close_owned(&stderr_copy, "cleanup-stderr-copy");
+    (void)close_owned(&input_pipe, "host-read-pipe");
+    (void)close_owned(&output_pipe, "host-write-pipe");
+    (void)close_owned(&phase_file, "host-outstanding-phase-file");
+    if (launched && !kernel_signaled) {
+        uint64_t grace_limit = elapsed_ms + GRACE_MS;
+        uint64_t cleanup_limit = cleanup_start + CLEANUP_MS;
+        if (grace_limit > cleanup_limit) grace_limit = cleanup_limit;
+        if (!join_owned(&pi, grace_limit, FALSE) && !kernel_signaled && !force_attempted) {
+            force_attempted = TRUE;
+            (void)budget();
+            result = TerminateProcess(pi.hProcess, 1);
+            error = result ? 0 : GetLastError();
+            if (result) force_succeeded = TRUE;
+            (void)note("process", "failure-only-owned-peer-force-once", result,
+                       result ? S_OK : winhr(error), pi.dwProcessId, result, error, 0);
+            (void)join_owned(&pi, cleanup_limit, FALSE);
+        }
+    }
+    if (launched && !kernel_signaled)
+        record("join", "failure-child-not-actually-joined", FALSE, E_FAIL,
+               pi.dwProcessId, force_attempted, force_succeeded, 0);
+    (void)destroy_owned(&children[0], "cleanup-owned-child-A");
+    (void)destroy_owned(&children[1], "cleanup-owned-child-B");
+    (void)destroy_owned(&root, "destroy-owned-root");
+    if (registered) {
+        (void)budget();
+        result = UnregisterClassW(class_name, instance);
+        error = result ? 0 : GetLastError();
+        if (result) registered = FALSE;
+        (void)note("window", "unregister-owned-class", result, result ? S_OK : winhr(error), error, registered, 0, 0);
+    }
+    if (attributes_ready) {
+        (void)budget();
+        DeleteProcThreadAttributeList(attributes);
+        attributes_ready = FALSE;
+        (void)note("inheritance", "delete-attribute-list", TRUE, S_OK, 0, 0, 0, 0);
+    }
+    if (attributes) {
+        (void)budget();
+        result = HeapFree(heap, 0, attributes);
+        error = result ? 0 : GetLastError();
+        if (result) attributes = NULL;
+        (void)note("inheritance", "free-attribute-storage", result, result ? S_OK : winhr(error), error, 0, 0, 0);
+    }
+    (void)close_owned(&pi.hThread, "PI-thread-handle");
+    (void)close_owned(&pi.hProcess, "PI-process-handle");
+    peer_process = pi.hProcess; /* preserve failed close ownership; no second alias close */
+    return complete && !failures && !io_bad && !force_attempted;
+}
+
+int main(int argc, char **argv)
+{
+    BOOL result = FALSE, got;
+    DWORD error;
+    self_pid = GetCurrentProcessId();
+    output = GetStdHandle(STD_OUTPUT_HANDLE); /* borrowed */
+    if (argc > 1 && !strcmp(argv[1], "--renderer")) role = "renderer";
+    if (argc == 4 && !strcmp(argv[1], "--host")) (void)parse_nonce(argv[3]);
+    else if (argc == 8 && !strcmp(argv[1], "--renderer")) (void)parse_nonce(argv[5]);
+    got = QueryPerformanceFrequency(&frequency);
+    error = got ? 0 : GetLastError();
+    if (!got || frequency.QuadPart <= 0) clock_bad = TRUE;
+    if (!record("clock", "QPC-frequency", got && frequency.QuadPart > 0,
+                got ? S_OK : winhr(error), (uint64_t)frequency.QuadPart, 0, 0, 0)) goto finish;
+    got = QueryPerformanceCounter(&first_qpc);
+    error = got ? 0 : GetLastError();
+    first_tick = GetTickCount64(); last_tick = first_tick; last_qpc = first_qpc;
+    clock_ready = got && first_qpc.QuadPart >= 0;
+    if (!clock_ready) clock_bad = TRUE;
+    if (!record("clock", "QPC-start", clock_ready, got ? S_OK : winhr(error),
+                (uint64_t)first_qpc.QuadPart, first_tick, 0, 0)) goto finish;
+    if (!note("arguments", "exact-role-argc-and-32hex-nonce", strlen(nonce_text) == 32 &&
+              ((argc == 4 && !strcmp(argv[1], "--host")) ||
+              (argc == 8 && !strcmp(argv[1], "--renderer"))), S_OK,
+              (uint64_t)(unsigned int)argc, 0, 0, 0)) goto finish;
+    if (!strcmp(role, "renderer")) result = renderer_main(argv);
+    else result = host_main(argv);
+finish:
+    if (clock_ready) (void)budget();
+    (void)record("summary", "final", result && !failures && !io_bad && !clock_bad &&
+                 !timeout_bad && !force_attempted, S_OK, failures, checks, elapsed_ms, 0);
+    return result && !failures && !io_bad && !clock_bad && !timeout_bad && !force_attempted ? 0 : 1;
+}
