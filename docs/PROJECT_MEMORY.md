@@ -4,6 +4,8 @@
 
 ## 最新实际运行接续
 
+最新[114](research/114-r-v1-reservation-isolation-20261101.md)：继续原per-host阶段，仅新host-status-reservations-client-v1；普通source-v5/Native/PE组件及NT读方库复用。实际USER2申请同producer两个不同ticket、相同context_id1元数据（从不导入），两个RO页真实ACTIVE；CANCEL A后A SAFE／values_valid0、B仍ACTIVE；A重装服务器INVALID_HANDLE、B仍不变；RELEASE producer后B及producer真SAFE，A旧映射仍真SAFE，再关闭读方窗口。双PE各29/0/CLI0，限定独立源审接纳、严格编译，8依赖闭包/158输入/2raw-session-EXE/16PE+2native/F27/5清理/原配置DLL字节或缺失恢复/保护4另行绑定。3树2EXE按CAS清理完成，来源/raw/清单/基底保留；旧verifier路径需清单复原。不是两个真实图层/共享CAContext释放、NT失败并发、未知INSTALL回复或跨进程证明。关键平台工具拦截的故障验收仍待、不重试partial或换代理，不降门槛，不前移多进程/reparent/像素；当前仍per-host而非已完成阶段。代理关闭、实验scope清理确认，Windows/Actions/定时/Goal零操作、默认/游戏门禁/HY/U8-15/Windowsbusy待重启不改，非本批AppModel保留。
+
 最新[113](research/113-r-v1-lifecycle-order-20261101.md)：回到用户要求的原阶段，复用112普通Native/PE及helper字节，仅两个新PE客户端。cancel-first-client-v1双PE各25/0：真实context/RO预留后先CANCEL，实际HostSAFE及模型0，消费者LIVE_INSTALL因SAFE在发送前拒绝，flags.install_sent始终0；不是服务器处理INSTALL证明。root-close-client-v1各22/0：实际INSTALL/模型1后DestroyWindow(root)，客户端不显式CANCEL/RELEASE，保留Host/producerROSAFE及模型0、原context仍持有后清理；helper可能尝试dead endpoint，未知返回不作完成依据。限定源审均接纳、严格双PE编译；两组独立raw/session/EXE/16PE+2native/F27/10清理/普通配置DLL原字节或缺失恢复/保护4核对。普通代码与已通过旧用例不重跑。跨进程初写草稿parked未编译运行；当前仍per-host门槛，NT失败并发被平台拦截的验收未完成且不替代，不推进多进程/reparent/像素或默认采用。代理均关闭，实验scope清理确认后按清单CAS回收临时整包；保留源码/raw/当前普通基底。Windows/Actions/定时/Goal零操作，门禁/HY/U8-15/Windowsbusy待重启不变，非本批AppModel保留。
 
 2026-11-01用户再次强调按原开发计划顺序，不要打乱。跨进程正常图层准备仅在私有host-status-cross-fixture-v1初写，未构建或运行；已按文件哈希封存为parked，见cross-process-preparation-parked-20261101.json。当前回到per-host安装/取消/清理阶段，只补该阶段正常取消先行及根关闭用例，不把它们当作被拦截NT故障并发门槛的替代；该门槛及默认采用限制继续保留。不得因正常用例完成便跳到多进程/reparent/像素或提高游戏评级。

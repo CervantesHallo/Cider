@@ -1,0 +1,1438 @@
+{
+  "schema": "cider.r-v1.reservation-isolation-evidence/v1",
+  "date": "2026-11-01",
+  "scope": "normal same-producer realRO NT metadata reservations isolation, not actualcontext or failure/concurrency acceptance",
+  "review": {
+    "path": "out/engine-dxmt-bridge-20261025/host-status-reservations-review-v1.json",
+    "sha256": "9229d900e17c47a0978b211a47622563cd0cfb255bf36266c5fefb21e8794c31",
+    "report": {
+      "review": "host-status-reservations-review-v1",
+      "review_type": "bounded independent ordinary metadata reservation isolation source delta review",
+      "target": "host-status-reservations-client-v1.c",
+      "baseline": "host-status-metadata-client-v2.c",
+      "source_admission": true,
+      "findings": [],
+      "finding_counts": {
+        "P1": 0,
+        "P2": 0
+      },
+      "sourceSHA256": [
+        {
+          "path": "host-status-metadata-client-v2.c",
+          "sha256": "2ce22b6a7ea26e457e97a95f6f3bdd7389ee4c3de2006b3723cfad6d13a6a1e3",
+          "bytes": 12623,
+          "lines": 194
+        },
+        {
+          "path": "host-status-reservations-client-v1.c",
+          "sha256": "f93dee6f131aeb5ab36f1c5a072f171374341d162347e04ced7c111e6f91420a",
+          "bytes": 11845,
+          "lines": 183
+        }
+      ],
+      "delta": {
+        "common_mechanics": "The check/tick/send_packet/emit_page/read_safe code is byte-identical after JSON type normalization. A new read_active function and revised29-check main replace the baseline28-check metadata scenario.",
+        "new_coverage": "Two same-producer/same-context metadata reservations with distinct tickets and RO readers; cancellation of A while B and producer pages remain ACTIVE; actual late INSTALL(A) server error and another B ACTIVE observation; producer release followed by B/producer SAFE and retained A SAFE; all three actual reader closes.",
+        "retained_prior_coverage": "This scenario does not repeat the baseline cross-version/idempotent ACQUIRE, explicit VirtualQuery protection, wrong-generation reader rejection, or one-phase v2 INSTALL rejection checks. Those remain prior-case evidence rather than claims of this29-check run."
+      },
+      "assessments": [
+        {
+          "topic": "Distinct actual reservation owners and immutable identity",
+          "lines": "128-150",
+          "result": "The client uses an actual owned Root and actual self birth/session, ordinary USER96-v2 QUERY/ACQUIRE, and the same producer identity. Two successful PREPARE replies supply nonzero tickets; CHECK12 requires distinct increasing tickets. A and B have separate owned reader pointers opened using the same full producer identity and context_id1 but their respective tickets. read_active requires a valid non-SAFE ACTIVE snapshot, the expected ticket and lease, and the intentionally zero permission-only sequences. Full other immutable fields remain bound by the unchanged status-reader identity validation."
+        },
+        {
+          "topic": "A cancellation does not supply B terminal permission",
+          "lines": "150-158",
+          "result": "Both pages must initially be ACTIVE. CANCEL targets only ticket_a with a fresh sequence. CHECK16 requires an actual A SAFE_ONLY read with safe1 and invalid dynamic values. CHECK17 then requires B ACTIVE under ticket_b; CHECK18 separately requires the producer page ACTIVE under ticket0. A real INSTALL_PREPARED_HOST packet is sent only after A SAFE and must return authoritative ERROR_INVALID_HANDLE; CHECK20 observes B ACTIVE again. SAFE, mismatch, invalid, or exhausted reads cannot satisfy read_active."
+        },
+        {
+          "topic": "Producer release collects the remaining reservation",
+          "lines": "159-166",
+          "result": "The client sends no CANCEL for B. The next mutating control is a fresh-sequence producer RELEASE. It then requires actual B SAFE, actual whole-producer SAFE, and another A SAFE read while all three local views remain owned. Closing A, B, and producer happens only after those checks; each close must actually succeed and clear its reader owner. Writer-side disappearance therefore is not substituted for a retained-view SAFE read."
+        },
+        {
+          "topic": "Unknown outcomes and failure cleanup",
+          "lines": "31-59, 164-181",
+          "result": "The inherited sender rejects undelivered, uncorrelated, malformed, or late replies and never automatically replays a control. PREPARE requires successful status and a real ticket; only CANCEL and RELEASE admit actual SUCCESS/IO_PENDING, followed by independent page proof. A failed primary check prevents29/0 even if cleanup succeeds. Failure cleanup closes each owned reader independently and destroys only the owned Root/class, without replaying unknown PREPARE/INSTALL outcomes. Partial NT reader owners remain available to the inherited close retry mechanism."
+        },
+        {
+          "topic": "Deadline, logging and completion accounting",
+          "lines": "24-112, 177-181",
+          "result": "read_active checks its four-second monotone QPC budget after emitting result-change records, retries only READ_RETRY, and rejects other non-snapshot outcomes. The inherited SAFE poll and USER send preserve their budgets, including the post-JSON send check. I/O failure, nonzero cleanup result, incomplete checks, or any failed check prevents success. All29 numbered checks are present."
+        }
+      ],
+      "required_fixes": [],
+      "admission_scope": "Admit this same-process normal metadata/page isolation client relative to the admitted metadata v2 basis, using unchanged qualified helpers and paired transport/header binding. Context_id1 is metadata only; no usable reserved ticket is installed before cancellation.",
+      "limits": [
+        "Only the two named client files were read in this review. Previously admitted page-reader/transport/server mechanics supply context; helper/server source, build products, controller, dependency closures, and runtime receipts were not re-audited or independently rebound.",
+        "No code edits, builds, tests, candidate execution, network, runtime control, or Windows/default changes. Only this requested report was written.",
+        "No actual29/0 result, strict both-PE compile result, paired artifact identity, cleanup restoration, or runtime admission is claimed. Parent must bind these sources to the qualified unchanged helpers/header/transport.",
+        "ACTIVE assertions establish actual page snapshots at the specified observation points, not continuous liveness or a fresh installed/quiescent acknowledgement. All-zero dynamic sequences remain permission-only. Ticket uniqueness is checked for A versus B within this run.",
+        "Only READ_SNAPSHOT records qualify ACTIVE assertions, and only SAFE_ONLY with invalid values qualifies terminal permission. Nonready/error record payloads are not independent identity/value evidence; the inherited logging behavior was not used to qualify them.",
+        "Elapsed guards reject late completion after return but cannot preempt blocked USER/NT/output or window/class cleanup calls. An external controller watchdog remains necessary. Failure-path cleanup=true reports local close/window cleanup and is not by itself whole-server drain evidence after an unknown reservation/acquisition.",
+        "This case does not provide a CAContext/model/render/GPU/pixel, cross-process, NT-close-failure, concurrent-CANCEL, fault-injection, or negative-control qualification. It does not replace blocked acceptance. No blocked partial files or parked cross-process preparation were accessed, resumed, or retried."
+      ],
+      "writes": [
+        "host-status-reservations-review-v1.json"
+      ]
+    }
+  },
+  "binding": {
+    "path": "out/engine-dxmt-bridge-20261025/host-status-reservations-independent-binding-v1.json",
+    "sha256": "cddfa7ac7b95a9b4aa028d15e9513b22a869502952e79958a6aef893ccddaacb",
+    "checks": [
+      {
+        "label": "source/build admission",
+        "passed": true
+      },
+      {
+        "label": "exact effective includes/source closure",
+        "passed": true
+      },
+      {
+        "label": "six exact metadata artifacts",
+        "passed": true
+      },
+      {
+        "label": "completed controller metadata",
+        "passed": true
+      },
+      {
+        "label": "controller byte identity",
+        "passed": true
+      },
+      {
+        "label": "actual admission identity",
+        "passed": true
+      },
+      {
+        "label": "all five cleanup attempts retained metadata",
+        "passed": true
+      },
+      {
+        "label": "actual kernel/GUI cleanup receipt",
+        "passed": true
+      },
+      {
+        "label": "actual kernel/GUI cleanup receipt",
+        "passed": true
+      },
+      {
+        "label": "actual kernel/GUI cleanup receipt",
+        "passed": true
+      },
+      {
+        "label": "actual kernel/GUI cleanup receipt",
+        "passed": true
+      },
+      {
+        "label": "actual kernel/GUI cleanup receipt",
+        "passed": true
+      },
+      {
+        "label": "private ABI group",
+        "passed": true
+      },
+      {
+        "label": "actual F27 core bytes",
+        "passed": true
+      },
+      {
+        "label": "16 actual installed PE modules",
+        "passed": true
+      },
+      {
+        "label": "two actual installed native modules",
+        "passed": true
+      },
+      {
+        "label": "two exact PE executions",
+        "passed": true
+      },
+      {
+        "label": "independent raw/session bytes",
+        "passed": true
+      },
+      {
+        "label": "actual engine and no-argument fixture",
+        "passed": true
+      },
+      {
+        "label": "actual client source/prefix identity",
+        "passed": true
+      },
+      {
+        "label": "independent full event parsing",
+        "passed": true
+      },
+      {
+        "label": "single summary and check sequence",
+        "passed": true
+      },
+      {
+        "label": "actual29checks/allpassed",
+        "passed": true
+      },
+      {
+        "label": "actual width/CLI/internal cleanup",
+        "passed": true
+      },
+      {
+        "label": "realUSER96copiedresponses",
+        "passed": true
+      },
+      {
+        "label": "actual normal request order and late-a rejection",
+        "passed": true
+      },
+      {
+        "label": "distinct actual tickets under one lease",
+        "passed": true
+      },
+      {
+        "label": "actual RO terminal identity a-terminal",
+        "passed": true
+      },
+      {
+        "label": "actual RO terminal identity a-view-outlives-writer",
+        "passed": true
+      },
+      {
+        "label": "actual RO terminal identity b-terminal",
+        "passed": true
+      },
+      {
+        "label": "actual RO terminal identity producer-terminal",
+        "passed": true
+      },
+      {
+        "label": "actual reservation isolation b-after-a-safe",
+        "passed": true
+      },
+      {
+        "label": "actual reservation isolation b-after-a-rejected-install",
+        "passed": true
+      },
+      {
+        "label": "actual reservation isolation producer-still-active",
+        "passed": true
+      },
+      {
+        "label": "actual complete immutable page identity",
+        "passed": true
+      },
+      {
+        "label": "independent raw/session bytes",
+        "passed": true
+      },
+      {
+        "label": "actual engine and no-argument fixture",
+        "passed": true
+      },
+      {
+        "label": "actual client source/prefix identity",
+        "passed": true
+      },
+      {
+        "label": "independent full event parsing",
+        "passed": true
+      },
+      {
+        "label": "single summary and check sequence",
+        "passed": true
+      },
+      {
+        "label": "actual29checks/allpassed",
+        "passed": true
+      },
+      {
+        "label": "actual width/CLI/internal cleanup",
+        "passed": true
+      },
+      {
+        "label": "realUSER96copiedresponses",
+        "passed": true
+      },
+      {
+        "label": "actual normal request order and late-a rejection",
+        "passed": true
+      },
+      {
+        "label": "distinct actual tickets under one lease",
+        "passed": true
+      },
+      {
+        "label": "actual RO terminal identity a-terminal",
+        "passed": true
+      },
+      {
+        "label": "actual RO terminal identity a-view-outlives-writer",
+        "passed": true
+      },
+      {
+        "label": "actual RO terminal identity b-terminal",
+        "passed": true
+      },
+      {
+        "label": "actual RO terminal identity producer-terminal",
+        "passed": true
+      },
+      {
+        "label": "actual reservation isolation b-after-a-safe",
+        "passed": true
+      },
+      {
+        "label": "actual reservation isolation b-after-a-rejected-install",
+        "passed": true
+      },
+      {
+        "label": "actual reservation isolation producer-still-active",
+        "passed": true
+      },
+      {
+        "label": "actual complete immutable page identity",
+        "passed": true
+      },
+      {
+        "label": "independent original bottle config restored",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true
+      },
+      {
+        "label": "protected four actual bytes",
+        "passed": true
+      }
+    ],
+    "rows": [
+      {
+        "variant": "metadata",
+        "arch": "x86_64",
+        "checks": 29,
+        "summary": {
+          "type": "host-status-reservations",
+          "event": "summary",
+          "bits": 64,
+          "checks": 29,
+          "expected_checks": 29,
+          "failures": 0,
+          "epoch": 1,
+          "lease": 13,
+          "ticket_a": 14,
+          "ticket_b": 15,
+          "cleanup": true,
+          "io_error": false
+        },
+        "calls": [
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 1,
+            "sequence": 0,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 0,
+            "ticket": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 2,
+            "sequence": 0,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 13,
+            "ticket": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 7,
+            "sequence": 8589934603,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 13,
+            "ticket": 14
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 7,
+            "sequence": 8589934604,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 13,
+            "ticket": 15
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 9,
+            "sequence": 8589934605,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 13,
+            "ticket": 14
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 8,
+            "sequence": 8589934606,
+            "delivered": true,
+            "result": 1,
+            "status": 6,
+            "lease": 13,
+            "ticket": 14
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 6,
+            "sequence": 8589934608,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 13,
+            "ticket": 0
+          }
+        ],
+        "pages": [
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "a-before-cancel",
+            "result": 0,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 32,
+            "producer_pid": 32,
+            "root_birth": 134379717390022310,
+            "producer_birth": 134379717390022310,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 14,
+            "context_id": 1,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "b-before-cancel",
+            "result": 0,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 32,
+            "producer_pid": 32,
+            "root_birth": 134379717390022310,
+            "producer_birth": 134379717390022310,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 15,
+            "context_id": 1,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "a-terminal",
+            "result": 5,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 32,
+            "producer_pid": 32,
+            "root_birth": 134379717390022310,
+            "producer_birth": 134379717390022310,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 14,
+            "context_id": 1,
+            "safe": 1,
+            "values_valid": 0,
+            "state": 0,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "b-after-a-safe",
+            "result": 0,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 32,
+            "producer_pid": 32,
+            "root_birth": 134379717390022310,
+            "producer_birth": 134379717390022310,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 15,
+            "context_id": 1,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "producer-still-active",
+            "result": 0,
+            "kind": 1,
+            "session": 1,
+            "root_pid": 32,
+            "producer_pid": 32,
+            "root_birth": 134379717390022310,
+            "producer_birth": 134379717390022310,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 0,
+            "context_id": 0,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "b-after-a-rejected-install",
+            "result": 0,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 32,
+            "producer_pid": 32,
+            "root_birth": 134379717390022310,
+            "producer_birth": 134379717390022310,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 15,
+            "context_id": 1,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "b-terminal",
+            "result": 0,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 32,
+            "producer_pid": 32,
+            "root_birth": 134379717390022310,
+            "producer_birth": 134379717390022310,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 15,
+            "context_id": 1,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "b-terminal",
+            "result": 5,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 32,
+            "producer_pid": 32,
+            "root_birth": 134379717390022310,
+            "producer_birth": 134379717390022310,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 15,
+            "context_id": 1,
+            "safe": 1,
+            "values_valid": 0,
+            "state": 0,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "producer-terminal",
+            "result": 5,
+            "kind": 1,
+            "session": 1,
+            "root_pid": 32,
+            "producer_pid": 32,
+            "root_birth": 134379717390022310,
+            "producer_birth": 134379717390022310,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 0,
+            "context_id": 0,
+            "safe": 1,
+            "values_valid": 0,
+            "state": 0,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "a-view-outlives-writer",
+            "result": 5,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 32,
+            "producer_pid": 32,
+            "root_birth": 134379717390022310,
+            "producer_birth": 134379717390022310,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 14,
+            "context_id": 1,
+            "safe": 1,
+            "values_valid": 0,
+            "state": 0,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          }
+        ],
+        "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T015528-host-status-reservations-cross-x86_64-v1-988682F2-A750-46BA-9B75-8B33E225D5B2/wine.log",
+        "rawSHA256": "29bb9a4f1a273edaf3e44ca2ef7fe17e6efb7d8bef5837c1a551013296c81b0e",
+        "sessionSHA256": "8deef5f2c2fb14dacf3e71d41e5a9cc6550e7e7da31806a5f14510d1a7b8c846",
+        "exeSHA256": "e2bcb1f9906a27c08f900832cfb714a7b0a93ca811a638449f983995e1a92db4"
+      },
+      {
+        "variant": "metadata",
+        "arch": "i386",
+        "checks": 29,
+        "summary": {
+          "type": "host-status-reservations",
+          "event": "summary",
+          "bits": 32,
+          "checks": 29,
+          "expected_checks": 29,
+          "failures": 0,
+          "epoch": 1,
+          "lease": 13,
+          "ticket_a": 14,
+          "ticket_b": 15,
+          "cleanup": true,
+          "io_error": false
+        },
+        "calls": [
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 1,
+            "sequence": 0,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 0,
+            "ticket": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 2,
+            "sequence": 0,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 13,
+            "ticket": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 7,
+            "sequence": 8589934603,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 13,
+            "ticket": 14
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 7,
+            "sequence": 8589934604,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 13,
+            "ticket": 15
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 9,
+            "sequence": 8589934605,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 13,
+            "ticket": 14
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 8,
+            "sequence": 8589934606,
+            "delivered": true,
+            "result": 1,
+            "status": 6,
+            "lease": 13,
+            "ticket": 14
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "call",
+            "version": 2,
+            "operation": 6,
+            "sequence": 8589934608,
+            "delivered": true,
+            "result": 1,
+            "status": 0,
+            "lease": 13,
+            "ticket": 0
+          }
+        ],
+        "pages": [
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "a-before-cancel",
+            "result": 0,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 236,
+            "producer_pid": 236,
+            "root_birth": 134379717512159740,
+            "producer_birth": 134379717512159740,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 14,
+            "context_id": 1,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "b-before-cancel",
+            "result": 0,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 236,
+            "producer_pid": 236,
+            "root_birth": 134379717512159740,
+            "producer_birth": 134379717512159740,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 15,
+            "context_id": 1,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "a-terminal",
+            "result": 5,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 236,
+            "producer_pid": 236,
+            "root_birth": 134379717512159740,
+            "producer_birth": 134379717512159740,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 14,
+            "context_id": 1,
+            "safe": 1,
+            "values_valid": 0,
+            "state": 0,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "b-after-a-safe",
+            "result": 0,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 236,
+            "producer_pid": 236,
+            "root_birth": 134379717512159740,
+            "producer_birth": 134379717512159740,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 15,
+            "context_id": 1,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "producer-still-active",
+            "result": 0,
+            "kind": 1,
+            "session": 1,
+            "root_pid": 236,
+            "producer_pid": 236,
+            "root_birth": 134379717512159740,
+            "producer_birth": 134379717512159740,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 0,
+            "context_id": 0,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "b-after-a-rejected-install",
+            "result": 0,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 236,
+            "producer_pid": 236,
+            "root_birth": 134379717512159740,
+            "producer_birth": 134379717512159740,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 15,
+            "context_id": 1,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "b-terminal",
+            "result": 0,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 236,
+            "producer_pid": 236,
+            "root_birth": 134379717512159740,
+            "producer_birth": 134379717512159740,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 15,
+            "context_id": 1,
+            "safe": 0,
+            "values_valid": 1,
+            "state": 1,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "b-terminal",
+            "result": 5,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 236,
+            "producer_pid": 236,
+            "root_birth": 134379717512159740,
+            "producer_birth": 134379717512159740,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 15,
+            "context_id": 1,
+            "safe": 1,
+            "values_valid": 0,
+            "state": 0,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "producer-terminal",
+            "result": 5,
+            "kind": 1,
+            "session": 1,
+            "root_pid": 236,
+            "producer_pid": 236,
+            "root_birth": 134379717512159740,
+            "producer_birth": 134379717512159740,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 0,
+            "context_id": 0,
+            "safe": 1,
+            "values_valid": 0,
+            "state": 0,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          },
+          {
+            "type": "host-status-reservations",
+            "event": "page",
+            "label": "a-view-outlives-writer",
+            "result": 5,
+            "kind": 2,
+            "session": 1,
+            "root_pid": 236,
+            "producer_pid": 236,
+            "root_birth": 134379717512159740,
+            "producer_birth": 134379717512159740,
+            "root_epoch": 1,
+            "generation": 8589934592,
+            "lease": 13,
+            "ticket": 14,
+            "context_id": 1,
+            "safe": 1,
+            "values_valid": 0,
+            "state": 0,
+            "applied": 0,
+            "quiescent": 0,
+            "requests": 0,
+            "models": 0,
+            "cleanup": 0
+          }
+        ],
+        "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T015548-host-status-reservations-cross-i386-v1-B7731870-FE0A-4982-928D-C17529720369/wine.log",
+        "rawSHA256": "86bd2042523926f638d0fa3b85e37f1fb133b599b03daa99e0f36d558c84a611",
+        "sessionSHA256": "89816d9ad4f826417b45f0543cd52383c85701a7514bd0259506821857ab7d14",
+        "exeSHA256": "31aca6638258c638d672dc73801804c2d3ed0dc76bf35138310abc0e62efafd3"
+      }
+    ]
+  },
+  "admission": {
+    "path": "out/engine-dxmt-bridge-20261025/host-status-reservations-runtime-parent-admission-v1.json",
+    "sha256": "2e4e9262b7c84fd0a004fa8b3e0390e54c29b103708f8b049e3159379ae1f91d",
+    "closures": 8,
+    "artifacts": [
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-build-v5/winemac.so",
+        "sha256": "3b5ac7dfaaad23e86680d56a412d4ebba8cff5a0a98fd012853e1d28e06e29cd"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-build-v5/win32u.so",
+        "sha256": "08af46cc74497412110d4058d2945f064f3874a38740c4ff7aa83f1625802b26"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/producer-status-pe-build-v3/i386/winemac.drv",
+        "sha256": "738f28fbf856f459f9c452caab843843287da1382ab5bacce619bf41175bd211"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/producer-status-pe-build-v3/x86_64/winemac.drv",
+        "sha256": "50a923528ab2fd8da7d9cd219344d5f0b35e2a58223e5ff3f74a8b4b3b2eb388"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-reservations-client-build-v1/i386-host-status-reservations.exe",
+        "sha256": "31aca6638258c638d672dc73801804c2d3ed0dc76bf35138310abc0e62efafd3"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-reservations-client-build-v1/x86_64-host-status-reservations.exe",
+        "sha256": "e2bcb1f9906a27c08f900832cfb714a7b0a93ca811a638449f983995e1a92db4"
+      }
+    ]
+  },
+  "runtime": {
+    "path": "out/engine-dxmt-bridge-20261025/host-status-reservations-runtime-v1.json",
+    "sha256": "469dbb19119644982ecf7223586e7a2ef47f05e66f023e4b46cead644cbfe4ac",
+    "cleanupAttempts": [
+      {
+        "startedMonotonic": 0.09872,
+        "command": [
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+          "stop-runtime",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        ],
+        "exitCode": 0,
+        "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+        "stderr": "",
+        "parsedReceipt": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        },
+        "accepted": true,
+        "elapsedSeconds": 0.198642083
+      },
+      {
+        "startedMonotonic": 2.988948333,
+        "command": [
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+          "stop-runtime",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        ],
+        "exitCode": 0,
+        "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n      34505\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+        "stderr": "",
+        "parsedReceipt": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [
+              34505
+            ],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        },
+        "accepted": true,
+        "elapsedSeconds": 0.1978880829999996
+      },
+      {
+        "startedMonotonic": 22.601313583,
+        "command": [
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+          "stop-runtime",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        ],
+        "exitCode": 0,
+        "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n      34525\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+        "stderr": "",
+        "parsedReceipt": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [
+              34525
+            ],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        },
+        "accepted": true,
+        "elapsedSeconds": 0.23296150000000182
+      },
+      {
+        "startedMonotonic": 33.988727,
+        "command": [
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+          "stop-runtime",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        ],
+        "exitCode": 0,
+        "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n      34590\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+        "stderr": "",
+        "parsedReceipt": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [
+              34590
+            ],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        },
+        "accepted": true,
+        "elapsedSeconds": 0.27229345800000004
+      },
+      {
+        "startedMonotonic": 34.267979375,
+        "command": [
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/owned-processes",
+          "stop-runtime",
+          "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        ],
+        "exitCode": 0,
+        "stdout": "{\n  \"captured\" : [\n\n  ],\n  \"emptyObservations\" : 2,\n  \"hostShutdown\" : {\n    \"bundle\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\\/source\\/out\\/Cider.app\",\n    \"capturedPIDs\" : [\n\n    ],\n    \"confirmation\" : \"kernel birth\\/exit, not cached AppKit isTerminated\",\n    \"confirmed\" : true,\n    \"kernelIdentityReadable\" : true,\n    \"terminationRequested\" : true\n  },\n  \"mode\" : \"stop-runtime\",\n  \"pending\" : [\n\n  ],\n  \"scope\" : \"\\/Users\\/cervantes\\/Cider\\/out\\/waitall-mac-20261018-admission\"\n}",
+        "stderr": "",
+        "parsedReceipt": {
+          "captured": [],
+          "emptyObservations": 2,
+          "hostShutdown": {
+            "bundle": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/source/out/Cider.app",
+            "capturedPIDs": [],
+            "confirmation": "kernel birth/exit, not cached AppKit isTerminated",
+            "confirmed": true,
+            "kernelIdentityReadable": true,
+            "terminationRequested": true
+          },
+          "mode": "stop-runtime",
+          "pending": [],
+          "scope": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission"
+        },
+        "accepted": true,
+        "elapsedSeconds": 0.18856416599999903
+      }
+    ],
+    "ordinaryCandidateRestored": true,
+    "protectedUnchanged": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": true,
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": true,
+      "/Users/cervantes/Library/Application Support/Cider/Bottles/steam-hb-2574/cider-bottle.json": true,
+      "/Users/cervantes/Library/Application Support/Cider/Bottles/bottle-ca8f/cider-bottle.json": true
+    },
+    "modules": [
+      {
+        "module": "winemetal.dll",
+        "arch": "i386",
+        "sha256": "40eccc5433e4b260e5b510c842dc545cd1df4dbfeb82a7221e0fb9bb0f8f0241",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/i386-windows/winemetal.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/winemetal.dll"
+      },
+      {
+        "module": "dxgi.dll",
+        "arch": "i386",
+        "sha256": "e2b0b5b5dae5af1119db120ac1f688cfa075939e33e2076b715a12239b6ac517",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/i386-windows/dxgi.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/dxgi.dll"
+      },
+      {
+        "module": "d3d11.dll",
+        "arch": "i386",
+        "sha256": "f5eb9ffbfbfd02666045895da21e8ed28687db1ec933a6fe383e6ccd9affe4ca",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/i386-windows/d3d11.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/d3d11.dll"
+      },
+      {
+        "module": "d3d10core.dll",
+        "arch": "i386",
+        "sha256": "4eeefdf34133e749bb9e4fa64075c22135732f64fb88079e6de3c215d15a501c",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/i386-windows/d3d10core.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/d3d10core.dll"
+      },
+      {
+        "module": "winemetal.dll",
+        "arch": "x86_64",
+        "sha256": "69fdce5b95ab0b841be5d8be0f25a8c341da608092121b863d39e920d7580fed",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/x86_64-windows/winemetal.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/winemetal.dll"
+      },
+      {
+        "module": "dxgi.dll",
+        "arch": "x86_64",
+        "sha256": "f9a3e209f727f6185934c791946149be46bce4bce5f174f4e4283c23df206f9b",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/x86_64-windows/dxgi.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/dxgi.dll"
+      },
+      {
+        "module": "d3d11.dll",
+        "arch": "x86_64",
+        "sha256": "e3e2f401a3c2c310ed106b5f8aa926b3ae56a06464b5ac035f21ad782fbc1f92",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/x86_64-windows/d3d11.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/d3d11.dll"
+      },
+      {
+        "module": "d3d10core.dll",
+        "arch": "x86_64",
+        "sha256": "ae630930ad4835898b413592c84e39d9c1633a374541f78ad394428a2ced7ef6",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/x86_64-windows/d3d10core.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/d3d10core.dll"
+      },
+      {
+        "module": "mfplat.dll",
+        "arch": "i386",
+        "sha256": "191262cf431d50d5f621ce9b04a20a074d38ea6447492955e7bb200982d9859f",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/i386-windows/mfplat.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/mfplat.dll"
+      },
+      {
+        "module": "mfplat.dll",
+        "arch": "x86_64",
+        "sha256": "907e14cc1a9ea53b949fd59cf5af476b183ac24bd63e288e8ac4921cd650199d",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/x86_64-windows/mfplat.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/mfplat.dll"
+      },
+      {
+        "module": "mfreadwrite.dll",
+        "arch": "i386",
+        "sha256": "53afb66a7057b001ce86ac40cba2368fe4c84e9319b0870ac38fe08bd58e84f6",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/i386-windows/mfreadwrite.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/mfreadwrite.dll"
+      },
+      {
+        "module": "mfreadwrite.dll",
+        "arch": "x86_64",
+        "sha256": "58310f6a72b3c553d9cbaeb2e6295e110fdec5e554af516ad24eda302ee6eef6",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/x86_64-windows/mfreadwrite.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/mfreadwrite.dll"
+      },
+      {
+        "module": "rtworkq.dll",
+        "arch": "i386",
+        "sha256": "d9c5a8dba3c8f730efb1ec74da2d772cf77b7fe91c088c26a79d8a348b704aa5",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/i386-windows/rtworkq.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/rtworkq.dll"
+      },
+      {
+        "module": "rtworkq.dll",
+        "arch": "x86_64",
+        "sha256": "b0ff3f5a7c052efc9748774c5287778505a460a432ea82b473a35eb24d939396",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/x86_64-windows/rtworkq.dll",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/rtworkq.dll"
+      },
+      {
+        "module": "winemac.drv",
+        "arch": "i386",
+        "sha256": "738f28fbf856f459f9c452caab843843287da1382ab5bacce619bf41175bd211",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/i386-windows/winemac.drv",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/syswow64/winemac.drv"
+      },
+      {
+        "module": "winemac.drv",
+        "arch": "x86_64",
+        "sha256": "50a923528ab2fd8da7d9cd219344d5f0b35e2a58223e5ff3f74a8b4b3b2eb388",
+        "engineFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-host-status-reservations-r1-x86_64/engine/lib/wine/x86_64-windows/winemac.drv",
+        "prefixFile": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/windows/system32/winemac.drv"
+      }
+    ],
+    "nativeModules": [
+      {
+        "file": "lib/wine/x86_64-unix/win32u.so",
+        "sourceSHA256": "08af46cc74497412110d4058d2945f064f3874a38740c4ff7aa83f1625802b26",
+        "installedSHA256": "c2a2c48a939b308e46f5e8f63cf2c802563ebfcd9c0e0b1bbd75f77d359f67bf",
+        "sectionsUnchangedBySigning": true,
+        "diagnosticOnly": false
+      },
+      {
+        "file": "lib/wine/x86_64-unix/winemac.so",
+        "sourceSHA256": "3b5ac7dfaaad23e86680d56a412d4ebba8cff5a0a98fd012853e1d28e06e29cd",
+        "installedSHA256": "1943ae0c71a4743e2595ecb950000af5e163f7a6cb46ebc23cf5438628caef92",
+        "sectionsUnchangedBySigning": true,
+        "diagnosticOnly": false
+      }
+    ]
+  },
+  "publicArtifacts": {
+    "tests/graphics/host-status-reservations/README.md": "cb21e1e0221aa7fb7aa86184123d06fd241fb455730f13b4edb0e71ff7754c3f",
+    "tests/graphics/host-status-reservations/client.c": "f93dee6f131aeb5ab36f1c5a072f171374341d162347e04ced7c111e6f91420a"
+  },
+  "limits": [
+    "no actualcontext imported; context1 metadata only",
+    "A SAFE does not constitute B or whole-producer SAFE",
+    "blocked NT-failure concurrency acceptance not attempted/replaced",
+    "no unknown-INSTALL-reply/crossprocess/graphics/performance/game/default proof"
+  ],
+  "storageCompaction": {
+    "path": "out/storage-cleanup-20261025/host-status-reservations-batch-cleanup-v1.json",
+    "sha256": "366c62762a6441f8dc3b7211c0082089a2263293d1299bcd7039709260f5cc25",
+    "deletedTrees": 3,
+    "removedOwnedExecutableCopies": 2,
+    "beforeFreeBytes": 77436829696,
+    "afterFreeBytes": 77478625280,
+    "baseInventory": {
+      "file": "/Users/cervantes/Cider/out/storage-cleanup-20261025/host-status-reservations-retained-base-inventory.json",
+      "sha256": "cd36e8889e5e7b5b5cfbe2de2d9790b229e0e74dd55e86b7e24436be6c4da0ed"
+    },
+    "protectedFourUnchanged": true
+  }
+}

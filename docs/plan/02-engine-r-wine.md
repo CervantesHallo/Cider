@@ -1,5 +1,7 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+最新[114](../research/114-r-v1-reservation-isolation-20261101.md)：同producer两个真实RO预留页正常隔离验收，双PE各29/0。取消A不使B或整个producer完成，producer释放后收齐剩余页；普通组件复用且未重编。仍是当前阶段元数据契约，不宣称实际共享context、故障并发、跨进程或后续采用。
+
 最新[113](../research/113-r-v1-lifecycle-order-20261101.md)：当前per-host阶段的取消先行双PE各25/0，已安装根关闭各22/0，实际RO许可、模型状态及context释放顺序均核对。普通组件未改、未重编，不前移多进程；跨进程私有草稿parked且未构建运行。关键NT失败并发验收继续保留，当前门槛未通过不进入后续采用。
 
 最新[112](../research/112-r-v1-live-host-status-20261031.md)：真实导出CAContext、RO先映射再known-ticket INSTALL/取消，同进程双PE各25/0。安装后真实父图层/登记/选择各1，取消后实际ROSAFE及0/0/0，原context仍持有，再实际释放；producer页与本地NT清理完成。9依赖闭包114输入/2raw/组件/5清理/原恢复/保护4独立绑定，五文件诊断重建精确。不是像素/GPU/跨进程或全部renderer采用。111关键清理失败/取消并发门槛仍被工具审查拦截，继续保留；下一补该缺口，再做多进程资源、事件reparent、两三进程像素，默认/门禁不变。
