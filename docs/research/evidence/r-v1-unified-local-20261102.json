@@ -1,0 +1,105 @@
+{
+  "schema": "cider.engine-r-unified-local/v1",
+  "sourceAccepted": true,
+  "compiledAndLinked": true,
+  "localFunctionalLifecycleAccepted": true,
+  "windowImageAccepted": false,
+  "localForeignTransitionAccepted": false,
+  "allContextsCooperativelyFreedAccepted": false,
+  "resizeAccepted": false,
+  "cefAccepted": false,
+  "performanceAccepted": false,
+  "defaultAdopted": false,
+  "gameVerdictsChanged": false,
+  "experimentalTradeoff": {
+    "scope": "Experimental strategy to support local-initial to foreign HWND movement without replacing an existing swapchain or device",
+    "adoptedForExperiment": true,
+    "adoptedAsDefault": false,
+    "benefit": "Use the already-implemented exported CAContext/known-ticket/RO retirement owner from initial construction in opt-in processes; subsequent own/foreign root changes reuse the same layer/context.",
+    "cost": [
+      "Every opt-in local renderer also allocates CAContext/host/lease/status resources",
+      "Uses existing recovery timer and PE message/producer observation workers even before any foreign root",
+      "Additional local composition and synchronization overhead remains unmeasured"
+    ],
+    "evidence": [
+      "131 standard foreign consumer and affected original local backend",
+      "132 same foreign-initial context root migration and exact retirement",
+      "Unified source one constructor eligibility change compiled/linked only; no new local runtime or conversion acceptance yet"
+    ],
+    "acceptance": [
+      "Original local lifecycle in both bitness directions with flag enabled, real local-owner cleanup",
+      "Actual own-root to foreign-root and back with unchanged device/swapchain and distinct captured images",
+      "Update/resize/CEF and local performance before adoption"
+    ],
+    "rollback": "Disable WINEMAC_EXPERIMENTAL_REMOTE_RENDERER or restore the full prior matched engine. No mid-process mixed backend adoption or user-bottle switch.",
+    "performanceFirst": true
+  },
+  "independentCodeInputs": 26,
+  "comparisonInputs": 24,
+  "artifacts": {
+    "renderer-unified-proposal-v1.json": "1a659205bcafb9e1d0911d57a3d91c587722b6b2987a9e5b573a9dc40ca125fc",
+    "renderer-unified-source-review-v1.json": "2a7c7482a6fb08e31a3e049b24cdc1b099d87bc254208868db4b784be83ad780",
+    "renderer-unified-parent-experimental-admission-v1.json": "0859d6f72ab006a3b3a77c4a5ab24f6a7f58eea5c6cad3124900e0672f2d305e",
+    "renderer-unified-coupled-v1/build-v1.json": "556cb8d7f360e2569499c6b246b4e75d7191a915933b4bc312d63458798a3f95",
+    "staging-renderer-unified-v1.json": "e532aeef95324ec178f1bc7e02ea80e28d9b9da3352b7d150a88dbd8f94566a5",
+    "renderer-unified-local-lifecycle-v1.json": "161505edac73347f1a941f52308a773dfb96f11f482dd14b45ca8d7ca25c000f",
+    "renderer-unified-local-parent-binding-v1.json": "f645d50e4862792022b534c211462d69dd2644fed27a8bb278795c588677f439",
+    "renderer-unified-public-reconstruction-v1.json": "15a209de2b280c0a2c8decb6ccd9bee183c9fb84b08fdc4e6cec6088a7128ca3",
+    "run-renderer-unified-local-v1.py": "8d4315071dc2cb0b1279160abdcf71548af7e16de376b091eddff8844869efb8"
+  },
+  "directions": [
+    {
+      "arch": "x86_64",
+      "fixture": {
+        "type": "window-lifecycle",
+        "bits": 64,
+        "checks": 1415,
+        "failures": 0,
+        "windows": 4,
+        "swapchains": 56,
+        "presents": 168
+      },
+      "exeSHA256": "519985314275cb2862f697f764247d380af4bef2e09e9ec5a1a8659caf79d75c",
+      "logSHA256": "257021027d6b79d2e693d54fecfd98ba7ca748b41838e585f582b8ecdd824fcf",
+      "sessionSHA256": "806da89f6d5ca4c8209a1b8f21759b9a659e171f9a4894ba711f624d2256a2ee",
+      "legacyTraceCounts": {
+        "legacy snapshot hwnd": 56,
+        "trace:macdrv:macdrv_client_surface_detach ": 56,
+        "trace:macdrv:macdrv_client_surface_destroy ": 56
+      },
+      "exportedContextsObserved": 56,
+      "localFreedObserved": 55,
+      "allContextsCooperativelyFreedAccepted": false
+    },
+    {
+      "arch": "i686",
+      "fixture": {
+        "type": "window-lifecycle",
+        "bits": 32,
+        "checks": 1415,
+        "failures": 0,
+        "windows": 4,
+        "swapchains": 56,
+        "presents": 168
+      },
+      "exeSHA256": "cf5288e0af560e16dd902af2548b54905bc87368fa2c40571bb080e6e2f54bc3",
+      "logSHA256": "cb435911e9e97278d7895403aa529b5612404a5ccd838c40c5b4ee924d7495de",
+      "sessionSHA256": "183ef8d551b582c60018b22d5706c632a352d7a58f58222fcda1d564923f31d8",
+      "legacyTraceCounts": {
+        "legacy snapshot hwnd": 56,
+        "trace:macdrv:macdrv_client_surface_detach ": 56,
+        "trace:macdrv:macdrv_client_surface_destroy ": 56
+      },
+      "exportedContextsObserved": 56,
+      "localFreedObserved": 55,
+      "allContextsCooperativelyFreedAccepted": false
+    }
+  ],
+  "cleanupReceipts": 5,
+  "ordinaryCandidateRestored": true,
+  "protectedFourUnchanged": true,
+  "publicSHA256": {
+    "engine/porting/wine-11.18/0029-winemac-unify-opt-in-exported-renderer-ownership.patch": "582a967486ad57ee770a0b6b0a9ff17da04aa371f49fbf89a5a523b0a9ee8f88"
+  },
+  "proposalSnapshotTiming": "Recorded before local trial; historical proposal evidence is not current runtime status"
+}

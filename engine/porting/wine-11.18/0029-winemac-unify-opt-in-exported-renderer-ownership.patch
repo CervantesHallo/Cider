@@ -1,0 +1,40 @@
+Wine 11.18 experimental initial exported ownership for local renderers.
+
+When WINEMAC_EXPERIMENTAL_REMOTE_RENDERER=1, prepare the existing remote
+resource owner for every legacy snapshot, including initially local windows.
+This avoids replacing a device/swapchain/layer midway through a future move
+between local and foreign roots. The default local backend is unchanged.
+
+Tradeoff: local opt-in callers now also pay CAContext/host/lease/status and
+recovery/worker costs. Source and original local functional lifecycle are
+qualified only; owner-transition images, full retirement and performance
+remain pending. Disable the feature or restore the matched prior engine to
+roll back. Do not infer default adoption or game compatibility.
+
+--- a/dlls/winemac.drv/legacy_surface.c
++++ b/dlls/winemac.drv/legacy_surface.c
+@@ -160,14 +160,7 @@
+     const char *value = getenv("WINEMAC_EXPERIMENTAL_REMOTE_RENDERER");
+     return value && !strcmp(value, "1");
+ }
+-static BOOL remote_window(HWND hwnd)
+-{
+-    DWORD pid = 0, root_pid = 0;
+-    HWND root = NtUserGetAncestor(hwnd, GA_ROOT);
+-    if (!NtUserGetWindowThread(hwnd, &pid) || !NtUserGetWindowThread(root, &root_pid)) return FALSE;
+-    return pid != GetCurrentProcessId() || root_pid != GetCurrentProcessId();
+-}
+-/* Before a foreign snapshot is returned, reserve native owners and establish
++/* Before an opted-in snapshot is returned, reserve native owners and establish
+  * its Wine recovery timer. An ARM failure has acquired no remote resources
+  * and is cleaned synchronously by this still-Wine-thread snapshot call. */
+ static BOOL prepare_remote_owner(struct legacy_surface *entry)
+@@ -354,7 +347,7 @@
+         }
+         snapshot->on_screen = !!(NtUserGetWindowLongW(hwnd, GWL_STYLE) & WS_VISIBLE);
+     }
+-    if (remote_renderer_enabled() && remote_window(hwnd) && !prepare_remote_owner(entry))
++    if (remote_renderer_enabled() && !prepare_remote_owner(entry))
+     {
+         /* Still Wine-thread construction, before exposing the snapshot. Keep
+          * an extra surface ref while normal release returns it to the cache. */
