@@ -1,0 +1,22 @@
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -774,8 +774,7 @@
+                 generation_fixture_after_attach(self,model);
+                 [host setSourceFrame:frame clip:clip];
+                 if (valid_z) host.zPosition = z;
+-                if ((!commit || commit(context)) && selection->generation == generation &&
+-                    selection->serial == model->selection_serial)
++                if (!commit || commit(context)) /* wrong: no post-reentry generation/serial guard */
+                 {
+                     BOOL predecessor_ready = YES;
+                     previous = selection->current;
+@@ -791,8 +790,7 @@
+                      * requested for retirement. Reject this install instead
+                      * of acknowledging a replacement that orphans it. Removal
+                      * can reenter, so revalidate again before C publication. */
+-                    if (predecessor_ready && (!commit || commit(context)) &&
+-                        selection->generation == generation && selection->serial == model->selection_serial)
++                    if (predecessor_ready && (!commit || commit(context))) /* wrong publication */
+                     {
+                         selection->current = model; /* no send/allocation here */
+                         [(WineWindow*)self.window windowDidDrawContent];

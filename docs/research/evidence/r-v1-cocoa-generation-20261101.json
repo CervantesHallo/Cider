@@ -1,0 +1,1041 @@
+{
+  "schema": "cider.r-v1.cocoa-generation-evidence/v1",
+  "date": "2026-11-01",
+  "scope": "two caller-assigned unmanaged Cocoa generation labels, actual nested import; not Native tickets",
+  "passed": true,
+  "reviews": [
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-generation-review-v1.json",
+      "sha256": "7c7e261bc7b760c9a665df44cda814a1cdc807d0e2111423c1732d14bfdb8857",
+      "source_admission": true,
+      "findings": [],
+      "limits": [
+        "No builds, compiler invocations, tests, Wine/app/runtime execution, Windows/network/credential access or delegation were performed.",
+        "All references to actual state above describe required source calls/readbacks/assertions, not observed runtime results. No positive qualification or before-fix/counterexample run is claimed.",
+        "The admitted target uses the corrected current25-check client, not the earlier preparation metadata. Parent build progress and the initial preparation command error were not independently executed or verified.",
+        "This is a Cocoa unmanaged generation/serial ordering fixture, not the Native ticket/request pipeline, managed prefix completion, cross-process behavior, pixels/GPU/compositor output, performance, games or default adoption.",
+        "Controller, dependencies, compiler/export/include assembly, binaries/raw sessions and final process/timer cleanup are outside this review. Whole files are hashed to bind inspected excerpts, not as exhaustive unrelated baseline review.",
+        "The intentionally wrong publication delta is only independently eligible for diagnostic-counterexample review; it is not part of primary admission or product adoption.",
+        "Only the requested primary review JSON is written by this primary step; no source, prior report or project memory is edited."
+      ]
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-generation-wrong-review-v1.json",
+      "sha256": "a3a3f57e28122f1c4cf29dd44523631351e1cc9986f927cb2525ea3ce45d211a",
+      "source_admission": true,
+      "findings": [],
+      "limits": [
+        "No builds, compiler invocations, tests, Wine/app/runtime execution, Windows/network/credential access or delegation were performed. Only source comparison, reasoning and requested report writes were performed.",
+        "Expected wrong state, first failing check, summary and cleanup are source predictions, not observed results. No before-fix/control sensitivity, runtime qualification or successful cleanup is claimed.",
+        "source_admission is diagnostic_counterexample_only; product_admission is false. The ordinary primary source algorithms remain the qualified baseline; this intentional wrong publication logic is unsuitable for product adoption.",
+        "Only the isolated two-predicate Cocoa delta and inherited fixture cleanup were assessed. No claim is made for every reentry, managed Native ticket path, cross-process behavior, pixels/rendering, performance or games.",
+        "Compiler/export/include/component assembly, controller code, executables, raw/session/binding/restoration evidence and final process/timer cleanup are outside this review.",
+        "The same current25-check fixture/PE/client is required. Any build-specific include, component, source or oracle changes need separate binding/review.",
+        "This additional step writes only host-generation-wrong-review-v1.json; it preserves the primary report and all source/patch inputs."
+      ]
+    }
+  ],
+  "variants": [
+    {
+      "kind": "fixed",
+      "runtime": {
+        "path": "out/engine-dxmt-bridge-20261025/host-generation-runtime-v1.json",
+        "sha256": "e816bc76431bce79662578aa4646e2c300919916fab0c04093eb90940d63c8f4"
+      },
+      "binding": {
+        "path": "out/engine-dxmt-bridge-20261025/host-generation-independent-binding-v1.json",
+        "sha256": "974be043a426a9a9c1a805fd5acc8ba4f01572d02874d6c174f7235b3a3bfe58"
+      },
+      "admission": {
+        "path": "out/engine-dxmt-bridge-20261025/host-generation-runtime-parent-admission-v1.json",
+        "sha256": "0e013ae36d80da4d5cea38045a0eca4805fdcbcedd741c25027a345f64786f0a",
+        "dependencies": 9,
+        "projectInputs": 124,
+        "artifacts": [
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/winemac.so",
+            "sha256": "1cd19140b7ab075280e60c814091cd38e633dd7ac52bab7c04d8ece0467fdffd"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-build-v5/win32u.so",
+            "sha256": "08af46cc74497412110d4058d2945f064f3874a38740c4ff7aa83f1625802b26"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/i386/winemac.drv",
+            "sha256": "bf1b987f4aa2a7eacca0d9f96abe7093609935e3f0d26b241463e9bdc47636ca"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/x86_64/winemac.drv",
+            "sha256": "18ef2a93f76e932497259af5d58b12a44575a2a76e4ae214b936ef114068e793"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/i386-host-generation.exe",
+            "sha256": "6370efb96290d05b474d0690d78479829a2e4f88a2961d3e21cb2d22278cf516"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/x86_64-host-generation.exe",
+            "sha256": "e48c3bd52b249156f649bdd3290b0418e8ba477db5aeac7458f2bf58c97f1067"
+          }
+        ]
+      },
+      "build": {
+        "path": "out/engine-dxmt-bridge-20261025/host-generation-build-v1/build-v1.json",
+        "sha256": "1788f9e1975b23b5a57347d5d85179eac47684faba7de7b3b8298cf849c843d5"
+      },
+      "rows": [
+        {
+          "arch": "x86_64",
+          "summary": {
+            "type": "host-generation",
+            "event": "summary",
+            "bits": 64,
+            "checks": 25,
+            "expected_checks": 25,
+            "failures": 0,
+            "epoch": 1,
+            "lease": 17,
+            "ticket": 0,
+            "cleanup": true,
+            "io_error": false
+          },
+          "cliExit": 0,
+          "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T053438-host-generation-cross-x86_64-v1-B489CEEB-6A00-4D74-8883-52930704D5C9/wine.log",
+          "rawSHA256": "60cd39e080f9efdcdfa161938ee811c69ea18e62e98ce4b9c8ca81a8bb5371c7",
+          "sessionSHA256": "99e11db0288eca4bb57071aa44983218857623529895b8e4fba6f6f9a3540153",
+          "exeSHA256": "e48c3bd52b249156f649bdd3290b0418e8ba477db5aeac7458f2bf58c97f1067",
+          "witness": {
+            "op": 1,
+            "status": 0,
+            "context": 2444681978,
+            "flags": 1,
+            "epoch": 1,
+            "lease": 17,
+            "old": 8589934592,
+            "new": 8589934593,
+            "outercalled": 1,
+            "outerresult": 0,
+            "innercalled": 1,
+            "innerresult": 1,
+            "seen": 1,
+            "mainthread": 1,
+            "error": 0,
+            "beforeA": 1,
+            "beforeL": 1,
+            "beforeI": 0,
+            "afterA": 1,
+            "afterL": 1,
+            "afterI": 0,
+            "afterB": 1,
+            "afterBL": 1,
+            "afterBI": 1,
+            "finalA": 0,
+            "finalAL": 0,
+            "finalAI": 0,
+            "finalB": 1,
+            "finalBL": 1,
+            "finalBI": 1,
+            "cocoavalid": 1,
+            "contextowned": 1,
+            "windowowned": 1,
+            "readerowned": 1,
+            "producerread": 0,
+            "producervalid": 1,
+            "mask": 3,
+            "busy": 0,
+            "done": 0,
+            "absent": 0,
+            "callbacksA": 0,
+            "callbacksB": 0,
+            "cleanupdone": 0,
+            "closestatus": 0,
+            "managedA": 4294967295,
+            "managedB": 0
+          },
+          "final": {
+            "op": 3,
+            "status": 0,
+            "context": 2444681978,
+            "flags": 113,
+            "epoch": 1,
+            "lease": 17,
+            "old": 8589934592,
+            "new": 8589934593,
+            "outercalled": 1,
+            "outerresult": 0,
+            "innercalled": 0,
+            "innerresult": 0,
+            "seen": 0,
+            "mainthread": 0,
+            "error": 0,
+            "beforeA": 0,
+            "beforeL": 0,
+            "beforeI": 0,
+            "afterA": 0,
+            "afterL": 0,
+            "afterI": 0,
+            "afterB": 0,
+            "afterBL": 0,
+            "afterBI": 0,
+            "finalA": 4294967295,
+            "finalAL": 4294967295,
+            "finalAI": 4294967295,
+            "finalB": 4294967295,
+            "finalBL": 4294967295,
+            "finalBI": 4294967295,
+            "cocoavalid": 0,
+            "contextowned": 0,
+            "windowowned": 0,
+            "readerowned": 0,
+            "producerread": 2,
+            "producervalid": 0,
+            "mask": 3,
+            "busy": 0,
+            "done": 3,
+            "absent": 1,
+            "callbacksA": 1,
+            "callbacksB": 1,
+            "cleanupdone": 1,
+            "closestatus": 0,
+            "managedA": 0,
+            "managedB": 0
+          }
+        },
+        {
+          "arch": "i386",
+          "summary": {
+            "type": "host-generation",
+            "event": "summary",
+            "bits": 32,
+            "checks": 25,
+            "expected_checks": 25,
+            "failures": 0,
+            "epoch": 1,
+            "lease": 17,
+            "ticket": 0,
+            "cleanup": true,
+            "io_error": false
+          },
+          "cliExit": 0,
+          "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T053458-host-generation-cross-i386-v1-2BDE7997-A11E-4F2E-945B-1F7FAB46B4F4/wine.log",
+          "rawSHA256": "996c0c1c69a53e03444779cb951ccc87442a73f8ed308c0f6b5f700f29076275",
+          "sessionSHA256": "49aa91d2ccf78a350891f7c927a323a4ba3372b42c434d2104acc0f49f55a082",
+          "exeSHA256": "6370efb96290d05b474d0690d78479829a2e4f88a2961d3e21cb2d22278cf516",
+          "witness": {
+            "op": 1,
+            "status": 0,
+            "context": 927722253,
+            "flags": 1,
+            "epoch": 1,
+            "lease": 17,
+            "old": 8589934592,
+            "new": 8589934593,
+            "outercalled": 1,
+            "outerresult": 0,
+            "innercalled": 1,
+            "innerresult": 1,
+            "seen": 1,
+            "mainthread": 1,
+            "error": 0,
+            "beforeA": 1,
+            "beforeL": 1,
+            "beforeI": 0,
+            "afterA": 1,
+            "afterL": 1,
+            "afterI": 0,
+            "afterB": 1,
+            "afterBL": 1,
+            "afterBI": 1,
+            "finalA": 0,
+            "finalAL": 0,
+            "finalAI": 0,
+            "finalB": 1,
+            "finalBL": 1,
+            "finalBI": 1,
+            "cocoavalid": 1,
+            "contextowned": 1,
+            "windowowned": 1,
+            "readerowned": 1,
+            "producerread": 0,
+            "producervalid": 1,
+            "mask": 3,
+            "busy": 0,
+            "done": 0,
+            "absent": 0,
+            "callbacksA": 0,
+            "callbacksB": 0,
+            "cleanupdone": 0,
+            "closestatus": 0,
+            "managedA": 4294967295,
+            "managedB": 0
+          },
+          "final": {
+            "op": 3,
+            "status": 0,
+            "context": 927722253,
+            "flags": 113,
+            "epoch": 1,
+            "lease": 17,
+            "old": 8589934592,
+            "new": 8589934593,
+            "outercalled": 1,
+            "outerresult": 0,
+            "innercalled": 0,
+            "innerresult": 0,
+            "seen": 0,
+            "mainthread": 0,
+            "error": 0,
+            "beforeA": 0,
+            "beforeL": 0,
+            "beforeI": 0,
+            "afterA": 0,
+            "afterL": 0,
+            "afterI": 0,
+            "afterB": 0,
+            "afterBL": 0,
+            "afterBI": 0,
+            "finalA": 4294967295,
+            "finalAL": 4294967295,
+            "finalAI": 4294967295,
+            "finalB": 4294967295,
+            "finalBL": 4294967295,
+            "finalBI": 4294967295,
+            "cocoavalid": 0,
+            "contextowned": 0,
+            "windowowned": 0,
+            "readerowned": 0,
+            "producerread": 2,
+            "producervalid": 0,
+            "mask": 3,
+            "busy": 0,
+            "done": 3,
+            "absent": 1,
+            "callbacksA": 1,
+            "callbacksB": 1,
+            "cleanupdone": 1,
+            "closestatus": 0,
+            "managedA": 0,
+            "managedB": 0
+          }
+        }
+      ],
+      "checkSummary": [
+        {
+          "label": "source/build admission",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "exact effective includes/source closure",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "six exact metadata artifacts",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "completed controller attached-cancel",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "controller byte identity",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "actual admission identity",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "all five cleanup attempts retained attached-cancel",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "actual kernel/GUI cleanup receipt",
+          "passed": true,
+          "occurrences": 5
+        },
+        {
+          "label": "private ABI group",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "actual F27 core bytes",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "16 actual installed PE modules",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "two actual installed native modules",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "two exact PE executions",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "independent raw/session bytes",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual engine and no-argument fixture",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual client source/prefix identity",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "no unexpected native/model exception",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "independent full event parsing",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "single summary and check sequence",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual25checks/allpassed",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual width/CLI/internal cleanup",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "raw256 generation frame",
+          "passed": true,
+          "occurrences": 8
+        },
+        {
+          "label": "matching generation ABI",
+          "passed": true,
+          "occurrences": 8
+        },
+        {
+          "label": "one actual outer/nested import attempt",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual nested newer generation remains selected after older resume/rollback",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "high caller labels, separate prospective unmanaged owners",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "no Native managed host/ticket import",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "real ProducerSAFE does not complete unmanaged newer context use",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "two actual checked retirements, independent absence and disarm precede actual local release",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual root/lease/context, caller generations are not Native tickets",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "independent original bottle config restored",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "independent original DLL bytes/absence",
+          "passed": true,
+          "occurrences": 16
+        },
+        {
+          "label": "protected four actual bytes",
+          "passed": true,
+          "occurrences": 1
+        }
+      ],
+      "cleanupReceipts": 5,
+      "restored": true,
+      "protectedUnchanged": {
+        "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": true,
+        "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": true,
+        "/Users/cervantes/Library/Application Support/Cider/Bottles/steam-hb-2574/cider-bottle.json": true,
+        "/Users/cervantes/Library/Application Support/Cider/Bottles/bottle-ca8f/cider-bottle.json": true
+      }
+    },
+    {
+      "kind": "expected-rejection",
+      "runtime": {
+        "path": "out/engine-dxmt-bridge-20261025/host-generation-wrong-runtime-v1.json",
+        "sha256": "54eabba1130711c1cff0e96d3202e2376c523a7be3307fb528d14830a5254dbd"
+      },
+      "binding": {
+        "path": "out/engine-dxmt-bridge-20261025/host-generation-wrong-independent-binding-v1.json",
+        "sha256": "9a01b41e26fd430a0876177f0b3709f71d9cb92995b59861f688da7dab24a98e"
+      },
+      "admission": {
+        "path": "out/engine-dxmt-bridge-20261025/host-generation-wrong-runtime-parent-admission-v1.json",
+        "sha256": "a7bd47c09d3201cfe20b9dfc6eeb395bd27ec440a2d0f08f0d965c83aa282941",
+        "dependencies": 10,
+        "projectInputs": 136,
+        "artifacts": [
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/winemac.so",
+            "sha256": "1cd19140b7ab075280e60c814091cd38e633dd7ac52bab7c04d8ece0467fdffd"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-build-v5/win32u.so",
+            "sha256": "08af46cc74497412110d4058d2945f064f3874a38740c4ff7aa83f1625802b26"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/i386/winemac.drv",
+            "sha256": "bf1b987f4aa2a7eacca0d9f96abe7093609935e3f0d26b241463e9bdc47636ca"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/x86_64/winemac.drv",
+            "sha256": "18ef2a93f76e932497259af5d58b12a44575a2a76e4ae214b936ef114068e793"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/i386-host-generation.exe",
+            "sha256": "6370efb96290d05b474d0690d78479829a2e4f88a2961d3e21cb2d22278cf516"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/x86_64-host-generation.exe",
+            "sha256": "e48c3bd52b249156f649bdd3290b0418e8ba477db5aeac7458f2bf58c97f1067"
+          },
+          {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-wrong-build-v1/winemac.so",
+            "sha256": "d2cc76e68b6144d94714b124a570f48415b71a0d210e5837b46a3a98ea9bfd21"
+          }
+        ]
+      },
+      "build": {
+        "path": "out/engine-dxmt-bridge-20261025/host-generation-wrong-build-v1/build-v1.json",
+        "sha256": "d94a2b36906e5c406017d5552f08212d1ea29a18f92136499d822d11302dfb30"
+      },
+      "rows": [
+        {
+          "arch": "x86_64",
+          "summary": {
+            "type": "host-generation",
+            "event": "summary",
+            "bits": 64,
+            "checks": 12,
+            "expected_checks": 25,
+            "failures": 1,
+            "epoch": 1,
+            "lease": 17,
+            "ticket": 0,
+            "cleanup": true,
+            "io_error": false
+          },
+          "cliExit": 1,
+          "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T053553-host-generation-wrong-cross-x86_64-v1-84ABE449-4073-48D7-A749-1D92123597C0/wine.log",
+          "rawSHA256": "fd6c8a22fc8e4545f1b912c03faf344995a6cb5ade5db00437b9aff09526164e",
+          "sessionSHA256": "44a618228a945e32f9d344d2adc0044b2e74992beee92bdb6f52a05869e17388",
+          "exeSHA256": "e48c3bd52b249156f649bdd3290b0418e8ba477db5aeac7458f2bf58c97f1067",
+          "witness": {
+            "op": 1,
+            "status": 0,
+            "context": 1976631657,
+            "flags": 1,
+            "epoch": 1,
+            "lease": 17,
+            "old": 8589934592,
+            "new": 8589934593,
+            "outercalled": 1,
+            "outerresult": 1,
+            "innercalled": 1,
+            "innerresult": 1,
+            "seen": 1,
+            "mainthread": 1,
+            "error": 0,
+            "beforeA": 1,
+            "beforeL": 1,
+            "beforeI": 0,
+            "afterA": 1,
+            "afterL": 1,
+            "afterI": 0,
+            "afterB": 1,
+            "afterBL": 1,
+            "afterBI": 1,
+            "finalA": 1,
+            "finalAL": 1,
+            "finalAI": 1,
+            "finalB": 0,
+            "finalBL": 0,
+            "finalBI": 0,
+            "cocoavalid": 1,
+            "contextowned": 1,
+            "windowowned": 1,
+            "readerowned": 1,
+            "producerread": 0,
+            "producervalid": 1,
+            "mask": 3,
+            "busy": 0,
+            "done": 0,
+            "absent": 0,
+            "callbacksA": 0,
+            "callbacksB": 0,
+            "cleanupdone": 0,
+            "closestatus": 0,
+            "managedA": 0,
+            "managedB": 4294967295
+          },
+          "final": {
+            "op": 3,
+            "status": 0,
+            "context": 1976631657,
+            "flags": 113,
+            "epoch": 1,
+            "lease": 17,
+            "old": 8589934592,
+            "new": 8589934593,
+            "outercalled": 1,
+            "outerresult": 1,
+            "innercalled": 0,
+            "innerresult": 0,
+            "seen": 0,
+            "mainthread": 0,
+            "error": 0,
+            "beforeA": 0,
+            "beforeL": 0,
+            "beforeI": 0,
+            "afterA": 0,
+            "afterL": 0,
+            "afterI": 0,
+            "afterB": 0,
+            "afterBL": 0,
+            "afterBI": 0,
+            "finalA": 4294967295,
+            "finalAL": 4294967295,
+            "finalAI": 4294967295,
+            "finalB": 4294967295,
+            "finalBL": 4294967295,
+            "finalBI": 4294967295,
+            "cocoavalid": 0,
+            "contextowned": 0,
+            "windowowned": 0,
+            "readerowned": 0,
+            "producerread": 2,
+            "producervalid": 0,
+            "mask": 3,
+            "busy": 0,
+            "done": 3,
+            "absent": 1,
+            "callbacksA": 1,
+            "callbacksB": 1,
+            "cleanupdone": 1,
+            "closestatus": 0,
+            "managedA": 0,
+            "managedB": 0
+          }
+        },
+        {
+          "arch": "i386",
+          "summary": {
+            "type": "host-generation",
+            "event": "summary",
+            "bits": 32,
+            "checks": 12,
+            "expected_checks": 25,
+            "failures": 1,
+            "epoch": 1,
+            "lease": 17,
+            "ticket": 0,
+            "cleanup": true,
+            "io_error": false
+          },
+          "cliExit": 1,
+          "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T053611-host-generation-wrong-cross-i386-v1-2A7635E9-C1DF-4F3D-A30E-F08E65041AB8/wine.log",
+          "rawSHA256": "bf6cbee878a7d36580e2cb51dfce9119fe986224a3eaf578cded32ac083be8df",
+          "sessionSHA256": "b0e55dca881cf28c37506759268d146a246d5050f2952d4de681d61cac7b1555",
+          "exeSHA256": "6370efb96290d05b474d0690d78479829a2e4f88a2961d3e21cb2d22278cf516",
+          "witness": {
+            "op": 1,
+            "status": 0,
+            "context": 2960135871,
+            "flags": 1,
+            "epoch": 1,
+            "lease": 17,
+            "old": 8589934592,
+            "new": 8589934593,
+            "outercalled": 1,
+            "outerresult": 1,
+            "innercalled": 1,
+            "innerresult": 1,
+            "seen": 1,
+            "mainthread": 1,
+            "error": 0,
+            "beforeA": 1,
+            "beforeL": 1,
+            "beforeI": 0,
+            "afterA": 1,
+            "afterL": 1,
+            "afterI": 0,
+            "afterB": 1,
+            "afterBL": 1,
+            "afterBI": 1,
+            "finalA": 1,
+            "finalAL": 1,
+            "finalAI": 1,
+            "finalB": 0,
+            "finalBL": 0,
+            "finalBI": 0,
+            "cocoavalid": 1,
+            "contextowned": 1,
+            "windowowned": 1,
+            "readerowned": 1,
+            "producerread": 0,
+            "producervalid": 1,
+            "mask": 3,
+            "busy": 0,
+            "done": 0,
+            "absent": 0,
+            "callbacksA": 0,
+            "callbacksB": 0,
+            "cleanupdone": 0,
+            "closestatus": 0,
+            "managedA": 0,
+            "managedB": 4294967295
+          },
+          "final": {
+            "op": 3,
+            "status": 0,
+            "context": 2960135871,
+            "flags": 113,
+            "epoch": 1,
+            "lease": 17,
+            "old": 8589934592,
+            "new": 8589934593,
+            "outercalled": 1,
+            "outerresult": 1,
+            "innercalled": 0,
+            "innerresult": 0,
+            "seen": 0,
+            "mainthread": 0,
+            "error": 0,
+            "beforeA": 0,
+            "beforeL": 0,
+            "beforeI": 0,
+            "afterA": 0,
+            "afterL": 0,
+            "afterI": 0,
+            "afterB": 0,
+            "afterBL": 0,
+            "afterBI": 0,
+            "finalA": 4294967295,
+            "finalAL": 4294967295,
+            "finalAI": 4294967295,
+            "finalB": 4294967295,
+            "finalBL": 4294967295,
+            "finalBI": 4294967295,
+            "cocoavalid": 0,
+            "contextowned": 0,
+            "windowowned": 0,
+            "readerowned": 0,
+            "producerread": 2,
+            "producervalid": 0,
+            "mask": 3,
+            "busy": 0,
+            "done": 3,
+            "absent": 1,
+            "callbacksA": 1,
+            "callbacksB": 1,
+            "cleanupdone": 1,
+            "closestatus": 0,
+            "managedA": 0,
+            "managedB": 0
+          }
+        }
+      ],
+      "checkSummary": [
+        {
+          "label": "source/build admission",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "exact effective includes/source closure",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "six exact metadata artifacts",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "completed controller attached-cancel",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "controller byte identity",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "actual admission identity",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "all five cleanup attempts retained attached-cancel",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "actual kernel/GUI cleanup receipt",
+          "passed": true,
+          "occurrences": 5
+        },
+        {
+          "label": "private ABI group",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "actual F27 core bytes",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "16 actual installed PE modules",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "two actual installed native modules",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "two exact PE executions",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "independent raw/session bytes",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual engine and no-argument fixture",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual client source/prefix identity",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "no unexpected native/model exception",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "independent full event parsing",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "single summary and check sequence",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual25checks/allpassed",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual width/CLI/internal cleanup",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "raw256 generation frame",
+          "passed": true,
+          "occurrences": 6
+        },
+        {
+          "label": "matching generation ABI",
+          "passed": true,
+          "occurrences": 6
+        },
+        {
+          "label": "one actual outer/nested import attempt",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "exact wrong branch really publishes older model and removes newer one",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "same caller labels and owners as fixed",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "no managed ticket claim",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "two actual checked retirements, independent absence and disarm precede actual local release",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "actual root/lease/context, caller generations are not Native tickets",
+          "passed": true,
+          "occurrences": 2
+        },
+        {
+          "label": "independent original bottle config restored",
+          "passed": true,
+          "occurrences": 1
+        },
+        {
+          "label": "independent original DLL bytes/absence",
+          "passed": true,
+          "occurrences": 16
+        },
+        {
+          "label": "protected four actual bytes",
+          "passed": true,
+          "occurrences": 1
+        }
+      ],
+      "cleanupReceipts": 5,
+      "restored": true,
+      "protectedUnchanged": {
+        "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": true,
+        "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": true,
+        "/Users/cervantes/Library/Application Support/Cider/Bottles/steam-hb-2574/cider-bottle.json": true,
+        "/Users/cervantes/Library/Application Support/Cider/Bottles/bottle-ca8f/cider-bottle.json": true
+      }
+    }
+  ],
+  "cleanupReceipts": 10,
+  "reconstruction": [
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-generation-public-reconstruction-v1.json",
+      "sha256": "81e5b602d2f64e6086c671ba1da7002fc0cd9d503a08f37b32d75b4846956e8c",
+      "report": {
+        "passed": true,
+        "stdout": "patching file 'dlls/winemac.drv/remote_coordinator.c'\npatching file 'dlls/winemac.drv/cocoa_window.m'\npatching file 'dlls/winemac.drv/remote_watch_pe.c'\npatching file 'dlls/winemac.drv/macdrv_main.c'\npatching file 'dlls/winemac.drv/unixlib.h'\n",
+        "stderr": "",
+        "files": {
+          "dlls/winemac.drv/remote_coordinator.c": "6c63c8c64bd97e0376b5ad2f47fff177853ef3e824a750a98e341b11eeb4f608",
+          "dlls/winemac.drv/cocoa_window.m": "6e2dced7bd0675cd4c11927d136d0d4a7cf5cb5e082cfdd5907490432b68d556",
+          "dlls/winemac.drv/remote_watch_pe.c": "dd530b27651e1e8f45f7ad5716f2255e0fc8009d066cd81f20e28a87f300d555",
+          "dlls/winemac.drv/macdrv_main.c": "3ae8cb94845ec8935f07cd18f9d1d204242ade576c76bf19ce473b5e03bca039",
+          "dlls/winemac.drv/unixlib.h": "8411e3d318a9df96d1cde6a268b189ad7276403af9b823d57e8ca6d52c73cb39"
+        },
+        "reusedPublicSHA256": {
+          "tests/graphics/host-status-live/fixture.h": "adb9ebde66400a8b9873a35c8abd1d3fdd8df254b0f1ff96f1c5e5133be1cd75",
+          "tests/graphics/host-status-live/native.inc": "fa8032a9466a28586b00fd2f1c13f03af9b044fa2ab5a62e846c390741abdd87",
+          "tests/graphics/host-status-live/pe.inc": "d746dfc8a2c9e768fb2e65b4328b5fa8fd16a5483af0804271bd43178d1c1bbc",
+          "tests/graphics/host-status-live/cocoa.inc": "5fc195976a1bfb969e398ca5b6b2325225c2b3305544f67ae8e335dbc0441b81",
+          "tests/graphics/host-status-live/probe.h": "6c251cdfc9e4ba34a73231ca34c9497e40e0575248322c7f3fb54eacbf281b02"
+        },
+        "publicSHA256": {
+          "tests/graphics/host-generation/generation.h": "886e4365d7845d347198417eeb8b6971a452026d7ddeb3797cc92a056776bb0a",
+          "tests/graphics/host-generation/generation-cocoa.inc": "d3743db3a73ff8e8d6853fd1799de83a911dee4706b86d2c43295e9d0eda8f0b",
+          "tests/graphics/host-generation/diagnostic.patch": "ab7ab75bd9d8544a0e748579e8c122b3978d2ee13870bea0b6be581fc0b93d8d",
+          "tests/graphics/host-generation/generation-native.inc": "9f373b7b1f117857eb437e3423580da005c91bf83af998b60221b755b96f84ee",
+          "tests/graphics/host-generation/client.c": "490509232e3a07691f9a3b4be8de8c233e383b9954ae6bbfc45b4598c955f954",
+          "tests/graphics/host-generation/winemac-fixture.spec": "ca70d45693fa4838118a5e6b84bed1224c2b17452787b29244656a28fa71819c",
+          "tests/graphics/host-generation/generation-pe.inc": "7d2b6e002c0482bd0e92b9a54d956a6b654f9d7f684e9bc0902cc25331dabd84"
+        }
+      }
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-generation-wrong-reconstruction-v1.json",
+      "sha256": "7be308258dd52b6dae0de26ba96ff3f22567c0fa04bf285582a337eee858a38c",
+      "report": {
+        "passed": true,
+        "stdout": "patching file 'dlls/winemac.drv/cocoa_window.m'\n",
+        "stderr": "",
+        "patchSHA256": "f7baf9b30a8db1fc73da40ce5042dd09471e7a5078eda619e66cf8c19962eeec",
+        "cocoaSHA256": "7ec613ceebfade1d94c17f4c2768994450987efea23bbcb28f1764f67da7871b"
+      }
+    }
+  ],
+  "compaction": {
+    "path": "out/storage-cleanup-20261025/host-generation-batch-cleanup-v1.json",
+    "sha256": "c74001220ab8f9ffec15ac313fab72fc8dda6841bd5e04130c21a9a2d907bad9",
+    "summary": {
+      "state": "complete",
+      "deletedCount": 6,
+      "beforeFreeBytes": 77794070528,
+      "afterFreeBytes": 77855571968,
+      "protectedFourUnchanged": true,
+      "retainedBaseRechecked": true
+    },
+    "removedOwnedExecutableCopies": [
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/host-generation-cross-x86_64-v1.exe",
+        "sha256": "e48c3bd52b249156f649bdd3290b0418e8ba477db5aeac7458f2bf58c97f1067",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/x86_64-host-generation.exe"
+      },
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/host-generation-cross-i386-v1.exe",
+        "sha256": "6370efb96290d05b474d0690d78479829a2e4f88a2961d3e21cb2d22278cf516",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/i386-host-generation.exe"
+      },
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/host-generation-wrong-cross-x86_64-v1.exe",
+        "sha256": "e48c3bd52b249156f649bdd3290b0418e8ba477db5aeac7458f2bf58c97f1067",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/x86_64-host-generation.exe"
+      },
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/host-generation-wrong-cross-i386-v1.exe",
+        "sha256": "6370efb96290d05b474d0690d78479829a2e4f88a2961d3e21cb2d22278cf516",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-generation-build-v1/i386-host-generation.exe"
+      }
+    ]
+  },
+  "limits": [
+    "unmanaged Cocoa ordering contract only; generation labels are caller numbers, not Native tickets",
+    "same root/context; no arbitrary reentry/Native request pipeline/busy predecessor proof",
+    "negative variant diagnostic-only, never product",
+    "no pixels/GPU/compositor/performance/Windows/game/default adoption"
+  ]
+}
