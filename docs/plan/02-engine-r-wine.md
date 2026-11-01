@@ -1,5 +1,8 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+最新[135](../research/135-r-v1-exported-resize-20261102.md)：真实Win32/backbuffer放大而色块仍旧356x196的缺陷已修，最终双向521/0＋893/0，各128000pixels/2ResizeBuffers/20Release，SCK436x236与真实Cocoa bounds一致；6route/2free和回退保护通过。新coalesced窗口事件实际接通，原local用例双PE各1415/0且各9个bounds确认在geometry回调内；337源码输入/实际图/组件/gate/清理绑定。0030五文件精确重建25代码；异常回滚P2源码闭合但未注入故障，正式性能/物理/默认不升级。下一真实CEF/米哈游测试runtime→可回退包，原HY/Windows条件保持。
+
+
 最新[134](../research/134-r-v1-owner-transition-20261102.md)：renderer真实拥有初始Root/child、host仅拥有目标Root，严格bootstrap后同device/swapchains local→foreign→local，双向493/0＋735/0或736/0；三图/实际Native owner PID A→B→A、6精确route退役/2本地free后ACK，再各owner自毁窗口/真实join。259源码输入/raw/组件/gate/图像/清理回退绑定；测试白背景窄修及原失败保留，默认/门禁不变。下一原图形阶段更新/ResizeBuffers与实际画面，再CEF/启动器/可回退包；原HY/Windows条件保持。
 
 

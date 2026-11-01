@@ -1,0 +1,259 @@
+Wine 11.18 exported renderer bounds and asynchronous geometry recovery.
+
+Use the actual current client rectangle for the retained exported CAMetalLayer,
+not only its construction-time bounds. Cocoa updates/readback run on main;
+NT/USER work and the confirmed/uncertain cache stay on Wine recovery threads.
+Invalidate the cache before an operation which can partially apply and throw.
+Do not replace a device/context/swapchain or release on advisory notification.
+
+SetParent/WindowPosChanged post a coalesced wake to the existing PE dispatcher,
+outside the service lock. Cocoa never posts NT work; known post failures keep
+the periodic recovery fallback. No per-frame USER work or wire/table changes.
+Normal TRACE observations report route handoff/retirement and confirmed bounds;
+these do not certify all callback tails, global GPU idle or physical scanout.
+
+Experimental route only; local-default and game policy adoption remain gated.
+
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -24,6 +24,7 @@
+ #import <Metal/Metal.h>
+ #import <QuartzCore/QuartzCore.h>
+ #include <dlfcn.h>
++#include <math.h>
+ 
+ #import "cocoa_window.h"
+ 
+@@ -4106,6 +4107,7 @@
+ 
+ - (instancetype) initWithHwnd:(void*)hwnd bounds:(CGRect)bounds device:(id<MTLDevice>)provided_device;
+ - (CAContextID) contextId;
++- (BOOL)updateClientBounds:(CGRect)bounds;
+ 
+ @end
+ 
+@@ -4164,6 +4166,35 @@
+     return context_id;
+ }
+ 
++- (BOOL)updateClientBounds:(CGRect)bounds
++{
++    __block BOOL updated = NO;
++    if (!isfinite(bounds.origin.x) || !isfinite(bounds.origin.y) ||
++        !isfinite(bounds.size.width) || !isfinite(bounds.size.height) ||
++        bounds.size.width < 0 || bounds.size.height < 0) return NO;
++    CGRect wanted = cgrect_mac_from_win(bounds);
++    /* The caller retains this context through the synchronous dispatch. This
++     * Cocoa block performs no NT/USER/PE work and owns no surface/entry lock. */
++    OnMainThread(^{
++        @try
++        {
++            [CATransaction begin];
++            @try
++            {
++                [CATransaction setDisableActions:YES];
++                [offscreen_layer setBounds:wanted];
++            }
++            @finally { [CATransaction commit]; }
++            updated = CGRectEqualToRect([offscreen_layer bounds], wanted);
++        }
++        @catch (NSException *exception)
++        {
++            ERR(@"exported context bounds update exception %@\n", exception);
++        }
++    });
++    return updated;
++}
++
+ - (CAMetalLayer*) layer
+ {
+     return offscreen_layer;
+@@ -4223,6 +4254,11 @@
+ unsigned int macdrv_exported_metal_context_id(id<WineMetalSwapChain> context)
+ {
+     return [context isKindOfClass:[CAContextSwapChain class]] ? [(CAContextSwapChain *)context contextId] : 0;
++}
++
++bool macdrv_exported_metal_context_update_bounds(id<WineMetalSwapChain> context, CGRect bounds)
++{
++    return [context isKindOfClass:[CAContextSwapChain class]] && [(CAContextSwapChain *)context updateClientBounds:bounds];
+ }
+ 
+ CAMetalLayer *macdrv_swapchain_get_layer(id<WineMetalSwapChain> swapchain)
+--- a/dlls/winemac.drv/macdrv_cocoa.h
++++ b/dlls/winemac.drv/macdrv_cocoa.h
+@@ -551,6 +551,7 @@
+ /* Exported producer resources are owned separately from a root host lease. */
+ extern id_WineMetalSwapChain macdrv_create_exported_metal_context(CGRect bounds, id_MTLDevice device);
+ extern unsigned int macdrv_exported_metal_context_id(id_WineMetalSwapChain context);
++extern bool macdrv_exported_metal_context_update_bounds(id_WineMetalSwapChain context, CGRect bounds);
+ extern bool macdrv_window_create_remote_host_checked(WineWindow *window, unsigned int context_id, uint64_t generation,
+                 CGRect frame, CGRect clip, double z, bool valid_z, bool (*commit)(void *), void *context);
+ extern void macdrv_window_update_remote_host_checked(WineWindow *window, unsigned int context_id, uint64_t generation,
+--- a/dlls/winemac.drv/remote_client.c
++++ b/dlls/winemac.drv/remote_client.c
+@@ -35,11 +35,14 @@
+     struct renderer_route *routes,*current;
+     BOOL started,dead,stopping;
+     DWORD last_error;
++    RECT client_bounds;
++    BOOL client_bounds_known;
+ };
+ static LONG64 client_callback;
+ static pthread_mutex_t client_service_lock=PTHREAD_MUTEX_INITIALIZER;
+ static UINT64 next_generation=1;
+ static UINT32 client_window,client_thread;
++static BOOL geometry_wake_pending; /* client_service_lock; one queued wake */
+ 
+ NTSTATUS macdrv_remote_client_init(void *args)
+ {
+@@ -54,14 +57,36 @@
+ {
+     const struct macdrv_remote_client_event *p=args;
+     BOOL valid;
++    DWORD current_thread=GetCurrentThreadId();
+     if(!p||p->size!=sizeof(*p)||p->version!=MACDRV_REMOTE_CLIENT_VERSION||
+        p->operation!=MACDRV_CLIENT_EVENT_WAKE||p->reserved)return STATUS_INVALID_PARAMETER;
+     pthread_mutex_lock(&client_service_lock);
+-    valid=client_window&&client_thread&&p->window==client_window&&p->thread==client_thread;
++    valid=client_window&&client_thread&&p->window==client_window&&p->thread==client_thread&&current_thread==p->thread;
++    if(valid&&!p->generation)geometry_wake_pending=FALSE;
+     pthread_mutex_unlock(&client_service_lock);
+-    if(!valid||GetCurrentThreadId()!=p->thread)return STATUS_INVALID_HANDLE;
++    if(!valid)return STATUS_INVALID_HANDLE;
++    if(!p->generation)TRACE("renderer geometry wake begin thread %u\n",current_thread);
+     macdrv_legacy_remote_recover(p->generation); /* no permission is supplied by the message */
++    if(!p->generation)TRACE("renderer geometry wake end thread %u\n",current_thread);
+     return STATUS_SUCCESS;
++}
++/* Window callbacks may run under win32u admission. Post only after releasing
++ * our service lock: no synchronous USER/Cocoa wait or renderer scan here. */
++void macdrv_remote_client_geometry_changed(void)
++{
++    UINT32 window=0,thread=0;
++    if(pthread_main_np())return; /* Cocoa can never originate NT/PE work */
++    pthread_mutex_lock(&client_service_lock);
++    if(client_window&&client_thread&&!geometry_wake_pending)
++    {window=client_window;thread=client_thread;geometry_wake_pending=TRUE;}
++    pthread_mutex_unlock(&client_service_lock);
++    if(window&&!NtUserPostMessage(wine_server_ptr_handle(window),WM_MACDRV_REMOTE_CLIENT_WAKE,0,0))
++    {
++        pthread_mutex_lock(&client_service_lock);
++        if(client_window==window&&client_thread==thread)geometry_wake_pending=FALSE;
++        pthread_mutex_unlock(&client_service_lock);
++        WARN("renderer geometry wake post failed; periodic recovery retained\n");
++    }
+ }
+ static DWORD ensure_dispatcher(UINT32 *window,UINT32 *thread)
+ {
+@@ -121,6 +146,23 @@
+     }
+     if(pid!=client->owner_pid||birth!=client->owner_birth||identity!=client->window_identity)
+     {client->dead=TRUE;client->last_error=ERROR_INVALID_WINDOW_HANDLE;return FALSE;}
++    return TRUE;
++}
++/* Wine-thread event/recovery path, never the per-frame borrowed layer getter.
++ * Cache only confirmed Cocoa bounds; failure retains the context and retries. */
++static BOOL update_client_bounds(struct macdrv_remote_renderer *client)
++{
++    RECT rect;
++    if (!NtUserGetClientRect(client->hwnd,&rect,NtUserGetWinMonitorDpi(client->hwnd,MDT_RAW_DPI)))
++    {client->last_error=ERROR_RETRY;return FALSE;}
++    if (client->client_bounds_known && !memcmp(&rect,&client->client_bounds,sizeof(rect))) return TRUE;
++    if (!same_window(client)) return FALSE;
++    client->client_bounds_known=FALSE; /* the setter can partially apply before throwing */
++    if (!macdrv_exported_metal_context_update_bounds(client->context,cgrect_from_rect(rect)))
++    {client->last_error=ERROR_GEN_FAILURE;return FALSE;}
++    client->client_bounds=rect;client->client_bounds_known=TRUE;
++    TRACE("renderer client bounds confirmed hwnd %p context %u rect %ld,%ld,%ld,%ld\n",
++        client->hwnd,client->context_id,(long)rect.left,(long)rect.top,(long)rect.right,(long)rect.bottom);
+     return TRUE;
+ }
+ static DWORD route_send(struct renderer_route *route,UINT operation,UINT context,UINT32 child,
+@@ -279,6 +321,7 @@
+     if(!NtUserGetClientRect(client->hwnd,&rect,NtUserGetWinMonitorDpi(client->hwnd,MDT_RAW_DPI)))return ERROR_INVALID_WINDOW_HANDLE;
+     client->context=macdrv_create_exported_metal_context(cgrect_from_rect(rect),device);
+     if(!client->context||!(client->context_id=macdrv_exported_metal_context_id(client->context)))return ERROR_NOT_ENOUGH_MEMORY;
++    client->client_bounds=rect;client->client_bounds_known=TRUE;
+     error=open_route(client,NtUserGetAncestor(client->hwnd,GA_ROOT),&route);
+     if(error)
+     {
+@@ -295,20 +338,22 @@
+ BOOL macdrv_remote_renderer_progress(struct macdrv_remote_renderer *client,enum macdrv_remote_renderer_mode mode,BOOL event_probe)
+ {
+     struct renderer_route **cursor,*route;
+-    BOOL pending=FALSE,need_update=FALSE,window_valid=FALSE;
++    BOOL pending=FALSE,need_update=FALSE,window_valid=FALSE,bounds_ready=TRUE;
+     HWND root;
+     (void)event_probe; /* wakes accelerate the same independent periodic identity check */
+     if(!client||pthread_main_np())return FALSE;
+     if(mode==MACDRV_RENDERER_STOP)client->stopping=TRUE;
+     if(client->started&&!client->stopping&&!client->dead)
+         window_valid=same_window(client); /* bounded Wine-thread check even while RO is ACTIVE */
++    if (window_valid && mode==MACDRV_RENDERER_ACTIVE)
++        bounds_ready=update_client_bounds(client);
+     if(client->current)
+     {
+         read_permissions(client->current);
+         need_update=client->current->host_safe||client->current->producer_safe;
+         if(mode==MACDRV_RENDERER_CACHED&&need_update)client->stopping=TRUE; /* replacement must not resurrect cached pixels */
+     }
+-    if(client->started&&!client->stopping&&!client->dead&&window_valid&&
++    if(client->started&&!client->stopping&&!client->dead&&window_valid&&bounds_ready&&
+        (mode==MACDRV_RENDERER_ACTIVE||mode==MACDRV_RENDERER_CACHED))
+     {
+         root=NtUserGetAncestor(client->hwnd,GA_ROOT);
+@@ -330,7 +375,15 @@
+             {
+                 struct renderer_route *fresh=NULL;
+                 DWORD error=open_route(client,root,&fresh);
+-                if(!error){client->current->stopping=TRUE;client->current=fresh;}
++                if(!error)
++                {
++                    struct renderer_route *previous=client->current;
++                    previous->stopping=TRUE;client->current=fresh;
++                    TRACE("renderer client migrated hwnd %p context %u previous-root %p root %p lease %#llx ticket %#llx generation %#llx\n",
++                        client->hwnd,client->context_id,previous->root,fresh->root,
++                        (unsigned long long)fresh->producer_id.lease,(unsigned long long)fresh->ticket,
++                        (unsigned long long)fresh->producer_id.generation);
++                }
+                 else
+                 {
+                     for(route=client->routes;route;route=route->next)if(route!=client->current)route->stopping=TRUE;
+@@ -348,6 +401,9 @@
+         {
+             if(retire_route(route))
+             {
++                TRACE("renderer client route retired hwnd %p context %u root %p lease %#llx ticket %#llx host-safe %u producer-safe %u\n",
++                    client->hwnd,client->context_id,route->root,(unsigned long long)route->producer_id.lease,
++                    (unsigned long long)route->ticket,route->host_safe,route->producer_safe);
+                 *cursor=route->next;if(client->current==route)client->current=NULL;free(route);continue;
+             }
+             pending=TRUE;
+--- a/dlls/winemac.drv/remote_renderer.h
++++ b/dlls/winemac.drv/remote_renderer.h
+@@ -13,5 +13,6 @@
+ BOOL macdrv_remote_renderer_has_generation(const struct macdrv_remote_renderer *, UINT64);
+ void macdrv_remote_renderer_free(struct macdrv_remote_renderer *); /* only after progress returned done */
+ BOOL macdrv_legacy_remote_recover(UINT64 generation);
++void macdrv_remote_client_geometry_changed(void); /* coalesced advisory wake, Wine thread only */
+ void macdrv_legacy_remote_surface_destroying(struct macdrv_client_surface *surface);
+ #endif
+--- a/dlls/winemac.drv/window.c
++++ b/dlls/winemac.drv/window.c
+@@ -1398,6 +1398,7 @@
+     macdrv_remote_root_changed(old_root);
+     macdrv_remote_root_changed(NtUserGetAncestor(hwnd, GA_ROOT));
+     macdrv_remote_parent_changed(old_root, NtUserGetAncestor(hwnd, GA_ROOT));
++    macdrv_remote_client_geometry_changed();
+ }
+ 
+ 
+@@ -1747,6 +1748,7 @@
+ done:
+     release_win_data(data);
+     macdrv_remote_root_changed(NtUserGetAncestor(hwnd, GA_ROOT));
++    macdrv_remote_client_geometry_changed();
+ }
+ 
+ 

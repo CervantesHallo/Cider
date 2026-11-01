@@ -1,5 +1,11 @@
 # Cider 项目持久记忆
 
+最新[135](research/135-r-v1-exported-resize-20261102.md)：实际发现并修复导出层尺寸停留初值。旧resize-runtime-v1 Win32client218x118/backbuffer200x120/24000读回均过，SCK仍356x196且y下移40，原failed/图保留。0030在Wine事件/恢复读取实际clientRect、复核窗口身份，纯Cocoa事务改同一CAMetalLayer bounds并readback后确认；源码审1P2（部分生效抛异常/Windows回滚旧值快路漏恢复）用client_bounds_known前置失效/确认后置修，异常指定故障未实际注入。Source-v4最终包含异步coalesced几何wake：window.c两个hook释放data后只post既有PE消息，锁外NT/无Cocoa NT，无新wire/table/helper/per-frame工作，250ms后备保留。
+
+最终source renderer-bounds-source-v4 / coupled-v4 / staging-bounds-v4（engine renderer-bounds-r4），实际resize-runtime-v5/v6双向host521/0 renderer893/0，各128000真实像素/2ResizeBuffers/20Release，SCK色块436x236各102896、红红205792，6route/2free/ACK/kerneljoin/回退保护通过。每方向7完成geometry回调，但这两次case的bounds确认不在0消息内，不能倒推因果；原local-lifecycle新组双PE各1415/0/56swapchains/168Present，90/89次完成消息，各9次真实bounds确认在同线程geometry回调内，证明事件路径、不量化性能。337源输入/图像/gate/模块/core/清理绑定，0030五文件零fuzz/offset重建全部25代码逐字相同。Cocoa最初ERR宏C字符串编译失败→NSString修复原件保留；10旧warning消息/原行逐字匹配，无新增。源码审/运行/故障/物理/性能/默认分级保持。
+
+下一真实HYP/CEF runtime：原13日fresh测试瓶子早已移Trash，OS拒绝读取Trash，不绕过/不请求重复权限；正常两瓶Steam/米哈游不动。已找到原官方cached installer1.18.0.380，234383584字节，SHA9a440233...，用户此前亲自阅读/同意并安装该精确版本；当前仅通过私有GUI/XPC做PE metadata inspect（hyp-r-v1-installer-inspection-v1），尚未新安装/运行HYP。后续先核是否可重用既有应用payload或该固定包，在独立新瓶子验证，不重下/复制原神，不复制登录资料，不启动Steam副本。所有子代理已关闭，无Windows/Actions/定时/Goal/默认/门禁操作。Formal性能当前Mac电池环境不混入AC比较。
+
 最新[134](research/134-r-v1-owner-transition-20261102.md)：真正renderer拥有Root1/两child，host仅拥有Root2，经80B bootstrap实际owner/PIDbirth/树核对echo后才D3D11；同device/context/2swapchain local→foreign→local，正向host493/0 renderer735/0、反向493/0/736/0（实际Map pending额外1次），每端5pipe/4阶段。3真实图红蓝→蓝红→红红，CGWindow及实际Mac owner PID为A→B→A；6个完整route真实退役/2本地freed在renderer存活且Root1仍留期间才gate4/ACK，再renderer自毁Root1/注销class/zeroexit，host真正join后只毁Root2。259源码输入与raw/session/模块/gate/6PNG/清理回退保护已绑定。它只关闭指定2ctx合作case，不倒推133旧56全部free。
 
 134首轮v1本地首图/跨进程迁移成功但Root2默认深色背景使白间隔失败，原件保留；v2仅两owner窗口类设borrowed WHITE_BRUSH（真实Win32 GDI，不在Native代画），阈值不改。final fixture-v2/build-v2，owner-transition-coupled/staging-v1，runtime-v2正向/v3反向均complete/通过/原恢复；独立增量源审0P1/P2，parent白brush窄delta审有记录。源审报告source_admission为dict(admitted:true)，actual_code_inputs字段；admit已显式支持，只实际code入hash，doc仅context。当前所有测试进程已实际清理，无Windows/默认/门禁变化。
