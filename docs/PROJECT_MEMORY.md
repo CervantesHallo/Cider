@@ -1,8 +1,12 @@
 # Cider 项目持久记忆
 
-更新：2026-10-31。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
+更新：2026-11-01。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。
 
 ## 最新实际运行接续
+
+最新[113](research/113-r-v1-lifecycle-order-20261101.md)：回到用户要求的原阶段，复用112普通Native/PE及helper字节，仅两个新PE客户端。cancel-first-client-v1双PE各25/0：真实context/RO预留后先CANCEL，实际HostSAFE及模型0，消费者LIVE_INSTALL因SAFE在发送前拒绝，flags.install_sent始终0；不是服务器处理INSTALL证明。root-close-client-v1各22/0：实际INSTALL/模型1后DestroyWindow(root)，客户端不显式CANCEL/RELEASE，保留Host/producerROSAFE及模型0、原context仍持有后清理；helper可能尝试dead endpoint，未知返回不作完成依据。限定源审均接纳、严格双PE编译；两组独立raw/session/EXE/16PE+2native/F27/10清理/普通配置DLL原字节或缺失恢复/保护4核对。普通代码与已通过旧用例不重跑。跨进程初写草稿parked未编译运行；当前仍per-host门槛，NT失败并发被平台拦截的验收未完成且不替代，不推进多进程/reparent/像素或默认采用。代理均关闭，实验scope清理确认后按清单CAS回收临时整包；保留源码/raw/当前普通基底。Windows/Actions/定时/Goal零操作，门禁/HY/U8-15/Windowsbusy待重启不变，非本批AppModel保留。
+
+2026-11-01用户再次强调按原开发计划顺序，不要打乱。跨进程正常图层准备仅在私有host-status-cross-fixture-v1初写，未构建或运行；已按文件哈希封存为parked，见cross-process-preparation-parked-20261101.json。当前回到per-host安装/取消/清理阶段，只补该阶段正常取消先行及根关闭用例，不把它们当作被拦截NT故障并发门槛的替代；该门槛及默认采用限制继续保留。不得因正常用例完成便跳到多进程/reparent/像素或提高游戏评级。
 
 最新[112](research/112-r-v1-live-host-status-20261031.md)：父代理自写正常实际context夹具（不是被拦截NT故障任务的改名重试），普通0027/source-v5不改。fixture-v2/frame128，Native/Cocoa与PE驱动为diagnostic-source-v1/build-v1成功子集；client四处misleading-if赋值只换行后单独build-v2，旧整体失败保留不改写。实际v2 USER sender查询/lease/PREPARE并映射RO后INSTALL真实导出CAContext，Cocoa父图层/ledger/selection各1；CANCEL后原context持有直到ROHostSAFE及实际0/0/0，再producerROSAFE和真实context/NT关闭。双PE各25/0/CLI0，纯观察不remove或手动recover；许可先锁存避免关reader后丢已确认事实。限定独立源审接纳，9有效依赖闭包114项目输入、2raw/session/EXE/16PE+2native/F27/5清理/原配置DLL字节或缺失恢复/保护4另行绑定，五文件诊断精确重建。没有像素/GPU/compositor/跨进程/所有renderer或完整采用证明。111平台possible-cyber风险拦截的真实NT失败并发夹具仍未完成、未运行其4部分文件、未换代理改名重试；该关键门槛阻止正式采用，不能用正常25/0代替。后续先补该缺口，再接多进程消费者、事件reparent与像素；默认用户引擎/游戏门禁、HY/U8-15、Windowsbusy待重启、定时/Goal/Actions不改。当前代理均已关闭，实验scope进程清理已确认；非本批AppModel+Bottles.swift保留。
 
