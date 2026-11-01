@@ -2,6 +2,8 @@
 
 2026-11-01执行顺序重申（用户决定）：维持当前per-host安装/取消/清理阶段，补齐本阶段正常取消先行、根关闭与仍待验的关键故障契约，再推进多进程消费者、事件reparent、两三进程像素。跨进程私有草稿已搁置、未构建运行，不挪用后续进展替代当前门槛，也不降低原验收标准。
 
+最新[121](../research/121-r-v1-model-use-20261101.md)：实际普通Cocoa更新/局部Retina翻转恢复/移除重入双PE各37/0。setter内真实users1、操作后0；真实scale和裁剪几何匹配。移除请求下模型仍1，最后使用归还才移除0，原ctx/RO保持直到真实CANCEL/SAFE。限定审查/NDEBUG/9闭包133输入/2raw组件/5清理/恢复/保护4及五文件重建绑定，3树2EXE归档。尚非Native异步更新管线/任意代次/busy交接/全局DPI，下一旧新代次与busy交接再原后续多进程资源、事件reparent、像素，默认/门禁与游戏结论不变。
+
 最新[120](../research/120-r-v1-host-status-legacy-20261101.md)：普通legacy→managed交接双PE各30/0，真实旧层1→0、新层1，原context保留；独立旧责任checked retirement及实际缺失确认。legacy-only各22/0明确ProducerSAFE时旧层仍1/ctx持有，旧责任独立清理后才释放。限定源审/NDEBUG/11闭包124输入/4raw组件/9清理/两批恢复/保护4及五文件重建绑定，4树4EXE归档。仍补busy/重入交接、对象更新pin、新旧代次与Retina等当前缺口，再多进程资源、事件reparent、像素；普通实现/默认/门禁和游戏结论保持。
 
 最新[119](../research/119-r-v1-host-status-attached-cancel-20261101.md)：真实挂层期间普通Wine线程CANCEL双PE各32/0；实际图层/ledger1、在途guard1、非SAFE保留至回调恢复，安装返回6及实际移除后才SAFE。另两条真实中止回归各双PE33/0，先ABORT后Native入口和门超时未进入Native均实际join后清理，不伪造done/消耗未用序号。两P2修后最终源审接纳、NDEBUG、13闭包131输入/6raw组件/13清理/三批恢复/保护4及五文件重建绑定，6树6EXE归档。Rootclose直接从Cocoa调用的初案构建前弃用，最终NT/控制仅Wine线程。仍补对象更新pin/新旧代次/legacy/Retina剩余运行，再原后续多进程资源、事件reparent、像素；不改普通实现/默认/门禁或游戏结论。
