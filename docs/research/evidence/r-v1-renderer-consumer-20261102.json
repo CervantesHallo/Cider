@@ -35,7 +35,10 @@
     "verify-renderer-consumer-independent-v1.py": "4f3c2357c9da0d0f7cccb710cc586990105d8c0f0766b356af06434a6259cc67",
     "renderer-consumer-parent-binding-v1.json": "62f36fe2b0c054e376f1057ee6a47b62e5460ea9a18dac98ccf5aace31b97332",
     "renderer-frontend-public-base-v2.json": "dece064473f0be1e93fb5ae4b0caae19f9e053cd6454a3ed58725fb2c7e44c13",
-    "renderer-frontend-public-reconstruction-v1.json": "905adecb383def1d563a9a8cd1e70874132473cb56913b6458d495ca567d62b6"
+    "renderer-frontend-public-reconstruction-v1.json": "905adecb383def1d563a9a8cd1e70874132473cb56913b6458d495ca567d62b6",
+    "renderer-local-lifecycle-v1.json": "0bcb8dd88945c5325f95d8e95bf4862dc775f0db4572e82b5b123120dedc8caa",
+    "renderer-local-lifecycle-parent-binding-v1.json": "06970440d981cd47d8b9773e37abf688b60e0f8b0606cf7835a2078fae99aaa4",
+    "run-renderer-local-lifecycle-v1.py": "db64ab1b54e1c0e1b8b756f29862ddee28a01deb4a5add65068286f6f8bf21ff"
   },
   "independentReview": {
     "findingCounts": {
@@ -489,5 +492,56 @@
     "tests/graphics/renderer-consumer/oracle.py": "d34d0ceb400493a85d559dd3a0ddee7744258d0e7de5513e0c00e899c663d2e8",
     "tests/graphics/renderer-consumer/analyze.py": "1399b873463c9e753495b4ab40b938d30a2ffac41d64ba4b12913eba81602a91",
     "engine/porting/wine-11.18/0028-winemac-remote-legacy-renderer-frontend.patch": "bd55106caa5bc6eb78c1ee1762574bd287e971ee3ed66678261fdc0399a4cb50"
+  },
+  "localPathRegression": {
+    "passed": true,
+    "scope": "Affected existing local surface lifecycle on new 0028 group, feature opt-in absent; no new baseline suite",
+    "runtimeSHA256": "0bcb8dd88945c5325f95d8e95bf4862dc775f0db4572e82b5b123120dedc8caa",
+    "runnerSHA256": "db64ab1b54e1c0e1b8b756f29862ddee28a01deb4a5add65068286f6f8bf21ff",
+    "directions": [
+      {
+        "arch": "x86_64",
+        "fixture": {
+          "type": "window-lifecycle",
+          "bits": 64,
+          "checks": 1415,
+          "failures": 0,
+          "windows": 4,
+          "swapchains": 56,
+          "presents": 168
+        },
+        "exeSHA256": "519985314275cb2862f697f764247d380af4bef2e09e9ec5a1a8659caf79d75c",
+        "logSHA256": "0f1c624207fa1e9d3fb70e28d8f53837b12054c6f2f8b969fb50d30e85c92757",
+        "sessionSHA256": "a26eaee65611ab0112b8a1206de8ce5fc9d8dec743143dfdb94da1b9cbb924c1",
+        "legacyTraceCounts": {
+          "legacy snapshot hwnd": 56,
+          "trace:macdrv:macdrv_client_surface_detach ": 56,
+          "trace:macdrv:macdrv_client_surface_destroy ": 56
+        }
+      },
+      {
+        "arch": "i686",
+        "fixture": {
+          "type": "window-lifecycle",
+          "bits": 32,
+          "checks": 1415,
+          "failures": 0,
+          "windows": 4,
+          "swapchains": 56,
+          "presents": 168
+        },
+        "exeSHA256": "cf5288e0af560e16dd902af2548b54905bc87368fa2c40571bb080e6e2f54bc3",
+        "logSHA256": "1481ebbc9c193b1fde08912eb1a43cfbadcb23937c0fe72735e9fb3c7f0a72a8",
+        "sessionSHA256": "d75854a11783e6cf02bde8d92505dd10cd6afada3e4506461c395a5269c84a2d",
+        "legacyTraceCounts": {
+          "legacy snapshot hwnd": 56,
+          "trace:macdrv:macdrv_client_surface_detach ": 56,
+          "trace:macdrv:macdrv_client_surface_destroy ": 56
+        }
+      }
+    ],
+    "cleanupReceipts": 4,
+    "ordinaryCandidateRestored": true,
+    "protectedFourUnchanged": true
   }
 }

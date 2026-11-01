@@ -1,5 +1,8 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+最新[132](../research/132-r-v1-renderer-reparent-20261102.md)：同一device/2swapchain普通SetParent Root1→Root2→Root1，双向host501/0、renderer635/0，6真实读回/Present、红蓝→蓝红→红红窗口PNG；真实4迁移/6精确route SAFE退役/2本地freed后ACK/kerneljoin。229源码输入/组件/raw/gate/六图/清理回退绑定；反向首次GUI清理未知原failed保留，finally清理及两次旧PID ESRCH另行闭合。canonical USER源审P2已修，Map仅允许暂未就绪的有界重试，旧失败不覆盖；宿主外框宽880/884如实保留。下一同阶段初始local→foreign与更新/resize，再CEF/启动器及可回退包；默认/游戏门禁/HY/Windows条件不变。
+
+
 最新[131](../research/131-r-v1-renderer-consumer-20261102.md)：普通Win32/D3D11实际foreign HWND前端双向host244/0、renderer301/0，2交换链/4帧真实读回与红蓝/蓝红WindowServer空间对应、真实本地资源释放后ACK/kerneljoin通过。0028普通候选保持原缓存/ABI，6→8Unix表成组构建，零fuzz/offset重建24文件。CIDER实验变量过滤已改Wine命名空间；Metal映射VirtualQuery元数据缺口单列未修，不以它冒充D3D读取失败或成功。独立raw/组件/恢复证据复核已通过，419当前输入与1历史记忆上下文分列，下一实际reparent/更新→CEF/启动器→可回退包；初始local→foreign/输入/性能/游戏与默认仍未验收。
 
 
