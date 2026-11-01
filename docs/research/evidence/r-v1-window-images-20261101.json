@@ -1,0 +1,331 @@
+{
+  "windowImagesAccepted": true,
+  "physicalDisplayAccepted": false,
+  "foreignFrontendAccepted": false,
+  "defaultAdopted": false,
+  "source": "Actual user-authorized ScreenCaptureKit desktop-independent test-window images",
+  "artifacts": {
+    "host-capture-review-v1.json": "3c2563db80b3ffc8609b0a5068252ad7704aa92b4de1886482f8bc7806d7cdd8",
+    "host-capture-review-v2.json": "f9dfd0dd6a0415765ba3a5d26dba45f22263d89853696aa1eb2730bdf6769c5c",
+    "host-capture-review-v3.json": "d585bbee8fc9e70a67bc3aaa568050fbdf176b30194f64a1cca5cc3dc9a87801",
+    "host-capture-review-v4.json": "a9532522c85e3c34f89b676205469ecefd71ac151b60cbb15cc1e893aef50159",
+    "host-capture-review-v5.json": "2f4da8616ea7f9f943e613502c20e7641f5ad3c07e6220bdcbec8d78c196d3e0",
+    "host-visible-native-build-v1/build-v1.json": "d9ca7655257a25b90b97d4438965f0e748f1d63afb5a865ba813fd553fde4894",
+    "host-visible-runtime-parent-admission-v1.json": "658fd637932ff2e8c12985102c651a145515975d10519f1fc36c7a158b8294da",
+    "window-images-independent-binding-v1.json": "0dededfd551b64e0133f7fa1d9540f2a379a50bf92ff25016fb9e3b089165e44",
+    "cross-pixel-runtime-v11.json": "dd72179bb6feffca185f3d280a136d7bb7cd5ba379a85d94739ecd986e490f63",
+    "run-cross-pixel-v11.py": "c99c7ec64a70f604eab9c26a76bf4713c9675db4390775cd33769ab67353867d",
+    "verify-window-images-v1.py": "52aa1b24fed438437f07e58033ac67ebe1ec2641884eeb2673779f14efe336bf",
+    "cross-pixel-runtime-v4.json": "e78b32fd188f84111772a0e24cd8112cbcd1ad9158850081ec7af2e4aadf5f1b",
+    "cross-pixel-runtime-v5.json": "5ea1eb44f304315501b88eba423cf1cfdb3d4f7d84da1024aba592f8ee555181",
+    "cross-pixel-runtime-v6.json": "d9c2d37fa1d6ff68b1168edcdd5dc32d5e07c74b20b131868418c82f570ebc20",
+    "cross-pixel-runtime-v7.json": "ab0a741b97a781f91597c46fa454dafbf48dd3a1cb089860f5ad6e293cf75e38",
+    "cross-pixel-runtime-v8.json": "4327e9882fee343625ec3835dcc24bfa880c9711d0b6f04b385ed8608b1790a0",
+    "cross-pixel-runtime-v9.json": "a5a89992c2602a36d12dafe1f2936ccc97db1bce944f1ecd4737cbad9c1068c8",
+    "cross-pixel-runtime-v10.json": "22df0e6f2b2c8d55bc61ee3353bd9a923e1fa338c88524dcfef2b9d56cd7a434"
+  },
+  "checks": 72,
+  "cleanupReceipts": 4,
+  "runs": [
+    {
+      "key": "x86_64-host-i386-producer",
+      "images": [
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-screen-835d7e0f9ee145649fd6cfb09c25dbc8-1.png",
+          "pngSHA256": "61d1f9c4adecb450e69fdd867b9502fa43ceaf159e1511a9d64d3ad8e5478b8d",
+          "assessment": {
+            "passed": true,
+            "phase": 1,
+            "width": 704,
+            "height": 468,
+            "pngSHA256": "61d1f9c4adecb450e69fdd867b9502fa43ceaf159e1511a9d64d3ad8e5478b8d",
+            "redPixels": 69776,
+            "bluePixels": 0,
+            "dominantBounds": [
+              22,
+              78,
+              377,
+              273
+            ],
+            "consecutiveRowsWith100PixelRun": 196,
+            "scope": "actual captured test-window PNG dominant color rectangle; no exact color-management or texture/readback identity claim"
+          },
+          "onScreenBefore": false,
+          "onScreenAfter": false,
+          "readySHA256": "553a5e2220b6ec5270da861d1d20f965a596e2569dbd495bfff138acdb373f8a",
+          "window": 7640,
+          "ownerPID": 70467
+        },
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-screen-835d7e0f9ee145649fd6cfb09c25dbc8-2.png",
+          "pngSHA256": "7235374fc9454c3f8ca4aa9c0a87537c31b651e2af59e01e1dc0516ccac37a0b",
+          "assessment": {
+            "passed": true,
+            "phase": 2,
+            "width": 704,
+            "height": 468,
+            "pngSHA256": "7235374fc9454c3f8ca4aa9c0a87537c31b651e2af59e01e1dc0516ccac37a0b",
+            "redPixels": 0,
+            "bluePixels": 69776,
+            "dominantBounds": [
+              22,
+              78,
+              377,
+              273
+            ],
+            "consecutiveRowsWith100PixelRun": 196,
+            "scope": "actual captured test-window PNG dominant color rectangle; no exact color-management or texture/readback identity claim"
+          },
+          "onScreenBefore": false,
+          "onScreenAfter": false,
+          "readySHA256": "4cf3464e8275d58b27bb0dd88e5ebb9ae8409fd24fd05415f2ae0dcbc57ef9e8",
+          "window": 7640,
+          "ownerPID": 70467
+        }
+      ],
+      "host": {
+        "type": "cross-pixel",
+        "role": "host",
+        "event": "summary",
+        "bits": 64,
+        "pid": 32,
+        "sequence": 4,
+        "nonce": [
+          9465860597357823332,
+          11517621454487542728
+        ],
+        "screen_required": true,
+        "complete": true,
+        "checks": 66,
+        "failures": 0,
+        "attempts": 896,
+        "gpu_result_counts": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "capture_acks": 2,
+        "capture_error": false,
+        "root_pid": 32,
+        "child_pid": 308,
+        "create_attempted": true,
+        "created": true,
+        "producer_cleanup_reported": true,
+        "kernel_joined": true,
+        "exit_known": true,
+        "child_exit": 0,
+        "forced": false,
+        "terminate_returned": false,
+        "host_bound": true,
+        "last_absent": true,
+        "host_finished": true,
+        "native_cleanup": true,
+        "cleanup": true,
+        "io_error": false,
+        "pipe_error": false,
+        "clock_error": false,
+        "timeout": false,
+        "elapsed_ms": 4411,
+        "note": "TEST ONLY work 160s total 180s; first two probe/replies 64s, capture gate 60s including probes/write, later replies and Native calls 4s; synchronous calls are not preempted; parent external watchdog 210s; only parent CUA captures screen; child exit is not resource SAFE; unknown observers/windows/module retained"
+      },
+      "producer": {
+        "type": "cross-pixel",
+        "role": "producer",
+        "event": "summary",
+        "bits": 32,
+        "pid": 308,
+        "sequence": 4,
+        "nonce": [
+          9465860597357823332,
+          11517621454487542728
+        ],
+        "screen_required": true,
+        "complete": true,
+        "checks": 35,
+        "failures": 0,
+        "attempts": 127,
+        "gpu_result_counts": [
+          3,
+          0,
+          0,
+          0,
+          0
+        ],
+        "red_results": 1,
+        "blue_results": 1,
+        "pixel_cleanup": true,
+        "capture_acks": 2,
+        "host_safe_observed": true,
+        "producer_safe_observed": true,
+        "native_cleanup": true,
+        "cleanup": true,
+        "retained_for_unknown_safety": false,
+        "io_error": false,
+        "pipe_error": false,
+        "clock_error": false,
+        "timeout": false,
+        "elapsed_ms": 2073,
+        "note": "TEST ONLY work 160s total 180s; Native calls 4s checked before/after, not preempted; parent external watchdog 210s; GPU readback/present request is not screen proof; capture acknowledgements are host replies; process exit is not resource SAFE"
+      },
+      "rawSHA256": "65afd08e6576872d5e098729f4f2bcefffe1e8c48b6de66772d22b3c57ae044c",
+      "sessionSHA256": "aa98823b38cdb07a14ed14f1db9f71ffb8a39684bdaf9fce7459225c6f9318cf"
+    },
+    {
+      "key": "i386-host-x86_64-producer",
+      "images": [
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-screen-457596cd9ad846e698a48a3448044d6e-1.png",
+          "pngSHA256": "61d1f9c4adecb450e69fdd867b9502fa43ceaf159e1511a9d64d3ad8e5478b8d",
+          "assessment": {
+            "passed": true,
+            "phase": 1,
+            "width": 704,
+            "height": 468,
+            "pngSHA256": "61d1f9c4adecb450e69fdd867b9502fa43ceaf159e1511a9d64d3ad8e5478b8d",
+            "redPixels": 69776,
+            "bluePixels": 0,
+            "dominantBounds": [
+              22,
+              78,
+              377,
+              273
+            ],
+            "consecutiveRowsWith100PixelRun": 196,
+            "scope": "actual captured test-window PNG dominant color rectangle; no exact color-management or texture/readback identity claim"
+          },
+          "onScreenBefore": false,
+          "onScreenAfter": false,
+          "readySHA256": "54378516389a0531f99fc7f4e1aca533958fc6bde166e93d4686da96599b8882",
+          "window": 7648,
+          "ownerPID": 70583
+        },
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-screen-457596cd9ad846e698a48a3448044d6e-2.png",
+          "pngSHA256": "7235374fc9454c3f8ca4aa9c0a87537c31b651e2af59e01e1dc0516ccac37a0b",
+          "assessment": {
+            "passed": true,
+            "phase": 2,
+            "width": 704,
+            "height": 468,
+            "pngSHA256": "7235374fc9454c3f8ca4aa9c0a87537c31b651e2af59e01e1dc0516ccac37a0b",
+            "redPixels": 0,
+            "bluePixels": 69776,
+            "dominantBounds": [
+              22,
+              78,
+              377,
+              273
+            ],
+            "consecutiveRowsWith100PixelRun": 196,
+            "scope": "actual captured test-window PNG dominant color rectangle; no exact color-management or texture/readback identity claim"
+          },
+          "onScreenBefore": false,
+          "onScreenAfter": false,
+          "readySHA256": "4fb79a9778f3206ad6aa3fcfb16b5188bb4c4aa9c9155470cfc8263e6b9efa5a",
+          "window": 7648,
+          "ownerPID": 70583
+        }
+      ],
+      "host": {
+        "type": "cross-pixel",
+        "role": "host",
+        "event": "summary",
+        "bits": 32,
+        "pid": 236,
+        "sequence": 4,
+        "nonce": [
+          5005072370702501606,
+          10999068147096767854
+        ],
+        "screen_required": true,
+        "complete": true,
+        "checks": 66,
+        "failures": 0,
+        "attempts": 896,
+        "gpu_result_counts": [
+          2,
+          0,
+          0,
+          0,
+          0
+        ],
+        "capture_acks": 2,
+        "capture_error": false,
+        "root_pid": 236,
+        "child_pid": 320,
+        "create_attempted": true,
+        "created": true,
+        "producer_cleanup_reported": true,
+        "kernel_joined": true,
+        "exit_known": true,
+        "child_exit": 0,
+        "forced": false,
+        "terminate_returned": false,
+        "host_bound": true,
+        "last_absent": true,
+        "host_finished": true,
+        "native_cleanup": true,
+        "cleanup": true,
+        "io_error": false,
+        "pipe_error": false,
+        "clock_error": false,
+        "timeout": false,
+        "elapsed_ms": 4989,
+        "note": "TEST ONLY work 160s total 180s; first two probe/replies 64s, capture gate 60s including probes/write, later replies and Native calls 4s; synchronous calls are not preempted; parent external watchdog 210s; only parent CUA captures screen; child exit is not resource SAFE; unknown observers/windows/module retained"
+      },
+      "producer": {
+        "type": "cross-pixel",
+        "role": "producer",
+        "event": "summary",
+        "bits": 64,
+        "pid": 320,
+        "sequence": 4,
+        "nonce": [
+          5005072370702501606,
+          10999068147096767854
+        ],
+        "screen_required": true,
+        "complete": true,
+        "checks": 35,
+        "failures": 0,
+        "attempts": 127,
+        "gpu_result_counts": [
+          3,
+          0,
+          0,
+          0,
+          0
+        ],
+        "red_results": 1,
+        "blue_results": 1,
+        "pixel_cleanup": true,
+        "capture_acks": 2,
+        "host_safe_observed": true,
+        "producer_safe_observed": true,
+        "native_cleanup": true,
+        "cleanup": true,
+        "retained_for_unknown_safety": false,
+        "io_error": false,
+        "pipe_error": false,
+        "clock_error": false,
+        "timeout": false,
+        "elapsed_ms": 2333,
+        "note": "TEST ONLY work 160s total 180s; Native calls 4s checked before/after, not preempted; parent external watchdog 210s; GPU readback/present request is not screen proof; capture acknowledgements are host replies; process exit is not resource SAFE"
+      },
+      "rawSHA256": "2f30f94e6d65b46252cee421a89a75ccd19097f2633757178c8210760d14e520",
+      "sessionSHA256": "deffb8f38a458b15be04def4c3b0a34524f49210e5b203c67d5dffc1699d3b72"
+    }
+  ],
+  "publicSource": {
+    "tests/graphics/window-capture/capture.swift": "11790acfdda222c17677e3f5d24c8a5af83621c4d15e10eb25969282b6697c1b",
+    "tests/graphics/window-capture/visibility-observer.patch": "d95cf63e07da7eb2b83cdcd3cf2152fdf7ec4b1811071988e9ef7c8790d02836",
+    "tests/graphics/window-capture/blue.png": "7235374fc9454c3f8ca4aa9c0a87537c31b651e2af59e01e1dc0516ccac37a0b",
+    "tests/graphics/window-capture/analyze.py": "380147cf7bf8b2b247c7a660e1a37a0b2a23cba2ddb24afe9ff620bf28782a19",
+    "tests/graphics/window-capture/red.png": "61d1f9c4adecb450e69fdd867b9502fa43ceaf159e1511a9d64d3ad8e5478b8d"
+  },
+  "primaryReferences": [
+    "https://developer.apple.com/videos/play/wwdc2022/10155/"
+  ]
+}

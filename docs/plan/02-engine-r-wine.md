@@ -1,5 +1,7 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+最新[129](../research/129-r-v1-window-images-20261101.md)：实际双方向WindowServer红蓝窗口PNG通过，host66/0、producer35/0，704×468相同矩形69776红→蓝像素，4清理/原恢复保护完整。截图工具路径/晚完成P2修复；onScreen过约束按Apple独立Space契约纠正，AppKit初始化缺口修后真实取图，旧failed保留。不是引擎隐藏/锁屏问题；物理显示/输入/性能不冒称通过。继续原三进程图像→foreign前端/CEF，默认/门禁保持。
+
 最新[128](../research/128-r-v1-three-pixel-20261101.md)：实际同Root两个producer并发，双方向host142/0及两个producer各35/0；先A全退出/归还observer，再fresh B仍model1/context持有，之后B完整退出。两槽诊断源审/NDEBUG/9闭包236输入/1430独立检查/7清理恢复保护通过。首轮stdout完整JSON拼行误拒，仅严格重判原raw；反向另验。仍非屏幕/foreign HWND/输入/游戏。原生截图准确ID/PID/title但onScreen=false，未采图/ACK；Mac未锁屏，继续查真实窗口可见性后再原前端，默认/门禁保持。
 
 最新[127](../research/127-r-v1-cross-pixel-20261101.md)：真实双进程相反位宽红蓝各16000像素读回，host62/0、producer35/0，四握手/SAFE/GPU drain/kerneljoin/exit0无强制；Native autoreleasepool修后两份限定复审、14闭包202输入/424独立检查/6清理及原恢复保护通过。首屏幕模式CUA超时failed保留，明确GPU-only无截图ACK；首方向控制器计数误拒仅重判原raw，不重跑。屏幕/foreign HWND/三进程/输入/性能仍待；继续原三进程准备，默认/门禁不变。
