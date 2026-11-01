@@ -1,5 +1,7 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+最新[115](../research/115-r-v1-reply-independent-consumer-20261101.md)：真实一次安装后，测试消费者不使用回复结果决定释放，双PE各25/0；按已知ticket取消，实际模型0／ROSAFE后才销毁context。适配器只隔离消费者的回复知识，没有真实通信失败，不作为完整未知回复验收。仍在当前阶段，正式采用及后续门禁保持。
+
 最新[114](../research/114-r-v1-reservation-isolation-20261101.md)：同producer两个真实RO预留页正常隔离验收，双PE各29/0。取消A不使B或整个producer完成，producer释放后收齐剩余页；普通组件复用且未重编。仍是当前阶段元数据契约，不宣称实际共享context、故障并发、跨进程或后续采用。
 
 最新[113](../research/113-r-v1-lifecycle-order-20261101.md)：当前per-host阶段的取消先行双PE各25/0，已安装根关闭各22/0，实际RO许可、模型状态及context释放顺序均核对。普通组件未改、未重编，不前移多进程；跨进程私有草稿parked且未构建运行。关键NT失败并发验收继续保留，当前门槛未通过不进入后续采用。
