@@ -2,6 +2,8 @@
 
 2026-11-01执行顺序重申（用户决定）：维持当前per-host安装/取消/清理阶段，补齐本阶段正常取消先行、根关闭与仍待验的关键故障契约，再推进多进程消费者、事件reparent、两三进程像素。跨进程私有草稿已搁置、未构建运行，不挪用后续进展替代当前门槛，也不降低原验收标准。
 
+最新[123](../research/123-r-v1-busy-predecessor-20261101.md)：实际A更新users1时嵌套B，真实拒绝交接/B回滚，A仍1且retire_requested0→1，最后use才移除，双PE各25/0。原ctx保持至实际双退役及缺失/disarm后释放。限定审查/NDEBUG/9闭包138输入/2raw组件/5清理/恢复/保护4及五文件重建，3树2EXE归档。caller unmanaged标签，不是Native ticket/全重入证明；当前下一Native异步更新任务实际调度/完成，再原多进程资源/事件reparent/像素，默认与门禁保持。
+
 最新[122](../research/122-r-v1-cocoa-generation-20261101.md)：实际unmanaged Cocoa代次重入正例双PE25/0、旧A0/新B1；唯一去两处后置发布guard对照各12/1只CHECK12，旧A1/新B0，均真实双退役清理。限定正/错源审（错仅诊断）、NDEBUG/固定9闭包124输入+wrongCocoa/4raw组件/10清理/两批恢复/保护4及精确重建，6树4EXE归档。caller高位generation不是Native ticket；继续使用中的旧对象交接、Native异步更新管线，再原多进程资源/事件reparent/像素顺序，默认与门禁保持。
 
 最新[121](../research/121-r-v1-model-use-20261101.md)：实际普通Cocoa更新/局部Retina翻转恢复/移除重入双PE各37/0。setter内真实users1、操作后0；真实scale和裁剪几何匹配。移除请求下模型仍1，最后使用归还才移除0，原ctx/RO保持直到真实CANCEL/SAFE。限定审查/NDEBUG/9闭包133输入/2raw组件/5清理/恢复/保护4及五文件重建绑定，3树2EXE归档。尚非Native异步更新管线/任意代次/busy交接/全局DPI，下一旧新代次与busy交接再原后续多进程资源、事件reparent、像素，默认/门禁与游戏结论不变。

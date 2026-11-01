@@ -4,6 +4,8 @@
 
 ## 最新实际运行接续
 
+最新[123](research/123-r-v1-busy-predecessor-20261101.md)：普通创建选中unmanaged A，普通更新实际users1时直接Cocoa嵌套较新B；真实前任移除因pin不能完成，B实际false/回滚0，A仍三项1、retire_requested0→1，原更新最后use归还才移除A，最终都0。双PE各25/0/CLI0，ctx原始引用保持，真实ProducerSAFE及两checked callbacks/独立都0/disarm后释放。无额外retain/伪造managed/job，caller标签非Native ticket。限定审查0P1/P2，v2只更正六个诊断名，其余Native/PE字节复用；NDEBUG、9闭包138输入/2raw组件/5清理/恢复/保护4、五文件重建，3树2EXE归档。无本轮错误分支，不扩大为任意legacy重入/Native异步更新/ticket/跨进程/像素/性能/游戏；下一Native异步更新实际调度/完成，再原后续资源/事件reparent/像素。普通实现/默认/门禁保持，Windows/Actions/定时/Goal零操作，非本批AppModel保留。
+
 最新[122](research/122-r-v1-cocoa-generation-20261101.md)：实际Cocoa unmanaged代次重入正反完成。真实同context caller标签A>32bit/B=A+1，A实挂后直接同Cocoa方法嵌套B，A部分1/B选择1；普通A恢复返回false并回滚，最终A0/B1，双PE各25/0。仅省略两处恢复后generation/serial发布谓词，对照各12/1/CLI1仅CHECK12，实际旧A1/新B0；其余客户端/PE/对象字节保持。两独立退役责任在效果前锁存，实际ProducerSAFE后unmanagedB仍1/ctx持有，真实双checked callbacks+实际都0+disarm后才释放，四内部cleanup真。限定两份审查接纳（错误仅诊断）、NDEBUG、固定9闭包124输入+唯一wrongCocoa闭包/4raw组件/10清理/两批恢复/保护4、五文件与错误补丁重建，6树4EXE归档。标签不是Native ticket，无伪造managed/job；非Native准备请求并发、busy旧对象、任意替换/跨进程/像素/游戏证明。继续busy交接及Native更新管线再原后续，普通实现/默认/门禁保持，Windows/Actions/定时/Goal零操作，非本批AppModel保留。
 
 最新[121](research/121-r-v1-model-use-20261101.md)：普通Cocoa更新/局部WineContentView Retina翻转恢复/更新内无代次移除重入，双PE各37/0/CLI0。实际setter内users1、模型1，普通返回users0；真实scale/source scale及clipped container/source frame按1×/2×匹配、恢复原模式。移除请求标记retire_requested时对象仍1，最后普通releaseRemoteHostUse才移除为0，ctx/RO持有且仍非SAFE，随后真实CANCEL及Host/producerSAFE再释放。没有额外retain或伪造guard，缺失users为UINTMAX。限定独立审查0P1/P2，NDEBUG、9闭包133输入/2raw组件/5清理/恢复/保护4、五文件重建，3树2EXE归档。首次Cocoa无Windows常量编译失败保留，私有诊断enum与NT/USER返回分开。只是直接普通Cocoa方法/局部view，非Native异步更新管线、任意代次竞争/busy交接、全局DPI/屏幕/像素/性能/游戏；接续旧新代次及busy交接再原后续顺序。普通实现/默认/门禁不改，Windows/Actions/定时/Goal零操作，非本批AppModel保留。
