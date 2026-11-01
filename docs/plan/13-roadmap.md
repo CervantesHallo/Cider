@@ -2,6 +2,8 @@
 
 2026-11-01执行顺序重申（用户决定）：维持当前per-host安装/取消/清理阶段，补齐本阶段正常取消先行、根关闭与仍待验的关键故障契约，再推进多进程消费者、事件reparent、两三进程像素。跨进程私有草稿已搁置、未构建运行，不挪用后续进展替代当前门槛，也不降低原验收标准。
 
+最新[120](../research/120-r-v1-host-status-legacy-20261101.md)：普通legacy→managed交接双PE各30/0，真实旧层1→0、新层1，原context保留；独立旧责任checked retirement及实际缺失确认。legacy-only各22/0明确ProducerSAFE时旧层仍1/ctx持有，旧责任独立清理后才释放。限定源审/NDEBUG/11闭包124输入/4raw组件/9清理/两批恢复/保护4及五文件重建绑定，4树4EXE归档。仍补busy/重入交接、对象更新pin、新旧代次与Retina等当前缺口，再多进程资源、事件reparent、像素；普通实现/默认/门禁和游戏结论保持。
+
 最新[119](../research/119-r-v1-host-status-attached-cancel-20261101.md)：真实挂层期间普通Wine线程CANCEL双PE各32/0；实际图层/ledger1、在途guard1、非SAFE保留至回调恢复，安装返回6及实际移除后才SAFE。另两条真实中止回归各双PE33/0，先ABORT后Native入口和门超时未进入Native均实际join后清理，不伪造done/消耗未用序号。两P2修后最终源审接纳、NDEBUG、13闭包131输入/6raw组件/13清理/三批恢复/保护4及五文件重建绑定，6树6EXE归档。Rootclose直接从Cocoa调用的初案构建前弃用，最终NT/控制仅Wine线程。仍补对象更新pin/新旧代次/legacy/Retina剩余运行，再原后续多进程资源、事件reparent、像素；不改普通实现/默认/门禁或游戏结论。
 
 最新[118](../research/118-r-v1-host-status-timeout-20261101.md)：真实普通USER INSTALL超时/晚安装/原ticket取消通过，双PE均false/ERROR_TIMEOUT1460/3001ms、36/0。超时返回时实际job/control/request仍在、context/RO保留且非SAFE；解除自有事件后实际模型1，唯一CANCEL到模型0及Host/producerSAFE后释放。独立源审/NDEBUG/9闭包122输入/复用对象/raw组件/5清理/恢复/保护4及复用六文件重建绑定，3树2EXE归档。该有限未知回复场景已验收，仍补当前重入/legacy交接，再按原顺序多进程资源、事件reparent、两三进程像素；不扩大为所有timeout/CANCEL组合或默认/游戏通过。
