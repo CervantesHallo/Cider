@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新[128](../research/128-r-v1-three-pixel-20261101.md)：实际同Root两个producer并发，双方向host142/0及两个producer各35/0；先A全退出/归还observer，再fresh B仍model1/context持有，之后B完整退出。两槽诊断源审/NDEBUG/9闭包236输入/1430独立检查/7清理恢复保护通过。首轮stdout完整JSON拼行误拒，仅严格重判原raw；反向另验。仍非屏幕/foreign HWND/输入/游戏。原生截图准确ID/PID/title但onScreen=false，未采图/ACK；Mac未锁屏，继续查真实窗口可见性后再原前端，默认/门禁保持。
+
 最新[127](../research/127-r-v1-cross-pixel-20261101.md)：真实双进程相反位宽红蓝各16000像素读回，host62/0、producer35/0，四握手/SAFE/GPU drain/kerneljoin/exit0无强制；Native autoreleasepool修后两份限定复审、14闭包202输入/424独立检查/6清理及原恢复保护通过。首屏幕模式CUA超时failed保留，明确GPU-only无截图ACK；首方向控制器计数误拒仅重判原raw，不重跑。屏幕/foreign HWND/三进程/输入/性能仍待；继续原三进程准备，默认/门禁不变。
 
 最新[126](../research/126-r-v1-cross-reparent-20261101.md)：实际SetParent宿主自有childslot Root1→Root2→Root1，驱动自动退休旧Root1模型/发布HostSAFE，移回不复活，无CANCEL/手动refresh/RootChanged注入/重INSTALL。双方向各host64/0、producer30/0，CLI0/kerneljoin/exit0无强制；严格源审/9闭包136输入/2raw双EXE组件/5清理/恢复/保护4及重建，3树2EXE归档。非producerHWND前端/物理输入/任意竞态；下一真实两三进程像素/呈现，更广输入/故障如实留待，默认/门禁保持。

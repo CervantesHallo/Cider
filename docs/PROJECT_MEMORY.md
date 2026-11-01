@@ -1,5 +1,9 @@
 # Cider 项目持久记忆
 
+最新[128](research/128-r-v1-three-pixel-20261101.md)：实际同Root两个producer并发，双方向host142/0及两个producer各35/0；先A全退出/归还observer，再fresh B仍model1/context持有，之后B完整退出。两槽诊断源审/NDEBUG/9闭包236输入/1430独立检查/7清理恢复保护通过。首轮stdout完整JSON拼行误拒，仅严格重判原raw；反向另验。仍非屏幕/foreign HWND/输入/游戏。原生截图准确ID/PID/title但onScreen=false，未采图/ACK；Mac未锁屏，继续查真实窗口可见性后再原前端，默认/门禁保持。
+
+私有three-pixel-fixture-v1/source-v1/build-v1/client-build-v1，普通producer client.c沿用cross-pixel-v5字节；Native仅fixed2 observer keyedRoot/child和pixel-window精确ticket选择。runtime-v1为日志行解析failed，first-pair-adjudication严格JSONstream接纳；runtime-v2反向passed，independent-binding-v1通过。当前所有子代理已关闭；用户于本轮明确授权ScreenCaptureKit方法，capture candidate-v2修两P2，v3仅增加精确ID或PID限定元数据并保留onScreen guard，Swift6严格构建和增量审查通过。cross-pixel-runtime-v4失败目标不可用，v5在启动前review schema键错，v6证实目标ID7577/owner67894/title正确但onScreenfalse；无截图/gate，原恢复均完成。IOConsoleLocked=false。不盲重试或假设用户锁屏；接着读取实际Cocoa窗口可见/Space/隐藏/几何，定位前不降低呈现结论。非本批AppModel保留；无Windows/Actions/定时/Goal操作。
+
 最新[127](research/127-r-v1-cross-pixel-20261101.md)：按原顺序进入真实两进程GPU，source v2 Native显式autoreleasepool修复、v5 client保留screen_required和--gpu-only明确证据边界。双方向host62/0、producer35/0，红蓝各16000像素、实际Metal Completed/present请求、四握手及SAFE后GPU drain再原ctx/RO清理，CLI0/kerneljoin/exit0无强制。首屏幕模式getApp -10005未取得绑定，getScreenshot无对象，没有截图/写gate/ACK；60秒超时及forced/内部cleanup=false保持failed，外层清理恢复另证，不在相同条件盲试。GPU首方向控制器期望63错，failed保持，corrected oracle只重判原raw62，不重复运行；reverse新raw完成。最终14闭包202输入、两客户端+Native/PE/F27、424独立检查、6实际清理/原字节或缺失恢复/保护4及五文件patch精确重建。公开tests/graphics/cross-pixel，私有runtime-v1屏幕failed、v2计数failed、v3反向passed、first-pair-adjudication及gpu-independent-binding-v1分别保留。仅GPU/合作回收通过，屏幕/foreign HWND/三进程/输入/性能/游戏及默认不提升；继续原三进程实现准备，不因小项停下。Windows/定时/Goal/Actions零操作，非本批AppModel保持。
 
 更新：2026-11-01。用于后续接管时恢复关键事实；最新用户决定优先，实施状态以 `docs/plan/13-roadmap.md` 和实际源码/记录为准。不要把提案、编译通过和真实会话验收混在一起。

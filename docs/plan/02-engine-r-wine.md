@@ -1,5 +1,7 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+最新[128](../research/128-r-v1-three-pixel-20261101.md)：实际同Root两个producer并发，双方向host142/0及两个producer各35/0；先A全退出/归还observer，再fresh B仍model1/context持有，之后B完整退出。两槽诊断源审/NDEBUG/9闭包236输入/1430独立检查/7清理恢复保护通过。首轮stdout完整JSON拼行误拒，仅严格重判原raw；反向另验。仍非屏幕/foreign HWND/输入/游戏。原生截图准确ID/PID/title但onScreen=false，未采图/ACK；Mac未锁屏，继续查真实窗口可见性后再原前端，默认/门禁保持。
+
 最新[127](../research/127-r-v1-cross-pixel-20261101.md)：真实双进程相反位宽红蓝各16000像素读回，host62/0、producer35/0，四握手/SAFE/GPU drain/kerneljoin/exit0无强制；Native autoreleasepool修后两份限定复审、14闭包202输入/424独立检查/6清理及原恢复保护通过。首屏幕模式CUA超时failed保留，明确GPU-only无截图ACK；首方向控制器计数误拒仅重判原raw，不重跑。屏幕/foreign HWND/三进程/输入/性能仍待；继续原三进程准备，默认/门禁不变。
 
 最新[115](../research/115-r-v1-reply-independent-consumer-20261101.md)：真实一次安装后，测试消费者不使用回复结果决定释放，双PE各25/0；按已知ticket取消，实际模型0／ROSAFE后才销毁context。适配器只隔离消费者的回复知识，没有真实通信失败，不作为完整未知回复验收。仍在当前阶段，正式采用及后续门禁保持。
