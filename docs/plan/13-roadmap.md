@@ -1,5 +1,7 @@
 # 13 路线图与待办（执行顺序）
 
+最新[125](../research/125-r-v1-cross-resource-20261101.md)：指定per-host集合补至124后，按原顺序进入双进程真实资源；64host→32producer及反向各host55/0、producer28/0，CLI0/kerneljoin/exit0无强制。实际ctx/RO/host模型1→0与SAFE后释放绑定三握手真实身份/nonce/seq。setup部分清理P2修后审查接纳，首方向preparse nonce误拒保留failed，只重判原raw未重跑。NDEBUG/160v2/200v1/Unix8/watch2，9闭包131输入/2raw双EXE组件/7清理/恢复/保护4及精确重建，4树4EXE归档。旧parked未改，新副本host自有childslot，非producer HWND路由/像素；下一事件/reparent→两三进程像素，默认/门禁保持。下方“当前per-host/parked”的早期状态为历史检查点，按本条接续。
+
 2026-11-01执行顺序重申（用户决定）：维持当前per-host安装/取消/清理阶段，补齐本阶段正常取消先行、根关闭与仍待验的关键故障契约，再推进多进程消费者、事件reparent、两三进程像素。跨进程私有草稿已搁置、未构建运行，不挪用后续进展替代当前门槛，也不降低原验收标准。
 
 最新[124](../research/124-r-v1-native-async-20261101.md)：普通Native两次refresh实际接纳jobs1/2并在真实Cocoa屏障解除前排队，Wine预检true/true、Cocoa旧false/新true，仅新进入方法users1，两个普通disposer归还后1/0，双PE各32/0。限定审查/NDEBUG/9闭包124输入/2raw组件/5清理/恢复/保护4及五文件重建，3树2EXE归档。限定方法入口/逻辑job完成，不冒称回调尾/线程join/队列全空/全部内存；指定per-host集合已补至Native异步，下一原顺序多进程真实资源消费者→事件reparent→两三进程像素，更广泛故障覆盖如实保留，默认/门禁与游戏结论不变。

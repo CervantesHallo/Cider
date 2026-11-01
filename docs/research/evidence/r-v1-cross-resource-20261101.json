@@ -1,0 +1,1505 @@
+{
+  "schema": "cider.r-v1.cross-resource-evidence/v1",
+  "date": "2026-11-01",
+  "passed": true,
+  "scope": "actual two processes/host-owned windowslot, opposite PE bitness, exported context/actual host model and read-only completion; not producer HWND route or pixels",
+  "reviews": [
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-status-cross-native-review-v1.json",
+      "sha256": "50a2369841e7ba77388a5f948d386f5cb76045aff3045ff256c45f600edcfb8e",
+      "source_admission": true,
+      "findings": [],
+      "limits": [
+        "client.c was not read, hashed, edited, inspected or reviewed. The active codeworker's independent client work is outside this receipt; it needs a later stable-source review.",
+        "No builds, compiler invocations, tests, Wine/app/runtime execution, Windows/network/credential access or delegation were performed.",
+        "Parked cross-v1 and its client/source/inventory were not read or modified. This receipt concerns current cross-v2 only.",
+        "No actual two-process import/login/rendering/pixel/foreign-child/game result or successful cleanup is claimed. All actual-state statements above describe source calls/readbacks/contracts.",
+        "Nonce/pipe/message-pump/deadline/disconnect behavior and whole-run cleanup cannot be admitted from headers/Native helpers alone.",
+        "The known ordinary USER sender retains its existing timeout semantics; the Native fixture's synchronous Cocoa probes have no new hard end-to-end deadline. Client/controller timing remains outside this review.",
+        "Unknown transport or unobservable RO permissions may require external root/process cleanup. No automatic import replay or fabricated permission is introduced to resolve them.",
+        "Compiler/include/export assembly, dependency closure, binaries/raw session binding and final process/timer cleanup were not reviewed. Whole-file hashes bind inspected excerpts, not unrelated exhaustive baseline review.",
+        "Only out/engine-dxmt-bridge-20261025/host-status-cross-native-review-v1.json is written. All source, parked work, active client, prior reports and project memory remain unmodified."
+      ]
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/cross-resource-client-review-v1.json",
+      "sha256": "9e1c5105b0e88ffcd1b16a1927d295e5401a2b4b988006990b022f61b429b4aa",
+      "source_admission": false,
+      "findings": [
+        {
+          "id": "CROSS-CLIENT-P2-01",
+          "priority": "P2",
+          "title": "Host cleanup requires a bound/absent producer scope even when only the setup observer exists",
+          "location": {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v2/client.c",
+            "line": 842
+          },
+          "related_locations": [
+            {
+              "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v2/client.c",
+              "line": 240
+            },
+            {
+              "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v2/client.c",
+              "line": 258
+            },
+            {
+              "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v2/client.c",
+              "line": 743
+            },
+            {
+              "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v2/client.c",
+              "line": 858
+            },
+            {
+              "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v2/native.inc",
+              "line": 193
+            }
+          ],
+          "trigger": "Successful HOST_SETUP retains the observer window, then CreatePipe, output duplication, attribute-list allocation/initialization or CreateProcess fails before any producer exists.",
+          "source_trace": [
+            "native_operation marks native_clean=false before HOST_SETUP. Successful setup records host_setup_ok and owns its observer, but host_bound and last_absent remain false until a later producer-installed probe.",
+            "host_main.done only attempts HOST_FINISH when host_bound&&last_absent. For an early no-producer failure it therefore skips the permitted unbound observer release.",
+            "Even adding that call alone is insufficient: observe(HOST_FINISH) requires host_observation, which requires identity_saved and probe_bound1. A legitimate unbound finish cannot mark native_clean.",
+            "native_clean stays false and the remaining host cleanup skips its own windows/module/class, retaining the observer and other local resources until external process cleanup despite no producer import being possible.",
+            "The same attempt-tracking contract matters for a partial HOST_SETUP: Native may retain the observer before an epoch/birth query error, and the Native receipt explicitly warns that error-frame window_owned is not a complete ownership ledger."
+          ],
+          "evidence_boundary": "The run truthfully fails/reports cleanup=false; this is an avoidable cleanup/progress defect, not fabricated success. It was found independently and also supplied by the parent for assessment. No failure was executed.",
+          "requested_change": "Reconcile the actual HOST_SETUP attempt when no producer was created, using permitted unbound HOST_FINISH and a distinct successful observer-only cleanup ledger that does not require or invent producer identity/model absence. Account for partial/late setup effects rather than relying only on an installed/bound proof. Keep the stronger bound fresh-absence path for the normal resource proof, and allow idempotent cleanup retries without replaying imports."
+        }
+      ],
+      "limits": [
+        "No builds, compiler invocations, tests, Wine/app/runtime execution, Windows/network/credential access or delegation were performed. Parent compile results do not imply execution.",
+        "This is a source-only v2 client receipt. One P2 requires correction before admission; v3 is a separate immutable-copy delta review.",
+        "Native/header admission is reused, not expanded to all server/kernel/renderer states. Unknown transport/NT permission can still require external root/process teardown.",
+        "No hard wall-clock guarantee is made for uninterruptible calls/output; the controller and final process/timer evidence are outside scope.",
+        "No claim is made for hostile peers, arbitrary paths/callers, foreign-child routing, pixels/GPU/compositor output, games or default adoption.",
+        "Only cross-resource-client-review-v1.json is written in this step. Source, the Native receipt, v3 and project memory remain unchanged."
+      ]
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/cross-resource-client-review-v2.json",
+      "sha256": "fad2d48b2ae8d099afc935adebc8bf0fddab57e8339d2583f1e244a90eb5c7e4",
+      "source_admission": false,
+      "findings": [
+        {
+          "id": "CROSS-CLIENT-P2-01",
+          "priority": "P2",
+          "status": "partially_resolved_in_v3",
+          "title": "Partial HOST_SETUP observer ownership still cannot reach or qualify unbound cleanup",
+          "location": {
+            "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v3/client.c",
+            "line": 848
+          },
+          "related_locations": [
+            {
+              "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v3/client.c",
+              "line": 234
+            },
+            {
+              "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v3/client.c",
+              "line": 240
+            },
+            {
+              "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v3/client.c",
+              "line": 263
+            },
+            {
+              "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v3/native.inc",
+              "line": 155
+            },
+            {
+              "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-fixture-v3/native.inc",
+              "line": 193
+            }
+          ],
+          "trigger": "HOST_SETUP actually retains cross_host.window, then its root-epoch check or NtQueryInformationProcess(ProcessTimes) fails before the Native final output block. No producer has been created.",
+          "trace": [
+            "native_operation sets native_clean=false before the setup call. Native owns a possible observer reference, but observe only sets host_setup_ok for a fully successful setup.",
+            "The new done branch still requires !created&&host_setup_ok. A partial setup error leaves host_setup_ok=false, host_bound=false and no producer, so permitted unbound HOST_FINISH is skipped.",
+            "The new unbound-finish observation branch also requires host_setup_ok and a complete queried birth/epoch. Calling finish alone therefore would not qualify local cleanup for the partial-setup case.",
+            "Native HOST_FINISH explicitly supports that unbound cleanup: its remembered root matches the caller's own root and it can release only the observer, with no producer/context/reader/model permission claim.",
+            "Consequently the observer/windows/module can remain unnecessarily retained until outer process cleanup. This is the partial-effect case already identified in the v1 assessment and the Native receipt's caller obligations."
+          ],
+          "requested_change": "Track/reconcile the acknowledged HOST_SETUP attempt, including partial effects, when no producer was created. Permit actual unbound observer cleanup and recognize its successful zero-owner result without requiring the failed setup queries or inventing model absence/producer SAFE. The run should still fail for the setup error. If exact partial identity cannot be represented by the current receipt, normalize/query it in the cleanup API rather than assuming no retained owner.",
+          "boundary": "This is a concrete source branch, not a runtime claim or broad Native baseline audit. It is not unsafe freeing; cleanup remains fail-closed but cannot make available local progress."
+        }
+      ],
+      "limits": [
+        "No builds/tests/runtime, Windows/network/credential access, source edits or delegation were performed. Parent strict compilation is not execution evidence.",
+        "This is a small client delta review. It does not expand the qualified Native baseline into an all-interleavings/failure-injection audit.",
+        "The previous cooperative-deadline and output limits remain: synchronous calls/output are not forcibly preempted, and one fwrite does not guarantee cross-process record atomicity.",
+        "Parent promises strict full-JSON/role-count/identity binding and rejection of incomplete/interleaved output; that external parser/run oracle was not reviewed or executed.",
+        "No actual two-process resource result, cleanup success, pixel/game or default-adoption claim is made.",
+        "Only cross-resource-client-review-v2.json is written in this step. The false v1 receipt and immutable v2/v3 source remain unchanged."
+      ]
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/cross-resource-client-review-v3.json",
+      "sha256": "8827e5ed4fb27d05efacb345ea8313d595b8929b7b136b3daaa33259e2dc28a0",
+      "source_admission": true,
+      "findings": [],
+      "limits": [
+        "No edits to source, builds, tests, runtime, Windows/network/credential access or delegation were performed. Parent compilation is not evidence of execution.",
+        "This is a small related delta review, reusing the prior full client assessment and qualified Native160-v2 context; it is not an expanded Native/all-interleavings audit.",
+        "Existing limits remain: cooperative elapsed checks do not preempt synchronous calls/output, and one fwrite is not a cross-process atomicity guarantee. External full-JSON/role-count/identity binding and scoped run cleanup were not inspected or executed.",
+        "No actual two-process resource result, forced cleanup result, pixel/game or default-adoption claim is made.",
+        "Only cross-resource-client-review-v3.json is written. Both prior false receipts and all v2/v3/v4 source remain unchanged."
+      ]
+    }
+  ],
+  "admission": {
+    "path": "out/engine-dxmt-bridge-20261025/cross-resource-runtime-parent-admission-v1.json",
+    "sha256": "ad4f18acbec832f099295c9e7f18ad8fed0c37bfb8c80234b518f5e2580727d3",
+    "dependencies": 9,
+    "projectInputs": 131,
+    "artifacts": [
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-build-v1/winemac.so",
+        "sha256": "54d0134e5ec9b796b5136080757bbfa094165e55676d2ed39d94551950037fec"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-build-v5/win32u.so",
+        "sha256": "08af46cc74497412110d4058d2945f064f3874a38740c4ff7aa83f1625802b26"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-build-v1/i386/winemac.drv",
+        "sha256": "c6475f154330eeed7a76d5db3e83a222f45f1d998f7c7f784bd5c3e461bc8499"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-cross-build-v1/x86_64/winemac.drv",
+        "sha256": "111a4b40c1e3a31c65943644362761e57f859dcfba958984d19c3d41a22e45cc"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/cross-resource-client-build-v3/i386-cross-resource.exe",
+        "sha256": "c6587d1096a43bbc083d7159ed4e55eaece0d0e03f07184feb180b9726c2ba38"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/cross-resource-client-build-v3/x86_64-cross-resource.exe",
+        "sha256": "67b1fa519af903715a50bba859644057e21744710c91c2c8ba49e1bcc7eed1d6"
+      }
+    ]
+  },
+  "builds": [
+    {
+      "path": "out/engine-dxmt-bridge-20261025/host-status-cross-build-v1/build-v1.json",
+      "sha256": "17ed59f31cf00020df9a0a7177b5a638440fa8fdb85bdde01bf608c9cc31eb06"
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/cross-resource-client-build-v1/build-v1.json",
+      "sha256": "c30170b2641c0471e586111299a58d5ba06c4039dd04c26268559bffc2c3b44e"
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/cross-resource-client-build-v2/build-v1.json",
+      "sha256": "7cde3d82f515f3fd1ba475b515ce20bb6763020be28f60e6f1d97a1f13178baf"
+    },
+    {
+      "path": "out/engine-dxmt-bridge-20261025/cross-resource-client-build-v3/build-v1.json",
+      "sha256": "d6bf4c17e0d839881c2038f048e643444c249c89de31224b05004611ce772c77"
+    }
+  ],
+  "binding": {
+    "path": "out/engine-dxmt-bridge-20261025/cross-resource-independent-binding-v2.json",
+    "sha256": "8e196e77c91d4c9d42d0cb1a96efdb7478384206840a64313fe4cbc2b05523b2",
+    "pairs": [
+      {
+        "direction": "x86_64-host-i386-producer",
+        "identity": {
+          "root": 65624,
+          "child": 65644,
+          "context": 536319575,
+          "epoch": 1,
+          "lease": 18,
+          "ticket": 19,
+          "birth": 134379903445993560,
+          "rootpid": 32,
+          "pid": 312,
+          "rootbirth": 134379903406922370
+        },
+        "host": {
+          "type": "cross-resource",
+          "role": "host",
+          "event": "summary",
+          "bits": 64,
+          "pid": 32,
+          "sequence": 3,
+          "nonce": [
+            6128447778595686451,
+            11578452616393666622
+          ],
+          "complete": true,
+          "checks": 55,
+          "failures": 0,
+          "attempts": 896,
+          "root_pid": 32,
+          "child_pid": 312,
+          "create_attempted": true,
+          "created": true,
+          "producer_cleanup_reported": true,
+          "kernel_joined": true,
+          "exit_known": true,
+          "child_exit": 0,
+          "forced": false,
+          "terminate_returned": false,
+          "host_bound": true,
+          "last_absent": true,
+          "host_finished": true,
+          "native_cleanup": true,
+          "cleanup": true,
+          "io_error": false,
+          "pipe_error": false,
+          "clock_error": false,
+          "timeout": false,
+          "elapsed_ms": 4550,
+          "note": "20 second work deadline reserves cleanup within 25 seconds; synchronous Native calls checked before/after, not forcibly interrupted; child exit is not internal resource SAFE; unknown observers/windows/module retained"
+        },
+        "producer": {
+          "type": "cross-resource",
+          "role": "producer",
+          "event": "summary",
+          "bits": 32,
+          "pid": 312,
+          "sequence": 3,
+          "nonce": [
+            6128447778595686451,
+            11578452616393666622
+          ],
+          "complete": true,
+          "checks": 28,
+          "failures": 0,
+          "attempts": 127,
+          "host_safe_observed": true,
+          "producer_safe_observed": true,
+          "native_cleanup": true,
+          "cleanup": true,
+          "retained_for_unknown_safety": false,
+          "io_error": false,
+          "pipe_error": false,
+          "clock_error": false,
+          "timeout": false,
+          "elapsed_ms": 448,
+          "note": "producer has no local Cocoa evidence; process exit is not internal resource SAFE"
+        },
+        "observations": [
+          {
+            "role": "host",
+            "phase": 1,
+            "producer": {
+              "op": 3,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 7,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934614,
+              "birth": 134379903445993560,
+              "hr": 0,
+              "pr": 0,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 1,
+              "howner": 1,
+              "powner": 1,
+              "window": 0,
+              "close": 0,
+              "hv": 1,
+              "pv": 1,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379903406922370,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934614,
+              "birth": 134379903445993560,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 1,
+              "l": 1,
+              "i": 1,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379903406922370,
+              "probe": 1
+            }
+          },
+          {
+            "role": "producer",
+            "phase": 1,
+            "producer": {
+              "op": 3,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 7,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934614,
+              "birth": 134379903445993560,
+              "hr": 0,
+              "pr": 0,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 1,
+              "howner": 1,
+              "powner": 1,
+              "window": 0,
+              "close": 0,
+              "hv": 1,
+              "pv": 1,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379903406922370,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934614,
+              "birth": 134379903445993560,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 1,
+              "l": 1,
+              "i": 1,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379903406922370,
+              "probe": 1
+            }
+          },
+          {
+            "role": "host",
+            "phase": 2,
+            "producer": {
+              "op": 5,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 15,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934615,
+              "birth": 134379903445993560,
+              "hr": 5,
+              "pr": 0,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 1,
+              "howner": 1,
+              "powner": 1,
+              "window": 0,
+              "close": 0,
+              "hv": 0,
+              "pv": 1,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379903406922370,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934615,
+              "birth": 134379903445993560,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 0,
+              "l": 0,
+              "i": 0,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379903406922370,
+              "probe": 2
+            }
+          },
+          {
+            "role": "producer",
+            "phase": 2,
+            "producer": {
+              "op": 5,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 15,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934615,
+              "birth": 134379903445993560,
+              "hr": 5,
+              "pr": 0,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 1,
+              "howner": 1,
+              "powner": 1,
+              "window": 0,
+              "close": 0,
+              "hv": 0,
+              "pv": 1,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379903406922370,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934615,
+              "birth": 134379903445993560,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 0,
+              "l": 0,
+              "i": 0,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379903406922370,
+              "probe": 2
+            }
+          },
+          {
+            "role": "host",
+            "phase": 3,
+            "producer": {
+              "op": 7,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 63,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934616,
+              "birth": 134379903445993560,
+              "hr": 2,
+              "pr": 2,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 0,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379903406922370,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934616,
+              "birth": 134379903445993560,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 0,
+              "l": 0,
+              "i": 0,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379903406922370,
+              "probe": 3
+            }
+          },
+          {
+            "role": "producer",
+            "phase": 3,
+            "producer": {
+              "op": 7,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 63,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934616,
+              "birth": 134379903445993560,
+              "hr": 2,
+              "pr": 2,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 0,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379903406922370,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 536319575,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934616,
+              "birth": 134379903445993560,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 0,
+              "l": 0,
+              "i": 0,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 32,
+              "pid": 312,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379903406922370,
+              "probe": 3
+            }
+          }
+        ],
+        "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T070527-cross-resource-x86_64-v1-96B86BB7-BA8D-4DE6-941B-F2FF6D299084/wine.log",
+        "rawSHA256": "5d2a9c3ad53106d5f4702ef27632e7df0db4cac9159b1dd8e4b3f6ff4fd6dcf4",
+        "sessionSHA256": "5f1b4a063f5868eb2348f266250dfa40c11d4b86b06b2b70f3b30651618d2d9e",
+        "hostExeSHA256": "67b1fa519af903715a50bba859644057e21744710c91c2c8ba49e1bcc7eed1d6",
+        "peerExeSHA256": "c6587d1096a43bbc083d7159ed4e55eaece0d0e03f07184feb180b9726c2ba38"
+      },
+      {
+        "direction": "i386-host-x86_64-producer",
+        "identity": {
+          "root": 65624,
+          "child": 65644,
+          "context": 3428718452,
+          "epoch": 1,
+          "lease": 18,
+          "ticket": 19,
+          "birth": 134379905236774340,
+          "rootpid": 236,
+          "pid": 320,
+          "rootbirth": 134379905216035440
+        },
+        "host": {
+          "type": "cross-resource",
+          "role": "host",
+          "event": "summary",
+          "bits": 32,
+          "pid": 236,
+          "sequence": 3,
+          "nonce": [
+            1441895865869224697,
+            9410315161976867171
+          ],
+          "complete": true,
+          "checks": 55,
+          "failures": 0,
+          "attempts": 896,
+          "root_pid": 236,
+          "child_pid": 320,
+          "create_attempted": true,
+          "created": true,
+          "producer_cleanup_reported": true,
+          "kernel_joined": true,
+          "exit_known": true,
+          "child_exit": 0,
+          "forced": false,
+          "terminate_returned": false,
+          "host_bound": true,
+          "last_absent": true,
+          "host_finished": true,
+          "native_cleanup": true,
+          "cleanup": true,
+          "io_error": false,
+          "pipe_error": false,
+          "clock_error": false,
+          "timeout": false,
+          "elapsed_ms": 2443,
+          "note": "20 second work deadline reserves cleanup within 25 seconds; synchronous Native calls checked before/after, not forcibly interrupted; child exit is not internal resource SAFE; unknown observers/windows/module retained"
+        },
+        "producer": {
+          "type": "cross-resource",
+          "role": "producer",
+          "event": "summary",
+          "bits": 64,
+          "pid": 320,
+          "sequence": 3,
+          "nonce": [
+            1441895865869224697,
+            9410315161976867171
+          ],
+          "complete": true,
+          "checks": 28,
+          "failures": 0,
+          "attempts": 127,
+          "host_safe_observed": true,
+          "producer_safe_observed": true,
+          "native_cleanup": true,
+          "cleanup": true,
+          "retained_for_unknown_safety": false,
+          "io_error": false,
+          "pipe_error": false,
+          "clock_error": false,
+          "timeout": false,
+          "elapsed_ms": 351,
+          "note": "producer has no local Cocoa evidence; process exit is not internal resource SAFE"
+        },
+        "observations": [
+          {
+            "role": "host",
+            "phase": 1,
+            "producer": {
+              "op": 3,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 7,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934614,
+              "birth": 134379905236774340,
+              "hr": 0,
+              "pr": 0,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 1,
+              "howner": 1,
+              "powner": 1,
+              "window": 0,
+              "close": 0,
+              "hv": 1,
+              "pv": 1,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379905216035440,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934614,
+              "birth": 134379905236774340,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 1,
+              "l": 1,
+              "i": 1,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379905216035440,
+              "probe": 1
+            }
+          },
+          {
+            "role": "producer",
+            "phase": 1,
+            "producer": {
+              "op": 3,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 7,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934614,
+              "birth": 134379905236774340,
+              "hr": 0,
+              "pr": 0,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 1,
+              "howner": 1,
+              "powner": 1,
+              "window": 0,
+              "close": 0,
+              "hv": 1,
+              "pv": 1,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379905216035440,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934614,
+              "birth": 134379905236774340,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 1,
+              "l": 1,
+              "i": 1,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379905216035440,
+              "probe": 1
+            }
+          },
+          {
+            "role": "host",
+            "phase": 2,
+            "producer": {
+              "op": 5,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 15,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934615,
+              "birth": 134379905236774340,
+              "hr": 5,
+              "pr": 0,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 1,
+              "howner": 1,
+              "powner": 1,
+              "window": 0,
+              "close": 0,
+              "hv": 0,
+              "pv": 1,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379905216035440,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934615,
+              "birth": 134379905236774340,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 0,
+              "l": 0,
+              "i": 0,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379905216035440,
+              "probe": 2
+            }
+          },
+          {
+            "role": "producer",
+            "phase": 2,
+            "producer": {
+              "op": 5,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 15,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934615,
+              "birth": 134379905236774340,
+              "hr": 5,
+              "pr": 0,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 1,
+              "howner": 1,
+              "powner": 1,
+              "window": 0,
+              "close": 0,
+              "hv": 0,
+              "pv": 1,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379905216035440,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934615,
+              "birth": 134379905236774340,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 0,
+              "l": 0,
+              "i": 0,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379905216035440,
+              "probe": 2
+            }
+          },
+          {
+            "role": "host",
+            "phase": 3,
+            "producer": {
+              "op": 7,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 63,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934616,
+              "birth": 134379905236774340,
+              "hr": 2,
+              "pr": 2,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 0,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379905216035440,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934616,
+              "birth": 134379905236774340,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 0,
+              "l": 0,
+              "i": 0,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379905216035440,
+              "probe": 3
+            }
+          },
+          {
+            "role": "producer",
+            "phase": 3,
+            "producer": {
+              "op": 7,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 63,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934616,
+              "birth": 134379905236774340,
+              "hr": 2,
+              "pr": 2,
+              "valid": 0,
+              "a": 4294967295,
+              "l": 4294967295,
+              "i": 4294967295,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 0,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 1,
+              "bound": 0,
+              "rootbirth": 134379905216035440,
+              "probe": 0
+            },
+            "host": {
+              "op": 9,
+              "status": 0,
+              "root": 65624,
+              "child": 65644,
+              "context": 3428718452,
+              "flags": 0,
+              "epoch": 1,
+              "lease": 18,
+              "ticket": 19,
+              "sequence": 8589934616,
+              "birth": 134379905236774340,
+              "hr": 2,
+              "pr": 2,
+              "valid": 1,
+              "a": 0,
+              "l": 0,
+              "i": 0,
+              "ctx": 0,
+              "howner": 0,
+              "powner": 0,
+              "window": 1,
+              "close": 0,
+              "hv": 0,
+              "pv": 0,
+              "rootpid": 236,
+              "pid": 320,
+              "role": 2,
+              "bound": 1,
+              "rootbirth": 134379905216035440,
+              "probe": 3
+            }
+          }
+        ],
+        "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T070836-cross-resource-i386-v2-1A528FF9-10CF-4C87-BB8E-3891E57CE00E/wine.log",
+        "rawSHA256": "87f861e1516c749955d88a51c62f0aed7d4214aba2ec87ee5616cc681b615e97",
+        "sessionSHA256": "a9af78d33d1acb4f344b8945e9221afed79bd9f9f6b42aa2399570e71d594271",
+        "hostExeSHA256": "c6587d1096a43bbc083d7159ed4e55eaece0d0e03f07184feb180b9726c2ba38",
+        "peerExeSHA256": "67b1fa519af903715a50bba859644057e21744710c91c2c8ba49e1bcc7eed1d6"
+      }
+    ],
+    "cleanupReceipts": 7,
+    "checkSummary": [
+      {
+        "label": "source/build admission",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "actual effective source closure",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "exact Native/PE/clients",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "exact reviews",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "matching ABI/release assertions",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "frozen F27",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "actual native winemetal",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "first original failure retained and corrected-parse adjudication bound",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "actual restore/protected receipts",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "honest original and second controller states",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual controller/source binding",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "sixteen installed PE module bytes",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "two installed Native modules",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual full GUI/kernel cleanup",
+        "passed": true,
+        "occurrences": 7
+      },
+      {
+        "label": "one unreplayed direction per controller",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "exact raw/session",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual root argv and distinct peer argument",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "exact both executable bytes",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "independent full event parse",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "one summary per actual process",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual distinct producer process and kernel-created PID",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual mixed bitness",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "all actual ordered role checks pass",
+        "passed": true,
+        "occurrences": 4
+      },
+      {
+        "label": "actual bounded truthful role summary",
+        "passed": true,
+        "occurrences": 4
+      },
+      {
+        "label": "preparse zeros only; all later records exact nonce/PID",
+        "passed": true,
+        "occurrences": 4
+      },
+      {
+        "label": "actual normal kernel child join and exit zero",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual producer permission observations",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "three independent request/response state pairs emitted by both roles",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "fixed160 frame words",
+        "passed": true,
+        "occurrences": 111
+      },
+      {
+        "label": "fixture160/version2",
+        "passed": true,
+        "occurrences": 111
+      },
+      {
+        "label": "actual immutable root/producer/context/ticket identities",
+        "passed": true,
+        "occurrences": 12
+      },
+      {
+        "label": "separate actual ownership and exact native host probe",
+        "passed": true,
+        "occurrences": 12
+      },
+      {
+        "label": "actual remote Cocoa model one then zero",
+        "passed": true,
+        "occurrences": 12
+      },
+      {
+        "label": "producer still owns original resources during remote observations",
+        "passed": true,
+        "occurrences": 8
+      },
+      {
+        "label": "actual HostSAFE while context held",
+        "passed": true,
+        "occurrences": 4
+      },
+      {
+        "label": "actual original producer context/readers released only at final phase",
+        "passed": true,
+        "occurrences": 4
+      },
+      {
+        "label": "actual Native dispatch results",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "no import replay; real cancellation/release/ProducerSAFE before destruction",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "fresh actual host absence before observer release",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "independent original config restored",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true,
+        "occurrences": 32
+      },
+      {
+        "label": "all seven run cleanup receipts",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "four actual protected bytes unchanged",
+        "passed": true,
+        "occurrences": 1
+      }
+    ]
+  },
+  "originalFailure": {
+    "path": "out/engine-dxmt-bridge-20261025/cross-resource-runtime-v1.json",
+    "sha256": "35272581b4e3830fc4a06e25fff1d5349a7eddcef2268f200de6dfe776ddd39e",
+    "state": "failed retained",
+    "reason": "controller incorrectly required parsed nonce on first two per-role preparse checks; actual first direction Host55/0/Producer28/0/CLI0"
+  },
+  "adjudication": {
+    "path": "out/engine-dxmt-bridge-20261025/cross-resource-first-pair-adjudication-v2.json",
+    "sha256": "712a0fd31541cfbf1e0e9ae064d08340b7e9780fc4194a7f5293344993921837",
+    "oracle": {
+      "path": "out/engine-dxmt-bridge-20261025/cross_resource_oracle_v2.py",
+      "sha256": "97f09da670dfcb5b855c97827e73ef695b9dafe1d7230fe3371fb57337a0fb12"
+    },
+    "scope": "all full-wire/identity/role/native checks rebound to original raw, no rerun of first direction"
+  },
+  "reverseRuntime": {
+    "path": "out/engine-dxmt-bridge-20261025/cross-resource-runtime-v2.json",
+    "sha256": "e24a6ec2cd8319e6ca40b798a390479f143b2284670248e6ef78c7acfa71a9e8"
+  },
+  "reconstruction": {
+    "path": "out/engine-dxmt-bridge-20261025/cross-resource-public-reconstruction-v1.json",
+    "sha256": "472962772deb1d3f60d85119630cfa7e4fa03786aa613d6d347982bac0413a4d",
+    "report": {
+      "passed": true,
+      "stdout": "patching file 'dlls/winemac.drv/remote_coordinator.c'\npatching file 'dlls/winemac.drv/cocoa_window.m'\npatching file 'dlls/winemac.drv/remote_watch_pe.c'\npatching file 'dlls/winemac.drv/macdrv_main.c'\npatching file 'dlls/winemac.drv/unixlib.h'\n",
+      "stderr": "",
+      "files": {
+        "dlls/winemac.drv/remote_coordinator.c": "c27ea59939685d7b353498122c4d88a3a087550513d47af632896540d747563a",
+        "dlls/winemac.drv/cocoa_window.m": "eff11efca772311ca2e0d9843f10859c7efd3291b9de13be642dce672ab8afe6",
+        "dlls/winemac.drv/remote_watch_pe.c": "a100d9593baec507ceafa78c38eb9fbc83925615e7f81139753e917f69df103e",
+        "dlls/winemac.drv/macdrv_main.c": "d0917c0c9089c0de6d02e90732f3886551233c7be3b8477cedb8de8847c084f5",
+        "dlls/winemac.drv/unixlib.h": "1cc1f7eb02b2149b2501ba9feb8777b78dfebb8823361e3bde34718ab3779661"
+      },
+      "publicSHA256": {
+        "tests/graphics/cross-resource/protocol.h": "85cba16ebdddd7bc6b1b54caa6eba7e5b37ded1997e540951ce905161e438abc",
+        "tests/graphics/cross-resource/native.inc": "8f04c5f56ff3c595a0388f8dbb78d6920e813637f7218d8e78ed9ac3955ebeb6",
+        "tests/graphics/cross-resource/cocoa.inc": "5fc195976a1bfb969e398ca5b6b2325225c2b3305544f67ae8e335dbc0441b81",
+        "tests/graphics/cross-resource/diagnostic.patch": "604cd5e6f1aba8627b737e62d705e3d0f6da43c4bba29c1c9c7b6e64a0fc1f33",
+        "tests/graphics/cross-resource/fixture.h": "2084392ee7133afd8b59a4a25b75084829ff2b3174b47ce4c9e9924055c5dd45",
+        "tests/graphics/cross-resource/probe.h": "6c251cdfc9e4ba34a73231ca34c9497e40e0575248322c7f3fb54eacbf281b02",
+        "tests/graphics/cross-resource/client.c": "ef527d69cabb340f0777fa8c3159c0edd9c08fad9738afec9a6cb1e9e64123f9",
+        "tests/graphics/cross-resource/winemac-fixture.spec": "e2dbab982414c7c19352542dc543ec2bee603596ff8093e055c8513990adbf4d",
+        "tests/graphics/cross-resource/pe.inc": "4aa3262b8a9897efbc017c216ae4a5f2f4d1a4ee2f322d6ef2b2ac969e293b6f"
+      }
+    }
+  },
+  "compaction": {
+    "path": "out/storage-cleanup-20261025/cross-resource-batch-cleanup-v1.json",
+    "sha256": "d6b7fc33a04df09da5b96ef346a76a62af95cb44d78bada9a321f6dc4765ed21",
+    "summary": {
+      "state": "complete",
+      "deletedCount": 4,
+      "beforeFreeBytes": 77692653568,
+      "afterFreeBytes": 77762822144,
+      "protectedFourUnchanged": true,
+      "retainedBaseRechecked": true
+    },
+    "removedOwnedExecutableCopies": [
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/cross-resource-i386-v1.exe",
+        "sha256": "c6587d1096a43bbc083d7159ed4e55eaece0d0e03f07184feb180b9726c2ba38",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/cross-resource-client-build-v3/i386-cross-resource.exe"
+      },
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/cross-resource-x86_64-v1.exe",
+        "sha256": "67b1fa519af903715a50bba859644057e21744710c91c2c8ba49e1bcc7eed1d6",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/cross-resource-client-build-v3/x86_64-cross-resource.exe"
+      },
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/cross-resource-i386-v2.exe",
+        "sha256": "c6587d1096a43bbc083d7159ed4e55eaece0d0e03f07184feb180b9726c2ba38",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/cross-resource-client-build-v3/i386-cross-resource.exe"
+      },
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/cross-resource-x86_64-v2.exe",
+        "sha256": "67b1fa519af903715a50bba859644057e21744710c91c2c8ba49e1bcc7eed1d6",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/cross-resource-client-build-v3/x86_64-cross-resource.exe"
+      }
+    ]
+  },
+  "parkedDraft": {
+    "path": "out/engine-dxmt-bridge-20261025/cross-process-preparation-parked-20261101.json",
+    "sha256": "f457b1d86d5a5bce6cd8eb9425f3043f77259766b3f401018ef741156511d37b",
+    "scope": "v1 remains unchanged; only currentv2/v3/v4 copies compiled/qualified"
+  },
+  "limits": [
+    "host owns root/childslot; no foreign producer HWND frontend route enabled",
+    "normal cooperative lifecycle only, no forced-kill/disconnect/unknown-host-termination qualification",
+    "early/partial HOST_SETUP cleanup fix source reviewed, not runtime fault injected",
+    "one fwrite not crossprocessatomicity guarantee; all actual fullJSON and exactrolechecks rebound",
+    "actual contextID host model not rendered pixels/GPU/compositor/performance/Windows/game/default proof"
+  ]
+}
