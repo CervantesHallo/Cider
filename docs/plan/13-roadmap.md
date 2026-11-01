@@ -2,6 +2,8 @@
 
 2026-11-01执行顺序重申（用户决定）：维持当前per-host安装/取消/清理阶段，补齐本阶段正常取消先行、根关闭与仍待验的关键故障契约，再推进多进程消费者、事件reparent、两三进程像素。跨进程私有草稿已搁置、未构建运行，不挪用后续进展替代当前门槛，也不降低原验收标准。
 
+最新[118](../research/118-r-v1-host-status-timeout-20261101.md)：真实普通USER INSTALL超时/晚安装/原ticket取消通过，双PE均false/ERROR_TIMEOUT1460/3001ms、36/0。超时返回时实际job/control/request仍在、context/RO保留且非SAFE；解除自有事件后实际模型1，唯一CANCEL到模型0及Host/producerSAFE后释放。独立源审/NDEBUG/9闭包122输入/复用对象/raw组件/5清理/恢复/保护4及复用六文件重建绑定，3树2EXE归档。该有限未知回复场景已验收，仍补当前重入/legacy交接，再按原顺序多进程资源、事件reparent、两三进程像素；不扩大为所有timeout/CANCEL组合或默认/游戏通过。
+
 最新[117](../research/117-r-v1-host-status-overlap-20261101.md)：当前安装在途／取消指定交错双PE各36/0，实际control/job/request尚在时USER CANCEL返回997，实际图层0仍RO非SAFE并持有context；真实事件释放/join后操作返回6、guard归零，Host/producerSAFE后实际释放。普通实现不改，独立复审、NDEBUG、raw组件/5清理/恢复/保护4及六文件重建绑定，3树2EXE归档。INSTALL为私有入口进入普通函数，尚非真实USERtimeout或commit入口见证；下一真正未知传输结果及剩余重入/交接，再原后续阶段，默认/游戏状态不变。
 
 最新[116](../research/116-r-v1-host-status-cleanup-20261101.md)：此前关键 NT 失败／CANCEL 指定竞态已实际验收，0027 owns_cell 原实现保持；真实 NtClose=c0000235 后保留部分 owner，另一 CANCEL control 在途时普通计时器重试确实未取得 cell，原 cell／登记／owner 完整保留，真实 join／一次清保护后自主关闭归零。Native NDEBUG、双PE各42/0/CLI0，独立复审两P2修后接纳，raw/104输入/组件/5清理/原恢复/保护4绑定、五文件诊断重建，4树2EXE归档清理。旧工具错误保留历史，本次源码构建运行成功。仍补当前阶段实际安装在途／未知结果取消及重入等运行证据，再进入原后续阶段；不把指定交错推广为全部并发或默认／游戏通过。
