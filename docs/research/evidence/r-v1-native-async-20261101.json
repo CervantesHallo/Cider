@@ -1,0 +1,762 @@
+{
+  "schema": "cider.r-v1.native-async-evidence/v1",
+  "date": "2026-11-01",
+  "scope": "two actual ordinary Native refresh jobs under bounded Cocoa queue barrier; actual validation/method entry/logical job disposal",
+  "passed": true,
+  "review": {
+    "path": "out/engine-dxmt-bridge-20261025/host-async-review-v1.json",
+    "sha256": "bb146098bfcd528fd116b21773c44e265a9c6eeff164c18f6971063770b8ae85",
+    "source_admission": true,
+    "findings": [],
+    "limits": [
+      "No builds, compiler invocations, tests, Wine/app/runtime execution, Windows access, network/credential access or delegation were performed. This is a source-review receipt only.",
+      "The final corrected current client/native bytes are admitted; earlier preparation/template metadata and unused-local versions are superseded. Parent build progress is not independently verified.",
+      "All actual-result wording above describes source calls/readbacks/assertions and their required meanings, not observed results. No normal or counterexample runtime qualification is claimed.",
+      "Method argument recording, method entry and logical job disposal do not certify geometry application without exception, callback-tail exit, global queue idle, all allocations freed or a kernel thread join.",
+      "Scope is the supplied single bound Wine caller and two ordinary Native refresh jobs for one known installed host. It does not cover arbitrary callers/termination/interleavings, USER REFRESH transport, global DPI, cross-process behavior, pixels/GPU/compositor output, performance, games or default adoption.",
+      "Controller, dependencies, compiler/export/include assembly, binaries/raw sessions and final process/timer cleanup were not reviewed. Whole input files are hashed to bind inspected excerpts, not exhaustive unrelated baseline review.",
+      "Only out/engine-dxmt-bridge-20261025/host-async-review-v1.json is written. Source, prior reports, prepared failures and project memory remain unmodified."
+    ]
+  },
+  "admission": {
+    "path": "out/engine-dxmt-bridge-20261025/host-async-runtime-parent-admission-v1.json",
+    "sha256": "7097746f1952e8fccf8a9150ff935c8d241ea71857c035f2f5ff17b3ab5d6561",
+    "dependencies": 9,
+    "projectInputs": 124,
+    "artifacts": [
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-async-build-v1/winemac.so",
+        "sha256": "92fefda73ac379ee8d8ed0730dbe3d9b62a3c358de8b5745271a15e31360ed50"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-status-build-v5/win32u.so",
+        "sha256": "08af46cc74497412110d4058d2945f064f3874a38740c4ff7aa83f1625802b26"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-async-build-v1/i386/winemac.drv",
+        "sha256": "725c397841d2b09654cbe889af51838690993db1239f67123da68ed40f77f9e9"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-async-build-v1/x86_64/winemac.drv",
+        "sha256": "2820c8c4e49f04f3772830021c17f2da93d373f76900cc1476809d6d5911fba1"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-async-build-v1/i386-host-async.exe",
+        "sha256": "ee50d1cc0b1625fc001e3bcce05f6f7b48cd4904dd34fe068a39304ae139d71c"
+      },
+      {
+        "path": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-async-build-v1/x86_64-host-async.exe",
+        "sha256": "2104817ef9257e84a63e35ed03dc9cba9627803c7a83395b13cbb1513d40e255"
+      }
+    ]
+  },
+  "build": {
+    "path": "out/engine-dxmt-bridge-20261025/host-async-build-v1/build-v1.json",
+    "sha256": "a8527435e047c5701968094257d370e64ab492fe0494d3b49d0ab271bd5c9a07"
+  },
+  "runtime": {
+    "path": "out/engine-dxmt-bridge-20261025/host-async-runtime-v1.json",
+    "sha256": "fc120ecd70a5d8a30c66c368d3a381de5058568b5b3052163ba9439f6710bee4",
+    "rows": [
+      {
+        "arch": "x86_64",
+        "summary": {
+          "type": "host-async",
+          "event": "summary",
+          "bits": 64,
+          "checks": 32,
+          "expected_checks": 32,
+          "failures": 0,
+          "epoch": 1,
+          "lease": 17,
+          "ticket": 18,
+          "cleanup": true,
+          "io_error": false
+        },
+        "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T061913-host-async-cross-x86_64-v1-18748011-1855-4140-B1EA-31F31F28A996/wine.log",
+        "rawSHA256": "ed11e11677540fe0bd2feb3e11138979668164730dccd97f07b30b353c114d91",
+        "sessionSHA256": "74023d2f28bbc9e10208da5959894133238fedf181118e52cd8593e756076941",
+        "exeSHA256": "2104817ef9257e84a63e35ed03dc9cba9627803c7a83395b13cbb1513d40e255",
+        "queued": {
+          "op": 1,
+          "status": 0,
+          "flags": 1,
+          "epoch": 1,
+          "lease": 17,
+          "ticket": 18,
+          "latest": 20,
+          "serial": [
+            19,
+            20
+          ],
+          "admission": [
+            1,
+            2
+          ],
+          "pre": [
+            2,
+            2
+          ],
+          "cocoa": [
+            0,
+            0
+          ],
+          "disposed": [
+            0,
+            0
+          ],
+          "disposejobs": [
+            0,
+            0
+          ],
+          "admitted": 2,
+          "method": 0,
+          "users": 0,
+          "mainthread": 0,
+          "holdstarted": 1,
+          "holddone": 0,
+          "holderror": 0,
+          "holdtimely": 0,
+          "queued": [
+            1,
+            1
+          ],
+          "frozenjobs": 2,
+          "frozenheld": 1,
+          "observer": 1,
+          "jobs": 2,
+          "contextowned": 1,
+          "hostread": 0,
+          "hostvalid": 1,
+          "runcomplete": 1,
+          "finished": 0,
+          "error": 0,
+          "holdns": 0,
+          "frame": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clip": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "completed": {
+          "op": 2,
+          "status": 0,
+          "flags": 1,
+          "epoch": 1,
+          "lease": 17,
+          "ticket": 18,
+          "latest": 20,
+          "serial": [
+            19,
+            20
+          ],
+          "admission": [
+            1,
+            2
+          ],
+          "pre": [
+            2,
+            2
+          ],
+          "cocoa": [
+            1,
+            2
+          ],
+          "disposed": [
+            1,
+            1
+          ],
+          "disposejobs": [
+            1,
+            0
+          ],
+          "admitted": 2,
+          "method": 1,
+          "users": 1,
+          "mainthread": 1,
+          "holdstarted": 1,
+          "holddone": 1,
+          "holderror": 0,
+          "holdtimely": 1,
+          "queued": [
+            1,
+            1
+          ],
+          "frozenjobs": 2,
+          "frozenheld": 1,
+          "observer": 1,
+          "jobs": 0,
+          "contextowned": 1,
+          "hostread": 0,
+          "hostvalid": 1,
+          "runcomplete": 1,
+          "finished": 0,
+          "error": 0,
+          "holdns": 31000,
+          "frame": [
+            11.0,
+            11.0,
+            178.0,
+            98.0
+          ],
+          "clip": [
+            11.0,
+            11.0,
+            178.0,
+            98.0
+          ]
+        },
+        "final": {
+          "op": 3,
+          "status": 0,
+          "flags": 1,
+          "epoch": 1,
+          "lease": 17,
+          "ticket": 18,
+          "latest": 20,
+          "serial": [
+            19,
+            20
+          ],
+          "admission": [
+            1,
+            2
+          ],
+          "pre": [
+            2,
+            2
+          ],
+          "cocoa": [
+            1,
+            2
+          ],
+          "disposed": [
+            1,
+            1
+          ],
+          "disposejobs": [
+            1,
+            0
+          ],
+          "admitted": 2,
+          "method": 1,
+          "users": 1,
+          "mainthread": 1,
+          "holdstarted": 1,
+          "holddone": 1,
+          "holderror": 0,
+          "holdtimely": 1,
+          "queued": [
+            1,
+            1
+          ],
+          "frozenjobs": 2,
+          "frozenheld": 1,
+          "observer": 0,
+          "jobs": 4294967295,
+          "contextowned": 1,
+          "hostread": 0,
+          "hostvalid": 1,
+          "runcomplete": 1,
+          "finished": 1,
+          "error": 0,
+          "holdns": 31000,
+          "frame": [
+            11.0,
+            11.0,
+            178.0,
+            98.0
+          ],
+          "clip": [
+            11.0,
+            11.0,
+            178.0,
+            98.0
+          ]
+        }
+      },
+      {
+        "arch": "i386",
+        "summary": {
+          "type": "host-async",
+          "event": "summary",
+          "bits": 32,
+          "checks": 32,
+          "expected_checks": 32,
+          "failures": 0,
+          "epoch": 1,
+          "lease": 17,
+          "ticket": 18,
+          "cleanup": true,
+          "io_error": false
+        },
+        "raw": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/Logs/sessions/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/20261101T061934-host-async-cross-i386-v1-BD454D81-A085-49B5-B662-3621573B2208/wine.log",
+        "rawSHA256": "4419ae462e6b2e5f4d22ef102f3e42e77f3894515d78e82d0855253c0b84bc53",
+        "sessionSHA256": "571fc4310e857d60f0982c44eb021a6d9a7d4d1c1c2e790ede53e5e007a9df5b",
+        "exeSHA256": "ee50d1cc0b1625fc001e3bcce05f6f7b48cd4904dd34fe068a39304ae139d71c",
+        "queued": {
+          "op": 1,
+          "status": 0,
+          "flags": 1,
+          "epoch": 1,
+          "lease": 17,
+          "ticket": 18,
+          "latest": 20,
+          "serial": [
+            19,
+            20
+          ],
+          "admission": [
+            1,
+            2
+          ],
+          "pre": [
+            2,
+            2
+          ],
+          "cocoa": [
+            0,
+            0
+          ],
+          "disposed": [
+            0,
+            0
+          ],
+          "disposejobs": [
+            0,
+            0
+          ],
+          "admitted": 2,
+          "method": 0,
+          "users": 0,
+          "mainthread": 0,
+          "holdstarted": 1,
+          "holddone": 0,
+          "holderror": 0,
+          "holdtimely": 0,
+          "queued": [
+            1,
+            1
+          ],
+          "frozenjobs": 2,
+          "frozenheld": 1,
+          "observer": 1,
+          "jobs": 2,
+          "contextowned": 1,
+          "hostread": 0,
+          "hostvalid": 1,
+          "runcomplete": 1,
+          "finished": 0,
+          "error": 0,
+          "holdns": 0,
+          "frame": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "clip": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        },
+        "completed": {
+          "op": 2,
+          "status": 0,
+          "flags": 1,
+          "epoch": 1,
+          "lease": 17,
+          "ticket": 18,
+          "latest": 20,
+          "serial": [
+            19,
+            20
+          ],
+          "admission": [
+            1,
+            2
+          ],
+          "pre": [
+            2,
+            2
+          ],
+          "cocoa": [
+            1,
+            2
+          ],
+          "disposed": [
+            1,
+            1
+          ],
+          "disposejobs": [
+            1,
+            0
+          ],
+          "admitted": 2,
+          "method": 1,
+          "users": 1,
+          "mainthread": 1,
+          "holdstarted": 1,
+          "holddone": 1,
+          "holderror": 0,
+          "holdtimely": 1,
+          "queued": [
+            1,
+            1
+          ],
+          "frozenjobs": 2,
+          "frozenheld": 1,
+          "observer": 1,
+          "jobs": 0,
+          "contextowned": 1,
+          "hostread": 0,
+          "hostvalid": 1,
+          "runcomplete": 1,
+          "finished": 0,
+          "error": 0,
+          "holdns": 35000,
+          "frame": [
+            11.0,
+            11.0,
+            178.0,
+            98.0
+          ],
+          "clip": [
+            11.0,
+            11.0,
+            178.0,
+            98.0
+          ]
+        },
+        "final": {
+          "op": 3,
+          "status": 0,
+          "flags": 1,
+          "epoch": 1,
+          "lease": 17,
+          "ticket": 18,
+          "latest": 20,
+          "serial": [
+            19,
+            20
+          ],
+          "admission": [
+            1,
+            2
+          ],
+          "pre": [
+            2,
+            2
+          ],
+          "cocoa": [
+            1,
+            2
+          ],
+          "disposed": [
+            1,
+            1
+          ],
+          "disposejobs": [
+            1,
+            0
+          ],
+          "admitted": 2,
+          "method": 1,
+          "users": 1,
+          "mainthread": 1,
+          "holdstarted": 1,
+          "holddone": 1,
+          "holderror": 0,
+          "holdtimely": 1,
+          "queued": [
+            1,
+            1
+          ],
+          "frozenjobs": 2,
+          "frozenheld": 1,
+          "observer": 0,
+          "jobs": 4294967295,
+          "contextowned": 1,
+          "hostread": 0,
+          "hostvalid": 1,
+          "runcomplete": 1,
+          "finished": 1,
+          "error": 0,
+          "holdns": 35000,
+          "frame": [
+            11.0,
+            11.0,
+            178.0,
+            98.0
+          ],
+          "clip": [
+            11.0,
+            11.0,
+            178.0,
+            98.0
+          ]
+        }
+      }
+    ],
+    "cleanupReceipts": 5,
+    "restored": true,
+    "protectedUnchanged": {
+      "/Users/cervantes/Cider/out/Cider.app/Contents/MacOS/Cider": true,
+      "/Users/cervantes/Library/Application Support/Cider/WindowsReferenceControl/budget.json": true,
+      "/Users/cervantes/Library/Application Support/Cider/Bottles/steam-hb-2574/cider-bottle.json": true,
+      "/Users/cervantes/Library/Application Support/Cider/Bottles/bottle-ca8f/cider-bottle.json": true
+    }
+  },
+  "binding": {
+    "path": "out/engine-dxmt-bridge-20261025/host-async-independent-binding-v1.json",
+    "sha256": "1d58b134ef33eab963669d94728bfaf58d1682f65c73880574a4dbcd1c6bc6b6",
+    "checks": [
+      {
+        "label": "source/build admission",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "exact effective includes/source closure",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "six exact metadata artifacts",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "completed controller attached-cancel",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "controller byte identity",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "actual admission identity",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "all five cleanup attempts retained attached-cancel",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "actual kernel/GUI cleanup receipt",
+        "passed": true,
+        "occurrences": 5
+      },
+      {
+        "label": "private ABI group",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "actual F27 core bytes",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "16 actual installed PE modules",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "two actual installed native modules",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "two exact PE executions",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "independent raw/session bytes",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual engine and no-argument fixture",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual client source/prefix identity",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "no unexpected native/model exception",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "independent full event parsing",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "single summary and check sequence",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual32checks/allpassed",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual width/CLI/internal cleanup",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual raw288 async frame",
+        "passed": true,
+        "occurrences": 6
+      },
+      {
+        "label": "async ABI",
+        "passed": true,
+        "occurrences": 6
+      },
+      {
+        "label": "one actual native queue procedure",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "real job admission and snapshot before releasing Cocoa queue",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual both disposers and zero ordinary jobs",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "stale job rejects while latest method uses actual model; ordinary finally disposes both",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "independent observation ref released only after actual work done",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "real managed cancellation, safe and actual context/NT release",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "same actual known-ticket identity throughout queue, work and cleanup",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "actual root/lease/ticket",
+        "passed": true,
+        "occurrences": 2
+      },
+      {
+        "label": "independent original bottle config restored",
+        "passed": true,
+        "occurrences": 1
+      },
+      {
+        "label": "independent original DLL bytes/absence",
+        "passed": true,
+        "occurrences": 16
+      },
+      {
+        "label": "protected four actual bytes",
+        "passed": true,
+        "occurrences": 1
+      }
+    ]
+  },
+  "warnings": {
+    "path": "out/engine-dxmt-bridge-20261025/host-async-warning-binding-v1.json",
+    "sha256": "354c09c29d438f224347716c3bf4761496f4b8df6b9f214d0e74792c42b878cd"
+  },
+  "reconstruction": {
+    "path": "out/engine-dxmt-bridge-20261025/host-async-public-reconstruction-v1.json",
+    "sha256": "33ee8e057d0c0dc8ed1e711008e7fcb71d1a2eceff39f7e914b64a173e968387",
+    "report": {
+      "passed": true,
+      "stdout": "patching file 'dlls/winemac.drv/remote_coordinator.c'\npatching file 'dlls/winemac.drv/cocoa_window.m'\npatching file 'dlls/winemac.drv/remote_watch_pe.c'\npatching file 'dlls/winemac.drv/macdrv_main.c'\npatching file 'dlls/winemac.drv/unixlib.h'\n",
+      "stderr": "",
+      "files": {
+        "dlls/winemac.drv/remote_coordinator.c": "d04e324889528634e47c22175f2a25461f58f5e8e01e705d3a7cd4440653e0a4",
+        "dlls/winemac.drv/cocoa_window.m": "fbfed8ed8258c645f4a53bfcf0e7ba10bdb61a41a5e143efa83dc48dc1d9f8f3",
+        "dlls/winemac.drv/remote_watch_pe.c": "5688b8440b784dff15cd59b7d59d52e4c16d2b82fab18f9dd8fe087b7e9a90ed",
+        "dlls/winemac.drv/macdrv_main.c": "911de8a2f987b3db47d9b3e34928e575968173948284e0b6e842110180ed6a5e",
+        "dlls/winemac.drv/unixlib.h": "59a1e0e3c2b593bc5aafc7ac70b63d773bd004bc1fc1a0295b2b3b94a86176cf"
+      },
+      "reusedPublicSHA256": {
+        "tests/graphics/host-status-live/fixture.h": "adb9ebde66400a8b9873a35c8abd1d3fdd8df254b0f1ff96f1c5e5133be1cd75",
+        "tests/graphics/host-status-live/native.inc": "fa8032a9466a28586b00fd2f1c13f03af9b044fa2ab5a62e846c390741abdd87",
+        "tests/graphics/host-status-live/pe.inc": "d746dfc8a2c9e768fb2e65b4328b5fa8fd16a5483af0804271bd43178d1c1bbc",
+        "tests/graphics/host-status-live/cocoa.inc": "5fc195976a1bfb969e398ca5b6b2325225c2b3305544f67ae8e335dbc0441b81",
+        "tests/graphics/host-status-live/probe.h": "6c251cdfc9e4ba34a73231ca34c9497e40e0575248322c7f3fb54eacbf281b02"
+      },
+      "publicSHA256": {
+        "tests/graphics/host-async/async-pe.inc": "4797b212f2a9cc997882dd2a6b44ef06ab2ce3dac938b850f1bf1747c4dd1a25",
+        "tests/graphics/host-async/diagnostic.patch": "7413c9afb982203f4e96492c12b0f40ae05a12bc9ace7367132253789dd9f074",
+        "tests/graphics/host-async/client.c": "3d905ea1289d37662b5dc59024b110901c192faa97ef700fed479df7ea26a3e9",
+        "tests/graphics/host-async/winemac-fixture.spec": "968df3aa5ced6ed900865d2536074ebbf8270acb7c448c8fd7f97386ba148f97",
+        "tests/graphics/host-async/async.h": "dd28891e79c4fe5308fdd94253243a57a6937e23fedced9a19487f7407707884",
+        "tests/graphics/host-async/async-cocoa.inc": "584ef16e2f28f92a6bf9fd578259f623ef095021ae1f3fbf34e79c7cdf015881",
+        "tests/graphics/host-async/async-native.inc": "f513b03952779685a63dcba61ed94dc70af2d07f7805c91f33db90664d1b79fa"
+      }
+    }
+  },
+  "compaction": {
+    "path": "out/storage-cleanup-20261025/host-async-batch-cleanup-v1.json",
+    "sha256": "4e61b07d48b50f02f0c8cf0be4b12fd9b133406d3da4737618ee4d6b3947e7ba",
+    "summary": {
+      "state": "complete",
+      "deletedCount": 3,
+      "beforeFreeBytes": 77748482048,
+      "afterFreeBytes": 77791129600,
+      "protectedFourUnchanged": true,
+      "retainedBaseRechecked": true
+    },
+    "removedOwnedExecutableCopies": [
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/host-async-cross-x86_64-v1.exe",
+        "sha256": "2104817ef9257e84a63e35ed03dc9cba9627803c7a83395b13cbb1513d40e255",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-async-build-v1/x86_64-host-async.exe"
+      },
+      {
+        "file": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Bottles/mf-allocator-r2-00abf255-54b7-4c5d-b42c-e9179bf0587a/prefix/drive_c/CiderTests/host-async-cross-i386-v1.exe",
+        "sha256": "ee50d1cc0b1625fc001e3bcce05f6f7b48cd4904dd34fe068a39304ae139d71c",
+        "retainedSource": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/host-async-build-v1/i386-host-async.exe"
+      }
+    ]
+  },
+  "limits": [
+    "same installed host, bound Wine caller, selected two-job schedule",
+    "method entry and argument capture are not geometry/pixel application proof",
+    "logical disposer observation is not callback-tail/thread join/all allocation release proof; outer process cleanup separately recorded",
+    "not USER REFRESH transport/arbitrary cancellation/termination/interleavings",
+    "no crossprocess/global DPI/pixels/GPU/compositor/performance/Windows/game/default adoption"
+  ]
+}

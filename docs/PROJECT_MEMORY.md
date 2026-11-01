@@ -4,6 +4,8 @@
 
 ## 最新实际运行接续
 
+最新[124](research/124-r-v1-native-async-20261101.md)：普通Native macdrv_remote_host_refresh两次真实接纳/预检/异步排队，Cocoa仅Unix有界屏障；解除前实际job1/2、两次queued、latest serial已冻结。实际Wine预检true/true、Cocoa旧false/新true，仅新进入普通方法users1/main，普通disposer分别归还后jobs1/0，双PE各32/0/CLI0。ctx/RO保持，真实逻辑任务归还及屏障完成才drop独立h观察ref，再实际CANCEL/Host和producerSAFE/本地清理。限定审查0P1/P2，NDEBUG、9闭包124输入/2raw组件/5清理/恢复/保护4、五文件重建，3树2EXE归档。方法入口/参数不是几何无异常应用；逻辑disposal不是回调尾部退出/线程join/队列全空/全内存释放，外层进程清理另证。指定per-host集合已补至Native异步路径，下一按原顺序多进程真实资源消费者，再事件reparent/两三进程像素，未覆盖任意取消/终止/USER REFRESH组合；默认/门禁不改。Windows/Actions/定时/Goal零操作，非本批AppModel保留。
+
 最新[123](research/123-r-v1-busy-predecessor-20261101.md)：普通创建选中unmanaged A，普通更新实际users1时直接Cocoa嵌套较新B；真实前任移除因pin不能完成，B实际false/回滚0，A仍三项1、retire_requested0→1，原更新最后use归还才移除A，最终都0。双PE各25/0/CLI0，ctx原始引用保持，真实ProducerSAFE及两checked callbacks/独立都0/disarm后释放。无额外retain/伪造managed/job，caller标签非Native ticket。限定审查0P1/P2，v2只更正六个诊断名，其余Native/PE字节复用；NDEBUG、9闭包138输入/2raw组件/5清理/恢复/保护4、五文件重建，3树2EXE归档。无本轮错误分支，不扩大为任意legacy重入/Native异步更新/ticket/跨进程/像素/性能/游戏；下一Native异步更新实际调度/完成，再原后续资源/事件reparent/像素。普通实现/默认/门禁保持，Windows/Actions/定时/Goal零操作，非本批AppModel保留。
 
 最新[122](research/122-r-v1-cocoa-generation-20261101.md)：实际Cocoa unmanaged代次重入正反完成。真实同context caller标签A>32bit/B=A+1，A实挂后直接同Cocoa方法嵌套B，A部分1/B选择1；普通A恢复返回false并回滚，最终A0/B1，双PE各25/0。仅省略两处恢复后generation/serial发布谓词，对照各12/1/CLI1仅CHECK12，实际旧A1/新B0；其余客户端/PE/对象字节保持。两独立退役责任在效果前锁存，实际ProducerSAFE后unmanagedB仍1/ctx持有，真实双checked callbacks+实际都0+disarm后才释放，四内部cleanup真。限定两份审查接纳（错误仅诊断）、NDEBUG、固定9闭包124输入+唯一wrongCocoa闭包/4raw组件/10清理/两批恢复/保护4、五文件与错误补丁重建，6树4EXE归档。标签不是Native ticket，无伪造managed/job；非Native准备请求并发、busy旧对象、任意替换/跨进程/像素/游戏证明。继续busy交接及Native更新管线再原后续，普通实现/默认/门禁保持，Windows/Actions/定时/Goal零操作，非本批AppModel保留。
