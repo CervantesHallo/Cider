@@ -1,0 +1,285 @@
+{
+  "schema": "cider.r-v1-local-preview-evidence/v1",
+  "scope": "Local nondefault component preview; exact assembly, not a new clean whole-engine rebuild",
+  "engineID": "cider-r-v1-preview-20261102-x86_64",
+  "archive": {
+    "sha256": "3116aaf0a3cc5855b4ea6ffe13bbd5d7da0affd7a844fe72560da7999fd0587a",
+    "bytes": 479994028,
+    "members": 5319,
+    "regularFiles": 4812,
+    "symlinks": 15,
+    "ledgerEntries": 4811
+  },
+  "defaultEligible": false,
+  "core": {
+    "lib/wine/x86_64-unix/ntdll.so": "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580",
+    "bin/wineserver": "7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565",
+    "lib/wine/x86_64-unix/wine": "9aba79a0c17f0e59d7b57533c2faee077aa60ad625a16666c57ed5956df32ef5",
+    "bin/wine": "2b4cf054a5179baca48128bebe62680b5167528c180d3615ab70e19b72c196f9"
+  },
+  "sourceSHA256": {
+    "Packages/CiderKit/Sources/CiderStore/EnginePolicy.swift": "ac6986d345587110a1c10ee1682382d6b7817d31bbb2a07f8d04b8754e230284",
+    "tests/runtime/child-policy/probe.c": "34492bbb2d4b4f64bf01bb499d84c85609df62befe8db469c6020752dea3893a"
+  },
+  "rawReceiptSHA256": {
+    "engine-preview-archive-check-v1.json": "b87bc0e13276e77369e6bc54711a65d5f78e3e45982388c85428e9381a6f0437",
+    "engine-preview-archive-check-v2.json": "583a5303c1671befde04844320a4149c56ff14a2874cb19f60dae0ebded873e9",
+    "engine-preview-archive-publication-v1.json": "c7ff614f2181e1c8c98f297fd8875fe5a4da3c2cb27f111c3fbebcafe7c0f37c",
+    "engine-preview-package-runtime-v1.json": "5f5acfd76b49333e6f1c96472251e44311db4f2f4292b5d3d10a53aa5d410ee6",
+    "engine-preview-policy-parent-review-v1.json": "b09422c22e8e17d029c9b214778c77e5c36cbf931d7496ea5f0fb119fcc0d98a",
+    "preview-child-policy-v1/runtime.json": "cce2c0ce9ce9e1075ee2d284e1b3a99c92928f09eaf44de1961ad89436921e3e",
+    "preview-child-policy-v1/build.json": "36001d573b51165c40dbd98bf3ee0f33e854f63bb46bcf1c99a079767c5dc59e",
+    "engine-default-eligibility-parent-review-v1.json": "6a8f61f5db6bbc15ffe6b2e7f9a142a52dd61be3bbc3b8102839ba9870410eea"
+  },
+  "childPolicyBeforeAdmission": {
+    "parentChildCombinations": 4,
+    "allowedChildrenCompleted": 4,
+    "deniedChildrenNotCreated": 16,
+    "error": 1260
+  },
+  "pairedApp": {
+    "sourceCommit": "f51b5dd74b8c3759fb7c153b3a557ac015328b2d",
+    "sourceDelta": {
+      "Packages/CiderKit/Sources/CiderStore/EnginePolicy.swift": "ac6986d345587110a1c10ee1682382d6b7817d31bbb2a07f8d04b8754e230284"
+    },
+    "executables": {
+      "Cider": {
+        "sourceSHA256": "dfbb271336585bee309bd475f7f9ebdc485c3fd0abf6a8b59d8da03f7581f199",
+        "testCopySHA256": "925b9e64a284f00d9ccf7aab2502fd8c412dcd9b8742e760c765d4c218fe5649"
+      },
+      "ciderctl": {
+        "sourceSHA256": "167ec4382860ab709d2fb360aad416917e9a14375443e4489fd6178a38cda20a",
+        "testCopySHA256": "167ec4382860ab709d2fb360aad416917e9a14375443e4489fd6178a38cda20a"
+      },
+      "CiderXPCBridge": {
+        "sourceSHA256": "ed95e6e2fcf43f8ce4ec11aeb76e1434486441ab3a503efdca4eebcc65b17c1b",
+        "testCopySHA256": "ed95e6e2fcf43f8ce4ec11aeb76e1434486441ab3a503efdca4eebcc65b17c1b"
+      }
+    },
+    "freshPrefixCreated": true,
+    "importPreservedDefaultOptOut": true,
+    "importRecordedArchiveHash": true,
+    "childCases": [
+      {
+        "parent": "pe32",
+        "child": "pe32",
+        "events": [
+          {
+            "case": "allowed",
+            "deniedExpected": false,
+            "started": true,
+            "error": 0,
+            "childExit": 73,
+            "ok": true
+          },
+          {
+            "case": "yuanshen",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "genshinimpact",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "starrail",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "zenlesszonezero",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          }
+        ],
+        "logSHA256": "cfcf802defefffadb3546d301c1045dacb41bc4bbc31ef507997edfc3550e5d3",
+        "sessionSHA256": "57fe35ed4de2c0c174a58fe483d0060e4e9023c9e8f094082b18b910a2b36589"
+      },
+      {
+        "parent": "pe32",
+        "child": "pe64",
+        "events": [
+          {
+            "case": "allowed",
+            "deniedExpected": false,
+            "started": true,
+            "error": 0,
+            "childExit": 73,
+            "ok": true
+          },
+          {
+            "case": "yuanshen",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "genshinimpact",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "starrail",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "zenlesszonezero",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          }
+        ],
+        "logSHA256": "cfcf802defefffadb3546d301c1045dacb41bc4bbc31ef507997edfc3550e5d3",
+        "sessionSHA256": "623d45b515c6f987a0e16d9b7464ba7901131bfc4f803742608b0a89e3a291df"
+      },
+      {
+        "parent": "pe64",
+        "child": "pe32",
+        "events": [
+          {
+            "case": "allowed",
+            "deniedExpected": false,
+            "started": true,
+            "error": 0,
+            "childExit": 73,
+            "ok": true
+          },
+          {
+            "case": "yuanshen",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "genshinimpact",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "starrail",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "zenlesszonezero",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          }
+        ],
+        "logSHA256": "cfcf802defefffadb3546d301c1045dacb41bc4bbc31ef507997edfc3550e5d3",
+        "sessionSHA256": "e6b76c968a95c0620bde1d51094c1fca3a23947df263006c67309e56ea414c2f"
+      },
+      {
+        "parent": "pe64",
+        "child": "pe64",
+        "events": [
+          {
+            "case": "allowed",
+            "deniedExpected": false,
+            "started": true,
+            "error": 0,
+            "childExit": 73,
+            "ok": true
+          },
+          {
+            "case": "yuanshen",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "genshinimpact",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "starrail",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          },
+          {
+            "case": "zenlesszonezero",
+            "deniedExpected": true,
+            "started": false,
+            "error": 1260,
+            "childExit": 259,
+            "ok": true
+          }
+        ],
+        "logSHA256": "cfcf802defefffadb3546d301c1045dacb41bc4bbc31ef507997edfc3550e5d3",
+        "sessionSHA256": "32ff611a82b3ba5b5faec4555031ba6b301158958bbcefa1ec173591fc9e83ab"
+      }
+    ],
+    "implicitDefaultRejectedBeforeSpawn": true,
+    "eligiblePreviewRejectedBeforeSpawn": true,
+    "alteredLoaderRejectedBeforeSpawn": true
+  },
+  "cleanup": {
+    "passed": true,
+    "coreRestored": true,
+    "protectedFourUnchanged": true
+  },
+  "priorArchiveFailure": "First tar carried 5319 AppleDouble metadata entries, including outer entry; content matched. Repacked with metadata disabled; old raw failure retained and old regenerable archive removed.",
+  "pending": [
+    "Full M1 application and synchronization matrix",
+    "U performance attribution 8/15 beyond original +/-3%",
+    "Formal whole-engine performance",
+    "Native Windows kernel reference",
+    "New-engine login/CAPTCHA and Retina",
+    "Full games and long-running/update acceptance"
+  ],
+  "published": false,
+  "downloadIndexChanged": false,
+  "productionAppOrBottlesChanged": false,
+  "windowsOperations": 0,
+  "githubActionsStarted": 0,
+  "pairedAppArchive": {
+    "sha256": "fe0ea39bcb19ffcdb8174885d10bf11e8b21271cc97347744f05cb9def390d53",
+    "bytes": 5261228,
+    "files": 28,
+    "exactFilesMatchedSignedSourceApp": true
+  }
+}

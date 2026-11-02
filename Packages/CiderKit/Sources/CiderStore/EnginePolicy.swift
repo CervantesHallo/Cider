@@ -18,11 +18,24 @@ public enum EnginePolicy {
         let server = try FileSafety.child("bin/wineserver", in: engine.wineRoot)
         guard FileSafety.exists(server) else { return false }
         let pair = try EngineStore.sha256(of: module) + ":" + EngineStore.sha256(of: server)
-        guard childPolicyModulePairs.contains(pair) else { return false }
-        let loadingChain = [
-            "lib/wine/x86_64-unix/wine": "12cb5248e71b738f75b85e5a15831c4ae98958f07d356e318a4962ee43c54941",
-            "bin/wine": "f7b6346aa0804aed3a6da2438dd2038b5e96a00ae8b2644bb1a15ca078f0740c",
-        ]
+        let loadingChain: [String: String]
+        if childPolicyModulePairs.contains(pair) {
+            loadingChain = [
+                "lib/wine/x86_64-unix/wine": "12cb5248e71b738f75b85e5a15831c4ae98958f07d356e318a4962ee43c54941",
+                "bin/wine": "f7b6346aa0804aed3a6da2438dd2038b5e96a00ae8b2644bb1a15ca078f0740c",
+            ]
+        } else if engine.manifest.defaultEligible == false,
+                  pair == "64547f41796285be95a3feb8b7f0deaf78212d93ee78aa7eb5af7da0a43f4580:7b0cb109f923ab38c8e41d814fc72c36db1ef2364445043ba9fac9f79cf6f565" {
+            // Nondefault R v1 only. Report137 records actual allowed-child completion and
+            // all four denied images for each PE32/PE64 parent/child combination.
+            // This admits child policy, not full M1, a game verdict or default adoption.
+            loadingChain = [
+                "lib/wine/x86_64-unix/wine": "9aba79a0c17f0e59d7b57533c2faee077aa60ad625a16666c57ed5956df32ef5",
+                "bin/wine": "2b4cf054a5179baca48128bebe62680b5167528c180d3615ab70e19b72c196f9",
+            ]
+        } else {
+            return false
+        }
         for (path, hash) in loadingChain {
             guard try EngineStore.sha256(of: FileSafety.child(path, in: engine.wineRoot)) == hash else { return false }
         }
