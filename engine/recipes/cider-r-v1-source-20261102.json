@@ -1,0 +1,227 @@
+{
+  "schema": "cider.r-v1-source-plan/v1",
+  "id": "cider-r-v1-full-source-20261102",
+  "default_eligible": false,
+  "scope": "Source reconstruction only; not an executable engine recipe or full build acceptance",
+  "source": {
+    "url": "https://github.com/wine-mirror/wine/archive/7b3fff76fa5178f6ce0141b2c776afa2a822f101.tar.gz",
+    "commit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+    "sha256": "be19d188e0bfb7939f8ace82e9450030ae3d78ba872c7b28a3fd56b99bf133bb",
+    "subdir": "wine-7b3fff76fa5178f6ce0141b2c776afa2a822f101"
+  },
+  "patches": [
+    {
+      "path": "engine/porting/wine-11.18/0001-ntdll-preflight-policy-deny.patch",
+      "sha256": "4ed7b5e76245e7a2ee8b3b8c38830031bb5c93a412143fe9b21e013200771c5b"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0002-wined3d-prefer-copy-swap-pixel-formats.patch",
+      "sha256": "a0ddccd214db3ed5499739503a844cb81646c182b93186d653f014f231e076ea"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0003-ntdll-winedllpath-prepend.patch",
+      "sha256": "0b11f524026cf8f40d21b9db0f8252819a98cd7fe70e0ba6ffd8ba182ff54a4f"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0004-wined3d-auto-renderer-opengl-first.patch",
+      "sha256": "af7397d952ea97ff63a55e6188469d4261bffc25cf06a4eeed03e5b33763adee"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0100-macos-inproc-msync.patch",
+      "sha256": "708af3db653384c810f7b0bdeefa27b2076a75e701bbdf369642cd213debde4e"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0101-ntdll-retain-host-loader.patch",
+      "sha256": "94f2c350ae6c1325f97f86522d6f6965510f4493b048256bd9e0232b0b7014b5"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0102-msync-atomic-waitall.patch",
+      "sha256": "6209faf6001add44481c48595d7e8a0db894bf60a944e528b2f99a856fbe1beb"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0103-msync-lease-admission-and-exit-cleanup.patch",
+      "sha256": "fef604f6189b3d75d1ae2d6cfc368838d6caa04a68a5b7ba16800874fc7ad1e7"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0104-msync-thread-local-fork-admission.patch",
+      "sha256": "7aff6ded9550836d8d435f76f9ca115247fe9b7fbe74e5ea07157246e9223bb0"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0113-msync-combine-local-data-and-slot-reuse.patch",
+      "sha256": "67bd7246c8810fda1409def826906abee1d279919c179dc59f079160e684075a"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0115-msync-specialize-single-entry-commit.patch",
+      "sha256": "14d5289971b470bd906a153f513e73777b60487be3e8186d8a7efb52a53f7ba1"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0117-msync-reuse-native-frame-control-data.patch",
+      "sha256": "2ee04252150123988f6fd937ea890eccd6b2ffa6ef5c0e6fddc5acbc606e31de"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0120-msync-try-ready-event-with-closed-native-frame.patch",
+      "sha256": "4a5a082aab0422ae833f30f7d39ba611c8e09fd3acd06e9092f938c3ceacaec6"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0121-msync-bound-ready-owner-retries.patch",
+      "sha256": "7e507b00b629d6501d1e4a599d765477d8afe9785e6227d3445bf63a91508b72"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0122-msync-cached-set-event-native-guard.patch",
+      "sha256": "52e03195c046359cc1ad2231f320a93edb04d84dfb63b445ae5ef6afde8640ef"
+    },
+    {
+      "path": "engine/porting/wine-11.18/candidates/0123-msync-publish-event-waiters-near-park.patch",
+      "sha256": "a1199766ddefba676c2eb6a88ccd1247f17b7a71d1e1d98a526c97512791db18"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0006-kernelbase-per-exe-command-line-append.patch",
+      "sha256": "5bb86e12b7f5956fb030ecc7fc4e96ff41433a900685fe3a3a72e6b836a6fbb2"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0007-winegstreamer-clear-dmo-output-status.patch",
+      "sha256": "b50b50f5a8e939d813004b91091be5baf7bbdfb8862247ba457ad25ac48c01c1"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0008-winmm-stage-device-metadata-before-worker.patch",
+      "sha256": "4ef911425521257cc1d6283c3f0fa39a63a3f4d313a4f36f123099847ac302c9"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0009-mmdevapi-arm-effective-default-notifications.patch",
+      "sha256": "f95367d611c4981874184ef42aa22f52719ca4aafa828f9538ddb39727063336"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0010-mfreadwrite-video-processor-sample-allocator.patch",
+      "sha256": "b22288f08681bd2b71e85ad0f6628e91219cbbeeb6ccdcf5d0b75f61c33b8a29"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0011-winemac-retain-renderer-device-and-check-surface-creation.patch",
+      "sha256": "29eac101629cda5a1f0f2a76c436f0105ab7bd601458b928419735200e90258d"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0012-mfplat-release-owned-samples-before-device-managers.patch",
+      "sha256": "f544aa34a12392a76216a31eb8efca25b7bbdd56d8de10edde1cb520822e5fb2"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0013-mfreadwrite-keep-manager-through-owned-stream-teardown.patch",
+      "sha256": "ed5ad524a4860d6bbba9a93fd0615d03ed993b298f8943949ec0570c0923e29d"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0014-rtworkq-release-result-payload-before-callback-owner.patch",
+      "sha256": "160674e4625c9ac6efefeed08705243724fb9358d924b63cf03507982a47317d"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0015-win32u-register-external-client-surface-lifetimes.patch",
+      "sha256": "745af0b0db1f9f1b6e50c4bcaaee2a4b2dab28e1a49e5b78ed0350f4bfcdd9d2"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0016-winemac-managed-legacy-surface-frontend.patch",
+      "sha256": "fc192a4238b5e979b7f358edfa576f2079d89bbfa8e5f56bbd4e5f0a5c05ec05"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0017-winemac-complete-legacy-table-and-registry-callbacks.patch",
+      "sha256": "81e8d7b98fe2a4bcb3cd4014a1a41e693d10280b8958ebe0d3c78581faf0fe2d"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0018-kernelbase-preserve-registry-create-security-attributes.patch",
+      "sha256": "06aec53207cae127f6098107b7124ed6ff4384cb8b7162f71134bf2e8599e10a"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0019-winemac-clipped-versioned-remote-host-foundation.patch",
+      "sha256": "90f5299bf07602137337c19ebcef2c4d50fda84edb4d1835e440ac8605a2f7ae"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0020-winemac-root-local-host-authority.patch",
+      "sha256": "3c064210a923178844a43aa9a6aa85bd6e6d268d1c9f113fd26dadc8cfe8b2b6"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0021-winemac-typed-producer-process-leases.patch",
+      "sha256": "f10089e172550af42564ec33fb39233ed6bac3eb18c65ed5c1cadf240101f3b8"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0022-winemac-cocoa-model-retirement-completion.patch",
+      "sha256": "a1395e6c2d94abd61d0ab2b0368446077fadcc80e5215a7dacf88bc23424bde4"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0023-winemac-retain-inflight-producer-requests.patch",
+      "sha256": "3a1f75dbf5a7dd8acd0b625811a2a398c50f07b5ab2c857ee0d895d8fdb702d7"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0024-winemac-publish-producer-terminal-cell-and-own-failed-setup.patch",
+      "sha256": "cbefbc61f13a5ca7f1c1d954ed4a4b44b17bb742a4c3934104e86894b7bc1872"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0025-winemac-requeue-status-cleanup-after-blocked-finalization.patch",
+      "sha256": "29073b32b390ed3ded2b57a8a6ddc1c004cc811227488ca485b82aafd07c6794"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0026-winemac-fence-host-jobs-and-own-partial-models.patch",
+      "sha256": "019c95e898719d3292f0ae53039795786493e759b15304135b2edacf7ad1d5e7"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0027-winemac-reserve-host-status-and-cancel-known-tickets.patch",
+      "sha256": "66f81f8773f8e7b13a4141e5e8bd4a9a764a6ad4e193288920177c2b4db76d0d"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0028-winemac-remote-legacy-renderer-frontend.patch",
+      "sha256": "bd55106caa5bc6eb78c1ee1762574bd287e971ee3ed66678261fdc0399a4cb50"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0029-winemac-unify-opt-in-exported-renderer-ownership.patch",
+      "sha256": "582a967486ad57ee770a0b6b0a9ff17da04aa371f49fbf89a5a523b0a9ee8f88"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0030-winemac-resize-exported-bounds-and-wake-on-geometry.patch",
+      "sha256": "5d09875ff4193fee75e3f4dc83e3d7afbe20b0db898256caf92620c0769eebc2"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0031-winemac-preserve-custom-client-caption-geometry.patch",
+      "sha256": "10e60f73b8b603fa81bfafbd0432afd55a700f5b717f1648d048a245f3a421dc"
+    },
+    {
+      "path": "engine/porting/wine-11.18/0032-build-register-shared-msync-and-renderer-headers.patch",
+      "sha256": "3ded5f89d964a1ae59f65a97d19f00d5eddad0671ba6dd99970d85ecfa3d046f"
+    }
+  ],
+  "expected_source_sha256": {
+    "include/wine/gdi_driver.h": "135ef181b129b06d7be87677f1f842d4c1f358b850f6b3e26c3b640060f72cd6",
+    "include/wine/macdrv_remote.h": "89d2a384ee4aeeb0b485375232bc4473029d9ad41950083077f02d87fec81356",
+    "dlls/winemac.drv/macdrv_cocoa.h": "090b23a697693d3236b3ee48a40d511aa69deea782631b5cd23702d020e830de",
+    "dlls/winemac.drv/remote_watch.h": "6ce4ad72554f14b45167bb7a25490098c21cb0fe727c0359889c929d40e6efc9",
+    "dlls/winemac.drv/remote_client.c": "2b46d5d1f609ac4ef31badcdec1d0479aa0a19af918d4df5f57d88c3ca2de02b",
+    "dlls/winemac.drv/macdrv_main.c": "208194d04de2ce4c8e25cc59079caa122cba3530169a6331456527a4a502a44f",
+    "dlls/winemac.drv/macdrv.h": "1d42ad257108c7ef8a2fc0c4f2891fb51cc95aad34aa2a70035d90608e2c83e6",
+    "dlls/winemac.drv/legacy_surface.c": "ce50ec0d8b7d6a5349d8a04731372fa961ec099d302adcd66bd8eb526b1c03bc",
+    "dlls/winemac.drv/status_cell.c": "8baf7ec429bd137ac33c452059f411fcf2bb0e8e731b5a313dc6202023e95532",
+    "dlls/winemac.drv/remote_watch_pe.c": "317a9060b2beb646556204bd7e3a2de80d345990357e958cb88a65a83bb33aa0",
+    "dlls/winemac.drv/remote_renderer.h": "44da941388869acf4d5c9bdd99a61b51e74987e8132103104bda116e0d51152c",
+    "dlls/winemac.drv/legacy_abi.h": "06559ff65f57ab7c81ce216b27c0d7c0b3bf84a5063d35524741eb9864a6e3c7",
+    "dlls/winemac.drv/remote_client_pe.c": "d84e383b52810f337fee87217f0c045265e58f402e933b03be3a318af027f73c",
+    "dlls/winemac.drv/cocoa_window.m": "e43cba8fdfbb4285ca971bea0ef1c44f4ecb61687e28516418b9a973b145294f",
+    "dlls/winemac.drv/unixlib.h": "eec005d04372bf5ae4849f95a8b3f0206d2fb0f9de9dbb3e253613f87cf4b12d",
+    "dlls/winemac.drv/status_wire.h": "30f6e636d1a87c8e3bc039793f98ae48d8c2a4055a261e55d45934111621582e",
+    "dlls/winemac.drv/remote_coordinator.c": "95985f1f5c918cfb989c1b7fe2799816427399e0cf3846780530d626538fe4b0",
+    "dlls/winemac.drv/remote_client.h": "01573d56d2c0148ec4677374fb8a82e5d30336d0a6d0f82ecfd05750163f1c20",
+    "dlls/winemac.drv/dllmain.c": "341286ebc55bfab7e9d3609d107041cb130072ddf63ebddf981088f4919006f9",
+    "dlls/winemac.drv/Makefile.in": "bdaa18aee49a789f9a2865e5ee6138b2b2300ca018efe4738a9e320af031930f",
+    "dlls/winemac.drv/status_cell.h": "68dc28f1994da72842728627ccbfe39325aa085d6db98e02e69e01f1b3a49201",
+    "dlls/winemac.drv/host_status.inc": "c1051a4289ddbd339bd659174c2f3b2beb5d931d30832773b7c625b38d1148ba",
+    "dlls/winemac.drv/window.c": "f01e62d2ff0d5fc95038fea36b1586bd67f6c774055102f8a4eb9e04bbacab6c",
+    "dlls/win32u/message.c": "0059b4c24df9518a9465cee7eaf3cb0baa6e4fbf70a8028e91c1b33e976b122e",
+    "dlls/win32u/window.c": "7b17568f2afa11679f6548d5e28e9d49ad6cdf6eaa4c3182a1abeeee964bb05d",
+    "dlls/ntdll/unix/msync.c": "bf820faabfc4c1d81380e60ec8f5121ca577b5f433c61afad6cd78782d6ddafc",
+    "dlls/ntdll/unix/sync.c": "6a1e4ca32d726b22d3e0653960adf2ed3b7b6d0c1ea96162a60d0af0c8f0668d",
+    "dlls/ntdll/unix/msync.h": "2bb3d3ae1e20c992727907fddb58fa6470db20f5687cb0e097c41ae04ce0321d",
+    "include/wine/msync_coord.h": "4327bf4a5476bf44b4b5bdd4522245f96b1e5a62e6dce4133549953f20897d7c",
+    "server/msync.c": "a1d8f3972f483d70aaf0256f90ebb80a6c11596dd2771b6f7616dfa3725f16f9",
+    "include/Makefile.in": "8b41578bde635a8980bffce72814d0948e7721a7e7ab831a984728340fab6296"
+  },
+  "syncSelection": "0100,0101,0102,0103,0104,0113,0115,0117,0120r2,0121r2,0122r2,0123; excludes alternative failed/diagnostic/compiler branches",
+  "pending": [
+    "whole-source compile/link",
+    "patched PE C++/CRT toolchain binding",
+    "modified DXMT source build inputs",
+    "all bundled runtime/dependency/addon hashes",
+    "new binary capabilities and whole-engine runtime acceptance"
+  ]
+}

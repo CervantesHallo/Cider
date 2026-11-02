@@ -1,0 +1,187 @@
+{
+  "schema": "cider.r-v1-clean-source-evidence/v1",
+  "scope": "Source reconstruction/configure; full build separately pending",
+  "sourcePlanSHA256": "4b578ae739f0c296b3d0c4189f69fa378a664926d37d9df0bb7cee830025d1bc",
+  "preparerSHA256": "258580cab5f68a387820e4f83c94299f8d6d60f34eeaa4717f6ac13c120a058c",
+  "sourceArchiveSHA256": "be19d188e0bfb7939f8ace82e9450030ae3d78ba872c7b28a3fd56b99bf133bb",
+  "sourceCommit": "7b3fff76fa5178f6ce0141b2c776afa2a822f101",
+  "patchCount": 43,
+  "patchesAppliedExactly": true,
+  "expectedSourceChecks": {
+    "include/wine/gdi_driver.h": {
+      "expected": "135ef181b129b06d7be87677f1f842d4c1f358b850f6b3e26c3b640060f72cd6",
+      "actual": "135ef181b129b06d7be87677f1f842d4c1f358b850f6b3e26c3b640060f72cd6",
+      "matched": true
+    },
+    "include/wine/macdrv_remote.h": {
+      "expected": "89d2a384ee4aeeb0b485375232bc4473029d9ad41950083077f02d87fec81356",
+      "actual": "89d2a384ee4aeeb0b485375232bc4473029d9ad41950083077f02d87fec81356",
+      "matched": true
+    },
+    "dlls/winemac.drv/macdrv_cocoa.h": {
+      "expected": "090b23a697693d3236b3ee48a40d511aa69deea782631b5cd23702d020e830de",
+      "actual": "090b23a697693d3236b3ee48a40d511aa69deea782631b5cd23702d020e830de",
+      "matched": true
+    },
+    "dlls/winemac.drv/remote_watch.h": {
+      "expected": "6ce4ad72554f14b45167bb7a25490098c21cb0fe727c0359889c929d40e6efc9",
+      "actual": "6ce4ad72554f14b45167bb7a25490098c21cb0fe727c0359889c929d40e6efc9",
+      "matched": true
+    },
+    "dlls/winemac.drv/remote_client.c": {
+      "expected": "2b46d5d1f609ac4ef31badcdec1d0479aa0a19af918d4df5f57d88c3ca2de02b",
+      "actual": "2b46d5d1f609ac4ef31badcdec1d0479aa0a19af918d4df5f57d88c3ca2de02b",
+      "matched": true
+    },
+    "dlls/winemac.drv/macdrv_main.c": {
+      "expected": "208194d04de2ce4c8e25cc59079caa122cba3530169a6331456527a4a502a44f",
+      "actual": "208194d04de2ce4c8e25cc59079caa122cba3530169a6331456527a4a502a44f",
+      "matched": true
+    },
+    "dlls/winemac.drv/macdrv.h": {
+      "expected": "1d42ad257108c7ef8a2fc0c4f2891fb51cc95aad34aa2a70035d90608e2c83e6",
+      "actual": "1d42ad257108c7ef8a2fc0c4f2891fb51cc95aad34aa2a70035d90608e2c83e6",
+      "matched": true
+    },
+    "dlls/winemac.drv/legacy_surface.c": {
+      "expected": "ce50ec0d8b7d6a5349d8a04731372fa961ec099d302adcd66bd8eb526b1c03bc",
+      "actual": "ce50ec0d8b7d6a5349d8a04731372fa961ec099d302adcd66bd8eb526b1c03bc",
+      "matched": true
+    },
+    "dlls/winemac.drv/status_cell.c": {
+      "expected": "8baf7ec429bd137ac33c452059f411fcf2bb0e8e731b5a313dc6202023e95532",
+      "actual": "8baf7ec429bd137ac33c452059f411fcf2bb0e8e731b5a313dc6202023e95532",
+      "matched": true
+    },
+    "dlls/winemac.drv/remote_watch_pe.c": {
+      "expected": "317a9060b2beb646556204bd7e3a2de80d345990357e958cb88a65a83bb33aa0",
+      "actual": "317a9060b2beb646556204bd7e3a2de80d345990357e958cb88a65a83bb33aa0",
+      "matched": true
+    },
+    "dlls/winemac.drv/remote_renderer.h": {
+      "expected": "44da941388869acf4d5c9bdd99a61b51e74987e8132103104bda116e0d51152c",
+      "actual": "44da941388869acf4d5c9bdd99a61b51e74987e8132103104bda116e0d51152c",
+      "matched": true
+    },
+    "dlls/winemac.drv/legacy_abi.h": {
+      "expected": "06559ff65f57ab7c81ce216b27c0d7c0b3bf84a5063d35524741eb9864a6e3c7",
+      "actual": "06559ff65f57ab7c81ce216b27c0d7c0b3bf84a5063d35524741eb9864a6e3c7",
+      "matched": true
+    },
+    "dlls/winemac.drv/remote_client_pe.c": {
+      "expected": "d84e383b52810f337fee87217f0c045265e58f402e933b03be3a318af027f73c",
+      "actual": "d84e383b52810f337fee87217f0c045265e58f402e933b03be3a318af027f73c",
+      "matched": true
+    },
+    "dlls/winemac.drv/cocoa_window.m": {
+      "expected": "e43cba8fdfbb4285ca971bea0ef1c44f4ecb61687e28516418b9a973b145294f",
+      "actual": "e43cba8fdfbb4285ca971bea0ef1c44f4ecb61687e28516418b9a973b145294f",
+      "matched": true
+    },
+    "dlls/winemac.drv/unixlib.h": {
+      "expected": "eec005d04372bf5ae4849f95a8b3f0206d2fb0f9de9dbb3e253613f87cf4b12d",
+      "actual": "eec005d04372bf5ae4849f95a8b3f0206d2fb0f9de9dbb3e253613f87cf4b12d",
+      "matched": true
+    },
+    "dlls/winemac.drv/status_wire.h": {
+      "expected": "30f6e636d1a87c8e3bc039793f98ae48d8c2a4055a261e55d45934111621582e",
+      "actual": "30f6e636d1a87c8e3bc039793f98ae48d8c2a4055a261e55d45934111621582e",
+      "matched": true
+    },
+    "dlls/winemac.drv/remote_coordinator.c": {
+      "expected": "95985f1f5c918cfb989c1b7fe2799816427399e0cf3846780530d626538fe4b0",
+      "actual": "95985f1f5c918cfb989c1b7fe2799816427399e0cf3846780530d626538fe4b0",
+      "matched": true
+    },
+    "dlls/winemac.drv/remote_client.h": {
+      "expected": "01573d56d2c0148ec4677374fb8a82e5d30336d0a6d0f82ecfd05750163f1c20",
+      "actual": "01573d56d2c0148ec4677374fb8a82e5d30336d0a6d0f82ecfd05750163f1c20",
+      "matched": true
+    },
+    "dlls/winemac.drv/dllmain.c": {
+      "expected": "341286ebc55bfab7e9d3609d107041cb130072ddf63ebddf981088f4919006f9",
+      "actual": "341286ebc55bfab7e9d3609d107041cb130072ddf63ebddf981088f4919006f9",
+      "matched": true
+    },
+    "dlls/winemac.drv/Makefile.in": {
+      "expected": "bdaa18aee49a789f9a2865e5ee6138b2b2300ca018efe4738a9e320af031930f",
+      "actual": "bdaa18aee49a789f9a2865e5ee6138b2b2300ca018efe4738a9e320af031930f",
+      "matched": true
+    },
+    "dlls/winemac.drv/status_cell.h": {
+      "expected": "68dc28f1994da72842728627ccbfe39325aa085d6db98e02e69e01f1b3a49201",
+      "actual": "68dc28f1994da72842728627ccbfe39325aa085d6db98e02e69e01f1b3a49201",
+      "matched": true
+    },
+    "dlls/winemac.drv/host_status.inc": {
+      "expected": "c1051a4289ddbd339bd659174c2f3b2beb5d931d30832773b7c625b38d1148ba",
+      "actual": "c1051a4289ddbd339bd659174c2f3b2beb5d931d30832773b7c625b38d1148ba",
+      "matched": true
+    },
+    "dlls/winemac.drv/window.c": {
+      "expected": "f01e62d2ff0d5fc95038fea36b1586bd67f6c774055102f8a4eb9e04bbacab6c",
+      "actual": "f01e62d2ff0d5fc95038fea36b1586bd67f6c774055102f8a4eb9e04bbacab6c",
+      "matched": true
+    },
+    "dlls/win32u/message.c": {
+      "expected": "0059b4c24df9518a9465cee7eaf3cb0baa6e4fbf70a8028e91c1b33e976b122e",
+      "actual": "0059b4c24df9518a9465cee7eaf3cb0baa6e4fbf70a8028e91c1b33e976b122e",
+      "matched": true
+    },
+    "dlls/win32u/window.c": {
+      "expected": "7b17568f2afa11679f6548d5e28e9d49ad6cdf6eaa4c3182a1abeeee964bb05d",
+      "actual": "7b17568f2afa11679f6548d5e28e9d49ad6cdf6eaa4c3182a1abeeee964bb05d",
+      "matched": true
+    },
+    "dlls/ntdll/unix/msync.c": {
+      "expected": "bf820faabfc4c1d81380e60ec8f5121ca577b5f433c61afad6cd78782d6ddafc",
+      "actual": "bf820faabfc4c1d81380e60ec8f5121ca577b5f433c61afad6cd78782d6ddafc",
+      "matched": true
+    },
+    "dlls/ntdll/unix/sync.c": {
+      "expected": "6a1e4ca32d726b22d3e0653960adf2ed3b7b6d0c1ea96162a60d0af0c8f0668d",
+      "actual": "6a1e4ca32d726b22d3e0653960adf2ed3b7b6d0c1ea96162a60d0af0c8f0668d",
+      "matched": true
+    },
+    "dlls/ntdll/unix/msync.h": {
+      "expected": "2bb3d3ae1e20c992727907fddb58fa6470db20f5687cb0e097c41ae04ce0321d",
+      "actual": "2bb3d3ae1e20c992727907fddb58fa6470db20f5687cb0e097c41ae04ce0321d",
+      "matched": true
+    },
+    "include/wine/msync_coord.h": {
+      "expected": "4327bf4a5476bf44b4b5bdd4522245f96b1e5a62e6dce4133549953f20897d7c",
+      "actual": "4327bf4a5476bf44b4b5bdd4522245f96b1e5a62e6dce4133549953f20897d7c",
+      "matched": true
+    },
+    "server/msync.c": {
+      "expected": "a1d8f3972f483d70aaf0256f90ebb80a6c11596dd2771b6f7616dfa3725f16f9",
+      "actual": "a1d8f3972f483d70aaf0256f90ebb80a6c11596dd2771b6f7616dfa3725f16f9",
+      "matched": true
+    },
+    "include/Makefile.in": {
+      "expected": "8b41578bde635a8980bffce72814d0948e7721a7e7ab831a984728340fab6296",
+      "actual": "8b41578bde635a8980bffce72814d0948e7721a7e7ab831a984728340fab6296",
+      "matched": true
+    }
+  },
+  "sourcePreparationSHA256": "6f26b5883ab80a96948b471c047cd1703b685d95ee29e504c462b07ef94b2bf4",
+  "firstConfigureFailureSHA256": "795a38f457c5b441b766e7b25e31b7bcf40834dbd53f87f78e0aae3906273610",
+  "firstConfigureLogSHA256": "83a1e44a10adab183d97b665a2f803a7ff9acc08bfda719bf2006c3fecef6c41",
+  "configurePassed": true,
+  "configureLogSHA256": "595064cafc8eb73ba04d2fee19ab51053b9c0f5df621a15551675082496fa5cb",
+  "buildStateAtCheckpoint": "building",
+  "buildReceiptSHA256AtCheckpoint": "643b1c9d1f776a4fb1b3f5c712cbc3a197ecdf60e392b5ef8a5091b2dd49b2f8",
+  "buildReceiptMayAdvance": true,
+  "buildScriptSHA256": "b88a3cc48bbc35e8faef993090277d9bb0ca04372b0113e206e3fbcd37b20ae7",
+  "parentMetadataCheckSHA256": "4beec0b4075d26851a41bdd91f036e7f7fa497b8fd5866672b57bd76c3f07b1a",
+  "sourcePlanRejectedByEngineBuilder": true,
+  "sourceArchiveReadThroughSameDescriptor": true,
+  "patchBytesReadOnceAndHashChecked": true,
+  "specifiedConcurrentInputMutationFaultInjected": false,
+  "fullCompilePassed": false,
+  "runtimeAccepted": false,
+  "windowsOperations": 0,
+  "actionsTriggered": 0,
+  "productionDefaultsChanged": false,
+  "parentMetadataScriptMatchesFinal": true
+}

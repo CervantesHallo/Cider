@@ -1,0 +1,21 @@
+Subject: [porting] build: register the shared synchronization and renderer headers
+
+The clean-tree makedep pass resolves wine/* includes through include/Makefile.in.
+Component-only compiler invocations had not exercised this registration.
+This changes the source inventory, not the header contents or runtime contracts.
+
+--- a/include/Makefile.in
++++ b/include/Makefile.in
+@@ -1132,10 +1132,12 @@
+ 	wine/itss.idl \
+ 	wine/list.h \
+ 	wine/lsass.idl \
++	wine/macdrv_remote.h \
+ 	wine/mfinternal.idl \
+ 	wine/mmsystem16.h \
+ 	wine/mscvpdb.h \
+ 	wine/mssign.h \
++	wine/msync_coord.h \
+ 	wine/nsi.h \
+ 	wine/opengl_driver.h \
+ 	wine/orpc.idl \

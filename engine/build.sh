@@ -14,6 +14,16 @@ RECIPE=$(cd "$(dirname "$1")" && pwd)/$(basename "$1"); shift
 STEP=all
 [ "${1:-}" = --step ] && STEP=$2
 
+# Validate optional selection metadata before any build, cleanup or download side effects.
+python3 - "$RECIPE" <<'EOF'
+import json, sys
+d = json.load(open(sys.argv[1]))
+if d.get("schema") == "cider.r-v1-source-plan/v1":
+    sys.exit("source plans require engine/prepare-r-v1.py, not engine/build.sh")
+if "default_eligible" in d and not isinstance(d["default_eligible"], bool):
+    sys.exit("recipe default_eligible must be a boolean")
+EOF
+
 TC=${CIDER_TOOLCHAIN:-$HOME/Library/Caches/Cider/toolchain}
 CACHE=$HOME/Library/Caches/Cider
 DOWNLOADS=$CACHE/downloads
@@ -133,20 +143,23 @@ if [ "$STEP" = all ] || [ "$STEP" = package ]; then
         "$REPO/engine/bundle-gstreamer.sh" "$OUT"
     fi
 
-    version=$("$OUT/engine/bin/wine" --version 2>/dev/null || echo "$(r "d['wine']['version']")")
-    python3 - "$RECIPE" "$OUT/manifest.json" "$version" <<'EOF'
+    # Recipe-declared version is build metadata, not a runtime probe. Only the GUI spawns Wine (ADR-007).
+    python3 - "$RECIPE" "$OUT/manifest.json" <<'EOF'
 import json, sys, hashlib
-recipe, out, version = sys.argv[1], sys.argv[2], sys.argv[3]
+recipe, out = sys.argv[1], sys.argv[2]
 d = json.load(open(recipe))
-json.dump({
+manifest = {
     "schemaVersion": 1, "id": d["id"], "flavor": "R", "channel": d.get("channel", "devel"),
-    "wine": {"version": version, "tree": d["wine"]["tree"]},
+    "wine": {"version": d["wine"]["version"], "tree": d["wine"]["tree"]},
     "cpu_backend": "rosetta-x86_64", "root": "engine",
     "requires": {"macos": "14.0", "rosetta": True},
     "source": {"origin": "local build of engine/recipes/" + recipe.split("/")[-1],
                "sha256": hashlib.sha256(open(recipe, "rb").read()).hexdigest()},
     "libraryPaths": ["frameworks"],
-}, open(out, "w"), indent=2, sort_keys=True)
+}
+if "default_eligible" in d:
+    manifest["default_eligible"] = d["default_eligible"]
+json.dump(manifest, open(out, "w"), indent=2, sort_keys=True)
 EOF
     du -sh "$OUT"
     log "engine ready: $OUT  (install: ciderctl engine install --tree $OUT)"
