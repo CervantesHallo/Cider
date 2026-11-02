@@ -65,13 +65,17 @@ public struct EngineStore: Sendable {
         return engine
     }
 
-    /// The engine new bottles use when none is given: the newest installed one.
+    /// Automatic selection excludes packages that require explicit opt-in.
     public func defaultEngine() throws -> InstalledEngine {
-        let available = try list()
+        let installed = try list()
+        let available = installed.filter { $0.manifest.defaultEligible != false }
         if let published = available.first(where: { $0.manifest.id == "cider-cx26.3-r1-x86_64" }),
            (try? EnginePolicy.supportsChildPreflight(published)) == true { return published }
         if let verified = available.reversed().first(where: { (try? EnginePolicy.supportsChildPreflight($0)) == true }) { return verified }
         guard let engine = available.last else {
+            if !installed.isEmpty {
+                throw CiderError.notFound("已安装的实验引擎需显式选择，请为瓶子指定引擎。")
+            }
             throw CiderError.notFound("no engine installed — run `ciderctl engine install <package>`")
         }
         return engine

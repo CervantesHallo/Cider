@@ -201,6 +201,8 @@ cider/                         # monorepo（公开）
 
 包格式为 `.tar.xz`，根目录含 `manifest.json` 和 `files.sha256`。`engines/index.json` 的条目内嵌同一份 manifest，并加上 `artifact`、`channel`、`yanked`：
 
+2026-11-02 实验包选择约束：实现中的精简 manifest 增加可选布尔字段 `default_eligible`。明确为 false 时，自动默认选择先排除该引擎，之后才执行既有已发布／协议支持／排序回退逻辑；显式按 id 选择和既有瓶子的固定 id 不变。字段缺失保留旧包行为。旧版 App 不识别这个字段，实验包须配套具有此消费能力的 App，不能仅靠写入字段就声称旧消费者也会阻止自动选择。
+
 ```json
 {
   "schemaVersion": 1, "id": "cider-r-11.19-c1-x86_64", "flavor": "R", "channel": "beta",

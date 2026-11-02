@@ -7,6 +7,8 @@ public struct EngineManifest: Codable, Equatable, Sendable {
     /// `R` = x86_64 Wine under Rosetta; `A` = arm64 Wine + FEX (later).
     public var flavor: String
     public var channel: String
+    /// False requires explicit selection. Missing preserves legacy package behavior.
+    public var defaultEligible: Bool?
     public var wine: WineInfo
     public var cpuBackend: String
     /// Path of the Wine tree inside the engine directory, e.g. `wine` (contains bin/, lib/, share/).
@@ -20,14 +22,16 @@ public struct EngineManifest: Codable, Equatable, Sendable {
     enum CodingKeys: String, CodingKey {
         case schemaVersion, id, flavor, channel, wine
         case cpuBackend = "cpu_backend"
+        case defaultEligible = "default_eligible"
         case root, requires, source, libraryPaths
     }
 
-    public init(id: String, flavor: String = "R", channel: String, wine: WineInfo, root: String, requires: Requirements, source: Source) {
+    public init(id: String, flavor: String = "R", channel: String, wine: WineInfo, root: String, requires: Requirements, source: Source, defaultEligible: Bool? = nil) {
         self.schemaVersion = 1
         self.id = id
         self.flavor = flavor
         self.channel = channel
+        self.defaultEligible = defaultEligible
         self.wine = wine
         self.cpuBackend = flavor == "A" ? "fex-arm64" : "rosetta-x86_64"
         self.root = root
