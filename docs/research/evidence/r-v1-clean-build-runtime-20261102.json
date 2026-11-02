@@ -1,0 +1,238 @@
+{
+  "schema": "cider.r-v1-clean-build-runtime/v1",
+  "date": "2026-11-02",
+  "scope": "Whole Wine compile and selected new-byte runtime; not complete engine/M1/game acceptance",
+  "wineWholeBuild": true,
+  "allExternalDependenciesRebuilt": false,
+  "rawReceiptSHA256": {
+    "engine-r-v1-clean-build-20261102-v2/build.json": "7278a4a7605c9420253128646d1600b7540e3b2949e7dadfff06d082935ddfe7",
+    "engine-r-v1-clean-build-20261102-v2/install.json": "1bad3cfb703f8108c5c44bff8dcd2284425a1b7e36b0351329a22bc1b2b3fa4a",
+    "engine-r-v1-clean-build-20261102-v2/stage-signed-v2.json": "fd7d889c32698128ad350b74500c475799935cecec8a7df5c30ae955b923a134",
+    "engine-r-v1-clean-build-20261102-v2/native-signing-first-audit-failure.json": "1ca5cbbf3488fe3e04c51623573dd3fe97b8bcb8fec84f8dfe2356fd9e1361e2",
+    "engine-r-v1-clean-build-20261102-v2/native-signing-v2.json": "e645379c30368752ea2a6fdfaab7d50599e7291fa55413ba52e343ae488092f0",
+    "engine-r-v1-clean-build-20261102-v2/native-load-audit.json": "3e4e8900a97278b49e7d368453139b496406f84635c9cfad021e77cd974ad7a2",
+    "waitall-mac-clean-20261102/private-policy-binding.json": "ca921d06b845e5f0b118b386606a0059a1daa704d5703f77c839868010a88acd",
+    "waitall-mac-clean-20261102/core-runtime-v1.json": "1eda53684eec22a54c11e35b7b315bdfcc372eb0d56e45c001a902e831654a28",
+    "waitall-mac-clean-20261102/media-graphics-v1.json": "7d329d7677ac54123c3e01a2bf6c938611aaec4104597b2bae611a7592f76273",
+    "waitall-mac-clean-20261102/hyp-runtime-v1.json": "a1d4616fb35320565012508f7aa7459b382d354b31441264eb0a890b210b93f5",
+    "waitall-mac-clean-20261102/hyp-reference-runtime-v1.json": "84450f1488db5cae2d1b4f565ed0bfdf61dc5ddb695df575a0ac5322dffbd2fe",
+    "waitall-mac-clean-20261102/hyp-server-runtime-v1.json": "da38b944e1ad50ddc217bc9c07c8256266d1faa0a21419e1f3efbdc2524c9006",
+    "waitall-mac-clean-20261102/core-swap-diagnostic-v1.json": "1bb021ee4f47bb824df002c2cf6097d4b4d2add400a10c31079430153ff409e6",
+    "waitall-mac-clean-20261102/pe-ntdll-swap-diagnostic-v1.json": "261b6ef5993099652b9c4a7a7100fc98c98bedfc8ba0fd451b1a60e0bf1592cd",
+    "waitall-mac-clean-20261102/hyp-clean-reversal-v1.json": "5899edb1322731c3df829406e39572a09826060d57805823cb5794d1b822a47b",
+    "waitall-mac-clean-20261102/hyp-fresh2-runtime-v1.json": "b08deefc574d30a5fb7ac72254a7d7531a0b46ca339a384c76f0b50960a7b31a",
+    "waitall-mac-clean-20261102/dependency-comparison-review.json": "49bdbacca80873de588c23f7c3b6ef4e34d3975af771eff341959847c32b8ffd",
+    "waitall-mac-clean-20261102/ui-control-attempt-v1.json": "067f296fba424509cc9cf14951e99a13b765d4dd158de7d04cd3dd44b901635f"
+  },
+  "core": {
+    "lib/wine/x86_64-unix/ntdll.so": "3d7f5d91030e5340e990baa2a058e5c06a892652ad2108c8d03a277152c1445c",
+    "bin/wineserver": "e6bcd92c8a0a8c09e89cba946efbded625f3b66963c5cbe2ceebf4c98dba5c7f",
+    "lib/wine/x86_64-unix/wine": "726b9386d6a8be6597cc1cb520b2435a7c6b084329c23cc1867d78ca03f0cc85",
+    "bin/wine": "2ff01f1847b3d887c3aa33d3ab4e7d8f8c4701289c122560b437d8d01a8c3294"
+  },
+  "defaultEligible": false,
+  "productionCapabilityExpanded": false,
+  "childPolicy": {
+    "parentChildCombinations": 4,
+    "allowed73": 4,
+    "denied1260": 16,
+    "negativePreSpawnControls": 3
+  },
+  "mediaAndGraphics": [
+    {
+      "kind": "wma",
+      "arch": "i386",
+      "exitCode": 0,
+      "accepted": true,
+      "complete": {
+        "type": "complete",
+        "mode": "correctness",
+        "ok": true,
+        "checks": 32,
+        "empty_checks": 32,
+        "decoded_bytes": 32768,
+        "exhausted": true,
+        "reference_checked": true,
+        "reference_difference": 7,
+        "output_refs": 1,
+        "input_refs": 1,
+        "output_error": false
+      },
+      "cases": null,
+      "logSHA256": "9407ab78e1f216fb597525cb94012bb27a3d2fbd071e580c331b875fb21e53c9",
+      "sessionSHA256": "26c9ec861fcb802dc21c1ebf2103303c9c1bf4315d78e304c058c2c4f4e1c52f"
+    },
+    {
+      "kind": "wma",
+      "arch": "x86_64",
+      "exitCode": 0,
+      "accepted": true,
+      "complete": {
+        "type": "complete",
+        "mode": "correctness",
+        "ok": true,
+        "checks": 32,
+        "empty_checks": 32,
+        "decoded_bytes": 32768,
+        "exhausted": true,
+        "reference_checked": true,
+        "reference_difference": 7,
+        "output_refs": 1,
+        "input_refs": 1,
+        "output_error": false
+      },
+      "cases": null,
+      "logSHA256": "a8de0ac4085e8438c9020fa28d354ce211f790eb08cf54327b62634e61ef597c",
+      "sessionSHA256": "b54961ffc4d086c2c4c3427887c826f1b868968cee51ad9bde143af975283442"
+    },
+    {
+      "kind": "gpu",
+      "arch": "i386",
+      "exitCode": 0,
+      "accepted": true,
+      "complete": [
+        [
+          "gpu-forward",
+          "575",
+          "0",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "cases": [
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "1",
+          "1"
+        ],
+        [
+          "0",
+          "1",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "1"
+        ]
+      ],
+      "logSHA256": "7b1f1d2095d5e5256d40212aeacecb5e811d9f3469135387603c8a3db58ca0ae",
+      "sessionSHA256": "972cac93c4ec1b4975efc99a909480e71059a7a5157e20c17d0a27abeeb2d509"
+    },
+    {
+      "kind": "gpu",
+      "arch": "x86_64",
+      "exitCode": 0,
+      "accepted": true,
+      "complete": [
+        [
+          "gpu-forward",
+          "575",
+          "0",
+          "0",
+          "0",
+          "0"
+        ]
+      ],
+      "cases": [
+        [
+          "0",
+          "0",
+          "1"
+        ],
+        [
+          "1",
+          "1",
+          "1"
+        ],
+        [
+          "0",
+          "1",
+          "1"
+        ],
+        [
+          "1",
+          "0",
+          "1"
+        ]
+      ],
+      "logSHA256": "81443c0df2569e839bbff548977e0283e8f31c82f7d32004c1bcd932cabcab3a",
+      "sessionSHA256": "2dc442a720b3e249e2698037907f906d412f288001d11690dfd93d9583c1840b"
+    },
+    {
+      "kind": "window",
+      "arch": "i386",
+      "exitCode": 0,
+      "accepted": true,
+      "complete": {
+        "type": "window-lifecycle",
+        "bits": 32,
+        "checks": 1415,
+        "failures": 0,
+        "windows": 4,
+        "swapchains": 56,
+        "presents": 168
+      },
+      "cases": null,
+      "logSHA256": "779c7917cdda1133d6c924be10c168a402983255624417813e426f22a3e6e25e",
+      "sessionSHA256": "458f0c238d0deb90a857854da5d5647ea4618a96c28ad2188c75140e6187f6d9"
+    },
+    {
+      "kind": "window",
+      "arch": "x86_64",
+      "exitCode": 0,
+      "accepted": true,
+      "complete": {
+        "type": "window-lifecycle",
+        "bits": 64,
+        "checks": 1415,
+        "failures": 0,
+        "windows": 4,
+        "swapchains": 56,
+        "presents": 168
+      },
+      "cases": null,
+      "logSHA256": "095a551dd1d73cdce4d9677713158cc0c0c38435d75ecf6ae70013edbcb368ad",
+      "sessionSHA256": "f3dfc9ba047c49465a57e8f745aefb810ba7da31fbfeeb91e18b2a9441d2de89"
+    }
+  ],
+  "cleanup": {
+    "coreConfirmed": true,
+    "componentConfirmed": true,
+    "protectedFourUnchanged": true
+  },
+  "hyp": {
+    "initialFailurePreserved": true,
+    "referenceFreshSuccess": true,
+    "serverDiagnosticSuccess": true,
+    "oldCorePositive": true,
+    "oldPEPositive": true,
+    "originalCleanReversalSuccess": true,
+    "anotherFreshFirstStartupSuccess": true,
+    "rootCauseProved": false,
+    "fixAdopted": false,
+    "persistentStateAndTimingConfounded": true
+  },
+  "cold20": {
+    "protocolSHA256": "f69854f0fa65459c27a0b7be87e03c9c8d1bc39051889856e5eee9543d2db003",
+    "stateAtCheckpoint": "running",
+    "rawResultMayAdvance": true
+  },
+  "controls": {
+    "userAuthorized": true,
+    "provider": "CUA",
+    "attempts": 1,
+    "result": "timeoutReached",
+    "performed": false,
+    "Win32OrCGEventFallbackUsed": false
+  },
+  "windowsOperations": 0,
+  "actionsTriggered": 0,
+  "userDefaultsChanged": false
+}
