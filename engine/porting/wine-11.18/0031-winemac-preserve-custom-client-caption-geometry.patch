@@ -1,0 +1,103 @@
+Wine 11.18 semantic port of the qualified Cider 0003-0005 caption fixes.
+
+Initialize both style-mask outputs. Preserve the actual NCCALCSIZE client
+inside the visible window rectangle. When that nonempty client reaches the
+window top, suppress the duplicate native caption while preserving Windows
+styles and borderless resize behavior. Apply decoration before converting
+and syncing content geometry; echo native frame events only for changed
+visible/window insets. No application-name or fixed-pixel special case.
+
+--- a/dlls/win32u/window.c
++++ b/dlls/win32u/window.c
+@@ -2221,6 +2221,10 @@
+     visible_rect.right  -= rect.right;
+     visible_rect.top    -= rect.top;
+     visible_rect.bottom -= rect.bottom;
++    /* NCCALCSIZE may extend the client through a nominal WS_CAPTION. Keep
++     * that actual client inside the host-visible surface, within the window. */
++    if (intersect_rect( &rect, &rects->client, &rects->window ))
++        union_rect( &visible_rect, &visible_rect, &rect );
+     if (visible_rect.top >= visible_rect.bottom) visible_rect.bottom = visible_rect.top + 1;
+     if (visible_rect.left >= visible_rect.right) visible_rect.right = visible_rect.left + 1;
+ 
+--- a/dlls/winemac.drv/window.c
++++ b/dlls/winemac.drv/window.c
+@@ -97,7 +97,12 @@
+     if (ex_style & WS_EX_NOACTIVATE) wf.prevents_app_activation = TRUE;
+     if (EqualRect(&data->rects.window, &data->rects.visible)) return wf;
+ 
+-    return get_window_features_for_style(style, ex_style, data->shaped);
++    wf = get_window_features_for_style(style, ex_style, data->shaped);
++    /* Retain Windows style/resize semantics; an application whose actual
++     * nonempty client reaches the top owns its caption pixels itself. */
++    if (!IsRectEmpty(&data->rects.client) && data->rects.client.top == data->rects.window.top)
++        wf.title_bar = FALSE;
++    return wf;
+ }
+ 
+ 
+@@ -1667,7 +1672,7 @@
+ {
+     struct macdrv_window_features wf = get_window_features_for_style(style, ex_style, FALSE);
+ 
+-    *style_mask = ex_style = 0;
++    *style_mask = *ex_style_mask = 0;
+     if (wf.title_bar)
+     {
+         *style_mask |= WS_CAPTION;
+@@ -1694,6 +1699,7 @@
+     struct macdrv_win_data *data;
+     unsigned int new_style = NtUserGetWindowLongW(hwnd, GWL_STYLE);
+     struct window_rects old_rects;
++    BOOL visible_insets_changed;
+ 
+     if (!(data = get_win_data(hwnd))) return;
+ 
+@@ -1701,6 +1707,11 @@
+ 
+     old_rects = data->rects;
+     data->rects = *new_rects;
++    visible_insets_changed =
++        (LONGLONG)old_rects.visible.left - old_rects.window.left != (LONGLONG)new_rects->visible.left - new_rects->window.left ||
++        (LONGLONG)old_rects.visible.top - old_rects.window.top != (LONGLONG)new_rects->visible.top - new_rects->window.top ||
++        (LONGLONG)old_rects.window.right - old_rects.visible.right != (LONGLONG)new_rects->window.right - new_rects->visible.right ||
++        (LONGLONG)old_rects.window.bottom - old_rects.visible.bottom != (LONGLONG)new_rects->window.bottom - new_rects->visible.bottom;
+ 
+     TRACE("win %p/%p new_rects %s style %08x flags %08x surface %p\n", hwnd, data->cocoa_window,
+           debugstr_window_rects(new_rects), new_style, swp_flags, surface);
+@@ -1713,15 +1724,17 @@
+             hide_window(data);
+     }
+ 
+-    /* check if we are currently processing an event relevant to this window */
+-    if (!thread_data || !thread_data->current_event ||
++    /* A native frame event normally must not be echoed. A new NCCALCSIZE
++     * inset invalidates the old content conversion, so sync that change. */
++    if (visible_insets_changed || !thread_data || !thread_data->current_event ||
+         !data->cocoa_window || thread_data->current_event->window != data->cocoa_window ||
+         (thread_data->current_event->type != WINDOW_FRAME_CHANGED &&
+          thread_data->current_event->type != WINDOW_DID_UNMINIMIZE))
+     {
+-        sync_window_position(data, swp_flags, &old_rects);
+         if (data->cocoa_window)
+             set_cocoa_window_properties(data);
++        /* Decoration changes affect Cocoa frame/content conversion. */
++        sync_window_position(data, swp_flags, &old_rects);
+     }
+ 
+     if (new_style & WS_VISIBLE)
+--- a/dlls/winemac.drv/cocoa_window.m
++++ b/dlls/winemac.drv/cocoa_window.m
+@@ -77,7 +77,11 @@
+         if (wf->resizable || wf->maximize_button) style_mask |= NSWindowStyleMaskResizable;
+         if (wf->utility) style_mask |= NSWindowStyleMaskUtilityWindow;
+     }
+-    else style_mask = NSWindowStyleMaskBorderless;
++    else
++    {
++        style_mask = NSWindowStyleMaskBorderless;
++        if (wf->resizable) style_mask |= NSWindowStyleMaskResizable;
++    }
+ 
+     if (wf->prevents_app_activation) style_mask |= NSWindowStyleMaskNonactivatingPanel;
+ 

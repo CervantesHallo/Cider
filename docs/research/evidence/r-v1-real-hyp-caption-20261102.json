@@ -1,0 +1,451 @@
+{
+  "schema": "cider.engine-r-real-hyp-caption/v1",
+  "scope": "Exact official payload runtime-only CEF/D3D11 main window and custom caption fix on new Engine R; not installation/login/input/update/game/performance acceptance",
+  "realCEFRenderingObserved": true,
+  "captionVisualAccepted": true,
+  "installerOnNewEngineAccepted": false,
+  "loginAccepted": false,
+  "inputAccepted": true,
+  "retinaModeSwitchAccepted": false,
+  "updateAccepted": false,
+  "gameAccepted": false,
+  "performanceAccepted": false,
+  "defaultAdopted": false,
+  "artifacts": {
+    "hyp-r-v1-installer-inspection-v1.json": "c98270b92c8f6fbe0db62a1d8b79a235ed50b9cdf121757676fe3bece6e612b9",
+    "hyp-runtime-package-v1/header-candidates-v1.json": "800ad1927a6bab95c580054ad3bc7e5413d63791d495294bab2ea598960729de",
+    "hyp-runtime-package-v1/inspection-v2.json": "f67dfabe9ebc32bc5d4dbfc41001466e9eebb8e8c072cbe4b33609dd27d498ec",
+    "hyp-runtime-package-v1/extraction-v1.json": "3c9bb0e0120f9da431d582a621d9c0a0b92f4a2792acb9eaacb35e5947d8d832",
+    "hyp-r-v1-bottle-create-v1.json": "505104c6d29b091577d3582bfa950f60384916ebaf1295ad270b6bf3d7db1440",
+    "hyp-r-v1-payload-preparation-v1.json": "3e5a118b7938071e8950869c1df659e8a7fd43886be4d6a39e986329a42097c5",
+    "hyp-r-v1-capture-parent-review-v1.json": "a42b5c1ccdea1f8aaedf770b34f1c43eb8ed0fb7a81e33c07b28713000af307e",
+    "hyp-r-v1-runtime-v1.json": "c30c529faa51dae4478263e268904396ecda9a3491c344b3117500d1a690d316",
+    "hyp-r-v1-runtime-v2.json": "43f98f4a74fada98bbd6fecadb70914450375e06539de5b273cba13edb6f00db",
+    "hyp-r-v1-runtime-v3.json": "5041efdcb9d0583a42a9426e6806421b9eaeeebcb4475bf6ea411f5ec33bd383",
+    "renderer-caption-source-review-v1.json": "85e4ec9f5eaa9ccdcb73d95924c165cd643f7605d695138cce7b1e4d363dfc19",
+    "hyp-caption-parent-experimental-admission-v1.json": "23efc45d52b3bff14e749adec72c5e82ee0cb9f8d1fa08f1fc25faa55cd53fa2",
+    "renderer-caption-coupled-v1/build-v1.json": "137eb720de60c3818d22de955ff48c883b7135a70bea3b0d57d78848f8050f1a",
+    "staging-renderer-caption-v1.json": "90540807ba1c4ce1b86579344518ec0ffe4464530bec88e9e85b7982262c0069",
+    "renderer-caption-warning-binding-v1.json": "d9e4fd4f0f2a2fcf0041cbe49194c4a1737fd6d4922fa76be9f48be113c47fe4",
+    "hyp-r-v1-caption-parent-binding-v1.json": "196ab41ecede1107026c57c2af93c54d9e0a128bf16af9f81976069adcf89415",
+    "renderer-caption-local-lifecycle-v1.json": "f96a29cc5f42f95bbed828d16da918867829c3b105c76256c6fa97bd9e9272d9",
+    "renderer-caption-local-parent-binding-v1.json": "81259c9f536dfea3788b58d42f0cec0c9da2bec4a4d0a04ae84bb57c403dc6e0",
+    "renderer-caption-public-reconstruction-v1.json": "5b3f1b5fb71810e34dade12d7abf5643637971d3b8e9b1b0f42c52d3ed896af7",
+    "hyp-r-v1-user-interaction-v1.json": "8843a107f4e57bf8cacaf631bd1d1053fa4fca72fa0e33dcd763ade98023b332",
+    "hyp-r-v1-normal-relaunch-v1.json": "cd1e4efea5f2ca63552dee79ede61ee171bdb9c77495437590c58f24761c5b8b",
+    "hyp-r-v1-updated-official-relaunch-v1.json": "ca9aa512f657f93188b5d7edd92ca794461176da94a62a90000a15596c2d95b1",
+    "hyp-r-v1-interactive-final-cleanup-v1.json": "617268c4b1e0421a435fa4c2380325269955097ffc20aeb5a4bcb4cfa587e8fa",
+    "hyp-window-not-visible-root-cause-v1.json": "90d991757949e3e2f955506dc88c3c0cc065285aa7db9a4cda81ee33eac39b94"
+  },
+  "payload": {
+    "version": "1.18.0.380",
+    "sourceInstallerSHA256": "9a4402330fb9ea2cad21f21326383e46dd58c4f62277532ae8a62e248a7b943d",
+    "vendorPayloadFilesUnchanged": 135,
+    "originalUserBottleOrGamesCopied": false,
+    "immutabilityTiming": "135 files matched at earlier fixed1.18 observation; later interactive app state changed to1.19, not part of that cohort"
+  },
+  "captionMetrics": {
+    "clientTopBefore": 86,
+    "visibleTopBefore": 116,
+    "clientTopAfter": 86,
+    "visibleTopAfter": 86
+  },
+  "observations": [
+    {
+      "version": 1,
+      "runtimeSHA256": "c30c529faa51dae4478263e268904396ecda9a3491c344b3117500d1a690d316",
+      "engineID": "cider-lab-wine11.18-renderer-bounds-r4-x86_64",
+      "logSHA256": "b4a007ac354ee5efca3e651e894f9229cc6da90a073e5a1024900200a601721d",
+      "sessionSHA256": "28553f59bf48e1e84fae482666a7014a3ac6b5c33397f7c8d362e2f6bc3e957e",
+      "images": [
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/hyp-app-window-0a77b78678fb47e886c2d63cbbdb46cb.png",
+          "receipt": {
+            "birthMicros": 1793592004579762,
+            "height": 1436,
+            "nativeExecutable": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-renderer-bounds-r4-x86_64/CiderWineHost.app/Contents/MacOS/wine",
+            "ownerPID": 40869,
+            "physicalDisplayAccepted": false,
+            "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/hyp-app-window-0a77b78678fb47e886c2d63cbbdb46cb.png",
+            "pngSHA256": "c0590d5c98f9009045dd4823b615a13d5fb1ae1699b22f598bebccddc0478a07",
+            "readySHA256": "fa746a5acb3af4ef29fa20a52f06562df7638c3ca730be51392474c5105f0cd3",
+            "screenPixelsAccepted": false,
+            "source": "ScreenCaptureKit single desktop-independent test window",
+            "titleSHA256": "8a3349b6440fc68e958ff775a305f1bd16e2e7852ae83c2981b6ec1b7c637ca1",
+            "width": 2560,
+            "window": 8583,
+            "windowOnScreenAfter": false,
+            "windowOnScreenBefore": false
+          },
+          "title": "米哈游启动器",
+          "elapsed": 28.029224708
+        }
+      ],
+      "mainRects": [
+        [
+          112,
+          86,
+          1400,
+          840,
+          112,
+          86,
+          1400,
+          840,
+          112,
+          86,
+          1400,
+          840
+        ],
+        [
+          112,
+          86,
+          1400,
+          840,
+          116,
+          116,
+          1396,
+          836,
+          116,
+          116,
+          1396,
+          836
+        ],
+        [
+          112,
+          86,
+          1400,
+          840,
+          116,
+          86,
+          1396,
+          836,
+          116,
+          116,
+          1396,
+          836
+        ],
+        [
+          112,
+          86,
+          1400,
+          840,
+          116,
+          86,
+          1396,
+          836,
+          116,
+          116,
+          1396,
+          836
+        ],
+        [
+          112,
+          86,
+          1400,
+          840,
+          116,
+          86,
+          1396,
+          836,
+          116,
+          116,
+          1396,
+          836
+        ],
+        [
+          112,
+          86,
+          1400,
+          810,
+          116,
+          86,
+          1396,
+          806,
+          116,
+          116,
+          1396,
+          806
+        ]
+      ],
+      "nativeActive": [
+        [
+          "0x200b2",
+          "2846086173"
+        ],
+        [
+          "0x200b2",
+          "1914295470"
+        ]
+      ],
+      "cleanupReceipts": 2,
+      "originalConfigRestored": true,
+      "assessment": "CEF main rendering observed with caption overlap"
+    },
+    {
+      "version": 2,
+      "runtimeSHA256": "43f98f4a74fada98bbd6fecadb70914450375e06539de5b273cba13edb6f00db",
+      "engineID": "cider-lab-wine11.18-renderer-caption-r1-x86_64",
+      "logSHA256": "4225c8f05386daeb4cbff4b981b48917e40d6b3bc4b2d0ba80218b03d1951a4d",
+      "sessionSHA256": "0888e6059132072e617e31e717efb3fdef532d639cae8788a0068bd89dabc194",
+      "images": [
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/hyp-app-window-ced912712d6d4296a30651aee6c68dfd.png",
+          "receipt": {
+            "birthMicros": 1793593939778377,
+            "height": 1000,
+            "nativeExecutable": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-renderer-caption-r1-x86_64/CiderWineHost.app/Contents/MacOS/wine",
+            "ownerPID": 42683,
+            "physicalDisplayAccepted": false,
+            "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/hyp-app-window-ced912712d6d4296a30651aee6c68dfd.png",
+            "pngSHA256": "9b2af3ff845204c838377e6bf5202a1c25972bcf10f1228e9ec5af8fd9aa1068",
+            "readySHA256": "427c010bde62b61c4e6837a49064e7d3dd3b7cf8d035980c36d1344abb5d0433",
+            "screenPixelsAccepted": false,
+            "source": "ScreenCaptureKit single desktop-independent test window",
+            "titleSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "width": 1000,
+            "window": 8852,
+            "windowOnScreenAfter": false,
+            "windowOnScreenBefore": false
+          },
+          "title": "",
+          "elapsed": 28.025264167000003
+        }
+      ],
+      "mainRects": [],
+      "nativeActive": [],
+      "cleanupReceipts": 4,
+      "originalConfigRestored": true,
+      "assessment": "metadata pipeline only, blank startup not rendering acceptance"
+    },
+    {
+      "version": 3,
+      "runtimeSHA256": "5041efdcb9d0583a42a9426e6806421b9eaeeebcb4475bf6ea411f5ec33bd383",
+      "engineID": "cider-lab-wine11.18-renderer-caption-r1-x86_64",
+      "logSHA256": "0acac1a749642badf31a05159b0beb70e2529a65db2186cc62dfbe2561ace27f",
+      "sessionSHA256": "0888e6059132072e617e31e717efb3fdef532d639cae8788a0068bd89dabc194",
+      "images": [
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/hyp-app-window-4ac36d61d75348538d1c38b969a90a02.png",
+          "receipt": {
+            "birthMicros": 1793594473324370,
+            "height": 1000,
+            "nativeExecutable": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-renderer-caption-r1-x86_64/CiderWineHost.app/Contents/MacOS/wine",
+            "ownerPID": 43205,
+            "physicalDisplayAccepted": false,
+            "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/hyp-app-window-4ac36d61d75348538d1c38b969a90a02.png",
+            "pngSHA256": "9b2af3ff845204c838377e6bf5202a1c25972bcf10f1228e9ec5af8fd9aa1068",
+            "readySHA256": "d9f8a2ed3c23120cbb090f0fe656cb10b22d9b09905e05763782354df2a678e7",
+            "screenPixelsAccepted": false,
+            "source": "ScreenCaptureKit single desktop-independent test window",
+            "titleSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "width": 1000,
+            "window": 8867,
+            "windowOnScreenAfter": false,
+            "windowOnScreenBefore": false
+          },
+          "title": "",
+          "elapsed": 15.013307124999999
+        },
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/hyp-app-window-25abadd48cba45949741a08908a79fd8.png",
+          "receipt": {
+            "birthMicros": 1793594473324370,
+            "height": 1440,
+            "nativeExecutable": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-renderer-caption-r1-x86_64/CiderWineHost.app/Contents/MacOS/wine",
+            "ownerPID": 43205,
+            "physicalDisplayAccepted": false,
+            "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/hyp-app-window-25abadd48cba45949741a08908a79fd8.png",
+            "pngSHA256": "f756a4db77b5d4a4e63b0e9df35cb5b63a87cb753549099bdbdceeffee64448b",
+            "readySHA256": "8f4f683620c163332a5e92b9a2f52d966216688eb9723d4402a0e1af6af8ceee",
+            "screenPixelsAccepted": false,
+            "source": "ScreenCaptureKit single desktop-independent test window",
+            "titleSHA256": "8a3349b6440fc68e958ff775a305f1bd16e2e7852ae83c2981b6ec1b7c637ca1",
+            "width": 2560,
+            "window": 8872,
+            "windowOnScreenAfter": false,
+            "windowOnScreenBefore": false
+          },
+          "title": "米哈游启动器",
+          "elapsed": 50.096980166
+        },
+        {
+          "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/hyp-app-window-d25c6197d1544060a36aaf98c65ecaff.png",
+          "receipt": {
+            "birthMicros": 1793594473324370,
+            "height": 1440,
+            "nativeExecutable": "/Users/cervantes/Cider/out/waitall-mac-20261018-admission/private-home/AppSupport/Engines/cider-lab-wine11.18-renderer-caption-r1-x86_64/CiderWineHost.app/Contents/MacOS/wine",
+            "ownerPID": 43205,
+            "physicalDisplayAccepted": false,
+            "png": "/Users/cervantes/Cider/out/engine-dxmt-bridge-20261025/hyp-app-window-d25c6197d1544060a36aaf98c65ecaff.png",
+            "pngSHA256": "4d43c99bd90755bb7cf74f671a440f90f4e10f8881aa68fb554df8f82a3c06ed",
+            "readySHA256": "8f4f683620c163332a5e92b9a2f52d966216688eb9723d4402a0e1af6af8ceee",
+            "screenPixelsAccepted": false,
+            "source": "ScreenCaptureKit single desktop-independent test window",
+            "titleSHA256": "8a3349b6440fc68e958ff775a305f1bd16e2e7852ae83c2981b6ec1b7c637ca1",
+            "width": 2560,
+            "window": 8872,
+            "windowOnScreenAfter": false,
+            "windowOnScreenBefore": false
+          },
+          "title": "米哈游启动器",
+          "elapsed": 75.05091562499999
+        }
+      ],
+      "mainRects": [
+        [
+          112,
+          86,
+          1400,
+          840,
+          112,
+          86,
+          1400,
+          840,
+          112,
+          86,
+          1400,
+          840
+        ],
+        [
+          112,
+          86,
+          1400,
+          840,
+          116,
+          116,
+          1396,
+          836,
+          116,
+          116,
+          1396,
+          836
+        ],
+        [
+          112,
+          86,
+          1400,
+          840,
+          116,
+          86,
+          1396,
+          836,
+          116,
+          86,
+          1396,
+          836
+        ],
+        [
+          112,
+          86,
+          1400,
+          840,
+          116,
+          86,
+          1396,
+          836,
+          116,
+          86,
+          1396,
+          836
+        ],
+        [
+          112,
+          86,
+          1400,
+          840,
+          116,
+          86,
+          1396,
+          836,
+          116,
+          86,
+          1396,
+          836
+        ],
+        [
+          112,
+          86,
+          1400,
+          810,
+          116,
+          86,
+          1396,
+          806,
+          116,
+          86,
+          1396,
+          806
+        ]
+      ],
+      "nativeActive": [
+        [
+          "0x200b2",
+          "2159090526"
+        ],
+        [
+          "0x200b2",
+          "1327086811"
+        ]
+      ],
+      "cleanupReceipts": 4,
+      "originalConfigRestored": true,
+      "assessment": "CEF main rendering observed, top and own controls visually complete"
+    }
+  ],
+  "normalWindowRegression": [
+    {
+      "arch": "x86_64",
+      "fixture": {
+        "type": "window-lifecycle",
+        "bits": 64,
+        "checks": 1415,
+        "failures": 0,
+        "windows": 4,
+        "swapchains": 56,
+        "presents": 168
+      },
+      "logSHA256": "14c47c1e06e71ea9385662a8a537398cd0b7c531e175b8329181ce6cd7bda5ab",
+      "sessionSHA256": "5bd07f02c412d8431bbc9aed17789099ea16348d2aea6af89279563bca87ec09",
+      "geometryCallbacks": 91,
+      "boundsInsideCallbacks": 8
+    },
+    {
+      "arch": "i686",
+      "fixture": {
+        "type": "window-lifecycle",
+        "bits": 32,
+        "checks": 1415,
+        "failures": 0,
+        "windows": 4,
+        "swapchains": 56,
+        "presents": 168
+      },
+      "logSHA256": "561178200e8c3b797b714848f2d00bb37dc227a252f968c725d72402b89c1004",
+      "sessionSHA256": "ce79de2626f872952e200d5e1b8c80b957decdfd34ea22e4aacfa90532ead376",
+      "geometryCallbacks": 87,
+      "boundsInsideCallbacks": 7
+    }
+  ],
+  "publicSHA256": {
+    "tests/graphics/hyp-runtime-capture/before-caption-fix.png": "c0590d5c98f9009045dd4823b615a13d5fb1ae1699b22f598bebccddc0478a07",
+    "tests/graphics/hyp-runtime-capture/capture.swift": "c75e6a15ea416cef76a979e82e79cc801673273e83c614823b31ac9b196dc731",
+    "tests/graphics/hyp-runtime-capture/inventory.swift": "cf8ead27cb1b06c70a7039b8e19c132627b6a1e64590dd9507df407b82ce91a8",
+    "tests/graphics/hyp-runtime-capture/after-caption-fix.png": "4d43c99bd90755bb7cf74f671a440f90f4e10f8881aa68fb554df8f82a3c06ed",
+    "engine/porting/wine-11.18/0031-winemac-preserve-custom-client-caption-geometry.patch": "10e60f73b8b603fa81bfafbd0432afd55a700f5b717f1648d048a245f3a421dc",
+    "tests/graphics/hyp-runtime-capture/README.md": "56b7f665b2d8218b45a25a408d4d17cf3b54726b655614ad01aad52cf460da1e"
+  },
+  "userFoundTestWindow": true,
+  "settingsAndMinimizeUserAcceptance": "user confirmed both normal",
+  "spaceCauseReadOnly": {
+    "artifact": "hyp-window-not-visible-root-cause-v1.json",
+    "sha256": "90d991757949e3e2f955506dc88c3c0cc065285aa7db9a4cda81ee33eac39b94",
+    "restoreActivationOrSpaceMovePerformed": false
+  },
+  "inputScope": "Settings open/close and minimize/restore only; login, general keyboard/mouse and game input not accepted",
+  "normalMenuExitUserAccepted": true,
+  "normalMenuExitKernelState": "Z exited/unreaped and no native windows",
+  "updatedVersionObserved": "1.19.0.382",
+  "updatedVersionRelaunchAccepted": true,
+  "updatedVersionAcceptanceScope": "User confirmed main window/buttons after normal exit and official-root-entry1.19 relaunch; separate fixed1.18 cohort",
+  "testConfigurationRestoredAfterInteractiveAcceptance": true
+}

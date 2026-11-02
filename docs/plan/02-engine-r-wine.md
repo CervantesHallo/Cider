@@ -1,5 +1,7 @@
 # 02 Engine R：自建 Wine 引擎、补丁队列与性能
 
+最新[136](../research/136-r-v1-real-hyp-caption-20261102.md)：真实 HYP／CEF 主窗、完整自绘顶部、用户设置及最小化恢复、正常退出和官方入口重开已分项通过。0031 将原 CX 的 style-mask／client-visible／caption 语义迁入新基线；25 文件精确重建和普通窗口双位宽回归通过。1.18 固定包观察与更新到 1.19 的重开分列，不升级完整安装／更新／登录／游戏／性能裁定。测试实例已实际清理，私有配置精确恢复，默认与用户两瓶不动。下一继续原非默认可回退实验包／引擎整合。
+
 最新[135](../research/135-r-v1-exported-resize-20261102.md)：真实Win32/backbuffer放大而色块仍旧356x196的缺陷已修，最终双向521/0＋893/0，各128000pixels/2ResizeBuffers/20Release，SCK436x236与真实Cocoa bounds一致；6route/2free和回退保护通过。新coalesced窗口事件实际接通，原local用例双PE各1415/0且各9个bounds确认在geometry回调内；337源码输入/实际图/组件/gate/清理绑定。0030五文件精确重建25代码；异常回滚P2源码闭合但未注入故障，正式性能/物理/默认不升级。下一真实CEF/米哈游测试runtime→可回退包，原HY/Windows条件保持。
 
 
