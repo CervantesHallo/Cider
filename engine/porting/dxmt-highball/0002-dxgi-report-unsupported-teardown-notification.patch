@@ -1,0 +1,29 @@
+Subject: [DXMT] dxgi: return an explicit error for unimplemented teardown notifications
+
+Source: gauthierpiarrette/dxmt 7421db2076b7e4ef36be167294023feefbe7ba7e.
+The old assert-only HRESULT function falls through under NDEBUG. Do not report
+successful registration, create a cookie, signal or take ownership of an event.
+The matching void unregister operation has no registration to release.
+
+Contract: https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiadapter3-registerhardwarecontentprotectionteardownstatusevent
+An unsuccessful registration returns an HRESULT error; E_NOTIMPL describes
+this backend's current implementation, not an observed native Windows result.
+
+--- a/src/dxgi/dxgi_adapter.cpp
++++ b/src/dxgi/dxgi_adapter.cpp
+@@ -225,12 +225,13 @@
+   HRESULT STDMETHODCALLTYPE
+   RegisterHardwareContentProtectionTeardownStatusEvent(HANDLE event,
+                                                        DWORD *cookie) override {
+-    assert(0 && "TODO");
++    Logger::err("DXGI: hardware content protection teardown notification is not implemented");
++    return E_NOTIMPL;
+   }
+ 
+   void STDMETHODCALLTYPE
+   UnregisterHardwareContentProtectionTeardownStatus(DWORD cookie) override {
+-    assert(0 && "TODO");
++    Logger::err("DXGI: no hardware content protection teardown notification was registered");
+   }
+ 
+   HRESULT STDMETHODCALLTYPE QueryVideoMemoryInfo(

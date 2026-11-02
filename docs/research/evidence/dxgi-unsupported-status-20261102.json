@@ -1,0 +1,223 @@
+{
+  "schema": "cider.dxgi-unsupported-status/v1",
+  "scope": "Actual unsupported failure/resource checks only; no hardware event/native Windows/game acceptance",
+  "source": {
+    "engine/porting/dxmt-highball/0002-dxgi-report-unsupported-teardown-notification.patch": "638f8be889d1458da454b1feb468742333eabdbb829a319eae184b6dad4a51b0",
+    "tests/graphics/dxgi-unsupported-notification.c": "cabc3a5e9df206557d3031497e416a0ce3eb6e59f64ff63c3acde07c0bcb3d52"
+  },
+  "rawReceiptSHA256": {
+    "build.json": "cdafd70c56b8dab7e9bbba9308c2f5d54e219ca9f2c512c5e04d891e2ae9e33a",
+    "link.json": "1b8c6e5737c0f9d0c90aff6a12bfad5350c28b2c0ec3b4ef7fde51ac04aa507b",
+    "parent-link-binding.json": "a593b0d668cc07769727d9d3580298beba8763b1215fc60eb2b542f72f249636",
+    "runtime.json": "4266299e8cc3c1ce9252b482b457e8606867e27614ec17623a92ffb54556d2ee",
+    "fixture-build-first-link-failure.json": "e1a50ea436ae13b07544b9967c6f331b64832fc6372b3f7f11ef2baeefc0d6f9",
+    "fixture-build.json": "8d23caaace61d9ebbb0c8b46b69a07e816b8d80917766832b3ddb7b7b0ff7521",
+    "parent-link-binding-parser-first-failure.json": "7ba8f23d2dc92d1f5abe1e758b629aafcb5c424e4bf81d570f3ca2c1c5c4f5d6",
+    "parent-review.json": "e8555dd99a866657c0d2dcd847191b9ca063bfdc7a1a882425bef736a43bc6d1"
+  },
+  "compilation": {
+    "twoNDEBUGTranslationUnitsPassed": true,
+    "returnTypeWarningsTreatedAsErrors": true,
+    "diagnostics": [
+      "",
+      ""
+    ]
+  },
+  "modules": [
+    {
+      "arch": "i386",
+      "sha256": "dd26ed714dcc023398db20f5398f1e3af7c74ec9876585116420e6afc9b0c643",
+      "exports": [
+        [
+          9,
+          "CreateDXGIFactory"
+        ],
+        [
+          10,
+          "CreateDXGIFactory1"
+        ],
+        [
+          11,
+          "CreateDXGIFactory2"
+        ],
+        [
+          16,
+          "DXGIDeclareAdapterRemovalSupport"
+        ],
+        [
+          17,
+          "DXGIGetDebugInterface1"
+        ]
+      ]
+    },
+    {
+      "arch": "x86_64",
+      "sha256": "d3091bcdb24227d94ccc112238e7374a3ccecf67da29bd7e7117d069d663d0ed",
+      "exports": [
+        [
+          9,
+          "CreateDXGIFactory"
+        ],
+        [
+          10,
+          "CreateDXGIFactory1"
+        ],
+        [
+          11,
+          "CreateDXGIFactory2"
+        ],
+        [
+          16,
+          "DXGIDeclareAdapterRemovalSupport"
+        ],
+        [
+          17,
+          "DXGIGetDebugInterface1"
+        ]
+      ]
+    }
+  ],
+  "runs": [
+    {
+      "arch": "i386",
+      "exitCode": 0,
+      "checks": [
+        {
+          "check": "factory",
+          "ok": true
+        },
+        {
+          "check": "adapter",
+          "ok": true
+        },
+        {
+          "check": "adapter3",
+          "ok": true
+        },
+        {
+          "check": "event",
+          "ok": true
+        },
+        {
+          "check": "explicit-not-implemented",
+          "ok": true
+        },
+        {
+          "check": "no-cookie-issued",
+          "ok": true
+        },
+        {
+          "check": "event-not-signalled",
+          "ok": true
+        },
+        {
+          "check": "event-still-owned-by-caller",
+          "ok": true
+        },
+        {
+          "check": "unregister-keeps-caller-handle",
+          "ok": true
+        },
+        {
+          "check": "unsupported-null-call-no-dereference",
+          "ok": true
+        },
+        {
+          "check": "caller-closes-event",
+          "ok": true
+        }
+      ],
+      "complete": [
+        {
+          "complete": true,
+          "checks": 11,
+          "failures": 0
+        }
+      ],
+      "logSHA256": "295e5614cc52ed6bef542f6f1945106cdc318fbc30406220752c2f9db45243eb",
+      "sessionSHA256": "afd1dccb7cbc5fb01da55b57f69dc7bad78deb7b5b129ad5c16739928b87b424",
+      "moduleSHA256": "dd26ed714dcc023398db20f5398f1e3af7c74ec9876585116420e6afc9b0c643",
+      "newErrorMessages": {
+        "registration": 2,
+        "unregister": 1
+      }
+    },
+    {
+      "arch": "x86_64",
+      "exitCode": 0,
+      "checks": [
+        {
+          "check": "factory",
+          "ok": true
+        },
+        {
+          "check": "adapter",
+          "ok": true
+        },
+        {
+          "check": "adapter3",
+          "ok": true
+        },
+        {
+          "check": "event",
+          "ok": true
+        },
+        {
+          "check": "explicit-not-implemented",
+          "ok": true
+        },
+        {
+          "check": "no-cookie-issued",
+          "ok": true
+        },
+        {
+          "check": "event-not-signalled",
+          "ok": true
+        },
+        {
+          "check": "event-still-owned-by-caller",
+          "ok": true
+        },
+        {
+          "check": "unregister-keeps-caller-handle",
+          "ok": true
+        },
+        {
+          "check": "unsupported-null-call-no-dereference",
+          "ok": true
+        },
+        {
+          "check": "caller-closes-event",
+          "ok": true
+        }
+      ],
+      "complete": [
+        {
+          "complete": true,
+          "checks": 11,
+          "failures": 0
+        }
+      ],
+      "logSHA256": "6a4847ed097d003c93df01b635934b76640b22247c04de5ed861f022e28e8e10",
+      "sessionSHA256": "6afa96f4f9e16e755b8e85c6327c5912e75278eeec771654bfc147af40790a87",
+      "moduleSHA256": "d3091bcdb24227d94ccc112238e7374a3ccecf67da29bd7e7117d069d663d0ed",
+      "newErrorMessages": {
+        "registration": 2,
+        "unregister": 1
+      }
+    }
+  ],
+  "cleanup": {
+    "passed": true,
+    "configRestored": true,
+    "prefixDLLsRestored": true,
+    "protectedFourUnchanged": true
+  },
+  "documentation": "https://learn.microsoft.com/en-us/windows/win32/api/dxgi1_4/nf-dxgi1_4-idxgiadapter3-registerhardwarecontentprotectionteardownstatusevent",
+  "chosenError": "E_NOTIMPL is our explicit unsupported implementation, not a native Windows observation",
+  "fullEngineCompile": "138 still running",
+  "frozenPreviewReplaced": false,
+  "defaultChanged": false,
+  "windowsOperations": 0,
+  "actionsTriggered": 0
+}
